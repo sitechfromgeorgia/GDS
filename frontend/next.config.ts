@@ -1,0 +1,219 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Allow images from both development and production Supabase storage
+  images: {
+    remotePatterns: [
+      // Development Supabase
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Production Supabase (data.greenland77.ge)
+      {
+        protocol: 'https',
+        hostname: 'data.greenland77.ge',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Additional common Supabase domains
+      {
+        protocol: 'https',
+        hostname: '*.supabase.in',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
+
+  // API routes configuration with environment-aware CORS
+  async headers() {
+    const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development';
+    
+    // Define allowed origins based on environment
+    let allowedOrigins: string[];
+    if (environment === 'production') {
+      allowedOrigins = [
+        'https://greenland77.ge',
+        'https://www.greenland77.ge',
+        'http://localhost:3000', // Allow localhost for testing
+      ];
+    } else {
+      allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3000',
+        'https://greenland77.ge', // Allow production domain for cross-environment testing
+      ];
+    }
+    
+    // Additional CORS origins from environment variable (comma-separated)
+    const envCorsOrigins = process.env.NEXT_PUBLIC_CORS_ORIGINS;
+    if (envCorsOrigins) {
+      const additionalOrigins = envCorsOrigins
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(origin => origin.length > 0);
+      allowedOrigins = [...allowedOrigins, ...additionalOrigins];
+    }
+
+    const primaryOrigin = allowedOrigins[0];
+    
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          // Reflect the request Origin only if it is in the allowed list
+          { key: 'Vary', value: 'Origin' },
+          { key: 'Access-Control-Allow-Origin', value: primaryOrigin },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+          { key: 'Access-Control-Max-Age', value: '86400' }, // 24 hours
+        ],
+      },
+      {
+        // Handle preflight requests for OPTIONS method
+        source: '/api/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'origin'
+          }
+        ],
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+          { key: 'Access-Control-Max-Age', value: '86400' },
+        ],
+      },
+    ];
+  },
+
+  // External packages for React Server Components
+  serverExternalPackages: ["@supabase/supabase-js"],
+  
+  // Experimental features for React Server Components stability and performance
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        'localhost:3000', 
+        'localhost:3001',
+        '127.0.0.1:3000',
+        '*.supabase.co',
+        'data.greenland77.ge',
+        'greenland77.ge'
+      ],
+    },
+    optimizePackageImports: [
+      'lucide-react',
+      'recharts',
+      'date-fns'
+    ],
+  },
+
+  // Webpack configuration for React Server Components and performance
+  webpack: (config, { dev, isServer }) => {
+    // Fix for React Server Components module resolution
+    if (isServer) {
+      // Add external packages that shouldn't be bundled on server
+      config.externals.push('node:crypto', 'node:fs', 'node:path', 'node:buffer')
+    }
+
+    // Use default devtool for development to avoid performance issues
+    // Only enable detailed source maps in production or when specifically needed
+    if (!dev) {
+      config.devtool = 'source-map'
+      
+      // Performance optimizations for production
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          supabase: {
+            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            priority: 20,
+          },
+          ui: {
+            test: /[\\/]node_modules[\\/](lucide-react|recharts|date-fns)[\\/]/,
+            name: 'ui-libs',
+            chunks: 'all',
+            priority: 15,
+          },
+        },
+      }
+    }
+
+    // Fix for development hot module replacement
+    if (dev && !isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      }
+    }
+
+    return config
+  },
+
+  // Enable compression
+  compress: true,
+
+  // Production optimizations
+  poweredByHeader: false,
+
+  // Environment-specific configuration
+  env: {
+    CUSTOM_KEY: 'my-value',
+    NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
+  },
+
+  // Redirects for environment switching
+  async redirects() {
+    const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development';
+    
+    // Optional: Redirect root to appropriate dashboard based on environment
+    if (environment === 'production') {
+      return [
+        {
+          source: '/',
+          destination: '/dashboard/admin',
+          permanent: false,
+        },
+      ];
+    }
+    
+    return [];
+  },
+
+  // Typescript configuration
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // ESLint configuration
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+
+  // Output configuration for deployment
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+
+  // Asset configuration
+  assetPrefix: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_ASSET_PREFIX || '' : '',
+
+  // Base path configuration
+  basePath: process.env.NODE_ENV === 'production' ? '' : '',
+};
+
+export default nextConfig;
