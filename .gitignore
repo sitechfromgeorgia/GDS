@@ -1,0 +1,269 @@
+# Georgian Distribution System - .gitignore
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript v1 declaration files
+typings/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Custom build directories
+.turbo/
+
+# Testing
+/coverage
+/coverage/**
+/.jest
+/.jest/cache
+/.jest/cache/**
+
+# Supabase
+.supabase/
+
+# Local development
+.local/
+
+# Frontend specific
+/frontend/.next/
+/frontend/out/
+/frontend/node_modules/
+/frontend/.vercel
+
+# Database migrations and backups
+database/backups/
+*.sql
+*.dump
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# MCP tools and configurations
+.kilocode/mcp-secrets/
+.kilocode/temp/
+.mcp-storage/
+
+# Project specific
+private-keys/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Environment files with sensitive data
+.env.production
+.env.staging
+.env.development.local
+.env.local
+
+# Build artifacts
+*.tgz
+*.tar.gz
+dist/
+build/
+out/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# API keys and secrets
+secrets/
+.secrets/
+*secret*
+*private*
+*key*
+
+# Backup files
+*.bak
+*.backup
+backup/
+
+# Documentation builds
+docs/build/
+docs/.docusaurus/
+
+# CI/CD
+.github/workflows/*.yml
+!.github/workflows/README.md
+
+# Cloud provider specific
+.vercel
+.netlify
+
+# Sentry
+.sentryclirc
+
+# Lighthouse CI
+.lighthouseci/
+
+# Percy
+percy/
+
+# Chromatic
+chromatic-build/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Turbo
+turbo.json
+
+# Stackblitz
+.stackblitz/
+
+# Local Netlify folder
+.netlify
+
+# SvelteKit
+.svelte-kit
+
+# Prisma
+prisma/migrations/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Documentation temporary files
+.tmp/
+.temp/
