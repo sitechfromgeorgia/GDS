@@ -37,7 +37,9 @@
       "Bash(powershell -Command:*)",
       "Bash(copy APPLY_ALL_MIGRATIONS.sql supabasemigrations20251103000000_complete_setup.sql)",
       "Bash(taskkill:*)",
-      "Bash(cmd //c taskkill //F //PID 24632)"
+      "Bash(cmd //c taskkill //F //PID 24632)",
+      "Bash(awk:*)",
+      "Bash(xargs -I {} git checkout --ours {})"
     ],
     "deny": [
       "Bash(rm:*)",

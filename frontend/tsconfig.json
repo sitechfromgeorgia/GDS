@@ -8,6 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+<<<<<<< HEAD
 
     // Strict Type-Checking Options (Phase 2 Enhancement)
     "strict": true,
@@ -26,6 +27,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
 
+=======
+    "strict": true,
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -55,7 +59,13 @@
     "**/*.mts"
   ],
   "exclude": [
+<<<<<<< HEAD
     "node_modules",
     "scripts/**/*"
   ]
 }
+=======
+    "node_modules"
+  ]
+}
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306

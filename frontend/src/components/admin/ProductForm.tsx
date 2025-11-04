@@ -1,5 +1,8 @@
 'use client'
+<<<<<<< HEAD
 import { logger } from '@/lib/logger'
+=======
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -14,12 +17,18 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { X, Plus, Image as ImageIcon } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+<<<<<<< HEAD
 import { createBrowserClient } from '@/lib/supabase'
 import type { Product, ProductInsert } from '@/types/database'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
 
+=======
+import { supabase } from '@/lib/supabase/client'
+import type { Product, ProductInsert } from '@/types/database'
+
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 
 interface ProductFormProps {
   product?: Product | null
@@ -190,7 +199,11 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
         }
 
         // @ts-ignore Supabase client type issue
+<<<<<<< HEAD
          
+=======
+          
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
         const { error } = await (supabase as any)
           .from('products')
           .update(updatePayload)
@@ -220,7 +233,11 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
         } as ProductInsert
 
         // Type assertion to bypass Supabase type inference issue
+<<<<<<< HEAD
          
+=======
+          
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
         const { error } = await (supabase as any)
           .from('products')
           .insert([insertData])
@@ -235,7 +252,11 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
 
       onClose()
     } catch (error) {
+<<<<<<< HEAD
       logger.error('Error saving product:', error)
+=======
+      console.error('Error saving product:', error)
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       toast({
         title: 'შეცდომა',
         description: 'პროდუქტის შენახვა ვერ მოხერხდა',

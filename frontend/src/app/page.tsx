@@ -7,7 +7,11 @@ import { LoginForm } from '@/components/auth/LoginForm'
 
 export default function HomePage() {
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+=======
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20">
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">

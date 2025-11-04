@@ -1,5 +1,8 @@
 'use client'
+<<<<<<< HEAD
 import { logger } from '@/lib/logger'
+=======
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -65,7 +68,11 @@ export function LoginForm() {
       // Redirect to dashboard on successful login
       router.push('/dashboard')
     } catch (err: any) {
+<<<<<<< HEAD
       logger.error('Login error:', err)
+=======
+      console.error('Login error:', err)
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       setError(err.message || 'შესვლისას მოხდა შეცდომა')
     } finally {
       setLoading(false)
@@ -77,7 +84,11 @@ export function LoginForm() {
       // For now, redirect to the welcome page or show a message
       router.push('/welcome?forgot=true')
     } catch (err) {
+<<<<<<< HEAD
       logger.error('Password reset error:', err)
+=======
+      console.error('Password reset error:', err)
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       setError('პაროლის აღდგენის დროს მოხდა შეცდომა')
     }
   }

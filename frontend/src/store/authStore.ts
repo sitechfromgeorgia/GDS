@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import { logger } from '@/lib/logger'
+=======
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 import { create } from 'zustand'
 import { User } from '@supabase/supabase-js'
 import { Database } from '@/types/database'
@@ -78,7 +81,11 @@ export const startSessionMonitoring = () => {
 
     // Auto sign out if session expired
     if (timeUntilExpiry <= 0) {
+<<<<<<< HEAD
       logger.info('Session expired, signing out')
+=======
+      console.log('Session expired, signing out')
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       signOut()
       return
     }
@@ -90,7 +97,11 @@ export const startSessionMonitoring = () => {
 
     // Warn user about impending timeout
     if (timeUntilExpiry <= WARNING_TIME) {
+<<<<<<< HEAD
       logger.info('Session will expire soon')
+=======
+      console.log('Session will expire soon')
+>>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       // Could dispatch a notification here
     }
   }
