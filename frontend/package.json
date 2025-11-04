@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-<<<<<<< HEAD
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -63,17 +62,6 @@
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
-=======
-  "scripts": {
-    "dev": "next dev",
-    "dev:turbo": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -84,33 +72,21 @@
     "@radix-ui/react-scroll-area": "^1.2.10",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.7",
-<<<<<<< HEAD
     "@radix-ui/react-slider": "^1.3.6",
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.15",
-<<<<<<< HEAD
     "@radix-ui/react-tooltip": "^1.2.8",
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.77.0",
     "@tanstack/react-query": "^5.90.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-<<<<<<< HEAD
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.548.0",
     "next": "^15.5.0",
-=======
-    "date-fns": "^4.1.0",
-    "lucide-react": "^0.548.0",
-    "next": "^15.1.6",
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     "next-themes": "^0.4.6",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
@@ -118,20 +94,16 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.65.0",
     "recharts": "^2.12.7",
-<<<<<<< HEAD
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
-=======
-    "tailwind-merge": "^3.3.1",
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
+    "winston": "^3.17.0",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.0.1",
-<<<<<<< HEAD
-    "@supabase/supabase-js": "^2.77.0",
+    "@sentry/nextjs": "^8.45.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
@@ -164,19 +136,3 @@
     "npm": ">=10.0.0"
   }
 }
-=======
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
-    "eslint": "^9",
-    "eslint-config-next": "^15.0.0",
-    "puppeteer": "^24.27.0",
-    "tailwindcss": "^4",
-    "tw-animate-css": "^1.4.0",
-    "typescript": "^5"
-  }
-}
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
