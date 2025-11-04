@@ -1,11 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-<<<<<<< HEAD
 import { createBrowserClient } from '@/lib/supabase'
-=======
-import { supabase } from '@/lib/supabase/client'
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 import { Database } from '@/types/database'
 import {
   Table,
@@ -22,12 +18,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ORDER_STATUSES, USER_ROLES } from '@/constants'
 import { useAuth } from '@/hooks/useAuth'
 
-<<<<<<< HEAD
 // Create Supabase client instance
 const supabase = createBrowserClient()
 
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 // Define Supabase realtime payload type
 interface SupabaseRealtimePayload {
   new: { id: string; status: string }
@@ -189,11 +182,7 @@ export function OrderTable({
             ბოლოდების სტატუსის შეკრიებების
             {userRole === USER_ROLES.RESTAURANT && ' • დაჭრების მიღებეთ'}
             {userRole === USER_ROLES.DRIVER && ' • მიტყვილებების'}
-<<<<<<< HEAD
             {userRole === USER_ROLES.ADMIN && ' • სრული მართვებება'}
-=======
-            {userRole === USER_ROLES.ADMIN && ' • სრული მართვებელ'}
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
             {userRole === 'demo' && ' • დემო რეჟიმი'}
           </TableCaption>
           <TableHeader>
@@ -252,11 +241,7 @@ export function OrderTable({
                   <TableCell>
                     {canUpdateStatus(order) && (
                       <div className="flex gap-2">
-<<<<<<< HEAD
                         {getAvailableStatuses(order).map(([statusKey, statusValue]) => statusValue && (
-=======
-                        {getAvailableStatuses(order).map(([statusKey, statusValue]) => (
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
                           <Button
                             key={statusKey}
                             variant="outline"

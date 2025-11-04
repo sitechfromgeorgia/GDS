@@ -81,8 +81,120 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
-<<<<<<< HEAD
 }
-=======
+
+/* PWA and Mobile-Specific Styles */
+@layer utilities {
+  /* iOS safe area insets */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Touch-friendly tap targets */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent text selection on touch devices */
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Smooth scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile-optimized spacing */
+  .mobile-padding {
+    @apply px-4 py-3;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-padding {
+      @apply px-6 py-4;
+    }
+  }
+
+  /* Responsive container with safe padding */
+  .container-safe {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Full viewport height accounting for mobile browser chrome */
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* PWA standalone mode specific styles */
+  @media (display-mode: standalone) {
+    body {
+      /* Add additional spacing for PWA mode if needed */
+    }
+  }
 }
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
+
+/* Animations for mobile interactions */
+@layer components {
+  .animate-tap {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

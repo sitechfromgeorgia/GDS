@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * Supabase Browser Client
  *
@@ -11,37 +10,15 @@
  */
 
 import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
-import type { Database } from '@/types/database'
-
-/**
- * Creates a Supabase client for browser environments
- * Handles cookie-based session management automatically
- *
- * Note: Uses direct environment variable access to avoid server-only validation
- */
-export function createBrowserClient() {
-  // Access public env vars directly in browser to avoid server-side validation
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-  if (!url || !anonKey) {
-    throw new Error('Missing required Supabase environment variables')
-  }
-
-  return createSupabaseBrowserClient<Database>(url, anonKey)
-}
-
-// Export types for convenience
-export type { Database } from '@/types/database'
-=======
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 
 // Environment configuration
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Client configuration options
-const clientOptions = {
+export const clientOptions = {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
@@ -62,68 +39,57 @@ const clientOptions = {
   }
 }
 
-// Validate environment variables
-function validateEnvironment() {
-  if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+/**
+ * Creates a Supabase client for browser environments using SSR
+ * Handles cookie-based session management automatically
+ * This is the recommended approach for Next.js App Router
+ */
+export function createBrowserClient() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing required Supabase environment variables')
   }
-  if (!supabaseAnonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
-  }
-  
-  if (supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1')) {
-    console.warn('Using local development Supabase instance')
-  }
+
+  return createSupabaseBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1]
+      },
+      set(name: string, value: string, options: any) {
+        document.cookie = `${name}=${value}; path=/; ${options.maxAge ? `max-age=${options.maxAge};` : ''}`
+      },
+      remove(name: string, options: any) {
+        document.cookie = `${name}=; path=/; max-age=0`
+      }
+    }
+  })
 }
 
-// Create and validate environment
-try {
-  validateEnvironment()
-} catch (error) {
-  console.error('Supabase configuration error:', error)
-}
+/**
+ * Legacy client creation with enhanced configuration
+ * Used for backward compatibility and advanced real-time features
+ */
+export function createLegacyClient(): SupabaseClient<Database> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing required Supabase environment variables')
+  }
 
-// Enhanced client creation with error handling
-export function createSupabaseClient(): SupabaseClient {
-  try {
-    const client = createClient(supabaseUrl, supabaseAnonKey, clientOptions)
-    
-    // Add global error handler for unhandled rejections
+  const client = createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions)
+
+  // Add global error handler for auth state changes
+  if (typeof window !== 'undefined') {
     client.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session?.user?.email || 'No user')
     })
-    
-    return client
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error)
-    throw error
   }
-}
 
-// Default client instance
-export const supabase = createSupabaseClient()
-
-// Client creation for browser environments
-export function createBrowserClient(): SupabaseClient {
-  return createSupabaseClient()
-}
-
-// Client creation for server environments
-export function createServerClient(): SupabaseClient {
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    ...clientOptions,
-    auth: {
-      ...clientOptions.auth,
-      persistSession: false, // Server doesn't need persistent sessions
-      autoRefreshToken: false
-    }
-  })
+  return client
 }
 
 // Health check function
 export async function checkSupabaseConnection(): Promise<boolean> {
   try {
-    const { data, error } = await supabase.from('profiles').select('id').limit(1)
+    const client = createBrowserClient()
+    const { error } = await client.from('profiles').select('id').limit(1)
     return !error
   } catch (error) {
     console.error('Supabase connection check failed:', error)
@@ -135,127 +101,11 @@ export async function checkSupabaseConnection(): Promise<boolean> {
 export function getEnvironmentInfo() {
   return {
     url: supabaseUrl,
-    isLocal: supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1'),
+    isLocal: supabaseUrl?.includes('localhost') || supabaseUrl?.includes('127.0.0.1'),
     hasAnonKey: !!supabaseAnonKey,
     clientInfo: 'georgian-distribution-system@1.0.0'
   }
 }
 
-// Database types
-export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string
-          email: string
-          full_name: string
-          role: 'admin' | 'restaurant' | 'driver' | 'demo'
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id: string
-          email: string
-          full_name: string
-          role: 'admin' | 'restaurant' | 'driver' | 'demo'
-        }
-        Update: {
-          id?: string
-          email?: string
-          full_name?: string
-          role?: 'admin' | 'restaurant' | 'driver' | 'demo'
-        }
-      }
-      products: {
-        Row: {
-          id: string
-          name: string
-          name_ka: string
-          description: string
-          description_ka: string
-          category: string
-          unit: string
-          price: number
-          image_url?: string
-          active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          name_ka: string
-          description: string
-          description_ka: string
-          category: string
-          unit: string
-          price: number
-          image_url?: string
-          active?: boolean
-        }
-        Update: {
-          name?: string
-          name_ka?: string
-          description?: string
-          description_ka?: string
-          category?: string
-          unit?: string
-          price?: number
-          image_url?: string
-          active?: boolean
-        }
-      }
-      orders: {
-        Row: {
-          id: string
-          restaurant_id: string
-          status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'completed'
-          total_amount: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          restaurant_id: string
-          status?: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'completed'
-          total_amount: number
-        }
-        Update: {
-          status?: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'completed'
-          total_amount?: number
-        }
-      }
-      order_items: {
-        Row: {
-          id: string
-          order_id: string
-          product_id: string
-          quantity: number
-          price: number
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          order_id: string
-          product_id: string
-          quantity: number
-          price: number
-        }
-        Update: {
-          quantity?: number
-          price?: number
-        }
-      }
-    }
-  }
-}
-
-// Export types
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
-export type InsertTables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']
-export type UpdateTables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update']
-
-// Export client options for testing and customization
-export { clientOptions }
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
+// Export types for convenience
+export type { Database } from '@/types/database'

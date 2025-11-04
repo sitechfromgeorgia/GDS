@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { createBrowserClient } from '@/lib/supabase'
 import { useAuthStore } from '@/store/authStore'
 
@@ -19,93 +18,6 @@ export function useAuth() {
   const user = useAuthStore((state) => state.user)
   const profile = useAuthStore((state) => state.profile)
   const loading = useAuthStore((state) => state.loading)
-=======
-import { useEffect } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { useAuthStore, startSessionMonitoring } from '@/store/authStore'
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
-
-export function useAuth() {
-  const { user, profile, loading, setUser, setProfile, setLoading } = useAuthStore()
-
-  useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      setLoading(true)
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setUser(session?.user || null)
-
-        if (session?.user) {
-          // Fetch user profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-
-          setProfile(profile)
-
-          // Initialize session info
-          const deviceId = localStorage.getItem('deviceId') || crypto.randomUUID()
-          localStorage.setItem('deviceId', deviceId)
-
-          useAuthStore.getState().setSessionInfo({
-            lastActivity: Date.now(),
-            expiresAt: new Date(session.expires_at!).getTime(),
-            deviceId
-          })
-
-          // Start session monitoring
-          startSessionMonitoring()
-        }
-      } catch (error) {
-        console.error('Error getting initial session:', error)
-        setUser(null)
-        setProfile(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getInitialSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        setUser(session?.user || null)
-
-        if (session?.user) {
-          // Fetch user profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-
-          setProfile(profile)
-
-          // Update session info
-          const deviceId = localStorage.getItem('deviceId') || crypto.randomUUID()
-          localStorage.setItem('deviceId', deviceId)
-
-          useAuthStore.getState().setSessionInfo({
-            lastActivity: Date.now(),
-            expiresAt: new Date(session.expires_at!).getTime(),
-            deviceId
-          })
-        } else {
-          setProfile(null)
-          useAuthStore.getState().clearSession()
-        }
-
-        setLoading(false)
-      }
-    )
-
-    return () => subscription?.unsubscribe()
-  }, [setUser, setProfile, setLoading])
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -184,18 +96,7 @@ export function useAuth() {
     const { profile } = useAuthStore.getState()
     return profile?.role === 'admin'
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
-  const isRestaurant = () => {
-    const { profile } = useAuthStore.getState()
-    return profile?.role === 'restaurant'
-  }
-<<<<<<< HEAD
-
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
   const isDriver = () => {
     const { profile } = useAuthStore.getState()
     return profile?.role === 'driver'
@@ -216,8 +117,4 @@ export function useAuth() {
     isDriver,
     isAuthenticated: !!user
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306

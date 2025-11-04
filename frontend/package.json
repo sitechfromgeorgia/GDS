@@ -104,6 +104,7 @@
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.0.1",
     "@sentry/nextjs": "^8.45.1",
+    "@supabase/supabase-js": "^2.77.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",

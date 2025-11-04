@@ -45,11 +45,7 @@ AlertTitle.displayName = "AlertTitle"
 
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
-<<<<<<< HEAD
   React.HTMLAttributes<HTMLParagraphElement>
-=======
-  React.HTMLAttributes<HTMLHeadingElement>
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}

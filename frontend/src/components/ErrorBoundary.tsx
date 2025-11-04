@@ -1,8 +1,5 @@
 'use client'
-<<<<<<< HEAD
 import { logger } from '@/lib/logger'
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 
 import { Component, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
@@ -31,20 +28,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
-<<<<<<< HEAD
     logger.error('ErrorBoundary caught an error:', error, errorInfo)
-=======
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     
     // Log to monitoring service in production
     if (process.env.NODE_ENV === 'production') {
       // Here you would typically send to Sentry or similar
-<<<<<<< HEAD
       logger.error('Production error:', { error, errorInfo })
-=======
-      console.error('Production error:', { error, errorInfo })
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     }
     
     this.setState({ errorInfo })
@@ -144,11 +133,7 @@ export function withErrorBoundary<P extends object>(
 // Hook for programmatic error reporting
 export function useErrorHandler() {
   return (error: Error, errorInfo?: { componentStack: string }) => {
-<<<<<<< HEAD
     logger.error('Manual error report:', error, errorInfo)
-=======
-    console.error('Manual error report:', error, errorInfo)
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     
     // You can extend this to send to monitoring services
     if (process.env.NODE_ENV === 'production') {

@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
 
 const createClient = createBrowserClient
-=======
-import { createBrowserClient } from '@/lib/supabase/client'
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 import { User } from '@supabase/supabase-js'
 import { z } from 'zod'
 
@@ -31,11 +27,7 @@ export type SignInInput = z.infer<typeof signInSchema>
 export type SignUpInput = z.infer<typeof signUpSchema>
 
 export class AuthService {
-<<<<<<< HEAD
   private supabase = createClient()
-=======
-  private supabase = createBrowserClient()
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
 
   async signIn(email: string, password: string) {
     // Validate input
@@ -63,11 +55,7 @@ export class AuthService {
   async getCurrentUser(): Promise<User | null> {
     const { data: { user }, error } = await this.supabase.auth.getUser()
     if (error) {
-<<<<<<< HEAD
       logger.error('Error getting user:', error)
-=======
-      console.error('Error getting user:', error)
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       return null
     }
     return user
@@ -79,7 +67,6 @@ export class AuthService {
       .select('role')
       .eq('id', userId)
       .single()
-<<<<<<< HEAD
 
     if (error) {
       logger.error('Error fetching user role:', error)
@@ -87,15 +74,6 @@ export class AuthService {
     }
 
     return (data as any)?.role || null
-=======
-    
-    if (error) {
-      console.error('Error fetching user role:', error)
-      return null
-    }
-    
-    return data?.role || null
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
   }
 
   async getUserProfile(userId: string) {
@@ -106,11 +84,7 @@ export class AuthService {
       .single()
 
     if (error) {
-<<<<<<< HEAD
       logger.error('Error fetching user profile:', error)
-=======
-      console.error('Error fetching user profile:', error)
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       return null
     }
 
@@ -118,13 +92,8 @@ export class AuthService {
   }
 
   async updateProfile(userId: string, updates: any) {
-<<<<<<< HEAD
     const { data, error } = await (this.supabase
       .from('users') as any)
-=======
-    const { data, error } = await this.supabase
-      .from('users')
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       .update(updates)
       .eq('id', userId)
       .select()

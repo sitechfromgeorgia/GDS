@@ -76,7 +76,7 @@ const nextConfig: NextConfig = {
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           // Reflect the request Origin only if it is in the allowed list
           { key: 'Vary', value: 'Origin' },
-          { key: 'Access-Control-Allow-Origin', value: primaryOrigin },
+          { key: 'Access-Control-Allow-Origin', value: primaryOrigin as string },
           { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
           { key: 'Access-Control-Max-Age', value: '86400' }, // 24 hours
@@ -267,6 +267,10 @@ const nextConfig: NextConfig = {
 
   // Base path configuration
   basePath: process.env.NODE_ENV === 'production' ? '' : '',
+
+  // PWA Configuration
+  // Service worker is registered client-side via lib/pwa.ts
+  // Manifest.json is in public directory
 };
 
 export default nextConfig;
