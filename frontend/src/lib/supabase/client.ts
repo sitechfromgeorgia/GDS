@@ -10,24 +10,101 @@
  */
 
 import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
+// Environment configuration
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// Client configuration options
+export const clientOptions = {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce' as const,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: 'georgian-distribution-auth',
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'georgian-distribution-system@1.0.0'
+    }
+  }
+}
+
 /**
- * Creates a Supabase client for browser environments
+ * Creates a Supabase client for browser environments using SSR
  * Handles cookie-based session management automatically
- *
- * Note: Uses direct environment variable access to avoid server-only validation
+ * This is the recommended approach for Next.js App Router
  */
 export function createBrowserClient() {
-  // Access public env vars directly in browser to avoid server-side validation
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-  if (!url || !anonKey) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing required Supabase environment variables')
   }
 
-  return createSupabaseBrowserClient<Database>(url, anonKey)
+  return createSupabaseBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1]
+      },
+      set(name: string, value: string, options: any) {
+        document.cookie = `${name}=${value}; path=/; ${options.maxAge ? `max-age=${options.maxAge};` : ''}`
+      },
+      remove(name: string, options: any) {
+        document.cookie = `${name}=; path=/; max-age=0`
+      }
+    }
+  })
+}
+
+/**
+ * Legacy client creation with enhanced configuration
+ * Used for backward compatibility and advanced real-time features
+ */
+export function createLegacyClient(): SupabaseClient<Database> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing required Supabase environment variables')
+  }
+
+  const client = createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions)
+
+  // Add global error handler for auth state changes
+  if (typeof window !== 'undefined') {
+    client.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email || 'No user')
+    })
+  }
+
+  return client
+}
+
+// Health check function
+export async function checkSupabaseConnection(): Promise<boolean> {
+  try {
+    const client = createBrowserClient()
+    const { error } = await client.from('profiles').select('id').limit(1)
+    return !error
+  } catch (error) {
+    console.error('Supabase connection check failed:', error)
+    return false
+  }
+}
+
+// Get current environment info
+export function getEnvironmentInfo() {
+  return {
+    url: supabaseUrl,
+    isLocal: supabaseUrl?.includes('localhost') || supabaseUrl?.includes('127.0.0.1'),
+    hasAnonKey: !!supabaseAnonKey,
+    clientInfo: 'georgian-distribution-system@1.0.0'
+  }
 }
 
 // Export types for convenience
