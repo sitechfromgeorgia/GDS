@@ -26,6 +26,11 @@ This is a **production-ready Next.js 15 + React 19 application** that modernizes
 - **React Hook Form + Zod** for forms/validation
 - **Recharts v2** for data visualization
 - **Vitest v2** for testing
+- **PWA** ✅ - Progressive Web App with offline support
+  - Service Worker with Workbox
+  - IndexedDB for offline storage
+  - Background sync
+  - Push notifications
 
 ### Backend
 - **Supabase** (PostgreSQL + Auth + Realtime + Storage)
@@ -33,6 +38,11 @@ This is a **production-ready Next.js 15 + React 19 application** that modernizes
   - **Production:** Self-hosted VPS (data.greenland77.ge)
 - **Row-Level Security (RLS)** for multi-tenant architecture
 - **JWT Authentication** with role-based access control
+- **Advanced Real-time** ✅ - Enterprise-grade WebSocket system
+  - Connection Manager with offline resilience
+  - Message queuing
+  - Exponential backoff reconnection
+  - Connection quality monitoring
 
 ### Infrastructure
 - **VPS:** Contabo cloud hosting
@@ -99,6 +109,9 @@ NEXT_PUBLIC_SENTRY_DSN=[sentry-dsn]
 - ✅ **Vitest tests** - Run from workspace root with `npm test`
 - ✅ **shadcn/ui components** - Use existing components before creating custom
 - ✅ **Tailwind CSS** - No inline styles, use Tailwind classes
+- ✅ **Mobile-first design** - Design for mobile (320px+) first, then enhance
+- ✅ **Touch targets** - Minimum 44px × 44px for all interactive elements
+- ✅ **PWA patterns** - Support offline-first where applicable
 - ❌ **No disabling lint rules** without explicit approval
 
 ### Security Requirements
@@ -157,6 +170,36 @@ Available MCP servers (configured in `.kilocode/mcp.json`):
 - **context7** - Library documentation
 - **shadcn** - UI component management
 - **chrome-devtools** - Browser debugging
+
+## 🎨 Available Skills
+
+Specialized Claude Code skills for specific tasks:
+
+### Development & Architecture
+- **api-integration-specialist** - Third-party API integration expert
+- **code-quality-guardian** - Code review and best practices enforcement
+- **database-schema-architect** - Database design and optimization
+- **intelligent-debugger** - Systematic debugging for complex issues
+- **system-architecture-advisor** - System design and scalability patterns
+
+### Design & UX
+- **mobile-first-designer** - Responsive design expert with PWA patterns
+- **modern-ui-designer** - 2025 UI/UX patterns with Tailwind & shadcn/ui
+- **user-feedback-interpreter** - UX research and feedback analysis
+
+### Product & Planning
+- **feature-impact-analyzer** - RICE/ICE prioritization framework for features
+- **idea-validator-pro** - Product idea validation and market research
+- **saas-architect** - SaaS architecture planning (Next.js + Supabase)
+- **saas-launch-planner** - SaaS launch planning with subscription models
+- **nextjs-supabase-saas-planner** - Complete SaaS planning for Next.js/Supabase
+
+### Optimization & Growth
+- **conversion-optimization-expert** - Conversion rate optimization
+- **technical-seo-specialist** - SEO optimization and performance
+- **prompt-optimization** - AI prompt engineering and optimization
+
+**Usage:** These skills are automatically available - reference them when relevant to the task
 
 ---
 
@@ -241,6 +284,10 @@ docs: add deployment guide for VPS setup
 - `order-workflow.md` - Order processing details
 - `technology-stack.md` - Tech stack explanations
 - `database-schema.md` - Database structure & RLS
+- `pwa-implementation.md` - PWA architecture & offline features
+- `realtime-architecture.md` - Real-time system & connection management
+- `analytics-guide.md` - Analytics dashboard KPIs & usage
+- `mobile-optimization.md` - Mobile-first design patterns
 
 ---
 

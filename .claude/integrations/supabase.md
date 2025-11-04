@@ -179,7 +179,34 @@ const { error } = await supabase
 
 ---
 
-## 🔄 Real-time Subscriptions
+## 🔄 Real-time Subscriptions ✅ **ADVANCED IMPLEMENTATION**
+
+### Enterprise Connection Manager
+
+We use a sophisticated Connection Manager for production-grade real-time features:
+
+```typescript
+import { ConnectionManager } from '@/lib/realtime/connection-manager'
+
+// Initialize connection manager
+const manager = new ConnectionManager()
+
+// Subscribe to connection state
+manager.onStateChange((state) => {
+  console.log('Connection:', state) // connected | connecting | disconnected
+})
+
+// Get connection quality
+const quality = manager.getConnectionQuality()
+console.log('Latency:', quality.latency, 'ms')
+```
+
+**Features:**
+- Automatic reconnection with exponential backoff
+- Message queuing for offline resilience (max 100 messages)
+- Heartbeat monitoring (30s interval)
+- Connection quality tracking
+- Latency measurement
 
 ### Subscribe to Table Changes
 
@@ -205,6 +232,68 @@ const channel = supabase
 return () => {
   supabase.removeChannel(channel)
 }
+```
+
+### Real-time Hooks
+
+We provide specialized hooks for common real-time patterns:
+
+**1. User Presence Tracking**
+```typescript
+import { useUserPresence } from '@/hooks/useUserPresence'
+
+const { onlineUsers, updatePresence } = useUserPresence()
+
+// Update presence every 30s
+useEffect(() => {
+  const interval = setInterval(() => {
+    updatePresence({ status: 'online' })
+  }, 30000)
+  return () => clearInterval(interval)
+}, [])
+```
+
+**2. Inventory Tracking**
+```typescript
+import { useInventoryTracking } from '@/hooks/useInventoryTracking'
+
+const { inventory, lowStockItems } = useInventoryTracking()
+
+// Automatically monitors product stock levels
+// Alerts when stock < 10 units
+```
+
+**3. GPS Tracking**
+```typescript
+import { useGPSTracking } from '@/hooks/useGPSTracking'
+
+const { driverLocation, updateLocation, isTracking } = useGPSTracking(driverId)
+
+// Track location every 10s when active
+useEffect(() => {
+  if (!isTracking) return
+
+  const interval = setInterval(() => {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      updateLocation({
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        accuracy: pos.coords.accuracy
+      })
+    })
+  }, 10000)
+
+  return () => clearInterval(interval)
+}, [isTracking])
+```
+
+**4. Chat Messages**
+```typescript
+import { useChatMessages } from '@/hooks/useChatMessages'
+
+const { messages, sendMessage, markAsRead } = useChatMessages(channelId)
+
+await sendMessage({ text: 'Hello!' })
 ```
 
 ### Subscribe to Specific Events
@@ -238,6 +327,74 @@ supabase
   )
   .subscribe()
 ```
+
+### Offline Message Queue
+
+Messages sent while offline are automatically queued and synced when connection restored:
+
+```typescript
+// Automatically handled by Connection Manager
+const manager = new ConnectionManager()
+
+// This will queue if offline
+await manager.send({
+  channel: 'orders',
+  event: 'update',
+  payload: { status: 'confirmed' }
+})
+
+// When online: queue automatically flushed
+```
+
+---
+
+## 📱 PWA Integration
+
+### Offline Support
+
+Supabase data is cached using IndexedDB for offline access:
+
+```typescript
+import { saveOfflineOrder, getOfflineOrders } from '@/lib/pwa'
+
+// Save order offline
+await saveOfflineOrder({
+  id: uuid(),
+  restaurant_id: userId,
+  items: cartItems,
+  synced: false
+})
+
+// Retrieve offline orders
+const offlineOrders = await getOfflineOrders()
+
+// Background sync automatically uploads when online
+```
+
+### Background Sync
+
+Orders created offline are automatically synced via Service Worker:
+
+```typescript
+// Service Worker (sw.js)
+self.addEventListener('sync', async (event) => {
+  if (event.tag === 'sync-orders') {
+    event.waitUntil(syncOfflineOrders())
+  }
+})
+
+async function syncOfflineOrders() {
+  const orders = await getUnsyncedOrders()
+
+  for (const order of orders) {
+    await supabase.from('orders').insert(order)
+    await markOrderSynced(order.id)
+  }
+}
+```
+
+**For full PWA documentation, see:** [`.claude/knowledge/pwa-implementation.md`]
+**For real-time architecture details, see:** [`.claude/knowledge/realtime-architecture.md`]
 
 ---
 

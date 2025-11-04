@@ -338,6 +338,211 @@ const VALID_TRANSITIONS = {
 
 ---
 
-**Last Updated:** 2025-11-03
+## 🔄 Real-time Updates Throughout Workflow
+
+### Connection Manager Integration
+
+All order status changes use our enterprise-grade Connection Manager:
+
+```typescript
+import { ConnectionManager } from '@/lib/realtime/connection-manager'
+
+const manager = new ConnectionManager()
+
+// Automatic features:
+// - Reconnection with exponential backoff
+// - Message queuing when offline
+// - Heartbeat monitoring
+// - Connection quality tracking
+```
+
+### Real-time Channels by Stage
+
+**1. Order Creation (PENDING)**
+```typescript
+// Restaurant sends order
+// Admin receives notification instantly
+
+supabase
+  .channel('admin-notifications')
+  .on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'orders'
+  }, (payload) => {
+    showNotification('New order from ' + payload.new.restaurant_name)
+    playSound()
+  })
+  .subscribe()
+```
+
+**2. Price Confirmation (CONFIRMED)**
+```typescript
+// Admin confirms price
+// Restaurant receives update instantly
+
+supabase
+  .channel(`order:${orderId}`)
+  .on('postgres_changes', {
+    event: 'UPDATE',
+    table: 'orders',
+    filter: `id=eq.${orderId}`
+  }, (payload) => {
+    if (payload.new.status === 'confirmed') {
+      showNotification(`Order confirmed: ${payload.new.total_amount} ₾`)
+      updateOrderUI(payload.new)
+    }
+  })
+  .subscribe()
+```
+
+**3. Driver Updates (IN_TRANSIT → DELIVERED)**
+```typescript
+// Driver updates status
+// Restaurant and Admin see updates instantly
+
+supabase
+  .channel(`delivery:${orderId}`)
+  .on('postgres_changes', {
+    event: 'UPDATE',
+    table: 'orders',
+    filter: `id=eq.${orderId}`
+  }, (payload) => {
+    // Update tracking map
+    // Show status badge
+    // Send push notification
+  })
+  .subscribe()
+```
+
+### GPS Tracking (Real-time Driver Location)
+
+```typescript
+import { useGPSTracking } from '@/hooks/useGPSTracking'
+
+// Restaurant/Admin can track driver in real-time
+const { driverLocation, estimatedArrival } = useGPSTracking(driverId)
+
+// Location updates every 10s while in transit
+// Shows on map with ETA calculation
+```
+
+### User Presence (Online Status)
+
+```typescript
+import { useUserPresence } from '@/hooks/useUserPresence'
+
+const { onlineUsers } = useUserPresence()
+
+// See which drivers are online
+// See which admin is available
+// Auto-assign to online driver
+```
+
+### Offline Order Creation
+
+Orders can be created offline and sync automatically:
+
+```typescript
+// Restaurant creates order offline
+// Saved to IndexedDB
+await saveOfflineOrder({
+  restaurant_id: userId,
+  items: cartItems,
+  notes: 'Urgent delivery',
+  synced: false
+})
+
+// When connection restored:
+// Service Worker automatically syncs
+// Admin receives notification
+// Order appears in dashboard
+```
+
+### Chat/Messaging (Optional)
+
+```typescript
+import { useChatMessages } from '@/hooks/useChatMessages'
+
+const { messages, sendMessage } = useChatMessages(`order:${orderId}`)
+
+// Real-time chat between restaurant and driver
+// "Where are you?"
+// "5 minutes away"
+```
+
+---
+
+## 📱 Mobile-Optimized Workflow
+
+### Driver Mobile Experience
+
+**One-Tap Status Updates:**
+```tsx
+<div className="grid grid-cols-3 gap-2">
+  <Button
+    size="lg"
+    className="min-h-[60px]"
+    onClick={() => updateStatus('pickup')}
+  >
+    📦 Picked Up
+  </Button>
+  <Button
+    size="lg"
+    className="min-h-[60px]"
+    onClick={() => updateStatus('in_transit')}
+  >
+    🚚 In Transit
+  </Button>
+  <Button
+    size="lg"
+    className="min-h-[60px]"
+    onClick={() => updateStatus('delivered')}
+  >
+    ✅ Delivered
+  </Button>
+</div>
+```
+
+**Touch-Optimized Interface:**
+- Minimum 44px touch targets
+- Swipe gestures for quick actions
+- Pull-to-refresh for order list
+- Bottom navigation for easy reach
+
+### Restaurant Mobile Experience
+
+**Quick Reorder:**
+```typescript
+// One-tap reorder from history
+// Offline order creation
+// Background sync when online
+```
+
+---
+
+## ⚡ Performance Optimizations
+
+### Query Optimization
+
+Order queries use strategic indexes:
+- `idx_orders_restaurant_id` - Fast restaurant order lookup
+- `idx_orders_driver_id` - Fast driver order lookup
+- `idx_orders_status` - Fast status filtering
+- `idx_orders_created_at` - Fast sorting by date
+
+### Real-time Performance
+
+- Connection Manager reduces unnecessary reconnections
+- Message queuing prevents data loss
+- Heartbeat monitoring (30s) ensures live connections
+- Exponential backoff avoids server overload
+
+---
+
+**Last Updated:** 2025-11-04
 **Order States:** 5 (pending, confirmed, in_transit, delivered, cancelled)
 **Average Order Time:** 2 hours from creation to delivery
+**Real-time:** Enterprise-grade with Connection Manager
+**Offline Support:** Full PWA with background sync
+**Mobile:** Touch-optimized with 44px targets
