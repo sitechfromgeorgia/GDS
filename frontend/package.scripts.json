@@ -1,0 +1,27 @@
+{
+  "deployment-scripts": {
+    "description": "Add these scripts to package.json for deployment operations",
+    "scripts": {
+      "validate:env": "node -e \"require('./src/lib/env-validator.ts')\"",
+      "docker:build": "docker build -f Dockerfile.production -t georgian-distribution:latest .",
+      "docker:build:dev": "docker build -f Dockerfile.dev -t georgian-distribution:dev .",
+      "docker:run": "docker run -d -p 3000:3000 --env-file .env.production --name georgian-distribution georgian-distribution:latest",
+      "docker:stop": "docker stop georgian-distribution && docker rm georgian-distribution",
+      "docker:logs": "docker logs -f georgian-distribution",
+      "k8s:apply": "kubectl apply -f k8s/",
+      "k8s:delete": "kubectl delete -f k8s/",
+      "k8s:status": "kubectl get all -n georgian-distribution",
+      "k8s:logs": "kubectl logs -f -l app=georgian-distribution -n georgian-distribution",
+      "k8s:describe": "kubectl describe deployment -n georgian-distribution",
+      "deploy:blue-green": "./scripts/deployment/blue-green-deploy.sh",
+      "deploy:rollback": "./scripts/deployment/rollback.sh",
+      "backup:database": "./scripts/deployment/backup-database.sh",
+      "backup:restore": "./scripts/deployment/restore-database.sh",
+      "cdn:invalidate": "./scripts/deployment/invalidate-cdn.sh",
+      "health:check": "curl -s http://localhost:3000/api/health | jq",
+      "health:liveness": "curl -s http://localhost:3000/api/health/liveness | jq",
+      "health:readiness": "curl -s http://localhost:3000/api/health/readiness | jq",
+      "sentry:release": "sentry-cli releases new $npm_package_version && sentry-cli releases finalize $npm_package_version"
+    }
+  }
+}

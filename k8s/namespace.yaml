@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: georgian-distribution
+  labels:
+    name: georgian-distribution
+    environment: production

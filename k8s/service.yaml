@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: georgian-distribution-service
+  namespace: georgian-distribution
+  labels:
+    app: georgian-distribution
+spec:
+  type: ClusterIP
+  selector:
+    app: georgian-distribution
+    version: blue  # Change this to switch between blue/green deployments
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: georgian-distribution-blue
+  namespace: georgian-distribution
+  labels:
+    app: georgian-distribution
+    version: blue
+spec:
+  type: ClusterIP
+  selector:
+    app: georgian-distribution
+    version: blue
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: georgian-distribution-green
+  namespace: georgian-distribution
+  labels:
+    app: georgian-distribution
+    version: green
+spec:
+  type: ClusterIP
+  selector:
+    app: georgian-distribution
+    version: green
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP

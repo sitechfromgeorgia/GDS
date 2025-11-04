@@ -1,0 +1,23 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: georgian-distribution-blue-pdb
+  namespace: georgian-distribution
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: georgian-distribution
+      version: blue
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: georgian-distribution-green-pdb
+  namespace: georgian-distribution
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: georgian-distribution
+      version: green

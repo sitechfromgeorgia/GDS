@@ -1,0 +1,64 @@
+name: Rollback Production Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "rollback" to confirm'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    name: Rollback to Previous Deployment
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "rollback" ]; then
+            echo "Error: Confirmation failed. You must type 'rollback' to proceed."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Execute rollback
+        run: |
+          chmod +x scripts/deployment/rollback.sh
+          echo "yes" | ./scripts/deployment/rollback.sh
+
+      - name: Verify rollback
+        run: |
+          kubectl get deployments -n georgian-distribution
+          kubectl get pods -n georgian-distribution
+          kubectl get services -n georgian-distribution
+
+      - name: Send notification
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Production Rollback ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Production Rollback*\nStatus: ${{ job.status }}\nActor: ${{ github.actor }}\nReason: Manual rollback triggered"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
