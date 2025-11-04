@@ -1,19 +1,13 @@
 import type { NextConfig } from "next";
-<<<<<<< HEAD
 import path from 'path';
 
 const nextConfig: NextConfig = {
   // React 19 + Next.js 15 configuration
   reactStrictMode: true,
-  
+
   // Fix for workspace root detection warning
   // Points to the correct root directory for file tracing
   outputFileTracingRoot: path.join(__dirname, '../'),
-  
-=======
-
-const nextConfig: NextConfig = {
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
   // Allow images from both development and production Supabase storage
   images: {
     remotePatterns: [
@@ -72,13 +66,7 @@ const nextConfig: NextConfig = {
       allowedOrigins = [...allowedOrigins, ...additionalOrigins];
     }
 
-<<<<<<< HEAD
     const primaryOrigin = allowedOrigins[0] || 'http://localhost:3000';
-
-=======
-    const primaryOrigin = allowedOrigins[0];
-    
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     return [
       {
         source: '/api/:path*',
@@ -86,11 +74,7 @@ const nextConfig: NextConfig = {
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           // Reflect the request Origin only if it is in the allowed list
           { key: 'Vary', value: 'Origin' },
-<<<<<<< HEAD
           { key: 'Access-Control-Allow-Origin', value: primaryOrigin as string },
-=======
-          { key: 'Access-Control-Allow-Origin', value: primaryOrigin },
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
           { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
           { key: 'Access-Control-Max-Age', value: '86400' }, // 24 hours
@@ -98,10 +82,7 @@ const nextConfig: NextConfig = {
       },
       {
         // Handle preflight requests for OPTIONS method
-<<<<<<< HEAD
         // Security: Use specific origins instead of wildcard
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
         source: '/api/:path*',
         has: [
           {
@@ -110,15 +91,11 @@ const nextConfig: NextConfig = {
           }
         ],
         headers: [
-<<<<<<< HEAD
           // Use the first allowed origin instead of wildcard for security
           // In production, middleware should validate the actual origin header
           { key: 'Access-Control-Allow-Origin', value: primaryOrigin as string },
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Vary', value: 'Origin' },
-=======
-          { key: 'Access-Control-Allow-Origin', value: '*' },
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
           { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
           { key: 'Access-Control-Max-Age', value: '86400' },
@@ -127,7 +104,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-<<<<<<< HEAD
   // External packages for React Server Components (moved from experimental)
   serverExternalPackages: ["@supabase/supabase-js"],
 
@@ -145,16 +121,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '2mb',
       allowedOrigins: [
         'localhost:3000',
-=======
-  // External packages for React Server Components
-  serverExternalPackages: ["@supabase/supabase-js"],
-  
-  // Experimental features for React Server Components stability and performance
-  experimental: {
-    serverActions: {
-      allowedOrigins: [
-        'localhost:3000', 
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
         'localhost:3001',
         '127.0.0.1:3000',
         '*.supabase.co',
@@ -162,7 +128,6 @@ const nextConfig: NextConfig = {
         'greenland77.ge'
       ],
     },
-<<<<<<< HEAD
 
     // Package optimization for Turbopack
     optimizePackageImports: [
@@ -177,18 +142,10 @@ const nextConfig: NextConfig = {
 
     // Memory and performance optimizations
     webpackMemoryOptimizations: true,
-=======
-    optimizePackageImports: [
-      'lucide-react',
-      'recharts',
-      'date-fns'
-    ],
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
   },
 
   // Webpack configuration for React Server Components and performance
   webpack: (config, { dev, isServer }) => {
-<<<<<<< HEAD
     // Set unique webpack bundle name to avoid module federation issues
     config.output = config.output || {}
     config.output.uniqueName = 'georgian-distribution-frontend'
@@ -196,15 +153,12 @@ const nextConfig: NextConfig = {
     // Note: React alias removed - Next.js 15 handles React 19 resolution automatically
     // The require.resolve() was causing "Module not found: Can't resolve 'react/jsx-runtime'" errors
 
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     // Fix for React Server Components module resolution
     if (isServer) {
       // Add external packages that shouldn't be bundled on server
       config.externals.push('node:crypto', 'node:fs', 'node:path', 'node:buffer')
     }
 
-<<<<<<< HEAD
     // CRITICAL FIX: Disable splitChunks in development to avoid webpack runtime errors
     if (dev) {
       config.optimization = config.optimization || {}
@@ -212,14 +166,11 @@ const nextConfig: NextConfig = {
       config.optimization.runtimeChunk = false
     }
 
-=======
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
     // Use default devtool for development to avoid performance issues
     // Only enable detailed source maps in production or when specifically needed
     if (!dev) {
       config.devtool = 'source-map'
-      
-<<<<<<< HEAD
+
       // MODIFIED: Simplified chunk splitting to avoid webpack runtime errors
       if (isServer) {
         // Disable chunk splitting on server-side to prevent 'self' related issues
@@ -250,30 +201,6 @@ const nextConfig: NextConfig = {
             },
           },
         }
-=======
-      // Performance optimizations for production
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-          supabase: {
-            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
-            name: 'supabase',
-            chunks: 'all',
-            priority: 20,
-          },
-          ui: {
-            test: /[\\/]node_modules[\\/](lucide-react|recharts|date-fns)[\\/]/,
-            name: 'ui-libs',
-            chunks: 'all',
-            priority: 15,
-          },
-        },
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
       }
     }
 
@@ -338,10 +265,10 @@ const nextConfig: NextConfig = {
 
   // Base path configuration
   basePath: process.env.NODE_ENV === 'production' ? '' : '',
+
+  // PWA Configuration
+  // Service worker is registered client-side via lib/pwa.ts
+  // Manifest.json is in public directory
 };
 
-<<<<<<< HEAD
 export default nextConfig;
-=======
-export default nextConfig;
->>>>>>> 4f46816d3369e63516557dedd905a7027f3ba306
