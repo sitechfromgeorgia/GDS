@@ -1,7 +1,8 @@
 'use client'
 import { logger } from '@/lib/logger'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
+import { useDebounce } from '@/hooks/useDebounce'
 import { ProductFilters } from '@/components/catalog/ProductFilters'
 import { ProductGrid } from '@/components/catalog/ProductGrid'
 import { ProductListView } from '@/components/catalog/ProductListView'
@@ -10,17 +11,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { 
-  Search, 
-  Grid, 
-  List, 
+import {
+  Search,
+  Grid,
+  List,
   SlidersHorizontal,
   Package,
   Loader2,
   RefreshCw,
-  ShoppingCart
+  ShoppingCart,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useProductCatalog } from '@/hooks/useProductCatalog'
@@ -34,15 +41,18 @@ export default function ProductCatalogPage() {
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [showFilters, setShowFilters] = useState(false)
-  
+
   // Filter state
   const [filters, setFilters] = useState<ProductFilterInput>({})
   const [searchQuery, setSearchQuery] = useState('')
-  
+
+  // Debounce search query to avoid excessive API calls (300ms delay)
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
-  
+
   // Sort state
   const [sortField, setSortField] = useState('name')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -50,14 +60,14 @@ export default function ProductCatalogPage() {
   // Price range for filters
   const priceRange = { min: 0, max: 1000 }
 
-  // Query parameters
+  // Query parameters - use debounced search query
   const queryParams = {
     page: currentPage,
     limit: itemsPerPage,
     sortBy: sortField,
     sortOrder: sortDirection,
     ...filters,
-    search: searchQuery || undefined
+    search: debouncedSearchQuery || undefined,
   }
 
   // Data fetching hooks
@@ -66,7 +76,7 @@ export default function ProductCatalogPage() {
     isLoading: catalogLoading,
     isError: catalogError,
     error: catalogErrorDetail,
-    refetch: refetchCatalog
+    refetch: refetchCatalog,
   } = useProductCatalog(queryParams)
 
   const {
@@ -74,7 +84,7 @@ export default function ProductCatalogPage() {
     isLoading: searchLoading,
     isError: searchError,
     error: searchErrorDetail,
-    refetch: refetchSearch
+    refetch: refetchSearch,
   } = useProductSearch(searchQuery, queryParams)
 
   // Determine which data to use
@@ -119,7 +129,7 @@ export default function ProductCatalogPage() {
 
   // View mode toggle
   const toggleViewMode = useCallback(() => {
-    setViewMode(prev => prev === 'grid' ? 'list' : 'grid')
+    setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'))
   }, [])
 
   // Refresh handler
@@ -158,25 +168,16 @@ export default function ProductCatalogPage() {
         <div className="mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                პროდუქტების კატალოგი
-              </h1>
-              <p className="text-gray-600">
-                შეარჩიეთ პროდუქტები თქვენი რესტორნისთვის
-              </p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">პროდუქტების კატალოგი</h1>
+              <p className="text-gray-600">შეარჩიეთ პროდუქტები თქვენი რესტორნისთვის</p>
             </div>
-            
+
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={isLoading}
-              >
+              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
                 <RefreshCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -238,10 +239,7 @@ export default function ProductCatalogPage() {
           )}
 
           {/* Main Content */}
-          <div className={cn(
-            'space-y-4',
-            showFilters ? 'lg:col-span-3' : 'lg:col-span-4'
-          )}>
+          <div className={cn('space-y-4', showFilters ? 'lg:col-span-3' : 'lg:col-span-4')}>
             {/* View Controls */}
             <Card>
               <CardContent className="p-4">
@@ -297,9 +295,7 @@ export default function ProductCatalogPage() {
                     <div className="text-sm text-gray-600">
                       ნაჩვენებია {products.length} პროდუქტი
                       {pagination.total > 0 && (
-                        <span className="ml-1">
-                          (სულ: {pagination.total})
-                        </span>
+                        <span className="ml-1">(სულ: {pagination.total})</span>
                       )}
                     </div>
                   )}
@@ -355,11 +351,11 @@ export default function ProductCatalogPage() {
                   hasPreviousPage: pagination?.hasPreviousPage || false,
                   onNextPage: () => handlePageChange(currentPage + 1),
                   onPreviousPage: () => handlePageChange(currentPage - 1),
-                  isLoading
+                  isLoading,
                 }}
                 emptyState={{
                   title: 'პროდუქტები არ მოიძებნა',
-                  description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები'
+                  description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები',
                 }}
               />
             ) : (
@@ -379,11 +375,11 @@ export default function ProductCatalogPage() {
                   hasPreviousPage: pagination?.hasPreviousPage || false,
                   onNextPage: () => handlePageChange(currentPage + 1),
                   onPreviousPage: () => handlePageChange(currentPage - 1),
-                  isLoading
+                  isLoading,
                 }}
                 emptyState={{
                   title: 'პროდუქტები არ მოიძებნა',
-                  description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები'
+                  description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები',
                 }}
               />
             )}

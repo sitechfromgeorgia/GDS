@@ -86,7 +86,7 @@ export interface CartValidationWarning {
   field?: string
 }
 
-export type CartActionType = 
+export type CartActionType =
   | 'ADD_ITEM'
   | 'UPDATE_ITEM'
   | 'REMOVE_ITEM'

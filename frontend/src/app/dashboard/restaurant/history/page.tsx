@@ -10,7 +10,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { createBrowserClient } from '@/lib/supabase'
 import { RestaurantOrder } from '@/types/restaurant'
 
@@ -28,7 +34,7 @@ export default function RestaurantOrderHistory() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
     start: '',
-    end: ''
+    end: '',
   })
 
   // Fetch orders
@@ -41,10 +47,11 @@ export default function RestaurantOrderHistory() {
         setError(null)
 
         // Fetch orders with related data
-         
+
         const { data, error } = await (supabase as any)
           .from('orders')
-          .select(`
+          .select(
+            `
             *,
             order_items (
               *,
@@ -56,22 +63,23 @@ export default function RestaurantOrderHistory() {
             profiles!orders_driver_id_fkey (
               full_name
             )
-          `)
+          `
+          )
           .eq('restaurant_id', user.id)
           .order('created_at', { ascending: false })
 
         if (error) throw error
 
         // Transform data to match RestaurantOrder type
-         
+
         const transformedOrders: RestaurantOrder[] = (data || []).map((order: any) => ({
           ...order,
           items: (order.order_items || []).map((item: any) => ({
             ...item,
-            product_name: item.products?.name || ''
+            product_name: item.products?.name || '',
           })),
           driver_name: order.profiles?.full_name || undefined,
-          total_amount: order.total_amount ?? undefined
+          total_amount: order.total_amount ?? undefined,
         }))
 
         setOrders(transformedOrders)
@@ -127,9 +135,7 @@ export default function RestaurantOrderHistory() {
           <h1 className="text-3xl font-bold">Order History</h1>
           <p className="text-muted-foreground">View and manage your past orders</p>
         </div>
-        <Button onClick={handleExport}>
-          Export History
-        </Button>
+        <Button onClick={handleExport}>Export History</Button>
       </div>
 
       {/* Filters */}
@@ -147,7 +153,7 @@ export default function RestaurantOrderHistory() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -167,24 +173,24 @@ export default function RestaurantOrderHistory() {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="start-date">Start Date</Label>
             <Input
               id="start-date"
               type="date"
               value={dateRange.start}
-              onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+              onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="end-date">End Date</Label>
             <Input
               id="end-date"
               type="date"
               value={dateRange.end}
-              onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+              onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
             />
           </div>
         </CardContent>
@@ -200,29 +206,29 @@ export default function RestaurantOrderHistory() {
             <div className="text-2xl font-bold">{orders.length}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {orders.filter(o => o.status === 'pending').length}
+              {orders.filter((o) => o.status === 'pending').length}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {orders.filter(o => ['delivered', 'completed'].includes(o.status)).length}
+              {orders.filter((o) => ['delivered', 'completed'].includes(o.status)).length}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
@@ -238,14 +244,11 @@ export default function RestaurantOrderHistory() {
       </div>
 
       {/* Orders Table */}
-      <OrderHistoryTable 
-        onViewOrder={handleViewOrder} 
-      />
+      <OrderHistoryTable onViewOrder={handleViewOrder} />
 
       {/* Order Detail Modal */}
       {selectedOrder && (
         <OrderDetailModal
-           
           order={selectedOrder as any}
           onClose={handleCloseModal}
           userRole="restaurant"

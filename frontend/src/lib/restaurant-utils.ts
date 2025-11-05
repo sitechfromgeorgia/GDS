@@ -1,6 +1,14 @@
 import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
-import { RestaurantOrder, Product, RestaurantProduct, CartItem, RestaurantMetrics, OrderFilters, ProductFilters } from '@/types/restaurant'
+import {
+  RestaurantOrder,
+  Product,
+  RestaurantProduct,
+  CartItem,
+  RestaurantMetrics,
+  OrderFilters,
+  ProductFilters,
+} from '@/types/restaurant'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
@@ -12,7 +20,6 @@ type DatabaseProduct = Product & {
   min_order_quantity?: number
 }
 
- 
 type AnyObject = Record<string, any>
 
 // Define proper interfaces for database types
@@ -32,10 +39,10 @@ interface OrderItem {
 
 export class RestaurantUtils {
   static async getOrders(filters?: OrderFilters): Promise<RestaurantOrder[]> {
-     
     let query = (supabase as any)
       .from('orders')
-      .select(`
+      .select(
+        `
         *,
         order_items (
           *,
@@ -47,7 +54,8 @@ export class RestaurantUtils {
         profiles!orders_driver_id_fkey (
           full_name
         )
-      `)
+      `
+      )
       .order('created_at', { ascending: false })
 
     // Apply filters
@@ -77,29 +85,23 @@ export class RestaurantUtils {
 
     if (error) throw error
 
-     
     return data.map((order: any) => ({
       ...order,
       items: order.order_items || [],
       driver_name: order.profiles?.full_name,
-      total_amount: order.total_amount ?? undefined
+      total_amount: order.total_amount ?? undefined,
     })) as RestaurantOrder[]
   }
 
   static async getProducts(filters?: ProductFilters): Promise<RestaurantProduct[]> {
-    let query = supabase
-      .from('products')
-      .select('*')
-      .order('name')
+    let query = supabase.from('products').select('*').order('name')
 
     if (filters?.category?.length) {
       query = query.in('category', filters.category)
     }
 
     if (filters?.price_range) {
-      query = query
-        .gte('price', filters.price_range.min)
-        .lte('price', filters.price_range.max)
+      query = query.gte('price', filters.price_range.min).lte('price', filters.price_range.max)
     }
 
     if (filters?.search) {
@@ -117,12 +119,12 @@ export class RestaurantUtils {
     if (error) throw error
 
     // Convert to RestaurantProduct with missing fields
-     
+
     return (data || []).map((product: any) => ({
       ...product,
       is_available: product.is_active ?? false,
       max_order_quantity: product.max_order_quantity ?? 100,
-      min_order_quantity: product.min_order_quantity ?? 1
+      min_order_quantity: product.min_order_quantity ?? 1,
     })) as RestaurantProduct[]
   }
 
@@ -132,16 +134,18 @@ export class RestaurantUtils {
     delivery_time?: string
     special_instructions?: string
   }): Promise<RestaurantOrder> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
     const totalAmount = orderData.items.reduce(
-      (sum, item) => sum + (item.product.price * item.quantity),
+      (sum, item) => sum + item.product.price * item.quantity,
       0
     )
 
     // Create order
-     
+
     const { data: order, error: orderError } = await (supabase as any)
       .from('orders')
       .insert({
@@ -150,7 +154,7 @@ export class RestaurantUtils {
         delivery_address: orderData.delivery_address,
         delivery_time: orderData.delivery_time,
         notes: orderData.special_instructions,
-        status: 'pending'
+        status: 'pending',
       })
       .select()
       .single()
@@ -158,32 +162,39 @@ export class RestaurantUtils {
     if (orderError) throw orderError
 
     // Create order items
-    const orderItems = orderData.items.map(item => ({
+    const orderItems = orderData.items.map((item) => ({
       order_id: order.id,
       product_id: item.product.id,
       quantity: item.quantity,
       unit_price: item.product.price,
       total_price: item.product.price * item.quantity,
-      notes: item.notes
+      notes: item.notes,
     }))
 
-     
-    const { error: itemsError } = await (supabase as any)
-      .from('order_items')
-      .insert(orderItems)
+    const { error: itemsError } = await (supabase as any).from('order_items').insert(orderItems)
 
     if (itemsError) throw itemsError
 
     return order as RestaurantOrder
   }
 
-  static async updateOrderStatus(orderId: string, status: 'pending' | 'confirmed' | 'priced' | 'assigned' | 'out_for_delivery' | 'delivered' | 'completed' | 'cancelled'): Promise<void> {
-     
+  static async updateOrderStatus(
+    orderId: string,
+    status:
+      | 'pending'
+      | 'confirmed'
+      | 'priced'
+      | 'assigned'
+      | 'out_for_delivery'
+      | 'delivered'
+      | 'completed'
+      | 'cancelled'
+  ): Promise<void> {
     const { error } = await (supabase as any)
       .from('orders')
       .update({
         status,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', orderId)
 
@@ -191,14 +202,17 @@ export class RestaurantUtils {
   }
 
   static async getRestaurantMetrics(): Promise<RestaurantMetrics> {
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
     // Get orders for this restaurant
-     
+
     const { data: orders, error } = await (supabase as any)
       .from('orders')
-      .select(`
+      .select(
+        `
         *,
         order_items (
           quantity,
@@ -206,25 +220,30 @@ export class RestaurantUtils {
             name
           )
         )
-      `)
+      `
+      )
       .eq('restaurant_id', user.id)
 
     if (error) throw error
 
     const totalOrders = orders.length
-     
+
     const pendingOrders = orders.filter((o: any) => o.status === 'pending').length
-     
-    const completedOrders = orders.filter((o: any) => ['delivered', 'completed'].includes(o.status)).length
-     
-    const totalSpent = orders.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0)
+
+    const completedOrders = orders.filter((o: any) =>
+      ['delivered', 'completed'].includes(o.status)
+    ).length
+
+    const totalSpent = orders.reduce(
+      (sum: number, order: any) => sum + (order.total_amount || 0),
+      0
+    )
     const averageOrderValue = totalOrders > 0 ? totalSpent / totalOrders : 0
 
     // Calculate most ordered products
     const productCounts: Record<string, number> = {}
-     
+
     orders.forEach((order: any) => {
-       
       order.order_items?.forEach((item: OrderItem) => {
         const productName = item.products?.name || 'Unknown'
         productCounts[productName] = (productCounts[productName] || 0) + item.quantity
@@ -232,7 +251,7 @@ export class RestaurantUtils {
     })
 
     const mostOrderedProducts = Object.entries(productCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([product_name, quantity]) => ({ product_name, quantity }))
 
@@ -240,7 +259,7 @@ export class RestaurantUtils {
     const deliveryPerformance = {
       on_time_deliveries: Math.floor(completedOrders * 0.85),
       late_deliveries: Math.floor(completedOrders * 0.15),
-      average_delivery_time: 45 // minutes
+      average_delivery_time: 45, // minutes
     }
 
     return {
@@ -250,7 +269,7 @@ export class RestaurantUtils {
       total_spent: totalSpent,
       average_order_value: averageOrderValue,
       most_ordered_products: mostOrderedProducts,
-      delivery_performance: deliveryPerformance
+      delivery_performance: deliveryPerformance,
     }
   }
 
@@ -278,7 +297,7 @@ export class RestaurantUtils {
   static formatCurrency(amount: number): string {
     return new Intl.NumberFormat('ka-GE', {
       style: 'currency',
-      currency: 'GEL'
+      currency: 'GEL',
     }).format(amount)
   }
 
@@ -288,7 +307,7 @@ export class RestaurantUtils {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(new Date(date))
   }
 
@@ -301,7 +320,7 @@ export class RestaurantUtils {
       out_for_delivery: 'bg-orange-100 text-orange-800',
       delivered: 'bg-green-100 text-green-800',
       completed: 'bg-gray-100 text-gray-800',
-      cancelled: 'bg-red-100 text-red-800'
+      cancelled: 'bg-red-100 text-red-800',
     }
     return colors[status] || 'bg-gray-100 text-gray-800'
   }

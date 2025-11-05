@@ -1,7 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { checkBackendHealth, getBackendInfo, type HealthCheckResult } from '@/lib/healthCheck.client'
+import {
+  checkBackendHealth,
+  getBackendInfo,
+  type HealthCheckResult,
+} from '@/lib/healthCheck.client'
 import { Badge } from '@/components/ui/badge'
 import { Wifi, WifiOff, AlertCircle } from 'lucide-react'
 
@@ -39,15 +43,13 @@ export function BackendStatus() {
           ) : (
             <AlertCircle className="h-4 w-4 text-yellow-500" />
           )}
-          
+
           <div className="text-xs">
             <div className="font-medium">Backend Status</div>
-            <div className="text-muted-foreground">
-              {backendInfo.url.replace('https://', '')}
-            </div>
+            <div className="text-muted-foreground">{backendInfo.url.replace('https://', '')}</div>
           </div>
 
-          <Badge 
+          <Badge
             variant={isHealthy ? 'default' : 'destructive'}
             className={isHealthy ? 'bg-green-500' : ''}
           >

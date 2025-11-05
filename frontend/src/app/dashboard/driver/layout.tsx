@@ -11,26 +11,21 @@ import {
   LayoutDashboard,
   Truck,
   History,
-  MapPin,
   BarChart3,
   Settings,
   Menu,
-  Bell,
   Moon,
   Sun,
   LogOut,
-  Battery,
-  Wifi,
-  WifiOff
 } from 'lucide-react'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { useTheme } from 'next-themes'
+import { NotificationsDropdown } from '@/components/notifications/NotificationsDropdown'
 
 const navigation = [
   { name: 'მთავარი', href: '/dashboard/driver', icon: LayoutDashboard },
   { name: 'მიწოდებები', href: '/dashboard/driver/deliveries', icon: Truck },
   { name: 'ისტორია', href: '/dashboard/driver/history', icon: History },
-  { name: 'რუკა', href: '/dashboard/driver/map', icon: MapPin },
   { name: 'ანალიტიკა', href: '/dashboard/driver/analytics', icon: BarChart3 },
   { name: 'პარამეტრები', href: '/dashboard/driver/settings', icon: Settings },
 ]
@@ -41,29 +36,16 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className={cn(
-      "flex flex-col h-full",
-      mobile ? "w-full" : "w-64"
-    )}>
+    <div className={cn('flex flex-col h-full', mobile ? 'w-full' : 'w-64')}>
       <div className="flex items-center justify-center h-16 px-4 border-b">
         <h1 className="text-xl font-bold text-primary">მძღოლი</h1>
       </div>
 
-      {/* Status Indicators */}
+      {/* Online Status Indicator */}
       <div className="px-4 py-3 border-b bg-muted/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-muted-foreground">ონლაინ</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Battery className="w-4 h-4 text-green-600" />
-            <span className="text-sm text-muted-foreground">85%</span>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2 mt-2">
-          <Wifi className="w-4 h-4 text-blue-600" />
-          <span className="text-sm text-muted-foreground">კარგი სიგნალი</span>
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-sm text-muted-foreground">ონლაინ</span>
         </div>
       </div>
 
@@ -76,10 +58,10 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
               href={item.href}
               onClick={() => mobile && onClose?.()}
               className={cn(
-                "flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors",
+                'flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors',
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
               <item.icon className="mr-3 h-5 w-5" />
@@ -138,13 +120,10 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
   )
 }
 
-export default function DriverLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DriverLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const { user } = useAuthContext()
 
   return (
     <div className="flex h-screen bg-background">
@@ -182,7 +161,7 @@ export default function DriverLayout({
 
             <div className="ml-4 md:ml-0">
               <h2 className="text-lg font-semibold">
-                {navigation.find(item => item.href === pathname)?.name || 'მძღოლი'}
+                {navigation.find((item) => item.href === pathname)?.name || 'მძღოლი'}
               </h2>
             </div>
           </div>
@@ -194,17 +173,12 @@ export default function DriverLayout({
             </Button>
 
             {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </Button>
+            {user?.id && <NotificationsDropdown userId={user.id} />}
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
   )

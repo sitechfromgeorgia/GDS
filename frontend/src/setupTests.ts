@@ -1,9 +1,9 @@
 // Test setup file for Georgian Distribution System
 // This file runs before each test file
 
-import '@testing-library/jest-dom/vitest';
-import { vi, beforeAll, afterEach, afterAll } from 'vitest';
-import { createClient } from '@supabase/supabase-js';
+import '@testing-library/jest-dom/vitest'
+import { vi, beforeAll, afterEach, afterAll } from 'vitest'
+import { createClient } from '@supabase/supabase-js'
 
 // Mock environment variables for testing
 Object.defineProperty(process, 'env', {
@@ -14,7 +14,7 @@ Object.defineProperty(process, 'env', {
     NODE_ENV: process.env.NODE_ENV || 'test',
   },
   configurable: true,
-});
+})
 
 // Mock Supabase client
 const mockSupabaseClient = {
@@ -84,19 +84,19 @@ const mockSupabaseClient = {
     })),
   },
   rpc: vi.fn(),
-};
+}
 
 // Mock createBrowserClient
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => mockSupabaseClient,
-}));
+}))
 
 // Mock Supabase SSR functions
 vi.mock('@supabase/ssr', () => ({
   createBrowserClient: () => mockSupabaseClient,
   createServerClient: () => mockSupabaseClient,
   createClient: () => mockSupabaseClient,
-}));
+}))
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -119,7 +119,7 @@ vi.mock('next/navigation', () => ({
   }),
   usePathname: () => '/test',
   useParams: () => ({}),
-}));
+}))
 
 // Mock React Query
 vi.mock('@tanstack/react-query', () => ({
@@ -128,12 +128,12 @@ vi.mock('@tanstack/react-query', () => ({
   useQuery: vi.fn(),
   useMutation: vi.fn(),
   useQueryClient: vi.fn(),
-}));
+}))
 
 // Mock Zustand
 vi.mock('zustand', () => ({
   create: vi.fn(() => vi.fn()),
-}));
+}))
 
 // Mock react-hook-form
 vi.mock('react-hook-form', () => ({
@@ -146,7 +146,7 @@ vi.mock('react-hook-form', () => ({
     reset: vi.fn(),
   }),
   Controller: () => null,
-}));
+}))
 
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
@@ -178,7 +178,7 @@ vi.mock('lucide-react', () => ({
   UserCircle: () => null,
   Lock: () => null,
   Unlock: () => null,
-}));
+}))
 
 // Mock date-fns
 vi.mock('date-fns', () => ({
@@ -192,29 +192,29 @@ vi.mock('date-fns', () => ({
   differenceInDays: vi.fn(() => 1),
   differenceInHours: vi.fn(() => 2),
   differenceInMinutes: vi.fn(() => 30),
-}));
+}))
 
 // Mock global timers
-vi.useFakeTimers();
+vi.useFakeTimers()
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn(() => ({
   disconnect: vi.fn(),
   observe: vi.fn(),
   unobserve: vi.fn(),
-})) as any;
+})) as any
 
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn(() => ({
   disconnect: vi.fn(),
   observe: vi.fn(),
   unobserve: vi.fn(),
-})) as any;
+})) as any
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -224,25 +224,25 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-});
+})
 
 // Mock window.URL.createObjectURL
 Object.defineProperty(URL, 'createObjectURL', {
   writable: true,
   value: vi.fn(() => 'blob:test-url'),
-});
+})
 
 // Mock window.URL.revokeObjectURL
 Object.defineProperty(URL, 'revokeObjectURL', {
   writable: true,
   value: vi.fn(),
-});
+})
 
 // Setup cleanup
 afterEach(() => {
-  vi.clearAllMocks();
-  vi.clearAllTimers();
-});
+  vi.clearAllMocks()
+  vi.clearAllTimers()
+})
 
 // Test data for Georgian Distribution System
 export const testData = {
@@ -306,7 +306,7 @@ export const testData = {
       restaurant_id: 'restaurant-1',
       name: 'ხაჭაპური',
       description: 'ტრადიციული ქართული კერძი',
-      price: 25.00,
+      price: 25.0,
       category: 'ძირითადი კერძი',
       available: true,
       image_url: null,
@@ -317,7 +317,7 @@ export const testData = {
       restaurant_id: 'restaurant-1',
       name: 'ტყემაფლოს კერძი',
       description: 'ტყემაფლოს მწვანილით',
-      price: 35.00,
+      price: 35.0,
       category: 'ძირითადი კერძი',
       available: true,
       image_url: null,
@@ -331,7 +331,7 @@ export const testData = {
       restaurant_id: 'restaurant-1',
       driver_id: 'test-driver-id',
       status: 'pending',
-      total_amount: 60.00,
+      total_amount: 60.0,
       delivery_address: 'თბილისი, გურამიშვილის 15',
       notes: 'სასურველი მიწოდების დრო: 19:00',
       created_at: '2023-01-01T12:00:00Z',
@@ -343,58 +343,89 @@ export const testData = {
       restaurant_id: 'restaurant-1',
       driver_id: null,
       status: 'completed',
-      total_amount: 45.00,
+      total_amount: 45.0,
       delivery_address: 'თბილისი, ვაკის 7',
       notes: '',
       created_at: '2023-01-01T10:00:00Z',
       updated_at: '2023-01-01T11:30:00Z',
     },
   ],
-};
+}
 
 // Georgian language utilities for testing
 export const georgianUtils = {
   // Convert Georgian text to Latin equivalents for testing
   toLatin: (text: string): string => {
     const georgianToLatin: Record<string, string> = {
-      'ა': 'a', 'ბ': 'b', 'გ': 'g', 'დ': 'd', 'ე': 'e', 'ვ': 'v', 'ზ': 'z', 'თ': 't',
-      'ი': 'i', 'კ': 'k', 'ლ': 'l', 'მ': 'm', 'ნ': 'n', 'ო': 'o', 'პ': 'p', 'ჟ': 'zh',
-      'რ': 'r', 'ს': 's', 'ტ': 't', 'უ': 'u', 'ფ': 'ph', 'ქ': 'q', 'ღ': 'gh', 'ყ': 'y',
-      'შ': 'sh', 'ჩ': 'ch', 'ც': 'ts', 'ძ': 'dz', 'წ': 'ts', 'ჭ': 'ch', 'ხ': 'kh', 'ჯ': 'j',
-      'ჰ': 'h',
-    };
-    
-    return text.split('').map(char => georgianToLatin[char] || char).join('');
+      ა: 'a',
+      ბ: 'b',
+      გ: 'g',
+      დ: 'd',
+      ე: 'e',
+      ვ: 'v',
+      ზ: 'z',
+      თ: 't',
+      ი: 'i',
+      კ: 'k',
+      ლ: 'l',
+      მ: 'm',
+      ნ: 'n',
+      ო: 'o',
+      პ: 'p',
+      ჟ: 'zh',
+      რ: 'r',
+      ს: 's',
+      ტ: 't',
+      უ: 'u',
+      ფ: 'ph',
+      ქ: 'q',
+      ღ: 'gh',
+      ყ: 'y',
+      შ: 'sh',
+      ჩ: 'ch',
+      ც: 'ts',
+      ძ: 'dz',
+      წ: 'ts',
+      ჭ: 'ch',
+      ხ: 'kh',
+      ჯ: 'j',
+      ჰ: 'h',
+    }
+
+    return text
+      .split('')
+      .map((char) => georgianToLatin[char] || char)
+      .join('')
   },
 
   // Generate random Georgian text
   generateRandomText: (length: number = 50): string => {
-    const georgianChars = 'აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ';
-    let result = '';
+    const georgianChars = 'აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ'
+    let result = ''
     for (let i = 0; i < length; i++) {
-      result += georgianChars.charAt(Math.floor(Math.random() * georgianChars.length));
+      result += georgianChars.charAt(Math.floor(Math.random() * georgianChars.length))
     }
-    return result;
+    return result
   },
 
   // Validate Georgian postal code
   isValidGeorgianPostcode: (postcode: string): boolean => {
-    return /^\d{5}$/.test(postcode);
+    return /^\d{5}$/.test(postcode)
   },
 
   // Validate Georgian phone number
   isValidGeorgianPhone: (phone: string): boolean => {
-    return /^(\+995|0)[5-9]\d{8}$/.test(phone);
+    return /^(\+995|0)[5-9]\d{8}$/.test(phone)
   },
 
   // Generate Georgian business ID
   generateGeorgianBusinessId: (): string => {
-    return Math.random().toString().slice(2, 14);
+    return Math.random().toString().slice(2, 14)
   },
-};
+}
 
 // Export for use in tests
-export type TestUser = typeof testData.users[keyof typeof testData.users];
-export type TestRestaurant = typeof testData.restaurants[number];
-export type TestProduct = typeof testData.products[number];
-export type TestOrder = typeof testData.orders[number];
+export type TestUser = (typeof testData.users)[keyof typeof testData.users]
+export type TestRestaurant = (typeof testData.restaurants)[number]
+export type TestProduct = (typeof testData.products)[number]
+export type TestOrder = (typeof testData.orders)[number]

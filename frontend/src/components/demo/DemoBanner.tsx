@@ -1,22 +1,24 @@
-'use client';
+'use client'
 
-import { useDemo } from '@/hooks/useDemo';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Clock, Info, Zap } from 'lucide-react';
+import { useDemo } from '@/hooks/useDemo'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Clock, Info, Zap } from 'lucide-react'
 
 export function DemoBanner() {
-  const { session, sessionTimeRemaining, extendSession } = useDemo();
+  const { session, sessionTimeRemaining, extendSession } = useDemo()
 
-  if (!session) return null;
+  if (!session) return null
 
-  const timeMs = sessionTimeRemaining ?? 0;
-  const timeRemaining = Math.ceil(timeMs / (1000 * 60 * 60)); // hours
-  const isExpiringSoon = timeRemaining <= 2;
+  const timeMs = sessionTimeRemaining ?? 0
+  const timeRemaining = Math.ceil(timeMs / (1000 * 60 * 60)) // hours
+  const isExpiringSoon = timeRemaining <= 2
 
   return (
-    <Alert className={`border-l-4 ${isExpiringSoon ? 'border-orange-500 bg-orange-50' : 'border-blue-500 bg-blue-50'}`}>
+    <Alert
+      className={`border-l-4 ${isExpiringSoon ? 'border-orange-500 bg-orange-50' : 'border-blue-500 bg-blue-50'}`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {isExpiringSoon ? (
@@ -61,5 +63,5 @@ export function DemoBanner() {
         </div>
       </div>
     </Alert>
-  );
+  )
 }

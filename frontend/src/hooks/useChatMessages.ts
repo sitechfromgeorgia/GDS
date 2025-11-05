@@ -52,12 +52,7 @@ interface UseChatMessagesReturn {
 }
 
 export function useChatMessages(options: UseChatMessagesOptions): UseChatMessagesReturn {
-  const {
-    orderId,
-    userId,
-    autoSubscribe = true,
-    markAsReadOnReceive = true
-  } = options
+  const { orderId, userId, autoSubscribe = true, markAsReadOnReceive = true } = options
 
   const supabase = createBrowserClient()
   const channelRef = useRef<RealtimeChannel | null>(null)
@@ -83,7 +78,11 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
         setIsLoading(true)
         const currentOffset = reset ? 0 : offset
 
-        const { data, error: fetchError, count } = await supabase
+        const {
+          data,
+          error: fetchError,
+          count,
+        } = await supabase
           .from('chat_messages')
           .select('*', { count: 'exact' })
           .eq('order_id', orderId)
@@ -95,16 +94,14 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
         if (reset) {
           setMessages(data?.reverse() || [])
         } else {
-          setMessages(prev => [...(data?.reverse() || []), ...prev])
+          setMessages((prev) => [...(data?.reverse() || []), ...prev])
         }
 
         setHasMore((count || 0) > currentOffset + MESSAGES_PER_PAGE)
         setOffset(reset ? MESSAGES_PER_PAGE : currentOffset + MESSAGES_PER_PAGE)
 
         // Calculate unread count
-        const unread = data?.filter(
-          m => !m.is_read && m.sender_id !== userId
-        ).length || 0
+        const unread = data?.filter((m) => !m.is_read && m.sender_id !== userId).length || 0
         setUnreadCount(unread)
 
         setError(null)
@@ -131,7 +128,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
           order_id: orderId,
           sender_id: userId,
           message: message.trim(),
-          message_type: type
+          message_type: type,
         }
 
         const { data, error: insertError } = await supabase
@@ -167,15 +164,13 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
 
         if (updateError) throw updateError
 
-        setMessages(prev =>
-          prev.map(m =>
-            m.id === messageId
-              ? { ...m, is_read: true, read_at: new Date().toISOString() }
-              : m
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === messageId ? { ...m, is_read: true, read_at: new Date().toISOString() } : m
           )
         )
 
-        setUnreadCount(prev => Math.max(0, prev - 1))
+        setUnreadCount((prev) => Math.max(0, prev - 1))
         setError(null)
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to mark message as read')
@@ -199,8 +194,8 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
 
       if (updateError) throw updateError
 
-      setMessages(prev =>
-        prev.map(m =>
+      setMessages((prev) =>
+        prev.map((m) =>
           m.sender_id !== userId && !m.is_read
             ? { ...m, is_read: true, read_at: new Date().toISOString() }
             : m
@@ -229,7 +224,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
 
         if (deleteError) throw deleteError
 
-        setMessages(prev => prev.filter(m => m.id !== messageId))
+        setMessages((prev) => prev.filter((m) => m.id !== messageId))
         setError(null)
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to delete message')
@@ -249,7 +244,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
     channelRef.current.send({
       type: 'broadcast',
       event: 'typing',
-      payload: { userId, isTyping: true }
+      payload: { userId, isTyping: true },
     })
 
     // Clear existing timeout
@@ -277,7 +272,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
     channelRef.current.send({
       type: 'broadcast',
       event: 'typing',
-      payload: { userId, isTyping: false }
+      payload: { userId, isTyping: false },
     })
   }, [userId])
 
@@ -317,16 +312,16 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
           event: 'INSERT',
           schema: 'public',
           table: 'chat_messages',
-          filter: `order_id=eq.${orderId}`
+          filter: `order_id=eq.${orderId}`,
         },
         (payload) => {
           const newMessage = payload.new as ChatMessage
 
-          setMessages(prev => [...prev, newMessage])
+          setMessages((prev) => [...prev, newMessage])
 
           // Update unread count if message is from other user
           if (newMessage.sender_id !== userId) {
-            setUnreadCount(prev => prev + 1)
+            setUnreadCount((prev) => prev + 1)
 
             // Auto-mark as read if enabled
             if (markAsReadOnReceive) {
@@ -341,13 +336,11 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
           event: 'UPDATE',
           schema: 'public',
           table: 'chat_messages',
-          filter: `order_id=eq.${orderId}`
+          filter: `order_id=eq.${orderId}`,
         },
         (payload) => {
           const updatedMessage = payload.new as ChatMessage
-          setMessages(prev =>
-            prev.map(m => (m.id === updatedMessage.id ? updatedMessage : m))
-          )
+          setMessages((prev) => prev.map((m) => (m.id === updatedMessage.id ? updatedMessage : m)))
         }
       )
       .on('broadcast', { event: 'typing' }, (payload) => {
@@ -399,6 +392,6 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
     stopTyping,
     loadMore,
     hasMore,
-    refresh
+    refresh,
   }
 }

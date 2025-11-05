@@ -1,7 +1,8 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { registerServiceWorker } from '@/lib/pwa';
+import { useEffect } from 'react'
+import { registerServiceWorker } from '@/lib/pwa'
+import { logger } from '@/lib/logger'
 
 /**
  * Component to register service worker on mount
@@ -12,11 +13,11 @@ export function ServiceWorkerRegistration() {
     // Register service worker on client-side only
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       registerServiceWorker().catch((error) => {
-        console.error('Failed to register service worker:', error);
-      });
+        logger.error('Failed to register Service Worker in component', error as Error)
+      })
     }
-  }, []);
+  }, [])
 
   // This component doesn't render anything
-  return null;
+  return null
 }

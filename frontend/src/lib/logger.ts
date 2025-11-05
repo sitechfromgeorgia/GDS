@@ -26,7 +26,8 @@ interface LogMetadata {
  */
 const config = {
   // Enable logging based on environment
-  enabled: process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_LOGGING === 'true',
+  enabled:
+    process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_LOGGING === 'true',
 
   // Minimum log level
   minLevel: (process.env.NEXT_PUBLIC_LOG_LEVEL || 'info') as LogLevel,
@@ -91,9 +92,10 @@ export const logger = {
   error(message: string, error?: Error | unknown, context?: LogMetadata): void {
     if (!shouldLog('error')) return
 
-    const errorContext = error instanceof Error
-      ? { error: error.message, stack: error.stack, ...context }
-      : { error, ...context }
+    const errorContext =
+      error instanceof Error
+        ? { error: error.message, stack: error.stack, ...context }
+        : { error, ...context }
 
     console.error(`[${getTimestamp()}] [ERROR] ${message}`, errorContext)
   },

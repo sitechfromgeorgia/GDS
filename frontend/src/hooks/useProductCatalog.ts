@@ -50,7 +50,7 @@ export function useProductCatalog(params: UseProductCatalogParams = {}): UseProd
           category: params.category,
           search: params.search,
           min_price: params.min_price,
-          max_price: params.max_price
+          max_price: params.max_price,
         }
       )
 
@@ -65,15 +65,15 @@ export function useProductCatalog(params: UseProductCatalogParams = {}): UseProd
           total: result.totalCount,
           totalPages: result.totalPages,
           hasNextPage: result.hasNextPage,
-          hasPreviousPage: result.hasPreviousPage
+          hasPreviousPage: result.hasPreviousPage,
         },
         filters: {
           category: params.category,
           search: params.search,
           min_price: params.min_price,
-          max_price: params.max_price
+          max_price: params.max_price,
         },
-        categories
+        categories,
       }
     },
     enabled: true,

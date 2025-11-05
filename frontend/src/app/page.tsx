@@ -37,7 +37,8 @@ export default function HomePage() {
 
           <p className="mx-auto max-w-2xl text-lg leading-8 text-muted-foreground mb-8">
             Connect restaurants, distributors, and drivers with our comprehensive platform.
-            Real-time tracking, automated pricing, and seamless logistics for modern food distribution in Georgia.
+            Real-time tracking, automated pricing, and seamless logistics for modern food
+            distribution in Georgia.
           </p>
 
           {/* Feature Icons */}
@@ -79,9 +80,7 @@ export default function HomePage() {
           <Card className="shadow-lg">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Welcome Back</CardTitle>
-              <CardDescription>
-                Sign in to your account or try our demo
-              </CardDescription>
+              <CardDescription>Sign in to your account or try our demo</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <LoginForm />
@@ -91,9 +90,7 @@ export default function HomePage() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or
-                  </span>
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
                 </div>
               </div>
 

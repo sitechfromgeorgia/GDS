@@ -12,7 +12,14 @@
 import { useEffect } from 'react'
 import { logger } from '@/lib/logger'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 
 interface ErrorProps {
@@ -45,32 +52,20 @@ export default function Error({ error, reset }: ErrorProps) {
         <CardContent>
           {process.env.NODE_ENV === 'development' && (
             <div className="rounded-md bg-muted p-4">
-              <p className="text-sm font-mono text-muted-foreground break-all">
-                {error.message}
-              </p>
+              <p className="text-sm font-mono text-muted-foreground break-all">{error.message}</p>
               {error.digest && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Error ID: {error.digest}
-                </p>
+                <p className="mt-2 text-xs text-muted-foreground">Error ID: {error.digest}</p>
               )}
             </div>
           )}
         </CardContent>
 
         <CardFooter className="flex gap-2">
-          <Button
-            onClick={reset}
-            className="flex-1"
-            variant="default"
-          >
+          <Button onClick={reset} className="flex-1" variant="default">
             <RefreshCw className="mr-2 h-4 w-4" />
             სცადე თავიდან
           </Button>
-          <Button
-            onClick={() => (window.location.href = '/')}
-            variant="outline"
-            className="flex-1"
-          >
+          <Button onClick={() => (window.location.href = '/')} variant="outline" className="flex-1">
             <Home className="mr-2 h-4 w-4" />
             მთავარი გვერდი
           </Button>

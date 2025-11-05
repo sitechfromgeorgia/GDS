@@ -14,7 +14,10 @@ const supabase = createBrowserClient()
  * Type-safe product update operation
  * Addresses Supabase type inference issues in ProductForm
  */
-export async function updateProduct(id: string, updateData: Partial<Database['public']['Tables']['products']['Row']>) {
+export async function updateProduct(
+  id: string,
+  updateData: Partial<Database['public']['Tables']['products']['Row']>
+) {
   try {
     const { data, error } = await (supabase as any)
       .from('products')
@@ -38,7 +41,9 @@ export async function updateProduct(id: string, updateData: Partial<Database['pu
 /**
  * Type-safe product insert operation
  */
-export async function insertProduct(insertData: Database['public']['Tables']['products']['Insert']) {
+export async function insertProduct(
+  insertData: Database['public']['Tables']['products']['Insert']
+) {
   try {
     const { data, error } = await (supabase as any)
       .from('products')
@@ -67,26 +72,18 @@ export const safeSupabase = {
     data: Database['public']['Tables'][T]['Update'],
     filter: Record<string, any>
   ) => {
-    return (supabase as any)
-      .from(table)
-      .update(data)
-      .eq(filter.key, filter.value)
+    return (supabase as any).from(table).update(data).eq(filter.key, filter.value)
   },
 
   insert: <T extends keyof Database['public']['Tables']>(
     table: T,
     data: Database['public']['Tables'][T]['Insert']
   ) => {
-    return (supabase as any)
-      .from(table)
-      .insert(data)
+    return (supabase as any).from(table).insert(data)
   },
 
-  select: <T extends keyof Database['public']['Tables']>(
-    table: T,
-    query?: string
-  ) => {
+  select: <T extends keyof Database['public']['Tables']>(table: T, query?: string) => {
     let queryBuilder = (supabase as any).from(table).select(query || '*')
     return queryBuilder
-  }
+  },
 }

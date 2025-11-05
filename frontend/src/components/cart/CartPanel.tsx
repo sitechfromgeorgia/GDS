@@ -8,7 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from '@/components/ui/drawer'
 import { useCartContext } from '@/contexts/CartContext'
 import { CartItem } from './CartItem'
 import { CompactCartItem } from './CartItem'
@@ -22,23 +28,23 @@ interface CartPanelProps {
   onCheckout?: () => void
 }
 
-export function CartPanel({ 
-  className, 
+export function CartPanel({
+  className,
   variant = 'slideover',
   compact = false,
   showCheckout = true,
-  onCheckout
+  onCheckout,
 }: CartPanelProps) {
-  const { 
-    cart, 
-    itemCount, 
-    totalPrice, 
-    isEmpty, 
-    isCartOpen, 
-    setIsCartOpen, 
-    clearCart, 
+  const {
+    cart,
+    itemCount,
+    totalPrice,
+    isEmpty,
+    isCartOpen,
+    setIsCartOpen,
+    clearCart,
     formatTotal,
-    isClearing 
+    isClearing,
   } = useCartContext()
 
   const handleClose = () => {
@@ -61,9 +67,7 @@ export function CartPanel({
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-8">
               <ShoppingBag className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-center">
-                კალათა ცარიეა
-              </p>
+              <p className="text-muted-foreground text-center">კალათა ცარიეა</p>
               <p className="text-sm text-muted-foreground text-center mt-2">
                 დაამატეთ პროდუქტები კალათაში
               </p>
@@ -72,11 +76,7 @@ export function CartPanel({
         ) : (
           <div className="space-y-4">
             {cart?.items.map((item) => (
-              <CompactCartItem 
-                key={item.id} 
-                item={item} 
-                compact={true}
-              />
+              <CompactCartItem key={item.id} item={item} compact={true} />
             ))}
             <Separator />
             <div className="flex justify-between items-center">
@@ -84,11 +84,7 @@ export function CartPanel({
               <span className="text-lg font-bold">{formatTotal(totalPrice)}</span>
             </div>
             {showCheckout && (
-              <Button 
-                onClick={handleCheckout}
-                className="w-full"
-                size="lg"
-              >
+              <Button onClick={handleCheckout} className="w-full" size="lg">
                 გაგრძელება შეკვეთამდე
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -114,7 +110,7 @@ export function CartPanel({
             </Button>
           </CardHeader>
           <CardContent className="p-0">
-            <CartPanelContent 
+            <CartPanelContent
               compact={compact}
               showCheckout={showCheckout}
               onCheckout={handleCheckout}
@@ -154,22 +150,16 @@ export function CartPanel({
 }
 
 // Inner content component shared between variants
-function CartPanelContent({ 
-  compact, 
-  showCheckout, 
-  onCheckout 
+function CartPanelContent({
+  compact,
+  showCheckout,
+  onCheckout,
 }: {
   compact: boolean
   showCheckout: boolean
   onCheckout: () => void
 }) {
-  const { 
-    cart, 
-    isEmpty, 
-    clearCart, 
-    formatTotal, 
-    isClearing 
-  } = useCartContext()
+  const { cart, isEmpty, clearCart, formatTotal, isClearing } = useCartContext()
 
   if (isEmpty) {
     return (
@@ -192,12 +182,7 @@ function CartPanelContent({
       <ScrollArea className="flex-1 p-6">
         <div className="space-y-4">
           {cart?.items.map((item) => (
-            <CartItem 
-              key={item.id} 
-              item={item} 
-              compact={compact}
-              showActions={!compact}
-            />
+            <CartItem key={item.id} item={item} compact={compact} showActions={!compact} />
           ))}
         </div>
       </ScrollArea>
@@ -221,22 +206,13 @@ function CartPanelContent({
         {/* Action Buttons */}
         <div className="space-y-2">
           {showCheckout && (
-            <Button 
-              onClick={onCheckout}
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={onCheckout} className="w-full" size="lg">
               შეკვეთის დადასტურება
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           )}
-          
-          <Button 
-            onClick={clearCart}
-            variant="outline"
-            className="w-full"
-            disabled={isClearing}
-          >
+
+          <Button onClick={clearCart} variant="outline" className="w-full" disabled={isClearing}>
             {isClearing ? 'წაშლა...' : 'კალათის გასუფთავება'}
           </Button>
         </div>

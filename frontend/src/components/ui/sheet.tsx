@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import * as SheetPrimitive from "@radix-ui/react-dialog"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import * as SheetPrimitive from '@radix-ui/react-dialog'
+import { cn } from '@/lib/utils'
 
 const Sheet = SheetPrimitive.Root
 
@@ -13,7 +13,7 @@ const SheetTrigger = React.forwardRef<
   <SheetPrimitive.Trigger
     ref={ref}
     className={cn(
-      "text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+      'text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
       className
     )}
     {...props}
@@ -33,27 +33,19 @@ const SheetContent = React.forwardRef<
     <SheetPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 gap-4 bg-background p-6 shadow-lg transition-transform ease-in-out duration-300 data-[state=open]:translate-y-0 data-[state=closed]:translate-y-full",
-        "sm:max-w-[425px]",
+        'fixed z-50 gap-4 bg-background p-6 shadow-lg transition-transform ease-in-out duration-300 data-[state=open]:translate-y-0 data-[state=closed]:translate-y-full',
+        'sm:max-w-[425px]',
         className
       )}
       {...props}
     >
       {title && (
         <div className="flex flex-col space-y-2 text-center sm:text-left mb-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            {title}
-          </h2>
-          {description && (
-            <p className="text-sm text-muted-foreground">
-              {description}
-            </p>
-          )}
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
       )}
-      <div className="relative flex-1 flex-col overflow-y-auto">
-        {children}
-      </div>
+      <div className="relative flex-1 flex-col overflow-y-auto">{children}</div>
     </SheetPrimitive.Content>
   </SheetPrimitive.Portal>
 ))

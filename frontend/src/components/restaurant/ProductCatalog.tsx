@@ -7,16 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
-  Search,
-  Filter,
-  Plus,
-  Minus,
-  ShoppingCart,
-  Package
-} from 'lucide-react'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Search, Filter, Plus, Minus, ShoppingCart, Package } from 'lucide-react'
 import { Product, RestaurantProduct, ProductFilters, PRODUCT_CATEGORIES } from '@/types/restaurant'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
 import { useToast } from '@/hooks/use-toast'
@@ -30,7 +29,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
   const [products, setProducts] = useState<RestaurantProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<ProductFilters>({
-    available_only: true
+    available_only: true,
   })
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
@@ -45,7 +44,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
       setLoading(true)
       const data = await RestaurantUtils.getProducts({
         ...filters,
-        search: searchQuery || undefined
+        search: searchQuery || undefined,
       })
       setProducts(data)
     } catch (error) {
@@ -53,7 +52,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
       toast({
         title: 'შეცდომა',
         description: 'პროდუქტების ჩატვირთვა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setLoading(false)
@@ -65,32 +64,29 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
   }
 
   const handleAddToCart = (product: RestaurantProduct) => {
-    const existingItem = cartItems.find(item => item.product.id === product.id)
+    const existingItem = cartItems.find((item) => item.product.id === product.id)
     const currentQuantity = existingItem?.quantity || 0
 
     if (currentQuantity >= (product.max_order_quantity || 100)) {
       toast({
         title: 'შეზღუდული რაოდენობა',
         description: `მაქსიმუმ ${product.max_order_quantity || 100} ერთეული`,
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return
     }
 
-    const newQuantity = Math.min(
-      currentQuantity + 1,
-      product.max_order_quantity || 100
-    )
+    const newQuantity = Math.min(currentQuantity + 1, product.max_order_quantity || 100)
 
     onAddToCart(product, newQuantity - currentQuantity)
   }
 
   const getCartQuantity = (productId: string) => {
-    const item = cartItems.find(item => item.product.id === productId)
+    const item = cartItems.find((item) => item.product.id === productId)
     return item?.quantity || 0
   }
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = products.filter((product) => {
     if (filters.category?.length && !filters.category.includes(product.category)) {
       return false
     }
@@ -106,9 +102,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
             <Package className="h-5 w-5" />
             პროდუქტების კატალოგი
           </CardTitle>
-          <CardDescription>
-            აირჩიეთ საჭირო პროდუქტები შეკვეთისთვის
-          </CardDescription>
+          <CardDescription>აირჩიეთ საჭირო პროდუქტები შეკვეთისთვის</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -123,10 +117,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
             <Button onClick={handleSearch}>
               <Search className="h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-            >
+            <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
               <Filter className="h-4 w-4" />
             </Button>
           </div>
@@ -138,9 +129,9 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
                 <Select
                   value={filters.category?.[0] || ''}
                   onValueChange={(value) =>
-                    setFilters(prev => ({
+                    setFilters((prev) => ({
                       ...prev,
-                      category: value ? [value] : undefined
+                      category: value ? [value] : undefined,
                     }))
                   }
                 >
@@ -149,7 +140,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">ყველა კატეგორია</SelectItem>
-                    {PRODUCT_CATEGORIES.map(category => (
+                    {PRODUCT_CATEGORIES.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
@@ -163,9 +154,9 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
                   id="available-only"
                   checked={filters.available_only}
                   onCheckedChange={(checked) =>
-                    setFilters(prev => ({
+                    setFilters((prev) => ({
                       ...prev,
-                      available_only: checked as boolean
+                      available_only: checked as boolean,
                     }))
                   }
                 />
@@ -228,9 +219,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
                       <span className="font-bold text-lg">
                         {RestaurantUtils.formatCurrency(product.price)}
                       </span>
-                      <span className="text-sm text-muted-foreground">
-                        /{product.unit}
-                      </span>
+                      <span className="text-sm text-muted-foreground">/{product.unit}</span>
                     </div>
 
                     <Badge variant="outline" className="text-xs">
@@ -262,9 +251,7 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
       )}
 
       {filteredProducts.length === 0 && !loading && (
-        <div className="text-center py-8 text-muted-foreground">
-          პროდუქტები არ მოიძებნა
-        </div>
+        <div className="text-center py-8 text-muted-foreground">პროდუქტები არ მოიძებნა</div>
       )}
     </div>
   )

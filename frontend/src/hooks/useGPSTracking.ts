@@ -1,4 +1,14 @@
 /**
+ * @deprecated This hook is no longer used.
+ * GPS tracking has been replaced with Google Maps Link-based navigation.
+ * Drivers now use external Google Maps links instead of embedded tracking.
+ *
+ * See frontend/src/app/dashboard/driver/deliveries/page.tsx for the new implementation.
+ *
+ * This file can be safely deleted.
+ *
+ * Migration date: 2025-11-05
+ *
  * useGPSTracking Hook
  *
  * Provides real-time GPS tracking for delivery locations
@@ -13,6 +23,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 import { RealtimeChannel } from '@supabase/supabase-js'
 import type { DeliveryLocation, DeliveryLocationInsert } from '@/types/database'
 
@@ -62,7 +73,7 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
     driverId,
     autoSubscribe = true,
     trackHistory = true,
-    maxHistorySize = 50
+    maxHistorySize = 50,
   } = options
 
   const supabase = createBrowserClient()
@@ -124,7 +135,7 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
           altitude: coords.altitude,
           heading: coords.heading,
           speed: coords.speed,
-          recorded_at: new Date().toISOString()
+          recorded_at: new Date().toISOString(),
         }
 
         const { data, error: insertError } = await supabase
@@ -138,7 +149,7 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
         setCurrentLocation(data)
 
         if (trackHistory) {
-          setLocationHistory(prev => {
+          setLocationHistory((prev) => {
             const newHistory = [...prev, data]
             return newHistory.slice(-maxHistorySize)
           })
@@ -174,13 +185,13 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
           accuracy: position.coords.accuracy,
           altitude: position.coords.altitude || undefined,
           heading: position.coords.heading || undefined,
-          speed: position.coords.speed ? position.coords.speed * 3.6 : undefined // Convert m/s to km/h
+          speed: position.coords.speed ? position.coords.speed * 3.6 : undefined, // Convert m/s to km/h
         }
 
         try {
           await updateLocation(coords)
         } catch (err) {
-          console.error('Failed to update location:', err)
+          logger.error('Failed to update GPS location', err as Error)
         }
       },
       (err) => {
@@ -190,7 +201,7 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 5000
+        maximumAge: 5000,
       }
     )
   }, [updateLocation])
@@ -227,14 +238,14 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
           event: 'INSERT',
           schema: 'public',
           table: 'delivery_locations',
-          filter: `delivery_id=eq.${deliveryId}`
+          filter: `delivery_id=eq.${deliveryId}`,
         },
         (payload) => {
           const newLocation = payload.new as DeliveryLocation
           setCurrentLocation(newLocation)
 
           if (trackHistory) {
-            setLocationHistory(prev => {
+            setLocationHistory((prev) => {
               const newHistory = [...prev, newLocation]
               return newHistory.slice(-maxHistorySize)
             })
@@ -273,6 +284,6 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
     updateLocation,
     clearHistory,
     distance,
-    eta
+    eta,
   }
 }

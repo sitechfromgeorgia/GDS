@@ -14,10 +14,7 @@ interface UseProductSearchParams {
   max_price?: number
 }
 
-export function useProductSearch(
-  searchQuery: string,
-  params: UseProductSearchParams = {}
-) {
+export function useProductSearch(searchQuery: string, params: UseProductSearchParams = {}) {
   const queryClient = useQueryClient()
 
   const queryKey = ['products-search', searchQuery, params]
@@ -34,10 +31,10 @@ export function useProductSearch(
             total: 0,
             totalPages: 0,
             hasNextPage: false,
-            hasPreviousPage: false
+            hasPreviousPage: false,
           },
           filters: {},
-          categories: []
+          categories: [],
         }
       }
 
@@ -49,7 +46,7 @@ export function useProductSearch(
           category: params.category,
           search: searchQuery,
           min_price: params.min_price,
-          max_price: params.max_price
+          max_price: params.max_price,
         }
       )
 
@@ -64,15 +61,15 @@ export function useProductSearch(
           total: result.totalCount,
           totalPages: result.totalPages,
           hasNextPage: result.hasNextPage,
-          hasPreviousPage: result.hasPreviousPage
+          hasPreviousPage: result.hasPreviousPage,
         },
         filters: {
           category: params.category,
           search: searchQuery,
           min_price: params.min_price,
-          max_price: params.max_price
+          max_price: params.max_price,
         },
-        categories
+        categories,
       }
     },
     enabled: true, // Always enabled, returns empty data if no search query

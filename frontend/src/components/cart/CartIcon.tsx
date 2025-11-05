@@ -14,11 +14,11 @@ interface CartIconProps {
   variant?: 'default' | 'minimal' | 'floating'
 }
 
-export function CartIcon({ 
-  className, 
-  showLabel = true, 
-  onClick, 
-  variant = 'default' 
+export function CartIcon({
+  className,
+  showLabel = true,
+  onClick,
+  variant = 'default',
 }: CartIconProps) {
   const { itemCount, isCartOpen, setIsCartOpen } = useCartContext()
 
@@ -30,10 +30,7 @@ export function CartIcon({
     }
   }
 
-  const baseClasses = cn(
-    'relative transition-all duration-200',
-    className
-  )
+  const baseClasses = cn('relative transition-all duration-200', className)
 
   if (variant === 'floating') {
     return (
@@ -99,10 +96,7 @@ export function CartIcon({
       <ShoppingCart className="h-4 w-4" />
       {showLabel && <span>კალათა</span>}
       {itemCount > 0 && (
-        <Badge
-          variant="destructive"
-          className="ml-1 bg-orange-500 hover:bg-orange-600 text-white"
-        >
+        <Badge variant="destructive" className="ml-1 bg-orange-500 hover:bg-orange-600 text-white">
           {itemCount > 99 ? '99+' : itemCount}
         </Badge>
       )}

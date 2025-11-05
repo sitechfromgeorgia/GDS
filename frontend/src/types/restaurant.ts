@@ -75,7 +75,7 @@ export const ORDER_STATUSES: Record<OrderStatus, { label: string; color: string 
   out_for_delivery: { label: 'გზაშია', color: 'orange' },
   delivered: { label: 'მიწოდებული', color: 'green' },
   completed: { label: 'დასრულებული', color: 'gray' },
-  cancelled: { label: 'გაუქმებული', color: 'red' }
+  cancelled: { label: 'გაუქმებული', color: 'red' },
 }
 
 export const PRODUCT_CATEGORIES = [
@@ -84,10 +84,10 @@ export const PRODUCT_CATEGORIES = [
   'საკონდიტრო',
   'სასმელები',
   'სანელებლები',
-  'სხვა'
+  'სხვა',
 ] as const
 
-export type ProductCategory = typeof PRODUCT_CATEGORIES[number]
+export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number]
 
 // Export database types for backward compatibility
 export type { Product, Order, OrderItem } from './database'

@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
- 
-// @ts-ignore
 import { testSupabaseConnection, testAuth } from '@/lib/testConnection'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,15 +19,15 @@ export default function TestPage() {
     setResults({})
 
     // Test connection
-     
-    const connectionResult = await testSupabaseConnection() as any
-    setResults(prev => ({ ...prev, connection: connectionResult }))
+
+    const connectionResult = (await testSupabaseConnection()) as any
+    setResults((prev) => ({ ...prev, connection: connectionResult }))
 
     // Test auth
-    await new Promise(resolve => setTimeout(resolve, 500))
-     
-    const authResult = await testAuth() as any
-    setResults(prev => ({ ...prev, auth: authResult }))
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    const authResult = (await testAuth()) as any
+    setResults((prev) => ({ ...prev, auth: authResult }))
 
     setTesting(false)
   }
@@ -39,9 +37,7 @@ export default function TestPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Supabase Connection Test</h1>
-          <p className="text-muted-foreground">
-            ტესტირება VPS Backend-თან კავშირის
-          </p>
+          <p className="text-muted-foreground">ტესტირება VPS Backend-თან კავშირის</p>
         </div>
 
         <Card>
@@ -59,8 +55,8 @@ export default function TestPage() {
             <div className="flex items-center justify-between">
               <span className="font-medium">Anon Key:</span>
               <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-                {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-                  ? `${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 20)}...` 
+                {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+                  ? `${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 20)}...`
                   : 'Not set'}
               </code>
             </div>
@@ -73,11 +69,7 @@ export default function TestPage() {
             <CardDescription>გაუშვით ტესტები კავშირის შესამოწმებლად</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
-              onClick={runTests} 
-              disabled={testing}
-              className="w-full"
-            >
+            <Button onClick={runTests} disabled={testing} className="w-full">
               {testing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {testing ? 'ტესტირება...' : 'ტესტების გაშვება'}
             </Button>
@@ -99,9 +91,7 @@ export default function TestPage() {
                   )}
                 </div>
                 {results.connection.error && (
-                  <p className="text-sm text-red-600 mt-2">
-                    Error: {results.connection.error}
-                  </p>
+                  <p className="text-sm text-red-600 mt-2">Error: {results.connection.error}</p>
                 )}
               </div>
             )}
@@ -123,9 +113,7 @@ export default function TestPage() {
                   )}
                 </div>
                 {results.auth.error && (
-                  <p className="text-sm text-red-600 mt-2">
-                    Error: {results.auth.error}
-                  </p>
+                  <p className="text-sm text-red-600 mt-2">Error: {results.auth.error}</p>
                 )}
               </div>
             )}
@@ -145,9 +133,7 @@ export default function TestPage() {
                 <p>✓ Database connection established</p>
                 <p>✓ Authentication system ready</p>
                 <p>✓ API endpoints accessible</p>
-                <p className="mt-4 font-medium">
-                  შეგიძლიათ დაიწყოთ მუშაობა მთავარ აპლიკაციაზე!
-                </p>
+                <p className="mt-4 font-medium">შეგიძლიათ დაიწყოთ მუშაობა მთავარ აპლიკაციაზე!</p>
               </div>
             </CardContent>
           </Card>

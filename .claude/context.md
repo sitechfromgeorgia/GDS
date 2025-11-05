@@ -401,6 +401,65 @@ c893b7a - chore(specify): add analytics dashboard KPIs spec and checklist
 
 ---
 
+## 📋 Speckit Workflow Integration
+
+### What is Speckit?
+**Speckit** is a comprehensive feature specification and implementation management system that helps build features systematically from idea to implementation.
+
+### Available Speckit Commands
+- `/speckit.specify [description]` - Create feature specification from idea
+- `/speckit.clarify [topic]` - Resolve unclear requirements
+- `/speckit.plan [notes]` - Generate technical implementation plan
+- `/speckit.checklist [type]` - Create quality validation checklists
+- `/speckit.tasks [notes]` - Break down into executable tasks
+- `/speckit.implement [notes]` - Execute the implementation plan
+- `/speckit.analyze [focus]` - Analyze existing specifications
+- `/speckit.constitution [updates]` - Manage project constitution
+
+### Quick Start Workflow
+```bash
+# 1. Create specification
+/speckit.specify [your feature description]
+
+# 2. Clarify if needed (optional)
+/speckit.clarify [topic if needed]
+
+# 3. Generate implementation plan
+/speckit.plan [planning notes]
+
+# 4. Create quality checklists (optional but recommended)
+/speckit.checklist [checklist type: ux/api/security/performance]
+
+# 5. Generate task breakdown
+/speckit.tasks
+
+# 6. Execute implementation
+/speckit.implement
+```
+
+### Speckit Resources
+- **Overview Guide:** `.claude/commands/speckit.md` (comprehensive reference)
+- **Templates:** `.specify/templates/`
+- **Scripts:** `.specify/scripts/powershell/`
+- **Constitution:** `.specify/memory/constitution.md`
+- **Generated Specs:** `specs/[feature-number]-[feature-name]/`
+
+### Speckit File Structure
+When using Speckit, it creates:
+```
+specs/
+  NNN-feature-name/
+    spec.md              # Feature specification
+    plan.md              # Technical plan
+    tasks.md             # Task breakdown
+    data-model.md        # Database entities (if applicable)
+    research.md          # Technical decisions
+    contracts/           # API specifications
+    checklists/          # Quality validation checklists
+```
+
+---
+
 ## 📚 Quick Reference
 
 ### Important Files to Check
@@ -409,6 +468,7 @@ c893b7a - chore(specify): add analytics dashboard KPIs spec and checklist
 - **Development Rules:** `.claude/rules/coding-standards.md`
 - **Feature Specs:** `specs/001-analytics-dashboard/README.md`
 - **Tech Details:** `.kilocode/rules/memory-bank/tech.md`
+- **Speckit Guide:** `.claude/commands/speckit.md` ⭐ NEW
 
 ### Common Operations
 - **Start Dev:** `cd frontend && npm run dev`
@@ -417,8 +477,16 @@ c893b7a - chore(specify): add analytics dashboard KPIs spec and checklist
 - **Lint Code:** `cd frontend && npm run lint`
 - **Build Prod:** `cd frontend && npm run build`
 
+### Speckit Operations
+- **Create Feature:** `/speckit.specify [description]`
+- **Plan Feature:** `/speckit.plan`
+- **Generate Tasks:** `/speckit.tasks`
+- **Implement:** `/speckit.implement`
+- **View Guide:** Check `.claude/commands/speckit.md`
+
 ---
 
 **Status:** 🟢 All systems operational
 **Next Review:** After merging 001-analytics-dashboard to main
 **Team Focus:** Preparing for 002-restaurant-order-management feature
+**Speckit Status:** ✅ Fully integrated and documented

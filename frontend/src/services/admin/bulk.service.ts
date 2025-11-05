@@ -15,22 +15,19 @@ export class BulkService {
   }> {
     const validation = this.validateBulkPriceUpdates(updates)
     if (!validation.isValid) {
-      throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`)
+      throw new Error(`Validation failed: ${validation.errors.map((e) => e.message).join(', ')}`)
     }
 
     const batch = AdminBatchProcessor.createBatch('product_bulk_update', updates.length, {
-      updates_count: updates.length
+      updates_count: updates.length,
     })
 
     try {
       // Audit log the operation start
-      await AdminAuditLogger.log(
-        'product_bulk_update',
-        'products',
-        null,
-        performedBy,
-        { updates_count: updates.length, batch_id: batch.id }
-      )
+      await AdminAuditLogger.log('product_bulk_update', 'products', null, performedBy, {
+        updates_count: updates.length,
+        batch_id: batch.id,
+      })
 
       // Perform the bulk update using admin client
       const result = await adminDatabase.bulkUpdateProductPrices(updates)
@@ -39,39 +36,29 @@ export class BulkService {
       AdminBatchProcessor.completeBatch(batch.id, 'completed')
 
       // Audit log the completion
-      await AdminAuditLogger.log(
-        'product_bulk_update',
-        'products',
-        null,
-        performedBy,
-        {
-          batch_id: batch.id,
-          success_count: updates.length,
-          error_count: 0,
-          result: result?.length || 0
-        }
-      )
+      await AdminAuditLogger.log('product_bulk_update', 'products', null, performedBy, {
+        batch_id: batch.id,
+        success_count: updates.length,
+        error_count: 0,
+        result: result?.length || 0,
+      })
 
       return {
         batchId: batch.id,
-        result: AdminBatchProcessor.getBatch(batch.id)!
+        result: AdminBatchProcessor.getBatch(batch.id)!,
       }
     } catch (error) {
       AdminBatchProcessor.completeBatch(batch.id, 'failed')
-      
-      // Audit log the failure
-      await AdminAuditLogger.log(
-        'product_bulk_update',
-        'products',
-        null,
-        performedBy,
-        {
-          batch_id: batch.id,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      )
 
-      throw new Error(`Bulk price update failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      // Audit log the failure
+      await AdminAuditLogger.log('product_bulk_update', 'products', null, performedBy, {
+        batch_id: batch.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+
+      throw new Error(
+        `Bulk price update failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
@@ -90,22 +77,16 @@ export class BulkService {
 
     const batch = AdminBatchProcessor.createBatch('user_status_change', userIds.length, {
       user_ids: userIds,
-      is_active: isActive
+      is_active: isActive,
     })
 
     try {
       // Audit log the operation start
-      await AdminAuditLogger.log(
-        'user_status_change',
-        'users',
-        null,
-        performedBy,
-        {
-          user_count: userIds.length,
-          is_active: isActive,
-          batch_id: batch.id
-        }
-      )
+      await AdminAuditLogger.log('user_status_change', 'users', null, performedBy, {
+        user_count: userIds.length,
+        is_active: isActive,
+        batch_id: batch.id,
+      })
 
       // Perform the bulk update using admin client
       const result = await adminDatabase.bulkUpdateUserStatus(userIds, isActive)
@@ -114,39 +95,29 @@ export class BulkService {
       AdminBatchProcessor.completeBatch(batch.id, 'completed')
 
       // Audit log the completion
-      await AdminAuditLogger.log(
-        'user_status_change',
-        'users',
-        null,
-        performedBy,
-        {
-          batch_id: batch.id,
-          success_count: result?.length || 0,
-          error_count: 0,
-          affected_users: result?.map(u => u.id) || []
-        }
-      )
+      await AdminAuditLogger.log('user_status_change', 'users', null, performedBy, {
+        batch_id: batch.id,
+        success_count: result?.length || 0,
+        error_count: 0,
+        affected_users: result?.map((u) => u.id) || [],
+      })
 
       return {
         batchId: batch.id,
-        result: AdminBatchProcessor.getBatch(batch.id)!
+        result: AdminBatchProcessor.getBatch(batch.id)!,
       }
     } catch (error) {
       AdminBatchProcessor.completeBatch(batch.id, 'failed')
-      
-      // Audit log the failure
-      await AdminAuditLogger.log(
-        'user_status_change',
-        'users',
-        null,
-        performedBy,
-        {
-          batch_id: batch.id,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      )
 
-      throw new Error(`Bulk user status update failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      // Audit log the failure
+      await AdminAuditLogger.log('user_status_change', 'users', null, performedBy, {
+        batch_id: batch.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+
+      throw new Error(
+        `Bulk user status update failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
@@ -170,24 +141,18 @@ export class BulkService {
 
     const batch = AdminBatchProcessor.createBatch('order_bulk_update', orderIds.length, {
       operation: 'bulk_delete',
-      order_ids: orderIds
+      order_ids: orderIds,
     })
 
     try {
       // Audit log the destructive operation
-      await AdminAuditLogger.log(
-        'order_bulk_update',
-        'orders',
-        null,
-        performedBy,
-        {
-          operation: 'bulk_delete',
-          order_count: orderIds.length,
-          batch_id: batch.id,
-          destructive: true,
-          confirmation_token: confirmationToken
-        }
-      )
+      await AdminAuditLogger.log('order_bulk_update', 'orders', null, performedBy, {
+        operation: 'bulk_delete',
+        order_count: orderIds.length,
+        batch_id: batch.id,
+        destructive: true,
+        confirmation_token: confirmationToken,
+      })
 
       // Perform the bulk delete using admin client
       const result = await adminDatabase.bulkDeleteOrders(orderIds)
@@ -196,40 +161,30 @@ export class BulkService {
       AdminBatchProcessor.completeBatch(batch.id, 'completed')
 
       // Audit log the completion
-      await AdminAuditLogger.log(
-        'order_bulk_update',
-        'orders',
-        null,
-        performedBy,
-        {
-          batch_id: batch.id,
-          operation: 'bulk_delete',
-          success_count: result.deletedCount || 0,
-          error_count: 0
-        }
-      )
+      await AdminAuditLogger.log('order_bulk_update', 'orders', null, performedBy, {
+        batch_id: batch.id,
+        operation: 'bulk_delete',
+        success_count: result.deletedCount || 0,
+        error_count: 0,
+      })
 
       return {
         batchId: batch.id,
-        result: AdminBatchProcessor.getBatch(batch.id)!
+        result: AdminBatchProcessor.getBatch(batch.id)!,
       }
     } catch (error) {
       AdminBatchProcessor.completeBatch(batch.id, 'failed')
-      
-      // Audit log the failure
-      await AdminAuditLogger.log(
-        'order_bulk_update',
-        'orders',
-        null,
-        performedBy,
-        {
-          batch_id: batch.id,
-          operation: 'bulk_delete',
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      )
 
-      throw new Error(`Bulk order delete failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      // Audit log the failure
+      await AdminAuditLogger.log('order_bulk_update', 'orders', null, performedBy, {
+        batch_id: batch.id,
+        operation: 'bulk_delete',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+
+      throw new Error(
+        `Bulk order delete failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
@@ -263,17 +218,11 @@ export class BulkService {
     AdminBatchProcessor.completeBatch(batchId, 'failed')
 
     // Audit log the cancellation
-    await AdminAuditLogger.log(
-      'system_maintenance',
-      'batch_operations',
-      batchId,
-      performedBy,
-      {
-        action: 'cancel',
-        original_type: batch.type,
-        total_items: batch.total_items
-      }
-    )
+    await AdminAuditLogger.log('system_maintenance', 'batch_operations', batchId, performedBy, {
+      action: 'cancel',
+      original_type: batch.type,
+      total_items: batch.total_items,
+    })
   }
 
   // Clean up completed batches
@@ -308,7 +257,10 @@ export class BulkService {
       }
 
       if (typeof update.price !== 'number' || update.price < 0) {
-        errors.push({ field: `updates[${index}].price`, message: 'Price must be a positive number' })
+        errors.push({
+          field: `updates[${index}].price`,
+          message: 'Price must be a positive number',
+        })
       }
 
       if (update.price > 999999.99) {
@@ -317,7 +269,7 @@ export class BulkService {
     })
 
     // Check for duplicate IDs
-    const ids = updates.map(u => u.id).filter(Boolean)
+    const ids = updates.map((u) => u.id).filter(Boolean)
     const uniqueIds = new Set(ids)
     if (ids.length !== uniqueIds.size) {
       errors.push({ field: 'updates', message: 'Duplicate product IDs found in updates' })
@@ -325,7 +277,7 @@ export class BulkService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
@@ -345,7 +297,7 @@ export class BulkService {
       'Success Count',
       'Error Count',
       'Created At',
-      'Completed At'
+      'Completed At',
     ]
 
     const row = [
@@ -357,10 +309,10 @@ export class BulkService {
       batch.success_count.toString(),
       batch.error_count.toString(),
       batch.created_at,
-      batch.completed_at || ''
+      batch.completed_at || '',
     ]
 
-    return [headers.join(','), row.map(field => `"${field}"`).join(',')].join('\n')
+    return [headers.join(','), row.map((field) => `"${field}"`).join(',')].join('\n')
   }
 }
 

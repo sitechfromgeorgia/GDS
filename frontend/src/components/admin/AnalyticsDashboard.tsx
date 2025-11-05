@@ -1,6 +1,5 @@
 'use client'
 
- 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,7 +18,7 @@ import {
   Pie,
   Cell,
   Area,
-  AreaChart
+  AreaChart,
 } from 'recharts'
 import {
   TrendingUp,
@@ -29,7 +28,7 @@ import {
   Users,
   Package,
   Clock,
-  Star
+  Star,
 } from 'lucide-react'
 
 interface AnalyticsDashboardProps {
@@ -40,7 +39,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
 export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
   const [loading, setLoading] = useState(true)
-   
+
   const [analyticsData, setAnalyticsData] = useState<any>({
     revenue: [],
     orders: [],
@@ -48,10 +47,9 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
     products: [],
     topProducts: [],
     orderStatus: [],
-    revenueByCategory: []
+    revenueByCategory: [],
   })
 
-   
   const setAnalyticsDataWithMock = (data: any) => {
     setAnalyticsData(data)
   }
@@ -66,7 +64,7 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
           { month: 'მარ', revenue: 48000, orders: 132 },
           { month: 'აპრ', revenue: 61000, orders: 168 },
           { month: 'მაი', revenue: 55000, orders: 152 },
-          { month: 'ივნ', revenue: 67000, orders: 185 }
+          { month: 'ივნ', revenue: 67000, orders: 185 },
         ],
         orders: [
           { date: '2024-01-01', orders: 12 },
@@ -75,7 +73,7 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
           { date: '2024-01-04', orders: 22 },
           { date: '2024-01-05', orders: 18 },
           { date: '2024-01-06', orders: 25 },
-          { date: '2024-01-07', orders: 20 }
+          { date: '2024-01-07', orders: 20 },
         ],
         customers: [
           { month: 'იან', new: 45, returning: 120 },
@@ -83,34 +81,34 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
           { month: 'მარ', new: 38, returning: 142 },
           { month: 'აპრ', new: 67, returning: 158 },
           { month: 'მაი', new: 43, returning: 165 },
-          { month: 'ივნ', new: 71, returning: 178 }
+          { month: 'ივნ', new: 71, returning: 178 },
         ],
         products: [
           { category: 'საკვები', sold: 1250, revenue: 37500 },
           { category: 'სასმელები', sold: 890, revenue: 26700 },
           { category: 'რძის პროდუქტები', sold: 650, revenue: 19500 },
           { category: 'საცხობი', sold: 420, revenue: 12600 },
-          { category: 'ხილი და ბოსტნეული', sold: 380, revenue: 11400 }
+          { category: 'ხილი და ბოსტნეული', sold: 380, revenue: 11400 },
         ],
         topProducts: [
           { name: 'ხაჭაპური', sold: 245, revenue: 7350 },
           { name: 'ლობიოს ხინკალი', sold: 189, revenue: 5670 },
           { name: 'ხინკალი', sold: 156, revenue: 4680 },
           { name: 'აჭარული ხაჭაპური', sold: 134, revenue: 4020 },
-          { name: 'საცივი ბორშჩი', sold: 98, revenue: 2940 }
+          { name: 'საცივი ბორშჩი', sold: 98, revenue: 2940 },
         ],
         orderStatus: [
           { name: 'დასრულებული', value: 1167, color: '#00C49F' },
           { name: 'მიტანა', value: 12, color: '#FFBB28' },
           { name: 'მზადება', value: 45, color: '#0088FE' },
-          { name: 'მოლოდინში', value: 23, color: '#FF8042' }
+          { name: 'მოლოდინში', value: 23, color: '#FF8042' },
         ],
         revenueByCategory: [
           { category: 'საკვები', revenue: 37500, percentage: 45.2 },
           { category: 'სასმელები', revenue: 26700, percentage: 32.1 },
           { category: 'რძის პროდუქტები', revenue: 19500, percentage: 23.5 },
-          { category: 'სხვა', revenue: 13600, percentage: 16.4 }
-        ]
+          { category: 'სხვა', revenue: 13600, percentage: 16.4 },
+        ],
       }
       setAnalyticsDataWithMock(mockData)
       setLoading(false)
@@ -188,7 +186,7 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    { }
+                    {}
                     {analyticsData.orderStatus.map((entry: any, index: any) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
@@ -207,7 +205,7 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                { }
+                {}
                 {analyticsData.topProducts.map((product: any, index: any) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -262,7 +260,13 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
-                  <Area type="monotone" dataKey="orders" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                  <Area
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.6}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
@@ -329,7 +333,7 @@ export function AnalyticsDashboard({ dateRange }: AnalyticsDashboardProps) {
                     fill="#8884d8"
                     dataKey="revenue"
                   >
-                    { }
+                    {}
                     {analyticsData.revenueByCategory.map((entry: any, index: any) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

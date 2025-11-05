@@ -1,86 +1,92 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Rocket, Mail, Phone, Star, CheckCircle } from 'lucide-react';
-import { useDemo } from '@/hooks/useDemo';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Rocket, Mail, Phone, Star, CheckCircle } from 'lucide-react'
+import { useDemo } from '@/hooks/useDemo'
+import { useToast } from '@/hooks/use-toast'
 
 export function ConversionPrompt() {
-  const { attemptConversion, submitFeedback } = useDemo();
-  const { toast } = useToast();
-  const [showContactForm, setShowContactForm] = useState(false);
+  const { attemptConversion, submitFeedback } = useDemo()
+  const { toast } = useToast()
+  const [showContactForm, setShowContactForm] = useState(false)
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
     phone: '',
     company: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    message: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSignup = async () => {
     try {
-      await attemptConversion();
+      await attemptConversion()
       toast({
-        title: "Redirecting to signup",
-        description: "Taking you to our registration page...",
-      });
+        title: 'Redirecting to signup',
+        description: 'Taking you to our registration page...',
+      })
       // In a real implementation, this would redirect to signup
-      window.location.href = '/signup';
+      window.location.href = '/signup'
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      })
     }
-  };
+  }
 
   const handleContact = async () => {
     if (!contactForm.name || !contactForm.email) {
       toast({
-        title: "Missing information",
-        description: "Please fill in your name and email.",
-        variant: "destructive",
-      });
-      return;
+        title: 'Missing information',
+        description: 'Please fill in your name and email.',
+        variant: 'destructive',
+      })
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      await attemptConversion();
-      await submitFeedback();
+      await attemptConversion()
+      await submitFeedback()
 
       toast({
-        title: "Thank you!",
+        title: 'Thank you!',
         description: "We'll get back to you within 24 hours.",
-      });
+      })
 
-      setShowContactForm(false);
+      setShowContactForm(false)
       setContactForm({
         name: '',
         email: '',
         phone: '',
         company: '',
-        message: ''
-      });
+        message: '',
+      })
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="conversion-prompt fixed bottom-4 right-4 z-30">
@@ -98,10 +104,7 @@ export function ConversionPrompt() {
           </p>
 
           <div className="space-y-2">
-            <Button
-              onClick={handleSignup}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={handleSignup} className="w-full bg-blue-600 hover:bg-blue-700">
               <CheckCircle className="h-4 w-4 mr-2" />
               Start Free Trial
             </Button>
@@ -126,7 +129,9 @@ export function ConversionPrompt() {
                       <Input
                         id="name"
                         value={contactForm.name}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setContactForm((prev) => ({ ...prev, name: e.target.value }))
+                        }
                         placeholder="Your name"
                       />
                     </div>
@@ -136,7 +141,9 @@ export function ConversionPrompt() {
                         id="email"
                         type="email"
                         value={contactForm.email}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setContactForm((prev) => ({ ...prev, email: e.target.value }))
+                        }
                         placeholder="your@email.com"
                       />
                     </div>
@@ -148,7 +155,9 @@ export function ConversionPrompt() {
                       <Input
                         id="phone"
                         value={contactForm.phone}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) =>
+                          setContactForm((prev) => ({ ...prev, phone: e.target.value }))
+                        }
                         placeholder="+995 XX XXX XXX"
                       />
                     </div>
@@ -157,7 +166,9 @@ export function ConversionPrompt() {
                       <Input
                         id="company"
                         value={contactForm.company}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, company: e.target.value }))}
+                        onChange={(e) =>
+                          setContactForm((prev) => ({ ...prev, company: e.target.value }))
+                        }
                         placeholder="Restaurant name"
                       />
                     </div>
@@ -168,7 +179,9 @@ export function ConversionPrompt() {
                     <Textarea
                       id="message"
                       value={contactForm.message}
-                      onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                      onChange={(e) =>
+                        setContactForm((prev) => ({ ...prev, message: e.target.value }))
+                      }
                       placeholder="Tell us about your needs..."
                       rows={3}
                     />
@@ -182,11 +195,7 @@ export function ConversionPrompt() {
                     >
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleContact}
-                      disabled={isSubmitting}
-                      className="flex-1"
-                    >
+                    <Button onClick={handleContact} disabled={isSubmitting} className="flex-1">
                       {isSubmitting ? 'Sending...' : 'Send Message'}
                     </Button>
                   </div>
@@ -210,5 +219,5 @@ export function ConversionPrompt() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

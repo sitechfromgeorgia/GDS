@@ -30,7 +30,8 @@ export function HeroSection() {
           {/* Subheadline */}
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
             Connect restaurants, distributors, and drivers with our comprehensive platform.
-            Real-time tracking, automated pricing, and seamless logistics for modern food distribution in Georgia.
+            Real-time tracking, automated pricing, and seamless logistics for modern food
+            distribution in Georgia.
           </p>
 
           {/* CTA Buttons */}
@@ -51,9 +52,7 @@ export function HeroSection() {
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="px-8">
-                  <Link href="#pricing">
-                    View Pricing
-                  </Link>
+                  <Link href="#pricing">View Pricing</Link>
                 </Button>
               </>
             )}

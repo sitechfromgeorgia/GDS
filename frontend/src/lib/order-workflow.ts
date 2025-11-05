@@ -7,8 +7,8 @@ import { createServerClient } from '@/lib/supabase/server'
 
 type Order = Database['public']['Tables']['orders']['Row']
 type OrderUpdate = Database['public']['Tables']['orders']['Update']
-type OrderStatus = typeof ORDER_STATUSES[keyof typeof ORDER_STATUSES]
-type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
+type OrderStatus = (typeof ORDER_STATUSES)[keyof typeof ORDER_STATUSES]
+type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES]
 
 /**
  * Order status transition configuration
@@ -39,8 +39,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     allowedRoles: ['admin', 'restaurant'],
     notifications: {
       recipients: ['admin'],
-      priority: 'low'
-    }
+      priority: 'low',
+    },
   },
 
   // Admin pricing
@@ -51,8 +51,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     validationRules: ['has_total_amount', 'valid_pricing'],
     notifications: {
       recipients: ['restaurant', 'admin'],
-      priority: 'medium'
-    }
+      priority: 'medium',
+    },
   },
 
   // Driver assignment
@@ -64,8 +64,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['restaurant', 'driver', 'admin'],
       priority: 'high',
-      browser: true
-    }
+      browser: true,
+    },
   },
 
   // Driver starts delivery
@@ -77,8 +77,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['restaurant', 'admin'],
       priority: 'high',
-      browser: true
-    }
+      browser: true,
+    },
   },
 
   // Driver marks as delivered (first step of two-step confirmation)
@@ -91,8 +91,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
       recipients: ['restaurant', 'admin'],
       priority: 'urgent',
       browser: true,
-      email: true
-    }
+      email: true,
+    },
   },
 
   // Restaurant confirms receipt (second step - completes the order)
@@ -104,8 +104,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['driver', 'admin'],
       priority: 'medium',
-      email: true
-    }
+      email: true,
+    },
   },
 
   // Cancellation (from any active state)
@@ -116,8 +116,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['admin', 'restaurant', 'driver'],
       priority: 'high',
-      email: true
-    }
+      email: true,
+    },
   },
   {
     from: 'confirmed',
@@ -126,8 +126,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['admin', 'restaurant', 'driver'],
       priority: 'high',
-      email: true
-    }
+      email: true,
+    },
   },
   {
     from: 'priced',
@@ -136,8 +136,8 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['admin', 'restaurant', 'driver'],
       priority: 'high',
-      email: true
-    }
+      email: true,
+    },
   },
   {
     from: 'assigned',
@@ -146,9 +146,9 @@ const ORDER_WORKFLOW: StatusTransition[] = [
     notifications: {
       recipients: ['admin', 'restaurant', 'driver'],
       priority: 'urgent',
-      email: true
-    }
-  }
+      email: true,
+    },
+  },
 ]
 
 /**
@@ -175,7 +175,6 @@ interface StatusChangeResult {
  * Manages the complete order lifecycle with validation, notifications, and automation
  */
 export class OrderWorkflowEngine {
-
   /**
    * Validate if a status transition is allowed
    */
@@ -187,14 +186,12 @@ export class OrderWorkflowEngine {
     order: Order
   ): Promise<WorkflowValidation> {
     // Find matching transition
-    const transition = ORDER_WORKFLOW.find(
-      t => t.from === currentStatus && t.to === newStatus
-    )
+    const transition = ORDER_WORKFLOW.find((t) => t.from === currentStatus && t.to === newStatus)
 
     if (!transition) {
       return {
         valid: false,
-        reason: `Invalid transition from ${currentStatus} to ${newStatus}`
+        reason: `Invalid transition from ${currentStatus} to ${newStatus}`,
       }
     }
 
@@ -202,7 +199,7 @@ export class OrderWorkflowEngine {
     if (!transition.allowedRoles.includes(userRole)) {
       return {
         valid: false,
-        reason: `Role ${userRole} is not allowed to perform this transition`
+        reason: `Role ${userRole} is not allowed to perform this transition`,
       }
     }
 
@@ -232,13 +229,19 @@ export class OrderWorkflowEngine {
     order: Order
   ): Promise<OrderStatus[]> {
     const transitions = ORDER_WORKFLOW.filter(
-      t => t.from === currentStatus && t.allowedRoles.includes(userRole)
+      (t) => t.from === currentStatus && t.allowedRoles.includes(userRole)
     )
 
     const validTransitions: OrderStatus[] = []
 
     for (const transition of transitions) {
-      const validation = await this.validateTransition(currentStatus, transition.to, userRole, userId, order)
+      const validation = await this.validateTransition(
+        currentStatus,
+        transition.to,
+        userRole,
+        userId,
+        order
+      )
       if (validation.valid) {
         validTransitions.push(transition.to)
       }
@@ -261,11 +264,11 @@ export class OrderWorkflowEngine {
     try {
       // Get current order
       const supabase = await createServerClient()
-      const { data: order, error: orderError } = await supabase
+      const { data: order, error: orderError } = (await supabase
         .from('orders')
         .select('*')
         .eq('id', orderId)
-        .single() as { data: Order | null; error: any }
+        .single()) as { data: Order | null; error: any }
 
       if (orderError || !order) {
         return { success: false, error: 'Order not found' }
@@ -273,7 +276,7 @@ export class OrderWorkflowEngine {
 
       // Validate transition
       const validation = await this.validateTransition(
-        order.status,
+        order.status as OrderStatus,
         newStatus,
         userRole,
         userId,
@@ -287,7 +290,7 @@ export class OrderWorkflowEngine {
       // Prepare update data
       const updateData: Partial<Order> = {
         status: newStatus,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
       // Add notes if provided
@@ -301,12 +304,12 @@ export class OrderWorkflowEngine {
       }
 
       // Execute the update
-      const { data: updatedOrder, error: updateError } = await (supabase as any)
+      const { data: updatedOrder, error: updateError } = (await (supabase as any)
         .from('orders')
         .update(updateData)
         .eq('id', orderId)
         .select()
-        .single() as { data: Order | null; error: any }
+        .single()) as { data: Order | null; error: any }
 
       if (updateError) {
         logger.error('Failed to update order status:', updateError)
@@ -334,9 +337,8 @@ export class OrderWorkflowEngine {
       return {
         success: true,
         order: updatedOrder,
-        notifications
+        notifications,
       }
-
     } catch (error) {
       logger.error('Status change execution error:', error)
       return { success: false, error: 'Internal error during status change' }
@@ -355,7 +357,7 @@ export class OrderWorkflowEngine {
     const results = {
       success: 0,
       failed: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     }
 
     for (const orderId of orderIds) {
@@ -381,23 +383,31 @@ export class OrderWorkflowEngine {
   /**
    * Handle workflow automation (escalation, auto-complete, etc.)
    */
-  private static async handleWorkflowAutomation(order: Order, newStatus: OrderStatus): Promise<void> {
+  private static async handleWorkflowAutomation(
+    order: Order,
+    newStatus: OrderStatus
+  ): Promise<void> {
     try {
       // Auto-complete orders that are delivered and confirmed
       if (newStatus === ORDER_STATUSES.DELIVERED) {
         // Schedule auto-completion after 24 hours if restaurant doesn't confirm
-        setTimeout(async () => {
-          await this.checkAndAutoCompleteOrder(order.id)
-        }, 24 * 60 * 60 * 1000) // 24 hours
+        setTimeout(
+          async () => {
+            await this.checkAndAutoCompleteOrder(order.id)
+          },
+          24 * 60 * 60 * 1000
+        ) // 24 hours
       }
 
       // Escalate overdue orders
       if (newStatus === ORDER_STATUSES.OUT_FOR_DELIVERY) {
-        setTimeout(async () => {
-          await this.escalateOverdueOrder(order.id)
-        }, 2 * 60 * 60 * 1000) // 2 hours
+        setTimeout(
+          async () => {
+            await this.escalateOverdueOrder(order.id)
+          },
+          2 * 60 * 60 * 1000
+        ) // 2 hours
       }
-
     } catch (error) {
       logger.error('Workflow automation error:', error)
     }
@@ -409,11 +419,11 @@ export class OrderWorkflowEngine {
   private static async checkAndAutoCompleteOrder(orderId: string): Promise<void> {
     try {
       const supabase = await createServerClient()
-      const { data: order } = await supabase
+      const { data: order } = (await supabase
         .from('orders')
         .select('status, updated_at')
         .eq('id', orderId)
-        .single() as { data: Pick<Order, 'status' | 'updated_at'> | null; error: any }
+        .single()) as { data: Pick<Order, 'status' | 'updated_at'> | null; error: any }
 
       if (order && order.status === ORDER_STATUSES.DELIVERED) {
         // Auto-complete after 24 hours
@@ -442,11 +452,11 @@ export class OrderWorkflowEngine {
   private static async escalateOverdueOrder(orderId: string): Promise<void> {
     try {
       const supabase = await createServerClient()
-      const { data: order } = await supabase
+      const { data: order } = (await supabase
         .from('orders')
         .select('status, updated_at')
         .eq('id', orderId)
-        .single() as { data: Pick<Order, 'status' | 'updated_at'> | null; error: any }
+        .single()) as { data: Pick<Order, 'status' | 'updated_at'> | null; error: any }
 
       if (order && order.status === ORDER_STATUSES.OUT_FOR_DELIVERY) {
         const outForDeliveryTime = new Date(order.updated_at)
@@ -464,8 +474,8 @@ export class OrderWorkflowEngine {
             data: {
               order_id: orderId,
               overdue_hours: Math.round(hoursElapsed),
-              priority: 'urgent'
-            }
+              priority: 'urgent',
+            },
           })
         }
       }
@@ -526,12 +536,11 @@ export class OrderWorkflowEngine {
         new_status: newOrder.status,
         user_id: userId,
         timestamp: new Date().toISOString(),
-        notes
+        notes,
       })
 
       // In a real implementation, you'd store this in an audit_logs table
       // await supabase.from('order_status_history').insert({ ... })
-
     } catch (error) {
       logger.error('Failed to log status change:', error)
     }
@@ -548,7 +557,7 @@ export class OrderWorkflowEngine {
   ): Promise<OrderNotification[]> {
     try {
       const transition = ORDER_WORKFLOW.find(
-        t => t.from === oldOrder.status && t.to === newOrder.status
+        (t) => t.from === oldOrder.status && t.to === newOrder.status
       )
 
       if (!transition) return []
@@ -557,9 +566,10 @@ export class OrderWorkflowEngine {
 
       // Get order details with related data
       const supabase = await createServerClient()
-      const { data: orderDetails } = await supabase
+      const { data: orderDetails } = (await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           id,
           restaurant_id,
           driver_id,
@@ -570,22 +580,26 @@ export class OrderWorkflowEngine {
           profiles!orders_driver_id_fkey (
             full_name
           )
-        `)
+        `
+        )
         .eq('id', oldOrder.id)
-        .single() as {
-          data: {
-            id: string
-            restaurant_id: string | null
-            driver_id: string | null
-            profiles: {
-              full_name: string
-              restaurant_name?: string
-            } | null
+        .single()) as {
+        data: {
+          id: string
+          restaurant_id: string | null
+          driver_id: string | null
+          profiles: {
+            full_name: string
+            restaurant_name?: string
           } | null
-          error: any
-        }
+        } | null
+        error: any
+      }
 
-      const restaurantName = orderDetails?.profiles?.restaurant_name || orderDetails?.profiles?.full_name || 'Unknown Restaurant'
+      const restaurantName =
+        orderDetails?.profiles?.restaurant_name ||
+        orderDetails?.profiles?.full_name ||
+        'Unknown Restaurant'
       const driverName = orderDetails?.profiles ? orderDetails.profiles.full_name : null
 
       // Create notifications for each recipient type
@@ -630,8 +644,8 @@ export class OrderWorkflowEngine {
             new_status: newOrder.status,
             restaurant_name: restaurantName,
             driver_name: driverName,
-            priority: transition.notifications.priority
-          }
+            priority: transition.notifications.priority,
+          },
         }
 
         notifications.push(notification)
@@ -641,20 +655,16 @@ export class OrderWorkflowEngine {
 
         // Send browser notification if requested
         if (transition.notifications.browser && recipientId !== 'admin') {
-          orderRealtimeManager.showBrowserNotification(
-            `Order Update: ${restaurantName}`,
-            {
-              body: notification.message,
-              icon: '/favicon.ico',
-              tag: `order-${oldOrder.id}`,
-              requireInteraction: transition.notifications.priority === 'urgent'
-            }
-          )
+          orderRealtimeManager.showBrowserNotification(`Order Update: ${restaurantName}`, {
+            body: notification.message,
+            icon: '/favicon.ico',
+            tag: `order-${oldOrder.id}`,
+            requireInteraction: transition.notifications.priority === 'urgent',
+          })
         }
       }
 
       return notifications
-
     } catch (error) {
       logger.error('Failed to send status change notifications:', error)
       return []
@@ -715,19 +725,19 @@ export class OrderWorkflowEngine {
       const supabase = await createServerClient()
 
       // Get all orders for analysis
-      const { data: orders } = await supabase
+      const { data: orders } = (await supabase
         .from('orders')
-        .select('status, created_at, updated_at') as {
-          data: Array<Pick<Order, 'status' | 'created_at' | 'updated_at'>> | null
-          error: any
-        }
+        .select('status, created_at, updated_at')) as {
+        data: Array<Pick<Order, 'status' | 'created_at' | 'updated_at'>> | null
+        error: any
+      }
 
       if (!orders) {
         return {
           averageCompletionTime: 0,
           statusDistribution: {},
           overdueOrders: 0,
-          escalatedOrders: 0
+          escalatedOrders: 0,
         }
       }
 
@@ -735,42 +745,45 @@ export class OrderWorkflowEngine {
 
       // Calculate status distribution
       const statusDistribution: Record<string, number> = {}
-      ordersData.forEach(order => {
+      ordersData.forEach((order) => {
         statusDistribution[order.status] = (statusDistribution[order.status] || 0) + 1
       })
 
       // Calculate average completion time
-      const completedOrders = ordersData.filter(order => order.status === ORDER_STATUSES.COMPLETED)
-      const completionTimes = completedOrders.map(order => {
+      const completedOrders = ordersData.filter(
+        (order) => order.status === ORDER_STATUSES.COMPLETED
+      )
+      const completionTimes = completedOrders.map((order) => {
         const created = new Date(order.created_at)
         const completed = new Date(order.updated_at)
         return completed.getTime() - created.getTime()
       })
 
-      const averageCompletionTime = completionTimes.length > 0
-        ? completionTimes.reduce((sum, time) => sum + time, 0) / completionTimes.length
-        : 0
+      const averageCompletionTime =
+        completionTimes.length > 0
+          ? completionTimes.reduce((sum, time) => sum + time, 0) / completionTimes.length
+          : 0
 
       // Count overdue orders
-      const overdueOrders = ordersData.filter(order =>
-        order.status === ORDER_STATUSES.OUT_FOR_DELIVERY &&
-        OrderBusinessLogic.isOrderOverdue(order as Order, 2)
+      const overdueOrders = ordersData.filter(
+        (order) =>
+          order.status === ORDER_STATUSES.OUT_FOR_DELIVERY &&
+          OrderBusinessLogic.isOrderOverdue(order as Order, 2)
       ).length
 
       return {
         averageCompletionTime,
         statusDistribution,
         overdueOrders,
-        escalatedOrders: overdueOrders // Simplified - in real app you'd track escalations separately
+        escalatedOrders: overdueOrders, // Simplified - in real app you'd track escalations separately
       }
-
     } catch (error) {
       logger.error('Failed to get workflow stats:', error)
       return {
         averageCompletionTime: 0,
         statusDistribution: {},
         overdueOrders: 0,
-        escalatedOrders: 0
+        escalatedOrders: 0,
       }
     }
   }

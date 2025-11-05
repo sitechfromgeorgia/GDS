@@ -56,12 +56,12 @@ export interface OrderSubmissionItem {
   notes?: string
 }
 
-export type OrderStatus = 
-  | 'pending' 
-  | 'confirmed' 
-  | 'preparing' 
-  | 'out_for_delivery' 
-  | 'delivered' 
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'preparing'
+  | 'out_for_delivery'
+  | 'delivered'
   | 'completed'
   | 'cancelled'
 
@@ -183,7 +183,12 @@ export interface BulkOrderResult {
 
 // Order Workflow States
 export interface OrderWorkflowState {
-  currentState: 'cart_review' | 'order_submission' | 'order_confirmation' | 'order_processing' | 'completed'
+  currentState:
+    | 'cart_review'
+    | 'order_submission'
+    | 'order_confirmation'
+    | 'order_processing'
+    | 'completed'
   previousStates: string[]
   canGoBack: boolean
   canProceed: boolean
@@ -247,7 +252,7 @@ export const ORDER_SUBMISSION_GEORGIAN = {
     deliveryAddress: 'მიწოდების მისამართი',
     priority: 'პრიორიტეტი',
     paymentMethod: 'გადახდის მეთოდი',
-    checkout: 'გადახდა'
+    checkout: 'გადახდა',
   },
   status: {
     pending: 'მოლოდინში',
@@ -256,7 +261,7 @@ export const ORDER_SUBMISSION_GEORGIAN = {
     out_for_delivery: 'მიწოდების გზაზე',
     delivered: 'მიწოდებულია',
     completed: 'დასრულებული',
-    cancelled: 'გაუქმებული'
+    cancelled: 'გაუქმებული',
   },
   messages: {
     orderSubmitted: 'შეკვეთა წარმატებით გაიგზავნა',
@@ -269,15 +274,15 @@ export const ORDER_SUBMISSION_GEORGIAN = {
     invalidAddress: 'მიწოდების მისამართი არასწორია',
     required: 'ამ ველის შევსება აუცილებელია',
     submitting: 'შეკვეთა გაგზავნისთვის მომზადება',
-    success: 'შეკვეთა წარმატებით გაიგზავნა'
+    success: 'შეკვეთა წარმატებით გაიგზავნა',
   },
   actions: {
     submitOrder: 'შეკვეთის გაგზავნა',
     confirmOrder: 'შეკვეთის დადასტურება',
     cancelOrder: 'შეკვეთის გაუქმება',
     viewOrder: 'შეკვეთის ნახვა',
-    trackOrder: 'შეკვეთის თვალყურის დევნება'
-  }
+    trackOrder: 'შეკვეთის თვალყურის დევნება',
+  },
 } as const
 
 export type GeorgianOrderLabels = typeof ORDER_SUBMISSION_GEORGIAN.labels

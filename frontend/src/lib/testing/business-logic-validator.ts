@@ -1,6 +1,6 @@
 import { logger } from '@/lib/logger'
-import { createBrowserClient } from '@/lib/supabase';
-import { recordPerformance } from '../monitoring/performance';
+import { createBrowserClient } from '@/lib/supabase'
+import { recordPerformance } from '../monitoring/performance'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
@@ -11,42 +11,42 @@ const supabase = createBrowserClient()
  */
 
 export interface BusinessLogicTestConfig {
-  timeout?: number;
-  testOrderLifecycle?: boolean;
-  testPricingCompliance?: boolean;
-  testUserRoleEnforcement?: boolean;
-  testDataIntegrity?: boolean;
-  testWorkflowValidation?: boolean;
-  includePerformanceMetrics?: boolean;
+  timeout?: number
+  testOrderLifecycle?: boolean
+  testPricingCompliance?: boolean
+  testUserRoleEnforcement?: boolean
+  testDataIntegrity?: boolean
+  testWorkflowValidation?: boolean
+  includePerformanceMetrics?: boolean
 }
 
 export interface BusinessLogicTestResult {
-  name: string;
-  status: 'passed' | 'failed' | 'skipped';
-  duration: number;
-  error?: string;
-  details?: any;
+  name: string
+  status: 'passed' | 'failed' | 'skipped'
+  duration: number
+  error?: string
+  details?: any
   metrics?: {
-    recordsProcessed?: number;
-    validationErrors?: number;
-    performanceScore?: number;
-  };
+    recordsProcessed?: number
+    validationErrors?: number
+    performanceScore?: number
+  }
 }
 
 export interface BusinessLogicTestSuite {
-  name: string;
-  description: string;
-  config: BusinessLogicTestConfig;
-  results: BusinessLogicTestResult[];
+  name: string
+  description: string
+  config: BusinessLogicTestConfig
+  results: BusinessLogicTestResult[]
   summary: {
-    total: number;
-    passed: number;
-    failed: number;
-    skipped: number;
-    averageDuration: number;
-    overallScore: number; // 0-100
-    integrityScore: number; // 0-100
-  };
+    total: number
+    passed: number
+    failed: number
+    skipped: number
+    averageDuration: number
+    overallScore: number // 0-100
+    integrityScore: number // 0-100
+  }
 }
 
 // Order status flow validation
@@ -57,20 +57,20 @@ const ORDER_STATUS_FLOW = {
   ready: ['picked_up'],
   picked_up: ['delivered'],
   delivered: [], // Final state
-  cancelled: [] // Final state
-};
+  cancelled: [], // Final state
+}
 
 // Required fields for different entities
 const REQUIRED_FIELDS = {
   orders: ['restaurant_id', 'customer_name', 'total_amount', 'status'],
   products: ['name', 'price', 'is_active'],
   profiles: ['email', 'role'],
-  order_items: ['order_id', 'product_id', 'quantity', 'unit_price']
-};
+  order_items: ['order_id', 'product_id', 'quantity', 'unit_price'],
+}
 
 class BusinessLogicValidator {
-  private config: BusinessLogicTestConfig;
-  private results: BusinessLogicTestResult[] = [];
+  private config: BusinessLogicTestConfig
+  private results: BusinessLogicTestResult[] = []
 
   constructor(config: BusinessLogicTestConfig = {}) {
     this.config = {
@@ -81,55 +81,56 @@ class BusinessLogicValidator {
       testDataIntegrity: true,
       testWorkflowValidation: true,
       includePerformanceMetrics: true,
-      ...config
-    };
+      ...config,
+    }
   }
 
   /**
    * Run all business logic validation tests
    */
   async runAllBusinessLogicTests(): Promise<BusinessLogicTestSuite> {
-    logger.info('💼 Georgian Distribution System - Business Logic Validation');
-    logger.info('='.repeat(70));
-    logger.info(`Time: ${new Date().toISOString()}`);
-    logger.info('');
+    logger.info('💼 Georgian Distribution System - Business Logic Validation')
+    logger.info('='.repeat(70))
+    logger.info(`Time: ${new Date().toISOString()}`)
+    logger.info('')
 
-    this.results = [];
-    const startTime = Date.now();
+    this.results = []
+    const startTime = Date.now()
 
     try {
-      const testCases = this.getTestCases();
+      const testCases = this.getTestCases()
 
       for (const testCase of testCases) {
-        logger.info(`🔍 Running: ${testCase.name}...`);
-        const result = await this.runBusinessLogicTest(testCase.name);
-        this.results.push(result);
-        logger.info(`   ${result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⚠️'} ${testCase.name} completed`);
+        logger.info(`🔍 Running: ${testCase.name}...`)
+        const result = await this.runBusinessLogicTest(testCase.name)
+        this.results.push(result)
+        logger.info(
+          `   ${result.status === 'passed' ? '✅' : result.status === 'failed' ? '❌' : '⚠️'} ${testCase.name} completed`
+        )
       }
 
-      const summary = this.calculateSummary();
+      const summary = this.calculateSummary()
 
-      logger.info('');
-      logger.info('📊 Business Logic Validation Summary');
-      logger.info('='.repeat(70));
-      logger.info(`Total Tests: ${summary.total}`);
-      logger.info(`✅ Passed: ${summary.passed}`);
-      logger.info(`❌ Failed: ${summary.failed}`);
-      logger.info(`⚠️  Skipped: ${summary.skipped}`);
-      logger.info(`📈 Overall Score: ${summary.overallScore.toFixed(1)}%`);
-      logger.info(`🛡️  Integrity Score: ${summary.integrityScore.toFixed(1)}%`);
+      logger.info('')
+      logger.info('📊 Business Logic Validation Summary')
+      logger.info('='.repeat(70))
+      logger.info(`Total Tests: ${summary.total}`)
+      logger.info(`✅ Passed: ${summary.passed}`)
+      logger.info(`❌ Failed: ${summary.failed}`)
+      logger.info(`⚠️  Skipped: ${summary.skipped}`)
+      logger.info(`📈 Overall Score: ${summary.overallScore.toFixed(1)}%`)
+      logger.info(`🛡️  Integrity Score: ${summary.integrityScore.toFixed(1)}%`)
 
       return {
         name: 'Business Logic Validation Test Suite',
         description: 'Comprehensive validation of Georgian Distribution System business rules',
         config: this.config,
         results: this.results,
-        summary
-      };
-
+        summary,
+      }
     } catch (error) {
-      logger.error('❌ Business logic validation failed:', error);
-      throw error;
+      logger.error('❌ Business logic validation failed:', error)
+      throw error
     }
   }
 
@@ -145,57 +146,57 @@ class BusinessLogicValidator {
       { name: 'Workflow Validation', enabled: this.config.testWorkflowValidation || false },
       { name: 'Order Status Flow Validation', enabled: this.config.testOrderLifecycle || false },
       { name: 'Product Catalog Integrity', enabled: this.config.testDataIntegrity || false },
-      { name: 'Financial Data Consistency', enabled: this.config.testPricingCompliance || false }
-    ].filter(test => test.enabled);
+      { name: 'Financial Data Consistency', enabled: this.config.testPricingCompliance || false },
+    ].filter((test) => test.enabled)
   }
 
   /**
    * Run individual business logic test
    */
   private async runBusinessLogicTest(testName: string): Promise<BusinessLogicTestResult> {
-    const startTime = Date.now();
+    const startTime = Date.now()
 
     try {
       switch (testName) {
         case 'Order Lifecycle Validation':
-          return await this.validateOrderLifecycle(startTime);
+          return await this.validateOrderLifecycle(startTime)
 
         case 'Pricing Compliance':
-          return await this.validatePricingCompliance(startTime);
+          return await this.validatePricingCompliance(startTime)
 
         case 'User Role Enforcement':
-          return await this.validateUserRoleEnforcement(startTime);
+          return await this.validateUserRoleEnforcement(startTime)
 
         case 'Data Integrity Checks':
-          return await this.validateDataIntegrity(startTime);
+          return await this.validateDataIntegrity(startTime)
 
         case 'Workflow Validation':
-          return await this.validateWorkflow(startTime);
+          return await this.validateWorkflow(startTime)
 
         case 'Order Status Flow Validation':
-          return await this.validateOrderStatusFlow(startTime);
+          return await this.validateOrderStatusFlow(startTime)
 
         case 'Product Catalog Integrity':
-          return await this.validateProductCatalogIntegrity(startTime);
+          return await this.validateProductCatalogIntegrity(startTime)
 
         case 'Financial Data Consistency':
-          return await this.validateFinancialDataConsistency(startTime);
+          return await this.validateFinancialDataConsistency(startTime)
 
         default:
           return {
             name: testName,
             status: 'skipped',
             duration: Date.now() - startTime,
-            error: `Unknown test case: ${testName}`
-          };
+            error: `Unknown test case: ${testName}`,
+          }
       }
     } catch (error) {
       return {
         name: testName,
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -209,37 +210,39 @@ class BusinessLogicValidator {
         .from('orders')
         .select('*, order_items(*)')
         .limit(50)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
 
       if (error) {
         return {
           name: 'Order Lifecycle Validation',
           status: 'failed',
           duration: Date.now() - startTime,
-          error: error.message
-        };
+          error: error.message,
+        }
       }
 
       const validationResults = {
         totalOrders: orders?.length || 0,
         validOrders: 0,
         invalidOrders: 0,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       if (orders && Array.isArray(orders)) {
         for (const order of orders) {
-          const issues = this.validateOrderStructure(order as any);
+          const issues = this.validateOrderStructure(order as any)
           if (issues.length === 0) {
-            validationResults.validOrders++;
+            validationResults.validOrders++
           } else {
-            validationResults.invalidOrders++;
-            validationResults.issues.push(...issues.map(issue => `Order ${(order as any).id}: ${issue}`));
+            validationResults.invalidOrders++
+            validationResults.issues.push(
+              ...issues.map((issue) => `Order ${(order as any).id}: ${issue}`)
+            )
           }
         }
       }
 
-      const passed = validationResults.invalidOrders === 0;
+      const passed = validationResults.invalidOrders === 0
 
       return {
         name: 'Order Lifecycle Validation',
@@ -248,17 +251,16 @@ class BusinessLogicValidator {
         details: validationResults,
         metrics: {
           recordsProcessed: validationResults.totalOrders,
-          validationErrors: validationResults.invalidOrders
-        }
-      };
-
+          validationErrors: validationResults.invalidOrders,
+        },
+      }
     } catch (error) {
       return {
         name: 'Order Lifecycle Validation',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -270,20 +272,22 @@ class BusinessLogicValidator {
       // Get orders with items to validate pricing
       const { data: orderItems, error } = await supabase
         .from('order_items')
-        .select(`
+        .select(
+          `
           *,
           orders!inner(total_amount),
           products!inner(price, name)
-        `)
-        .limit(100);
+        `
+        )
+        .limit(100)
 
       if (error) {
         return {
           name: 'Pricing Compliance',
           status: 'failed',
           duration: Date.now() - startTime,
-          error: error.message
-        };
+          error: error.message,
+        }
       }
 
       const validationResults = {
@@ -291,30 +295,31 @@ class BusinessLogicValidator {
         compliantItems: 0,
         nonCompliantItems: 0,
         totalVariance: 0,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       if (orderItems && Array.isArray(orderItems)) {
         for (const item of orderItems) {
-          const itemData = item as any;
-          const expectedTotal = itemData.quantity * itemData.unit_price;
-          const actualTotal = itemData.quantity * itemData.products.price;
-          const variance = Math.abs(expectedTotal - actualTotal);
+          const itemData = item as any
+          const expectedTotal = itemData.quantity * itemData.unit_price
+          const actualTotal = itemData.quantity * itemData.products.price
+          const variance = Math.abs(expectedTotal - actualTotal)
 
-          if (variance > 0.01) { // Allow for small rounding differences
-            validationResults.nonCompliantItems++;
+          if (variance > 0.01) {
+            // Allow for small rounding differences
+            validationResults.nonCompliantItems++
             validationResults.issues.push(
               `Item ${itemData.id}: Expected ${expectedTotal.toFixed(2)}, got ${actualTotal.toFixed(2)} (variance: ${variance.toFixed(2)})`
-            );
+            )
           } else {
-            validationResults.compliantItems++;
+            validationResults.compliantItems++
           }
 
-          validationResults.totalVariance += variance;
+          validationResults.totalVariance += variance
         }
       }
 
-      const passed = validationResults.nonCompliantItems === 0;
+      const passed = validationResults.nonCompliantItems === 0
 
       return {
         name: 'Pricing Compliance',
@@ -323,17 +328,16 @@ class BusinessLogicValidator {
         details: validationResults,
         metrics: {
           recordsProcessed: validationResults.totalItems,
-          validationErrors: validationResults.nonCompliantItems
-        }
-      };
-
+          validationErrors: validationResults.nonCompliantItems,
+        },
+      }
     } catch (error) {
       return {
         name: 'Pricing Compliance',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -343,18 +347,15 @@ class BusinessLogicValidator {
   private async validateUserRoleEnforcement(startTime: number): Promise<BusinessLogicTestResult> {
     try {
       // Get all profiles to validate roles
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .limit(100);
+      const { data: profiles, error } = await supabase.from('profiles').select('*').limit(100)
 
       if (error) {
         return {
           name: 'User Role Enforcement',
           status: 'failed',
           duration: Date.now() - startTime,
-          error: error.message
-        };
+          error: error.message,
+        }
       }
 
       const validationResults = {
@@ -362,32 +363,35 @@ class BusinessLogicValidator {
         validRoles: 0,
         invalidRoles: 0,
         roleDistribution: {} as Record<string, number>,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
-      const validRoles = ['admin', 'restaurant', 'driver', 'demo'];
+      const validRoles = ['admin', 'restaurant', 'driver', 'demo']
 
       if (profiles && Array.isArray(profiles)) {
         for (const profile of profiles) {
-          const profileData = profile as any;
+          const profileData = profile as any
           if (!profileData.role) {
-            validationResults.invalidRoles++;
-            validationResults.issues.push(`Profile ${profileData.id}: Missing role`);
-            continue;
+            validationResults.invalidRoles++
+            validationResults.issues.push(`Profile ${profileData.id}: Missing role`)
+            continue
           }
 
           if (!validRoles.includes(profileData.role)) {
-            validationResults.invalidRoles++;
-            validationResults.issues.push(`Profile ${profileData.id}: Invalid role '${profileData.role}'`);
-            continue;
+            validationResults.invalidRoles++
+            validationResults.issues.push(
+              `Profile ${profileData.id}: Invalid role '${profileData.role}'`
+            )
+            continue
           }
 
-          validationResults.validRoles++;
-          validationResults.roleDistribution[profileData.role] = (validationResults.roleDistribution[profileData.role] || 0) + 1;
+          validationResults.validRoles++
+          validationResults.roleDistribution[profileData.role] =
+            (validationResults.roleDistribution[profileData.role] || 0) + 1
         }
       }
 
-      const passed = validationResults.invalidRoles === 0;
+      const passed = validationResults.invalidRoles === 0
 
       return {
         name: 'User Role Enforcement',
@@ -396,17 +400,16 @@ class BusinessLogicValidator {
         details: validationResults,
         metrics: {
           recordsProcessed: validationResults.totalProfiles,
-          validationErrors: validationResults.invalidRoles
-        }
-      };
-
+          validationErrors: validationResults.invalidRoles,
+        },
+      }
     } catch (error) {
       return {
         name: 'User Role Enforcement',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -420,18 +423,20 @@ class BusinessLogicValidator {
         orphanedRecords: 0,
         duplicateRecords: 0,
         invalidReferences: 0,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       // Check required fields for orders
-      const { data: orders } = await supabase.from('orders').select('*').limit(50);
+      const { data: orders } = await supabase.from('orders').select('*').limit(50)
       if (orders && Array.isArray(orders)) {
         for (const order of orders) {
-          const orderData = order as any;
-          const missingFields = REQUIRED_FIELDS.orders.filter(field => !orderData[field]);
+          const orderData = order as any
+          const missingFields = REQUIRED_FIELDS.orders.filter((field) => !orderData[field])
           if (missingFields.length > 0) {
-            integrityResults.missingRequiredFields++;
-            integrityResults.issues.push(`Order ${orderData.id}: Missing fields: ${missingFields.join(', ')}`);
+            integrityResults.missingRequiredFields++
+            integrityResults.issues.push(
+              `Order ${orderData.id}: Missing fields: ${missingFields.join(', ')}`
+            )
           }
         }
       }
@@ -440,11 +445,11 @@ class BusinessLogicValidator {
       const { data: orphanedItems } = await supabase
         .from('order_items')
         .select('id, order_id')
-        .is('order_id', null);
+        .is('order_id', null)
 
-      integrityResults.orphanedRecords += orphanedItems?.length || 0;
+      integrityResults.orphanedRecords += orphanedItems?.length || 0
       if (orphanedItems?.length) {
-        integrityResults.issues.push(`Found ${orphanedItems.length} orphaned order items`);
+        integrityResults.issues.push(`Found ${orphanedItems.length} orphaned order items`)
       }
 
       // Check for invalid product references
@@ -452,13 +457,14 @@ class BusinessLogicValidator {
         .from('order_items')
         .select('id, product_id')
         .not('product_id', 'is', null)
-        .not('products.id', 'is', null);
+        .not('products.id', 'is', null)
 
       // This is a simplified check - in practice, you'd do a more complex join
 
-      const passed = integrityResults.missingRequiredFields === 0 &&
-                    integrityResults.orphanedRecords === 0 &&
-                    integrityResults.invalidReferences === 0;
+      const passed =
+        integrityResults.missingRequiredFields === 0 &&
+        integrityResults.orphanedRecords === 0 &&
+        integrityResults.invalidReferences === 0
 
       return {
         name: 'Data Integrity Checks',
@@ -467,17 +473,19 @@ class BusinessLogicValidator {
         details: integrityResults,
         metrics: {
           recordsProcessed: (orders?.length || 0) + (orphanedItems?.length || 0),
-          validationErrors: integrityResults.missingRequiredFields + integrityResults.orphanedRecords + integrityResults.invalidReferences
-        }
-      };
-
+          validationErrors:
+            integrityResults.missingRequiredFields +
+            integrityResults.orphanedRecords +
+            integrityResults.invalidReferences,
+        },
+      }
     } catch (error) {
       return {
         name: 'Data Integrity Checks',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -491,52 +499,58 @@ class BusinessLogicValidator {
         orderCreation: false,
         statusTransitions: false,
         notificationTriggers: false,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       // Test order creation (simplified)
       const testOrder = {
         restaurant_id: 'test-restaurant',
         customer_name: 'Test Customer',
         total_amount: 25.99,
-        status: 'pending'
-      };
+        status: 'pending',
+      }
 
       try {
-        const { data, error } = await (supabase.from('orders') as any).insert(testOrder).select();
+        const { data, error } = await (supabase.from('orders') as any).insert(testOrder).select()
         if (!error && data && Array.isArray(data) && data[0]) {
-          workflowResults.orderCreation = true;
+          workflowResults.orderCreation = true
           // Clean up test data
-          await (supabase.from('orders') as any).delete().eq('id', (data[0] as any).id);
+          await (supabase.from('orders') as any).delete().eq('id', (data[0] as any).id)
         } else {
-          workflowResults.issues.push(`Order creation failed: ${error?.message || 'No data returned'}`);
+          workflowResults.issues.push(
+            `Order creation failed: ${error?.message || 'No data returned'}`
+          )
         }
       } catch (error) {
-        workflowResults.issues.push(`Order creation error: ${error instanceof Error ? error.message : 'Unknown'}`);
+        workflowResults.issues.push(
+          `Order creation error: ${error instanceof Error ? error.message : 'Unknown'}`
+        )
       }
 
       // Test status transitions (simplified validation)
-      workflowResults.statusTransitions = true; // Assume valid for demo
+      workflowResults.statusTransitions = true // Assume valid for demo
 
       // Test notification triggers (simplified)
-      workflowResults.notificationTriggers = true; // Assume valid for demo
+      workflowResults.notificationTriggers = true // Assume valid for demo
 
-      const passed = workflowResults.orderCreation && workflowResults.statusTransitions && workflowResults.notificationTriggers;
+      const passed =
+        workflowResults.orderCreation &&
+        workflowResults.statusTransitions &&
+        workflowResults.notificationTriggers
 
       return {
         name: 'Workflow Validation',
         status: passed ? 'passed' : 'failed',
         duration: Date.now() - startTime,
-        details: workflowResults
-      };
-
+        details: workflowResults,
+      }
     } catch (error) {
       return {
         name: 'Workflow Validation',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -548,15 +562,15 @@ class BusinessLogicValidator {
       const { data: orders, error } = await supabase
         .from('orders')
         .select('id, status, created_at, updated_at')
-        .limit(100);
+        .limit(100)
 
       if (error) {
         return {
           name: 'Order Status Flow Validation',
           status: 'failed',
           duration: Date.now() - startTime,
-          error: error.message
-        };
+          error: error.message,
+        }
       }
 
       const validationResults = {
@@ -564,26 +578,29 @@ class BusinessLogicValidator {
         validTransitions: 0,
         invalidTransitions: 0,
         statusDistribution: {} as Record<string, number>,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       if (orders && Array.isArray(orders)) {
         for (const order of orders) {
-          const orderData = order as any;
+          const orderData = order as any
           // Count status distribution
-          validationResults.statusDistribution[orderData.status] = (validationResults.statusDistribution[orderData.status] || 0) + 1;
+          validationResults.statusDistribution[orderData.status] =
+            (validationResults.statusDistribution[orderData.status] || 0) + 1
 
           // Validate status is valid
           if (!ORDER_STATUS_FLOW[orderData.status as keyof typeof ORDER_STATUS_FLOW]) {
-            validationResults.invalidTransitions++;
-            validationResults.issues.push(`Order ${orderData.id}: Invalid status '${orderData.status}'`);
+            validationResults.invalidTransitions++
+            validationResults.issues.push(
+              `Order ${orderData.id}: Invalid status '${orderData.status}'`
+            )
           } else {
-            validationResults.validTransitions++;
+            validationResults.validTransitions++
           }
         }
       }
 
-      const passed = validationResults.invalidTransitions === 0;
+      const passed = validationResults.invalidTransitions === 0
 
       return {
         name: 'Order Status Flow Validation',
@@ -592,37 +609,35 @@ class BusinessLogicValidator {
         details: validationResults,
         metrics: {
           recordsProcessed: validationResults.totalOrders,
-          validationErrors: validationResults.invalidTransitions
-        }
-      };
-
+          validationErrors: validationResults.invalidTransitions,
+        },
+      }
     } catch (error) {
       return {
         name: 'Order Status Flow Validation',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
   /**
    * Validate product catalog integrity
    */
-  private async validateProductCatalogIntegrity(startTime: number): Promise<BusinessLogicTestResult> {
+  private async validateProductCatalogIntegrity(
+    startTime: number
+  ): Promise<BusinessLogicTestResult> {
     try {
-      const { data: products, error } = await supabase
-        .from('products')
-        .select('*')
-        .limit(100);
+      const { data: products, error } = await supabase.from('products').select('*').limit(100)
 
       if (error) {
         return {
           name: 'Product Catalog Integrity',
           status: 'failed',
           duration: Date.now() - startTime,
-          error: error.message
-        };
+          error: error.message,
+        }
       }
 
       const validationResults = {
@@ -631,45 +646,47 @@ class BusinessLogicValidator {
         invalidProducts: 0,
         activeProducts: 0,
         inactiveProducts: 0,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       if (products && Array.isArray(products)) {
         for (const product of products) {
-          const productData = product as any;
-          let isValid = true;
-          const productIssues: string[] = [];
+          const productData = product as any
+          let isValid = true
+          const productIssues: string[] = []
 
           // Check required fields
-          const missingFields = REQUIRED_FIELDS.products.filter(field => !productData[field]);
+          const missingFields = REQUIRED_FIELDS.products.filter((field) => !productData[field])
           if (missingFields.length > 0) {
-            isValid = false;
-            productIssues.push(`Missing fields: ${missingFields.join(', ')}`);
+            isValid = false
+            productIssues.push(`Missing fields: ${missingFields.join(', ')}`)
           }
 
           // Check price validity
           if (productData.price <= 0) {
-            isValid = false;
-            productIssues.push(`Invalid price: ${productData.price}`);
+            isValid = false
+            productIssues.push(`Invalid price: ${productData.price}`)
           }
 
           // Count active/inactive
           if (productData.is_active) {
-            validationResults.activeProducts++;
+            validationResults.activeProducts++
           } else {
-            validationResults.inactiveProducts++;
+            validationResults.inactiveProducts++
           }
 
           if (isValid) {
-            validationResults.validProducts++;
+            validationResults.validProducts++
           } else {
-            validationResults.invalidProducts++;
-            validationResults.issues.push(`Product ${productData.id} (${productData.name}): ${productIssues.join(', ')}`);
+            validationResults.invalidProducts++
+            validationResults.issues.push(
+              `Product ${productData.id} (${productData.name}): ${productIssues.join(', ')}`
+            )
           }
         }
       }
 
-      const passed = validationResults.invalidProducts === 0;
+      const passed = validationResults.invalidProducts === 0
 
       return {
         name: 'Product Catalog Integrity',
@@ -678,45 +695,48 @@ class BusinessLogicValidator {
         details: validationResults,
         metrics: {
           recordsProcessed: validationResults.totalProducts,
-          validationErrors: validationResults.invalidProducts
-        }
-      };
-
+          validationErrors: validationResults.invalidProducts,
+        },
+      }
     } catch (error) {
       return {
         name: 'Product Catalog Integrity',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
   /**
    * Validate financial data consistency
    */
-  private async validateFinancialDataConsistency(startTime: number): Promise<BusinessLogicTestResult> {
+  private async validateFinancialDataConsistency(
+    startTime: number
+  ): Promise<BusinessLogicTestResult> {
     try {
       // Get orders with their items to validate financial consistency
       const { data: orders, error } = await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           id,
           total_amount,
           order_items (
             quantity,
             unit_price
           )
-        `)
-        .limit(50);
+        `
+        )
+        .limit(50)
 
       if (error) {
         return {
           name: 'Financial Data Consistency',
           status: 'failed',
           duration: Date.now() - startTime,
-          error: error.message
-        };
+          error: error.message,
+        }
       }
 
       const validationResults = {
@@ -724,33 +744,35 @@ class BusinessLogicValidator {
         consistentOrders: 0,
         inconsistentOrders: 0,
         totalVariance: 0,
-        issues: [] as string[]
-      };
+        issues: [] as string[],
+      }
 
       if (orders && Array.isArray(orders)) {
         for (const order of orders) {
-          const orderData = order as any;
-          const calculatedTotal = orderData.order_items?.reduce(
-            (sum: number, item: any) => sum + (item.quantity * item.unit_price),
-            0
-          ) || 0;
+          const orderData = order as any
+          const calculatedTotal =
+            orderData.order_items?.reduce(
+              (sum: number, item: any) => sum + item.quantity * item.unit_price,
+              0
+            ) || 0
 
-          const variance = Math.abs(orderData.total_amount - calculatedTotal);
+          const variance = Math.abs(orderData.total_amount - calculatedTotal)
 
-          if (variance > 0.01) { // Allow for small rounding differences
-            validationResults.inconsistentOrders++;
+          if (variance > 0.01) {
+            // Allow for small rounding differences
+            validationResults.inconsistentOrders++
             validationResults.issues.push(
               `Order ${orderData.id}: Expected ${calculatedTotal.toFixed(2)}, recorded ${orderData.total_amount.toFixed(2)} (variance: ${variance.toFixed(2)})`
-            );
+            )
           } else {
-            validationResults.consistentOrders++;
+            validationResults.consistentOrders++
           }
 
-          validationResults.totalVariance += variance;
+          validationResults.totalVariance += variance
         }
       }
 
-      const passed = validationResults.inconsistentOrders === 0;
+      const passed = validationResults.inconsistentOrders === 0
 
       return {
         name: 'Financial Data Consistency',
@@ -759,17 +781,16 @@ class BusinessLogicValidator {
         details: validationResults,
         metrics: {
           recordsProcessed: validationResults.totalOrders,
-          validationErrors: validationResults.inconsistentOrders
-        }
-      };
-
+          validationErrors: validationResults.inconsistentOrders,
+        },
+      }
     } catch (error) {
       return {
         name: 'Financial Data Consistency',
         status: 'failed',
         duration: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 
@@ -777,54 +798,54 @@ class BusinessLogicValidator {
    * Validate order structure
    */
   private validateOrderStructure(order: any): string[] {
-    const issues: string[] = [];
+    const issues: string[] = []
 
     // Check required fields
-    const missingFields = REQUIRED_FIELDS.orders.filter(field => !order[field]);
+    const missingFields = REQUIRED_FIELDS.orders.filter((field) => !order[field])
     if (missingFields.length > 0) {
-      issues.push(`Missing required fields: ${missingFields.join(', ')}`);
+      issues.push(`Missing required fields: ${missingFields.join(', ')}`)
     }
 
     // Check total amount validity
     if (order.total_amount <= 0) {
-      issues.push(`Invalid total amount: ${order.total_amount}`);
+      issues.push(`Invalid total amount: ${order.total_amount}`)
     }
 
     // Check status validity
     if (!ORDER_STATUS_FLOW[order.status as keyof typeof ORDER_STATUS_FLOW]) {
-      issues.push(`Invalid status: ${order.status}`);
+      issues.push(`Invalid status: ${order.status}`)
     }
 
     // Check order items exist
     if (!order.order_items || order.order_items.length === 0) {
-      issues.push('Order has no items');
+      issues.push('Order has no items')
     }
 
-    return issues;
+    return issues
   }
 
   /**
    * Calculate test summary
    */
   private calculateSummary() {
-    const total = this.results.length;
-    const passed = this.results.filter(r => r.status === 'passed').length;
-    const failed = this.results.filter(r => r.status === 'failed').length;
-    const skipped = this.results.filter(r => r.status === 'skipped').length;
+    const total = this.results.length
+    const passed = this.results.filter((r) => r.status === 'passed').length
+    const failed = this.results.filter((r) => r.status === 'failed').length
+    const skipped = this.results.filter((r) => r.status === 'skipped').length
 
-    const averageDuration = total > 0
-      ? this.results.reduce((sum, r) => sum + r.duration, 0) / total
-      : 0;
+    const averageDuration =
+      total > 0 ? this.results.reduce((sum, r) => sum + r.duration, 0) / total : 0
 
-    const overallScore = total > 0 ? (passed / total) * 100 : 0;
+    const overallScore = total > 0 ? (passed / total) * 100 : 0
 
     // Calculate integrity score based on data integrity tests
-    const integrityTests = this.results.filter(r =>
-      r.name.includes('Integrity') || r.name.includes('Data') || r.name.includes('Financial')
-    );
-    const integrityScore = integrityTests.length > 0
-      ? (integrityTests.filter(r => r.status === 'passed').length / integrityTests.length) * 100
-      : 100;
+    const integrityTests = this.results.filter(
+      (r) => r.name.includes('Integrity') || r.name.includes('Data') || r.name.includes('Financial')
+    )
+    const integrityScore =
+      integrityTests.length > 0
+        ? (integrityTests.filter((r) => r.status === 'passed').length / integrityTests.length) * 100
+        : 100
 
     return {
       total,
@@ -833,41 +854,63 @@ class BusinessLogicValidator {
       skipped,
       averageDuration,
       overallScore,
-      integrityScore
-    };
+      integrityScore,
+    }
   }
 
   /**
    * Get test results
    */
   getTestResults(): BusinessLogicTestResult[] {
-    return this.results;
+    return this.results
   }
 
   /**
    * Export results as JSON
    */
   exportResults(): string {
-    return JSON.stringify({
-      timestamp: new Date().toISOString(),
-      summary: this.calculateSummary(),
-      results: this.results
-    }, null, 2);
+    return JSON.stringify(
+      {
+        timestamp: new Date().toISOString(),
+        summary: this.calculateSummary(),
+        results: this.results,
+      },
+      null,
+      2
+    )
   }
 }
 
 // Export singleton instance
-export const businessLogicValidator = new BusinessLogicValidator();
+export const businessLogicValidator = new BusinessLogicValidator()
 
 // Export helper functions
 export const runBusinessLogicTests = (config?: BusinessLogicTestConfig) =>
-  new BusinessLogicValidator(config).runAllBusinessLogicTests();
+  new BusinessLogicValidator(config).runAllBusinessLogicTests()
 
 export const validateOrderLifecycle = () =>
-  runBusinessLogicTests({ testOrderLifecycle: true, testPricingCompliance: false, testUserRoleEnforcement: false, testDataIntegrity: false, testWorkflowValidation: false });
+  runBusinessLogicTests({
+    testOrderLifecycle: true,
+    testPricingCompliance: false,
+    testUserRoleEnforcement: false,
+    testDataIntegrity: false,
+    testWorkflowValidation: false,
+  })
 
 export const validatePricingCompliance = () =>
-  runBusinessLogicTests({ testOrderLifecycle: false, testPricingCompliance: true, testUserRoleEnforcement: false, testDataIntegrity: false, testWorkflowValidation: false });
+  runBusinessLogicTests({
+    testOrderLifecycle: false,
+    testPricingCompliance: true,
+    testUserRoleEnforcement: false,
+    testDataIntegrity: false,
+    testWorkflowValidation: false,
+  })
 
 export const validateDataIntegrity = () =>
-  runBusinessLogicTests({ testOrderLifecycle: false, testPricingCompliance: false, testUserRoleEnforcement: false, testDataIntegrity: true, testWorkflowValidation: false });
+  runBusinessLogicTests({
+    testOrderLifecycle: false,
+    testPricingCompliance: false,
+    testUserRoleEnforcement: false,
+    testDataIntegrity: true,
+    testWorkflowValidation: false,
+  })

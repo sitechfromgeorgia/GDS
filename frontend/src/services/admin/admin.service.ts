@@ -1,6 +1,11 @@
 import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
-import { getAdminClient, adminDatabase, checkAdminConnection, getAdminEnvironmentInfo } from '@/lib/supabase/admin'
+import {
+  getAdminClient,
+  adminDatabase,
+  checkAdminConnection,
+  getAdminEnvironmentInfo,
+} from '@/lib/supabase/admin'
 import { getEnvVar } from '@/lib/env'
 import type { Database } from '@/lib/supabase'
 
@@ -25,10 +30,13 @@ export class AdminService {
           activeRestaurants: 0,
           activeDrivers: 0,
           totalProducts: 0,
-          orderTrends: this.calculateOrderTrends([])
+          orderTrends: this.calculateOrderTrends([]),
         }
       } catch (error) {
-        logger.warn('Failed to get detailed analytics from admin client, falling back to regular client', { error })
+        logger.warn(
+          'Failed to get detailed analytics from admin client, falling back to regular client',
+          { error }
+        )
       }
     }
 
@@ -39,23 +47,24 @@ export class AdminService {
       .order('created_at', { ascending: false })
 
     const { data: restaurants } = await this.supabase
-      .from('restaurants')
+      .from('profiles' as any)
       .select('*')
+      .eq('role', 'restaurant')
 
     const { data: drivers } = await this.supabase
-      .from('drivers')
+      .from('profiles' as any)
       .select('*')
+      .eq('role', 'driver')
 
-    const { data: products } = await this.supabase
-      .from('products')
-      .select('*')
+    const { data: products } = await this.supabase.from('products').select('*')
 
     // Calculate analytics
     const totalOrders = orders?.length || 0
     const activeRestaurants = restaurants?.length || 0
     const activeDrivers = drivers?.length || 0
     const totalProducts = products?.length || 0
-    const totalRevenue = orders?.reduce((sum, order) => sum + ((order as any).total_amount || 0), 0) || 0
+    const totalRevenue =
+      orders?.reduce((sum, order) => sum + ((order as any).total_amount || 0), 0) || 0
 
     return {
       totalOrders,
@@ -66,7 +75,7 @@ export class AdminService {
       ordersByStatus: this.groupOrdersByStatus(orders || []),
       revenueByDay: this.calculateRevenueByDay(orders || []),
       topProducts: this.getTopProducts(products || []),
-      orderTrends: this.calculateOrderTrends(orders || [])
+      orderTrends: this.calculateOrderTrends(orders || []),
     }
   }
 
@@ -103,8 +112,9 @@ export class AdminService {
 
   async getAllRestaurants() {
     const { data, error } = await this.supabase
-      .from('restaurants')
+      .from('profiles' as any)
       .select('*')
+      .eq('role', 'restaurant')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -116,8 +126,9 @@ export class AdminService {
 
   async getAllDrivers() {
     const { data, error } = await this.supabase
-      .from('drivers')
+      .from('profiles' as any)
       .select('*')
+      .eq('role', 'driver')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -141,8 +152,7 @@ export class AdminService {
   }
 
   async updateUserRole(userId: string, role: string) {
-    const { data, error } = await (this.supabase
-      .from('profiles') as any)
+    const { data, error } = await (this.supabase.from('profiles') as any)
       .update({ role })
       .eq('id', userId)
       .select()
@@ -174,8 +184,7 @@ export class AdminService {
       }
     }
 
-    const { data, error } = await (this.supabase
-      .from('products') as any)
+    const { data, error } = await (this.supabase.from('products') as any)
       .insert([productData])
       .select()
       .single()
@@ -187,7 +196,10 @@ export class AdminService {
     return data
   }
 
-  async updateProduct(productId: string, updates: Database['public']['Tables']['products']['Update']) {
+  async updateProduct(
+    productId: string,
+    updates: Database['public']['Tables']['products']['Update']
+  ) {
     // Use service role client in server context for privileged operations
     if (this.isServerContext && this.adminClient) {
       try {
@@ -208,8 +220,7 @@ export class AdminService {
       }
     }
 
-    const { data, error } = await (this.supabase
-      .from('products') as any)
+    const { data, error } = await (this.supabase.from('products') as any)
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', productId)
       .select()
@@ -243,10 +254,7 @@ export class AdminService {
       }
     }
 
-    const { error } = await this.supabase
-      .from('products')
-      .delete()
-      .eq('id', productId)
+    const { error } = await this.supabase.from('products').delete().eq('id', productId)
 
     if (error) {
       throw new Error(`Failed to delete product: ${error.message}`)
@@ -263,7 +271,7 @@ export class AdminService {
         return {
           ...adminHealth,
           hasAdminClient: true,
-          adminClientAvailable: true
+          adminClientAvailable: true,
         }
       } catch (error) {
         logger.warn('Admin client health check failed', { error })
@@ -273,7 +281,7 @@ export class AdminService {
     // Fallback to regular health checks
     const [ordersResult, productsResult] = await Promise.allSettled([
       this.supabase.from('orders').select('id').limit(1),
-      this.supabase.from('products').select('id').limit(1)
+      this.supabase.from('products').select('id').limit(1),
     ])
 
     return {
@@ -281,7 +289,7 @@ export class AdminService {
       ordersAccessible: ordersResult.status === 'fulfilled',
       productsAccessible: productsResult.status === 'fulfilled',
       hasAdminClient: false,
-      adminClientAvailable: this.isServerContext
+      adminClientAvailable: this.isServerContext,
     }
   }
 
@@ -318,12 +326,18 @@ export class AdminService {
     return await adminDatabase.assignDriver(orderId, driverId)
   }
 
-  async updateOrderStatus(orderId: string, status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'completed') {
+  async updateOrderStatus(
+    orderId: string,
+    status: 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'completed'
+  ) {
     if (!this.isServerContext || !this.adminClient) {
       throw new Error('Admin operations require server context')
     }
 
-    return await adminDatabase.updateOrderStatus(orderId, status as Database['public']['Tables']['orders']['Update']['status'])
+    return await adminDatabase.updateOrderStatus(
+      orderId,
+      status as Database['public']['Tables']['orders']['Update']['status']
+    )
   }
 
   // Environment and connection info
@@ -338,7 +352,7 @@ export class AdminService {
       adminConnection,
       adminEnvironment: adminEnvInfo,
       environment: getEnvVar('NEXT_PUBLIC_ENVIRONMENT'),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
   }
 
@@ -349,14 +363,17 @@ export class AdminService {
 
     // Calculate performance metrics
     const totalOrders = orders?.length || 0
-    const completedOrders = orders?.filter(order => (order as any).status === 'delivered' || (order as any).status === 'completed') || []
+    const completedOrders =
+      orders?.filter(
+        (order) => (order as any).status === 'delivered' || (order as any).status === 'completed'
+      ) || []
     const avgCompletionTime = this.calculateAverageCompletionTime(completedOrders)
 
     return {
       totalOrders,
       completedOrders: completedOrders.length,
       averageCompletionTime: avgCompletionTime,
-      completionRate: totalOrders > 0 ? (completedOrders.length / totalOrders) * 100 : 0
+      completionRate: totalOrders > 0 ? (completedOrders.length / totalOrders) * 100 : 0,
     }
   }
 
@@ -370,7 +387,7 @@ export class AdminService {
   private calculateRevenueByDay(orders: any[]) {
     const revenueByDay: { [key: string]: number } = {}
 
-    orders.forEach(order => {
+    orders.forEach((order) => {
       const date = new Date(order.created_at).toISOString().split('T')[0]
       if (date) {
         revenueByDay[date] = (revenueByDay[date] || 0) + (order.total_amount || 0)
@@ -386,7 +403,7 @@ export class AdminService {
       ...product,
       rank: index + 1,
       salesCount: Math.floor(Math.random() * 100) + 10,
-      revenue: (Math.random() * 1000) + 100
+      revenue: Math.random() * 1000 + 100,
     }))
   }
 
@@ -397,11 +414,9 @@ export class AdminService {
       return date.toISOString().split('T')[0]
     })
 
-    return last7Days.reverse().map(date => ({
+    return last7Days.reverse().map((date) => ({
       date,
-      orders: orders.filter(order => 
-        order.created_at.startsWith(date)
-      ).length
+      orders: orders.filter((order) => order.created_at.startsWith(date)).length,
     }))
   }
 
@@ -409,8 +424,8 @@ export class AdminService {
     if (completedOrders.length === 0) return 0
 
     const completionTimes = completedOrders
-      .filter(order => order.updated_at)
-      .map(order => {
+      .filter((order) => order.updated_at)
+      .map((order) => {
         const created = new Date(order.created_at)
         const completed = new Date(order.updated_at)
         return (completed.getTime() - created.getTime()) / (1000 * 60) // minutes
@@ -424,7 +439,7 @@ export class AdminService {
 
   async exportData(type: 'orders' | 'users' | 'products') {
     let data: any[] = []
-    
+
     switch (type) {
       case 'orders':
         const { data: ordersData } = await this.supabase
@@ -454,7 +469,7 @@ export class AdminService {
       const headers = Object.keys(data[0])
       const csvContent = [
         headers.join(','),
-        ...data.map(row => headers.map(header => row[header] || '').join(','))
+        ...data.map((row) => headers.map((header) => row[header] || '').join(',')),
       ].join('\n')
 
       return csvContent

@@ -16,7 +16,7 @@ export function SessionTimeoutModal({
   isOpen,
   onExtend,
   onSignOut,
-  timeRemaining
+  timeRemaining,
 }: SessionTimeoutModalProps) {
   const [countdown, setCountdown] = useState(timeRemaining)
 
@@ -24,7 +24,7 @@ export function SessionTimeoutModal({
     if (!isOpen) return
 
     const interval = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev <= 1) {
           onSignOut()
           return 0
@@ -62,17 +62,10 @@ export function SessionTimeoutModal({
           </Alert>
 
           <div className="flex gap-2">
-            <Button
-              onClick={onSignOut}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button onClick={onSignOut} variant="outline" className="flex-1">
               გამოსვლა
             </Button>
-            <Button
-              onClick={onExtend}
-              className="flex-1"
-            >
+            <Button onClick={onExtend} className="flex-1">
               გაგრძელება
             </Button>
           </div>
@@ -111,6 +104,6 @@ export function useSessionTimeout() {
     showTimeoutWarning,
     hideTimeoutWarning,
     extendSession,
-    handleSignOut
+    handleSignOut,
   }
 }

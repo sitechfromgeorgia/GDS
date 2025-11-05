@@ -1,29 +1,21 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { useHaptic } from '@/hooks/useHaptic';
-import {
-  Home,
-  Package,
-  ShoppingCart,
-  Users,
-  BarChart3,
-  Truck,
-  Receipt,
-} from 'lucide-react';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { useHaptic } from '@/hooks/useHaptic'
+import { Home, Package, ShoppingCart, Users, BarChart3, Truck, Receipt } from 'lucide-react'
 
 export interface MobileNavItem {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  activePattern?: RegExp;
+  href: string
+  label: string
+  icon: React.ReactNode
+  activePattern?: RegExp
 }
 
 interface MobileBottomNavProps {
-  items?: MobileNavItem[];
-  className?: string;
+  items?: MobileNavItem[]
+  className?: string
 }
 
 // Default navigation items for different user roles
@@ -52,7 +44,7 @@ const defaultAdminItems: MobileNavItem[] = [
     icon: <BarChart3 className="h-5 w-5" />,
     activePattern: /^\/dashboard\/admin\/analytics/,
   },
-];
+]
 
 const defaultRestaurantItems: MobileNavItem[] = [
   {
@@ -73,7 +65,7 @@ const defaultRestaurantItems: MobileNavItem[] = [
     icon: <Receipt className="h-5 w-5" />,
     activePattern: /^\/dashboard\/restaurant\/history/,
   },
-];
+]
 
 const defaultDriverItems: MobileNavItem[] = [
   {
@@ -94,34 +86,36 @@ const defaultDriverItems: MobileNavItem[] = [
     icon: <Receipt className="h-5 w-5" />,
     activePattern: /^\/dashboard\/driver\/history/,
   },
-];
+]
 
 export function MobileBottomNav({ items, className }: MobileBottomNavProps) {
-  const pathname = usePathname();
-  const { triggerHaptic } = useHaptic();
+  const pathname = usePathname()
+  const { triggerHaptic } = useHaptic()
 
   // Auto-detect navigation items based on current route
-  const navItems = items || (() => {
-    if (pathname.startsWith('/dashboard/restaurant')) {
-      return defaultRestaurantItems;
-    } else if (pathname.startsWith('/dashboard/driver')) {
-      return defaultDriverItems;
-    } else if (pathname.startsWith('/dashboard/admin')) {
-      return defaultAdminItems;
-    }
-    return defaultAdminItems;
-  })();
+  const navItems =
+    items ||
+    (() => {
+      if (pathname.startsWith('/dashboard/restaurant')) {
+        return defaultRestaurantItems
+      } else if (pathname.startsWith('/dashboard/driver')) {
+        return defaultDriverItems
+      } else if (pathname.startsWith('/dashboard/admin')) {
+        return defaultAdminItems
+      }
+      return defaultAdminItems
+    })()
 
   const isActive = (item: MobileNavItem) => {
     if (item.activePattern) {
-      return item.activePattern.test(pathname);
+      return item.activePattern.test(pathname)
     }
-    return pathname === item.href;
-  };
+    return pathname === item.href
+  }
 
   const handleClick = () => {
-    triggerHaptic('light');
-  };
+    triggerHaptic('light')
+  }
 
   return (
     <nav
@@ -135,7 +129,7 @@ export function MobileBottomNav({ items, className }: MobileBottomNavProps) {
     >
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
-          const active = isActive(item);
+          const active = isActive(item)
 
           return (
             <Link
@@ -147,17 +141,10 @@ export function MobileBottomNav({ items, className }: MobileBottomNavProps) {
                 'flex-1 h-full gap-1',
                 'transition-colors duration-200',
                 'active:scale-95 touch-manipulation',
-                active
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <div
-                className={cn(
-                  'transition-transform duration-200',
-                  active && 'scale-110'
-                )}
-              >
+              <div className={cn('transition-transform duration-200', active && 'scale-110')}>
                 {item.icon}
               </div>
               <span className="text-xs font-medium">{item.label}</span>
@@ -165,12 +152,12 @@ export function MobileBottomNav({ items, className }: MobileBottomNavProps) {
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
               )}
             </Link>
-          );
+          )
         })}
       </div>
     </nav>
-  );
+  )
 }
 
 // Export default items for reuse
-export { defaultAdminItems, defaultRestaurantItems, defaultDriverItems };
+export { defaultAdminItems, defaultRestaurantItems, defaultDriverItems }

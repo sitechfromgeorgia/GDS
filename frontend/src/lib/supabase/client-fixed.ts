@@ -8,13 +8,13 @@ export const supabase = createClient<Database>(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
     },
     global: {
       headers: {
-        'X-Client-Info': 'georgian-distribution-system'
-      }
-    }
+        'X-Client-Info': 'georgian-distribution-system',
+      },
+    },
   }
 )
 
@@ -34,13 +34,13 @@ export function createTypedSupabaseClient(): ReturnType<typeof createClient<Data
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
       },
       global: {
         headers: {
-          'X-Client-Info': 'georgian-distribution-system'
-        }
-      }
+          'X-Client-Info': 'georgian-distribution-system',
+        },
+      },
     }
   )
 }

@@ -34,7 +34,7 @@ class AuthInitializer {
     // Prevent multiple simultaneous initializations
     if (this.initialized || this.initializing) {
       logger.info('Auth already initialized or initializing, skipping')
-      return
+      return Promise.resolve()
     }
 
     this.initializing = true
@@ -51,7 +51,10 @@ class AuthInitializer {
       )
 
       const result = await Promise.race([sessionPromise, timeoutPromise])
-      const { data: { session }, error: sessionError } = result as Awaited<typeof sessionPromise>
+      const {
+        data: { session },
+        error: sessionError,
+      } = result as Awaited<typeof sessionPromise>
 
       if (sessionError) {
         logger.error('Session fetch error:', sessionError)
@@ -105,8 +108,8 @@ class AuthInitializer {
 
       setSessionInfo({
         lastActivity: Date.now(),
-        expiresAt: new Date(session.expires_at!).getTime(),
-        deviceId
+        expiresAt: (session.expires_at ?? 0) * 1000, // Convert Unix seconds to milliseconds
+        deviceId,
       })
 
       // Start session monitoring
@@ -117,9 +120,11 @@ class AuthInitializer {
   }
 
   private setupAuthListener(): void {
-    const { data: { subscription } } = this.supabase.auth.onAuthStateChange(
+    const {
+      data: { subscription },
+    } = this.supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        logger.info('Auth state changed:', event)
+        logger.info('Auth state changed:', { event })
         const { setUser, setProfile, setLoading } = useAuthStore.getState()
 
         setUser(session?.user || null)

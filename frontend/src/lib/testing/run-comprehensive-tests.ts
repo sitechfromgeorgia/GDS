@@ -17,76 +17,96 @@
  */
 
 import { logger } from '@/lib/logger'
-import 'dotenv/config';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import 'dotenv/config'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-import { runComprehensiveTests, runSmokeTests, runCriticalTests, runRegressionTests, runFullTests, TestSuiteConfig } from './comprehensive-test-orchestrator.js';
-import { runRoleBasedTests, testAdminRole, testRestaurantRole, testDriverRole, testDemoRole } from './role-based-tests.js';
-import { runBusinessLogicTests, validateOrderLifecycle, validatePricingCompliance, validateDataIntegrity } from './business-logic-validator.js';
-import { runAPITests } from './api-tester.js';
-import { runAuthTests } from './auth-tester.js';
-import { runRealtimeTests } from './realtime-tester.js';
+import {
+  runComprehensiveTests,
+  runSmokeTests,
+  runCriticalTests,
+  runRegressionTests,
+  runFullTests,
+  TestSuiteConfig,
+} from './comprehensive-test-orchestrator.js'
+import {
+  runRoleBasedTests,
+  testAdminRole,
+  testRestaurantRole,
+  testDriverRole,
+  testDemoRole,
+} from './role-based-tests.js'
+import {
+  runBusinessLogicTests,
+  validateOrderLifecycle,
+  validatePricingCompliance,
+  validateDataIntegrity,
+} from './business-logic-validator.js'
+import { runAPITests } from './api-tester.js'
+import { runAuthTests } from './auth-tester.js'
+import { runRealtimeTests } from './realtime-tester.js'
 
 /**
  * Parse command line arguments
  */
 function parseArgs(): { command: string; config: TestSuiteConfig } {
-  const args = process.argv.slice(2);
-  const command = args[0] || 'smoke';
+  const args = process.argv.slice(2)
+  const command = args[0] || 'smoke'
 
   // Parse environment variables for configuration
   const config: TestSuiteConfig = {
-    environment: (process.env.TEST_ENVIRONMENT as 'development' | 'production' | 'staging') || 'development',
+    environment:
+      (process.env.TEST_ENVIRONMENT as 'development' | 'production' | 'staging') || 'development',
     timeout: parseInt(process.env.TEST_TIMEOUT || '300000'), // 5 minutes default
-    outputFormat: (process.env.TEST_OUTPUT_FORMAT as 'console' | 'json' | 'html' | 'all') || 'console',
+    outputFormat:
+      (process.env.TEST_OUTPUT_FORMAT as 'console' | 'json' | 'html' | 'all') || 'console',
     saveResults: process.env.TEST_SAVE_RESULTS === 'true',
-    resultsPath: process.env.TEST_RESULTS_PATH || './test-results'
-  };
+    resultsPath: process.env.TEST_RESULTS_PATH || './test-results',
+  }
 
   // Parse additional command line flags
   for (let i = 1; i < args.length; i++) {
-    const arg = args[i];
+    const arg = args[i]
 
     switch (arg) {
       case '--json':
-        config.outputFormat = 'json';
-        break;
+        config.outputFormat = 'json'
+        break
       case '--html':
-        config.outputFormat = 'html';
-        break;
+        config.outputFormat = 'html'
+        break
       case '--all':
-        config.outputFormat = 'all';
-        break;
+        config.outputFormat = 'all'
+        break
       case '--save':
-        config.saveResults = true;
-        break;
+        config.saveResults = true
+        break
       case '--timeout':
         if (args[i + 1]) {
-          config.timeout = parseInt(args[i + 1]!);
-          i++; // Skip next arg
+          config.timeout = parseInt(args[i + 1]!)
+          i++ // Skip next arg
         }
-        break;
+        break
       case '--roles':
         if (args[i + 1]) {
-          const roles = args[i + 1]!.split(',');
-          config.testRoles = roles as ('admin' | 'restaurant' | 'driver' | 'demo')[];
-          i++; // Skip next arg
+          const roles = args[i + 1]!.split(',')
+          config.testRoles = roles as ('admin' | 'restaurant' | 'driver' | 'demo')[]
+          i++ // Skip next arg
         }
-        break;
+        break
       case '--parallel':
-        config.parallelExecution = true;
-        break;
+        config.parallelExecution = true
+        break
       case '--sequential':
-        config.parallelExecution = false;
-        break;
+        config.parallelExecution = false
+        break
     }
   }
 
-  return { command, config };
+  return { command, config }
 }
 
 /**
@@ -161,7 +181,7 @@ OUTPUT:
   Test results are displayed in the console by default.
   Use --save flag to persist results to files.
   HTML reports provide detailed breakdowns and recommendations.
-`);
+`)
 }
 
 /**
@@ -177,7 +197,7 @@ Timeout: ${config.timeout}ms
 Output: ${config.outputFormat}
 Save Results: ${config.saveResults}
 ${'='.repeat(60)}
-`);
+`)
 }
 
 /**
@@ -185,92 +205,91 @@ ${'='.repeat(60)}
  */
 async function executeTests(command: string, config: TestSuiteConfig): Promise<void> {
   try {
-    let result;
+    let result
 
     switch (command) {
       case 'smoke':
-        result = await runSmokeTests();
-        break;
+        result = await runSmokeTests()
+        break
 
       case 'critical':
-        result = await runCriticalTests();
-        break;
+        result = await runCriticalTests()
+        break
 
       case 'regression':
-        result = await runRegressionTests();
-        break;
+        result = await runRegressionTests()
+        break
 
       case 'full':
-        result = await runFullTests();
-        break;
+        result = await runFullTests()
+        break
 
       case 'api':
-        result = await runAPITests();
-        break;
+        result = await runAPITests()
+        break
 
       case 'auth':
-        result = await runAuthTests();
-        break;
+        result = await runAuthTests()
+        break
 
       case 'realtime':
-        result = await runRealtimeTests();
-        break;
+        result = await runRealtimeTests()
+        break
 
       case 'roles':
-        result = await runRoleBasedTests(config);
-        break;
+        result = await runRoleBasedTests(config)
+        break
 
       case 'business':
-        result = await runBusinessLogicTests(config);
-        break;
+        result = await runBusinessLogicTests(config)
+        break
 
       case 'admin':
-        result = await testAdminRole();
-        break;
+        result = await testAdminRole()
+        break
 
       case 'restaurant':
-        result = await testRestaurantRole();
-        break;
+        result = await testRestaurantRole()
+        break
 
       case 'driver':
-        result = await testDriverRole();
-        break;
+        result = await testDriverRole()
+        break
 
       case 'demo':
-        result = await testDemoRole();
-        break;
+        result = await testDemoRole()
+        break
 
       case 'lifecycle':
-        result = await validateOrderLifecycle();
-        break;
+        result = await validateOrderLifecycle()
+        break
 
       case 'pricing':
-        result = await validatePricingCompliance();
-        break;
+        result = await validatePricingCompliance()
+        break
 
       case 'integrity':
-        result = await validateDataIntegrity();
-        break;
+        result = await validateDataIntegrity()
+        break
 
       case 'help':
       case '--help':
       case '-h':
-        displayHelp();
-        return;
+        displayHelp()
+        return
 
       default:
-        logger.error(`❌ Unknown command: ${command}`);
-        logger.info('Run with --help for usage information');
-        process.exit(1);
+        logger.error(`❌ Unknown command: ${command}`)
+        logger.info('Run with --help for usage information')
+        process.exit(1)
     }
 
     // Handle exit codes for CI/CD
-    const exitCode = determineExitCode(result);
-    process.exit(exitCode);
-
+    const exitCode = determineExitCode(result)
+    process.exit(exitCode)
   } catch (error) {
-    logger.error('❌ Test execution failed:', error);
-    process.exit(1);
+    logger.error('❌ Test execution failed:', error)
+    process.exit(1)
   }
 }
 
@@ -278,52 +297,55 @@ async function executeTests(command: string, config: TestSuiteConfig): Promise<v
  * Determine exit code based on test results
  */
 function determineExitCode(result: any): number {
-  if (!result) return 1;
+  if (!result) return 1
 
   // For comprehensive test results
   if (result.summary) {
-    if (result.summary.failedTests > 0) return 1;
-    if (result.summary.overallScore < 80) return 1;
-    return 0;
+    if (result.summary.failedTests > 0) return 1
+    if (result.summary.overallScore < 80) return 1
+    return 0
   }
 
   // For individual test suites
-  if (result.summary?.failed > 0) return 1;
-  if (result.summary?.passed === 0) return 1;
+  if (result.summary?.failed > 0) return 1
+  if (result.summary?.passed === 0) return 1
 
-  return 0;
+  return 0
 }
 
 /**
  * Main execution function
  */
 async function main(): Promise<void> {
-  const { command, config } = parseArgs();
+  const { command, config } = parseArgs()
 
   // Display banner
-  displayBanner(command, config);
+  displayBanner(command, config)
 
   // Execute tests
-  await executeTests(command, config);
+  await executeTests(command, config)
 }
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  logger.error('💥 Uncaught Exception', { error });
-  process.exit(1);
-});
+  logger.error('💥 Uncaught Exception', { error })
+  process.exit(1)
+})
 
 process.on('unhandledRejection', (reason, promise) => {
-  logger.error('💥 Unhandled Rejection', { promise, reason });
-  process.exit(1);
-});
+  logger.error('💥 Unhandled Rejection', { promise, reason })
+  process.exit(1)
+})
 
 // Execute main function
-if (import.meta.url === `file://${process.argv[1]}` || (process.argv[1] && import.meta.url.endsWith(process.argv[1]))) {
+if (
+  import.meta.url === `file://${process.argv[1]}` ||
+  (process.argv[1] && import.meta.url.endsWith(process.argv[1]))
+) {
   main().catch((error) => {
-    logger.error('💥 Fatal error', { error });
-    process.exit(1);
-  });
+    logger.error('💥 Fatal error', { error })
+    process.exit(1)
+  })
 }
 
-export { main as runTestsCLI };
+export { main as runTestsCLI }

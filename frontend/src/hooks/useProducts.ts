@@ -8,7 +8,8 @@ export const productQueryKeys = {
   all: ['products'] as const,
   lists: () => [...productQueryKeys.all, 'list'] as const,
   list: (filters: ProductFilterInput) => [...productQueryKeys.lists(), filters] as const,
-  infinite: (filters: ProductFilterInput) => [...productQueryKeys.all, 'infinite', filters] as const,
+  infinite: (filters: ProductFilterInput) =>
+    [...productQueryKeys.all, 'infinite', filters] as const,
   details: () => [...productQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...productQueryKeys.details(), id] as const,
   categories: () => [...productQueryKeys.all, 'categories'] as const,
@@ -26,14 +27,10 @@ export function useProducts(filters: ProductFilterInput = {}) {
 }
 
 // Get products with infinite scrolling and pagination
-export function useInfiniteProducts(
-  filters: ProductFilterInput = {},
-  limit: number = 50
-) {
+export function useInfiniteProducts(filters: ProductFilterInput = {}, limit: number = 50) {
   return useInfiniteQuery({
     queryKey: productQueryKeys.infinite(filters),
-    queryFn: ({ pageParam = 1 }) =>
-      productService.getProductsPaginated(pageParam, limit, filters),
+    queryFn: ({ pageParam = 1 }) => productService.getProductsPaginated(pageParam, limit, filters),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       return lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined
@@ -101,10 +98,7 @@ export function useProductSearch(query: string, limit: number = 10) {
 }
 
 // Custom hook for debounced search
-export function useDebouncedProductSearch(
-  searchTerm: string,
-  delay: number = 300
-) {
+export function useDebouncedProductSearch(searchTerm: string, delay: number = 300) {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm)
 
   useEffect(() => {
@@ -131,10 +125,7 @@ export function useProductRealtimeUpdates(
     (payload: any) => {
       // Update the cache with the new product data
       if (payload.new) {
-        queryClient.setQueryData(
-          productQueryKeys.detail(payload.new.id),
-          payload.new
-        )
+        queryClient.setQueryData(productQueryKeys.detail(payload.new.id), payload.new)
       }
 
       // Invalidate product lists to refetch with updated data
@@ -182,19 +173,19 @@ export function useProductCatalog(
     // Data
     products: productsQuery.data || [],
     categories: categoriesQuery.data || [],
-    
+
     // Loading states
     isLoading: productsQuery.isLoading || categoriesQuery.isLoading,
     isError: productsQuery.isError || categoriesQuery.isError,
     error: productsQuery.error || categoriesQuery.error,
-    
+
     // Formatters
     formatPrice,
     getStockStatus,
-    
+
     // Actions
     invalidateProducts,
-    
+
     // Metadata
     productsCount: productsQuery.data?.length || 0,
     categoriesCount: categoriesQuery.data?.length || 0,

@@ -8,20 +8,22 @@ import { z } from 'zod'
 // Zod schemas for validation
 export const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
-export const signUpSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-  role: z.enum(['restaurant', 'driver', 'admin', 'demo']),
-  restaurant_name: z.string().min(1, 'Restaurant name is required').optional(),
-  full_name: z.string().min(1, 'Full name is required').optional()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+export const signUpSchema = z
+  .object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string(),
+    role: z.enum(['restaurant', 'driver', 'admin', 'demo']),
+    restaurant_name: z.string().min(1, 'Restaurant name is required').optional(),
+    full_name: z.string().min(1, 'Full name is required').optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  })
 
 export type SignInInput = z.infer<typeof signInSchema>
 export type SignUpInput = z.infer<typeof signUpSchema>
@@ -38,22 +40,25 @@ export class AuthService {
 
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     })
-    
+
     if (error) {
       throw new Error(error.message)
     }
-    
+
     return { data, error: null }
   }
-  
+
   async signOut() {
     return await this.supabase.auth.signOut()
   }
-  
+
   async getCurrentUser(): Promise<User | null> {
-    const { data: { user }, error } = await this.supabase.auth.getUser()
+    const {
+      data: { user },
+      error,
+    } = await this.supabase.auth.getUser()
     if (error) {
       logger.error('Error getting user:', error)
       return null
@@ -63,7 +68,7 @@ export class AuthService {
 
   async getUserRole(userId: string): Promise<string | null> {
     const { data, error } = await this.supabase
-      .from('users')
+      .from('profiles' as any)
       .select('role')
       .eq('id', userId)
       .single()
@@ -78,7 +83,7 @@ export class AuthService {
 
   async getUserProfile(userId: string) {
     const { data, error } = await this.supabase
-      .from('users')
+      .from('profiles' as any)
       .select('*')
       .eq('id', userId)
       .single()
@@ -92,8 +97,7 @@ export class AuthService {
   }
 
   async updateProfile(userId: string, updates: any) {
-    const { data, error } = await (this.supabase
-      .from('users') as any)
+    const { data, error } = await (this.supabase.from('profiles') as any)
       .update(updates)
       .eq('id', userId)
       .select()
@@ -119,9 +123,9 @@ export class AuthService {
         data: {
           role: userData.role,
           full_name: userData.full_name,
-          restaurant_name: userData.restaurant_name
-        }
-      }
+          restaurant_name: userData.restaurant_name,
+        },
+      },
     })
 
     if (error) {
@@ -133,7 +137,7 @@ export class AuthService {
 
   async resetPassword(email: string) {
     const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: `${window.location.origin}/reset-password`,
     })
 
     if (error) {
@@ -145,7 +149,7 @@ export class AuthService {
 
   async updatePassword(newPassword: string) {
     const { error } = await this.supabase.auth.updateUser({
-      password: newPassword
+      password: newPassword,
     })
 
     if (error) {

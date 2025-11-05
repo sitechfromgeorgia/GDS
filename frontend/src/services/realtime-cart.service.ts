@@ -23,7 +23,7 @@ export class RealtimeCartService {
   constructor(config: RealtimeCartConfig = {}) {
     this.config = {
       enableRealTime: true,
-      ...config
+      ...config,
     }
   }
 
@@ -37,7 +37,7 @@ export class RealtimeCartService {
 
       // Check for existing active session
       const { data: existingSession, error: sessionError } = await supabase
-        .from('cart_sessions')
+        .from('cart_sessions' as any)
         .select('*')
         .eq('session_token', sessionToken)
         .eq('is_active', true)
@@ -51,16 +51,16 @@ export class RealtimeCartService {
       if (existingSession) {
         this.sessionId = (existingSession as any).id
         await this.updateSessionActivity((existingSession as any).id)
-        return existingSession as CartSession
+        return existingSession as any
       }
 
       // Create new session
-      const { data: newSession, error: createError } = await (supabase
-        .from('cart_sessions') as any)
+      const { data: newSession, error: createError } = await supabase
+        .from('cart_sessions' as any)
         .insert({
           session_token: sessionToken,
           user_id: this.config.userId,
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
         })
         .select()
         .single()
@@ -69,9 +69,8 @@ export class RealtimeCartService {
         throw new Error(`Failed to create cart session: ${createError.message}`)
       }
 
-      this.sessionId = newSession.id
-      return newSession as CartSession
-
+      this.sessionId = (newSession as any).id
+      return newSession as any
     } catch (error) {
       logger.error('Failed to initialize cart session:', error)
       throw error
@@ -89,14 +88,16 @@ export class RealtimeCartService {
     try {
       // Get cart session with items
       const { data: sessionData, error: sessionError } = await supabase
-        .from('cart_sessions')
-        .select(`
+        .from('cart_sessions' as any)
+        .select(
+          `
           *,
           cart_items (
             *,
             products (*)
           )
-        `)
+        `
+        )
         .eq('id', this.sessionId!)
         .single()
 
@@ -120,16 +121,18 @@ export class RealtimeCartService {
           unitPrice: parseFloat(item.unit_price || '0'),
           totalPrice: parseFloat(item.total_price || '0'),
           createdAt: item.created_at,
-          updatedAt: item.updated_at
+          updatedAt: item.updated_at,
         })),
         totalItems: cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0),
-        totalPrice: cartItems.reduce((sum: number, item: any) => sum + parseFloat(item.total_price || '0'), 0),
+        totalPrice: cartItems.reduce(
+          (sum: number, item: any) => sum + parseFloat(item.total_price || '0'),
+          0
+        ),
         createdAt: (sessionData as any).created_at,
-        updatedAt: (sessionData as any).updated_at
+        updatedAt: (sessionData as any).updated_at,
       }
 
       return cart
-
     } catch (error) {
       logger.error('Failed to fetch cart:', error)
       throw error
@@ -160,22 +163,28 @@ export class RealtimeCartService {
       const totalPrice = unitPrice * (input.quantity || 1)
 
       // Use upsert to handle existing items
-      const { data: cartItem, error: upsertError } = await (supabase
-        .from('cart_items') as any)
-        .upsert({
-          cart_session_id: this.sessionId!,
-          product_id: input.productId,
-          quantity: input.quantity || 1,
-          notes: input.notes,
-          unit_price: unitPrice,
-          total_price: totalPrice
-        }, {
-          onConflict: 'cart_session_id,product_id'
-        })
-        .select(`
+      const { data: cartItem, error: upsertError } = await (
+        supabase.from('cart_items' as any) as any
+      )
+        .upsert(
+          {
+            cart_session_id: this.sessionId!,
+            product_id: input.productId,
+            quantity: input.quantity || 1,
+            notes: input.notes,
+            unit_price: unitPrice,
+            total_price: totalPrice,
+          },
+          {
+            onConflict: 'cart_session_id,product_id',
+          }
+        )
+        .select(
+          `
           *,
           products (*)
-        `)
+        `
+        )
         .single()
 
       if (upsertError) {
@@ -183,7 +192,13 @@ export class RealtimeCartService {
       }
 
       // Log activity
-      await this.logCartActivity('item_added', input.productId, null, input.quantity || 1, input.notes)
+      await this.logCartActivity(
+        'item_added',
+        input.productId,
+        null,
+        input.quantity || 1,
+        input.notes
+      )
 
       return {
         id: cartItem.id,
@@ -194,9 +209,8 @@ export class RealtimeCartService {
         unitPrice: parseFloat(cartItem.unit_price || '0'),
         totalPrice: parseFloat(cartItem.total_price || '0'),
         createdAt: cartItem.created_at,
-        updatedAt: cartItem.updated_at
+        updatedAt: cartItem.updated_at,
       }
-
     } catch (error) {
       logger.error('Failed to add item to cart:', error)
       throw error
@@ -214,7 +228,7 @@ export class RealtimeCartService {
     try {
       // Get current item data
       const { data: currentItem, error: fetchError } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .select('*, products(*)')
         .eq('id', input.itemId)
         .eq('cart_session_id', this.sessionId!)
@@ -228,19 +242,22 @@ export class RealtimeCartService {
       const totalPrice = unitPrice * input.quantity
 
       // Update the item
-      const { data: updatedItem, error: updateError } = await (supabase
-        .from('cart_items') as any)
+      const { data: updatedItem, error: updateError } = await (
+        supabase.from('cart_items' as any) as any
+      )
         .update({
           quantity: input.quantity,
           notes: input.notes,
-          total_price: totalPrice
+          total_price: totalPrice,
         })
         .eq('id', input.itemId)
         .eq('cart_session_id', this.sessionId!)
-        .select(`
+        .select(
+          `
           *,
           products (*)
-        `)
+        `
+        )
         .single()
 
       if (updateError) {
@@ -265,9 +282,8 @@ export class RealtimeCartService {
         unitPrice: parseFloat((updatedItem as any).unit_price || '0'),
         totalPrice: parseFloat((updatedItem as any).total_price || '0'),
         createdAt: (updatedItem as any).created_at,
-        updatedAt: (updatedItem as any).updated_at
+        updatedAt: (updatedItem as any).updated_at,
       }
-
     } catch (error) {
       logger.error('Failed to update cart item:', error)
       throw error
@@ -285,7 +301,7 @@ export class RealtimeCartService {
     try {
       // Get item data before deletion
       const { data: item, error: fetchError } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .select('product_id, quantity')
         .eq('id', itemId)
         .eq('cart_session_id', this.sessionId!)
@@ -297,7 +313,7 @@ export class RealtimeCartService {
 
       // Delete the item
       const { error: deleteError } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .delete()
         .eq('id', itemId)
         .eq('cart_session_id', this.sessionId!)
@@ -307,8 +323,12 @@ export class RealtimeCartService {
       }
 
       // Log activity
-      await this.logCartActivity('item_removed', (item as any).product_id, (item as any).quantity, 0)
-
+      await this.logCartActivity(
+        'item_removed',
+        (item as any).product_id,
+        (item as any).quantity,
+        0
+      )
     } catch (error) {
       logger.error('Failed to remove cart item:', error)
       throw error
@@ -326,7 +346,7 @@ export class RealtimeCartService {
     try {
       // Get all items before clearing
       const { data: items, error: fetchError } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .select('product_id, quantity')
         .eq('cart_session_id', this.sessionId!)
 
@@ -336,7 +356,7 @@ export class RealtimeCartService {
 
       // Clear all items
       const { error: deleteError } = await supabase
-        .from('cart_items')
+        .from('cart_items' as any)
         .delete()
         .eq('cart_session_id', this.sessionId!)
 
@@ -346,11 +366,15 @@ export class RealtimeCartService {
 
       // Log activity for each item
       for (const item of items || []) {
-        await this.logCartActivity('item_removed', (item as any).product_id, (item as any).quantity, 0)
+        await this.logCartActivity(
+          'item_removed',
+          (item as any).product_id,
+          (item as any).quantity,
+          0
+        )
       }
 
       await this.logCartActivity('cart_cleared', null, null, null)
-
     } catch (error) {
       logger.error('Failed to clear cart:', error)
       throw error
@@ -376,14 +400,14 @@ export class RealtimeCartService {
           event: '*',
           schema: 'public',
           table: 'cart_items',
-          filter: `cart_session_id=eq.${this.sessionId}`
+          filter: `cart_session_id=eq.${this.sessionId}`,
         },
         (payload) => {
           const update: RealtimeCartUpdate = {
             type: this.mapEventTypeToCartUpdateType(payload.eventType),
             sessionId: this.sessionId!,
             data: payload.new || payload.old,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           }
           callback(update)
         }
@@ -398,14 +422,14 @@ export class RealtimeCartService {
           event: 'INSERT',
           schema: 'public',
           table: 'cart_activities',
-          filter: `cart_session_id=eq.${this.sessionId}`
+          filter: `cart_session_id=eq.${this.sessionId}`,
         },
         (payload) => {
           const update: RealtimeCartUpdate = {
             type: 'activity',
             sessionId: this.sessionId!,
             data: payload.new,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           }
           callback(update)
         }
@@ -433,11 +457,11 @@ export class RealtimeCartService {
    */
   private async updateSessionActivity(sessionId: string): Promise<void> {
     try {
-      await (supabase
-        .from('cart_sessions') as any)
+      await supabase
+        .from('cart_sessions' as any)
         .update({
           last_activity: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', sessionId)
     } catch (error) {
@@ -456,16 +480,14 @@ export class RealtimeCartService {
     notes?: string
   ): Promise<void> {
     try {
-      await (supabase
-        .from('cart_activities') as any)
-        .insert({
-          cart_session_id: this.sessionId,
-          activity_type: activityType,
-          product_id: productId,
-          old_quantity: oldQuantity,
-          new_quantity: newQuantity,
-          notes
-        })
+      await supabase.from('cart_activities' as any).insert({
+        cart_session_id: this.sessionId,
+        activity_type: activityType,
+        product_id: productId,
+        old_quantity: oldQuantity,
+        new_quantity: newQuantity,
+        notes,
+      })
     } catch (error) {
       logger.warn('Failed to log cart activity', { error })
     }
@@ -476,13 +498,13 @@ export class RealtimeCartService {
    */
   static async cleanupExpiredSessions(): Promise<number> {
     try {
-      const { data, error } = await supabase.rpc('cleanup_expired_cart_sessions')
-      
+      const { data, error } = await (supabase as any).rpc('cleanup_expired_cart_sessions')
+
       if (error) {
         throw new Error(`Failed to cleanup expired sessions: ${error.message}`)
       }
 
-      return data || 0
+      return (data as any) || 0
     } catch (error) {
       logger.error('Failed to cleanup expired sessions:', error)
       throw error
@@ -522,7 +544,7 @@ export class RealtimeCartService {
 
     try {
       const { data, error } = await supabase
-        .from('cart_session_summary')
+        .from('cart_session_summary' as any)
         .select('*')
         .eq('id', this.sessionId!)
         .single()
@@ -531,17 +553,19 @@ export class RealtimeCartService {
         throw new Error(`Failed to fetch cart statistics: ${error.message}`)
       }
 
-      return data || {
-        item_count: 0,
-        total_price: 0,
-        total_quantity: 0
-      }
+      return (
+        data || {
+          item_count: 0,
+          total_price: 0,
+          total_quantity: 0,
+        }
+      )
     } catch (error) {
       logger.error('Failed to fetch cart statistics', { error })
       return {
         item_count: 0,
         total_price: 0,
-        total_quantity: 0
+        total_quantity: 0,
       }
     }
   }

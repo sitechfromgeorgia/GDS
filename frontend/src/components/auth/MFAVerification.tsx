@@ -43,7 +43,7 @@ export function MFAVerification({ onComplete, onCancel }: MFAVerificationProps) 
 
       // Challenge the factor
       const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: totpFactor.id
+        factorId: totpFactor.id,
       })
 
       if (challengeError) throw challengeError
@@ -52,7 +52,7 @@ export function MFAVerification({ onComplete, onCancel }: MFAVerificationProps) 
       const { data, error } = await supabase.auth.mfa.verify({
         factorId: totpFactor.id,
         challengeId: challenge.id,
-        code: verificationCode
+        code: verificationCode,
       })
 
       if (error) throw error
@@ -75,9 +75,7 @@ export function MFAVerification({ onComplete, onCancel }: MFAVerificationProps) 
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle>ორმაგი ავტორიზაცია</CardTitle>
-        <CardDescription>
-          შეიყვანეთ კოდი თქვენი ავტორიზაციის აპიდან
-        </CardDescription>
+        <CardDescription>შეიყვანეთ კოდი თქვენი ავტორიზაციის აპიდან</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -114,11 +112,7 @@ export function MFAVerification({ onComplete, onCancel }: MFAVerificationProps) 
             >
               გაუქმება
             </Button>
-            <Button
-              type="submit"
-              disabled={loading || !verificationCode}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={loading || !verificationCode} className="flex-1">
               {loading ? 'მიმდინარეობს...' : 'დადასტურება'}
             </Button>
           </div>

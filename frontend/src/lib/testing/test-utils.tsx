@@ -20,7 +20,9 @@ import type { Database } from '@/types/database'
 /**
  * Generate mock user profile
  */
-export function createMockProfile(overrides?: Partial<Database['public']['Tables']['profiles']['Row']>) {
+export function createMockProfile(
+  overrides?: Partial<Database['public']['Tables']['profiles']['Row']>
+) {
   return {
     id: 'test-user-id',
     email: 'test@example.com',
@@ -36,7 +38,9 @@ export function createMockProfile(overrides?: Partial<Database['public']['Tables
 /**
  * Generate mock order
  */
-export function createMockOrder(overrides?: Partial<Database['public']['Tables']['orders']['Row']>) {
+export function createMockOrder(
+  overrides?: Partial<Database['public']['Tables']['orders']['Row']>
+) {
   return {
     id: 'test-order-id',
     restaurant_id: 'test-restaurant-id',
@@ -55,7 +59,9 @@ export function createMockOrder(overrides?: Partial<Database['public']['Tables']
 /**
  * Generate mock product
  */
-export function createMockProduct(overrides?: Partial<Database['public']['Tables']['products']['Row']>) {
+export function createMockProduct(
+  overrides?: Partial<Database['public']['Tables']['products']['Row']>
+) {
   return {
     id: 'test-product-id',
     name: 'Test Product',
@@ -81,88 +87,76 @@ export function createMockSupabaseClient() {
   return {
     from: vi.fn((table: string) => ({
       select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({
-          data: [],
-          error: null,
-        })),
-        single: vi.fn(() => Promise.resolve({
-          data: null,
-          error: null,
-        })),
-        order: vi.fn(() => ({
-          limit: vi.fn(() => Promise.resolve({
+        eq: vi.fn(() =>
+          Promise.resolve({
             data: [],
             error: null,
-          })),
+          })
+        ),
+        single: vi.fn(() =>
+          Promise.resolve({
+            data: null,
+            error: null,
+          })
+        ),
+        order: vi.fn(() => ({
+          limit: vi.fn(() =>
+            Promise.resolve({
+              data: [],
+              error: null,
+            })
+          ),
         })),
       })),
-      insert: vi.fn(() => Promise.resolve({
-        data: null,
-        error: null,
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({
+      insert: vi.fn(() =>
+        Promise.resolve({
           data: null,
           error: null,
-        })),
+        })
+      ),
+      update: vi.fn(() => ({
+        eq: vi.fn(() =>
+          Promise.resolve({
+            data: null,
+            error: null,
+          })
+        ),
       })),
       delete: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({
-          data: null,
-          error: null,
-        })),
+        eq: vi.fn(() =>
+          Promise.resolve({
+            data: null,
+            error: null,
+          })
+        ),
       })),
     })),
     auth: {
-      getSession: vi.fn(() => Promise.resolve({
-        data: {
-          session: {
-            user: {
-              id: 'test-user-id',
-              email: 'test@example.com',
-              aud: 'authenticated',
-              role: 'authenticated',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
+      getSession: vi.fn(() =>
+        Promise.resolve({
+          data: {
+            session: {
+              user: {
+                id: 'test-user-id',
+                email: 'test@example.com',
+                aud: 'authenticated',
+                role: 'authenticated',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+              access_token: 'test-access-token',
+              refresh_token: 'test-refresh-token',
+              expires_at: Date.now() + 3600000,
+              expires_in: 3600,
+              token_type: 'bearer',
             },
-            access_token: 'test-access-token',
-            refresh_token: 'test-refresh-token',
-            expires_at: Date.now() + 3600000,
-            expires_in: 3600,
-            token_type: 'bearer',
           },
-        },
-        error: null,
-      })),
-      getUser: vi.fn(() => Promise.resolve({
-        data: {
-          user: {
-            id: 'test-user-id',
-            email: 'test@example.com',
-            aud: 'authenticated',
-            role: 'authenticated',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        },
-        error: null,
-      })),
-      signInWithPassword: vi.fn(() => Promise.resolve({
-        data: {
-          user: {
-            id: 'test-user-id',
-            email: 'test@example.com',
-            aud: 'authenticated',
-            role: 'authenticated',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          session: {
-            access_token: 'test-access-token',
-            refresh_token: 'test-refresh-token',
-            expires_at: Date.now() + 3600000,
-            expires_in: 3600,
-            token_type: 'bearer',
+          error: null,
+        })
+      ),
+      getUser: vi.fn(() =>
+        Promise.resolve({
+          data: {
             user: {
               id: 'test-user-id',
               email: 'test@example.com',
@@ -172,12 +166,44 @@ export function createMockSupabaseClient() {
               updated_at: new Date().toISOString(),
             },
           },
-        },
-        error: null,
-      })),
-      signOut: vi.fn(() => Promise.resolve({
-        error: null,
-      })),
+          error: null,
+        })
+      ),
+      signInWithPassword: vi.fn(() =>
+        Promise.resolve({
+          data: {
+            user: {
+              id: 'test-user-id',
+              email: 'test@example.com',
+              aud: 'authenticated',
+              role: 'authenticated',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            session: {
+              access_token: 'test-access-token',
+              refresh_token: 'test-refresh-token',
+              expires_at: Date.now() + 3600000,
+              expires_in: 3600,
+              token_type: 'bearer',
+              user: {
+                id: 'test-user-id',
+                email: 'test@example.com',
+                aud: 'authenticated',
+                role: 'authenticated',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            },
+          },
+          error: null,
+        })
+      ),
+      signOut: vi.fn(() =>
+        Promise.resolve({
+          error: null,
+        })
+      ),
       onAuthStateChange: vi.fn(() => ({
         data: {
           subscription: {
@@ -222,10 +248,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
  * @example
  * const { getByText } = renderWithProviders(<MyComponent />)
  */
-export function renderWithProviders(
-  ui: ReactElement,
-  options?: CustomRenderOptions
-) {
+export function renderWithProviders(ui: ReactElement, options?: CustomRenderOptions) {
   const { initialRoute = '/', ...renderOptions } = options || {}
 
   function Wrapper({ children }: { children: ReactNode }) {
@@ -246,7 +269,7 @@ export function renderWithProviders(
  * Wait for async operations to complete
  */
 export function waitForAsync() {
-  return new Promise(resolve => setTimeout(resolve, 0))
+  return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /**
@@ -282,11 +305,7 @@ export function suppressConsoleError() {
 /**
  * Create a mock file for upload testing
  */
-export function createMockFile(
-  name = 'test.png',
-  size = 1024,
-  type = 'image/png'
-): File {
+export function createMockFile(name = 'test.png', size = 1024, type = 'image/png'): File {
   const blob = new Blob(['test'], { type })
   return new File([blob], name, { type })
 }

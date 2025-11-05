@@ -41,19 +41,19 @@ export function ServiceStatusBanner() {
         return {
           className: 'bg-yellow-50 border-yellow-200 text-yellow-800',
           title: '⚠️ Some services are experiencing issues',
-          description: 'Functionality may be limited. Our team is working to restore full service.'
+          description: 'Functionality may be limited. Our team is working to restore full service.',
         }
       case 'down':
         return {
           className: 'bg-red-50 border-red-200 text-red-800',
           title: '🚨 Backend services are currently unavailable',
-          description: 'We\'re working to restore service. Some features may not work properly.'
+          description: "We're working to restore service. Some features may not work properly.",
         }
       default:
         return {
           className: 'bg-gray-50 border-gray-200 text-gray-800',
           title: 'Service status update',
-          description: 'Checking service status...'
+          description: 'Checking service status...',
         }
     }
   }
@@ -67,9 +67,7 @@ export function ServiceStatusBanner() {
           <h3 className="font-medium">{content.title}</h3>
           <p className="text-sm mt-1">{content.description}</p>
           {lastCheck && (
-            <p className="text-xs mt-1 opacity-75">
-              Last check: {lastCheck.toLocaleTimeString()}
-            </p>
+            <p className="text-xs mt-1 opacity-75">Last check: {lastCheck.toLocaleTimeString()}</p>
           )}
         </div>
         <button

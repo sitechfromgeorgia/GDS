@@ -18,7 +18,7 @@ import {
   Bell,
   Moon,
   Sun,
-  LogOut
+  LogOut,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from 'next-themes'
@@ -38,10 +38,7 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className={cn(
-      "flex flex-col h-full",
-      mobile ? "w-full" : "w-64"
-    )}>
+    <div className={cn('flex flex-col h-full', mobile ? 'w-full' : 'w-64')}>
       <div className="flex items-center justify-center h-16 px-4 border-b">
         <h1 className="text-xl font-bold text-primary">ადმინისტრატორი</h1>
       </div>
@@ -55,10 +52,10 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
               href={item.href}
               onClick={() => mobile && onClose?.()}
               className={cn(
-                "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
               <item.icon className="mr-3 h-5 w-5" />
@@ -141,11 +138,7 @@ export default function AdminNavigation() {
       <div className="md:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(true)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
@@ -155,7 +148,7 @@ export default function AdminNavigation() {
       {/* Page Title */}
       <div className="ml-4 md:ml-0">
         <h2 className="text-lg font-semibold">
-          {navigation.find(item => item.href === pathname)?.name || 'ადმინისტრატორი'}
+          {navigation.find((item) => item.href === pathname)?.name || 'ადმინისტრატორი'}
         </h2>
       </div>
 

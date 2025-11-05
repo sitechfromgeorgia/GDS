@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 // Environment variable validation schema
 const rawEnvSchema = z.object({
@@ -27,29 +27,30 @@ const rawEnvSchema = z.object({
 
   // Performance Monitoring (Optional)
   NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
-});
+})
 
 // Type definition for validated environment variables
-export type RawEnvVars = z.infer<typeof rawEnvSchema>;
+export type RawEnvVars = z.infer<typeof rawEnvSchema>
 
 // Transform environment variables with proper types
 const envSchema = rawEnvSchema.transform((raw) => ({
   ...raw,
   NEXT_PUBLIC_ENABLE_ANALYTICS: raw.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
   NEXT_PUBLIC_ENABLE_DEMO_MODE: raw.NEXT_PUBLIC_ENABLE_DEMO_MODE === 'true',
-  NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING: raw.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true',
+  NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING:
+    raw.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true',
   NEXT_PUBLIC_API_TIMEOUT: parseInt(raw.NEXT_PUBLIC_API_TIMEOUT || '30000', 10),
   NEXT_PUBLIC_MAX_RETRIES: parseInt(raw.NEXT_PUBLIC_MAX_RETRIES || '3', 10),
   NEXT_PUBLIC_DEBUG_MODE: raw.NEXT_PUBLIC_DEBUG_MODE === 'true',
   NEXT_PUBLIC_MOCK_DATA: raw.NEXT_PUBLIC_MOCK_DATA === 'true',
   NEXT_PUBLIC_ENABLE_SW: raw.NEXT_PUBLIC_ENABLE_SW === 'true',
-}));
+}))
 
 // Type definition for validated environment variables
-export type EnvVars = z.infer<typeof envSchema>;
+export type EnvVars = z.infer<typeof envSchema>
 
 // Cache for validated environment variables
-let cachedEnv: EnvVars | null = null;
+let cachedEnv: EnvVars | null = null
 
 /**
  * Validates and returns environment variables with type safety
@@ -58,7 +59,7 @@ let cachedEnv: EnvVars | null = null;
  */
 export function getEnv(): EnvVars {
   if (cachedEnv) {
-    return cachedEnv;
+    return cachedEnv
   }
 
   try {
@@ -71,35 +72,36 @@ export function getEnv(): EnvVars {
       NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
       NEXT_PUBLIC_ENABLE_ANALYTICS: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS,
       NEXT_PUBLIC_ENABLE_DEMO_MODE: process.env.NEXT_PUBLIC_ENABLE_DEMO_MODE,
-      NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING: process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING,
+      NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING:
+        process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING,
       NEXT_PUBLIC_API_TIMEOUT: process.env.NEXT_PUBLIC_API_TIMEOUT,
       NEXT_PUBLIC_MAX_RETRIES: process.env.NEXT_PUBLIC_MAX_RETRIES,
       NEXT_PUBLIC_DEBUG_MODE: process.env.NEXT_PUBLIC_DEBUG_MODE,
       NEXT_PUBLIC_MOCK_DATA: process.env.NEXT_PUBLIC_MOCK_DATA,
       NEXT_PUBLIC_ENABLE_SW: process.env.NEXT_PUBLIC_ENABLE_SW,
       NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    };
+    }
 
     // Validate using Zod schema (already transformed)
-    const validatedEnv = envSchema.parse(rawEnv);
-    
+    const validatedEnv = envSchema.parse(rawEnv)
+
     // Cache the validated environment
-    cachedEnv = validatedEnv;
-    
-    return validatedEnv;
+    cachedEnv = validatedEnv
+
+    return validatedEnv
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessages = error.issues.map((err: any) => 
-        `${err.path.join('.')}: ${err.message}`
-      ).join('\n');
-      
+      const errorMessages = error.issues
+        .map((err: any) => `${err.path.join('.')}: ${err.message}`)
+        .join('\n')
+
       throw new Error(
         `Environment variable validation failed:\n${errorMessages}\n\n` +
-        'Please check your .env file and ensure all required variables are properly configured.'
-      );
+          'Please check your .env file and ensure all required variables are properly configured.'
+      )
     }
-    
-    throw new Error(`Unexpected error validating environment variables: ${error}`);
+
+    throw new Error(`Unexpected error validating environment variables: ${error}`)
   }
 }
 
@@ -110,8 +112,8 @@ export function getEnv(): EnvVars {
  * @throws {Error} If the variable is not found or invalid
  */
 export function getEnvVar<K extends keyof EnvVars>(key: K): EnvVars[K] {
-  const env = getEnv();
-  return env[key];
+  const env = getEnv()
+  return env[key]
 }
 
 /**
@@ -121,13 +123,13 @@ export function getEnvVar<K extends keyof EnvVars>(key: K): EnvVars[K] {
  * @returns The value of the environment variable or default
  */
 export function getEnvVarWithDefault<K extends keyof EnvVars>(
-  key: K, 
+  key: K,
   defaultValue: EnvVars[K]
 ): EnvVars[K] {
   try {
-    return getEnvVar(key);
+    return getEnvVar(key)
   } catch {
-    return defaultValue;
+    return defaultValue
   }
 }
 
@@ -137,7 +139,7 @@ export function getEnvVarWithDefault<K extends keyof EnvVars>(
  * @returns Client-safe environment variables
  */
 export function getClientSafeEnv() {
-  const env = getEnv();
+  const env = getEnv()
   return {
     supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -152,7 +154,7 @@ export function getClientSafeEnv() {
     mockData: env.NEXT_PUBLIC_MOCK_DATA,
     enableSW: env.NEXT_PUBLIC_ENABLE_SW,
     sentryDsn: env.NEXT_PUBLIC_SENTRY_DSN,
-  };
+  }
 }
 
 /**
@@ -161,17 +163,17 @@ export function getClientSafeEnv() {
 export const env = {
   /** Current environment ('development' | 'production') */
   get environment(): 'development' | 'production' {
-    return getEnvVar('NEXT_PUBLIC_ENVIRONMENT');
+    return getEnvVar('NEXT_PUBLIC_ENVIRONMENT')
   },
 
   /** Is development environment */
   get isDevelopment(): boolean {
-    return this.environment === 'development';
+    return this.environment === 'development'
   },
 
   /** Is production environment */
   get isProduction(): boolean {
-    return this.environment === 'production';
+    return this.environment === 'production'
   },
 
   /** Supabase configuration */
@@ -179,7 +181,7 @@ export const env = {
     return {
       url: getEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
       anonKey: getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
-    };
+    }
   },
 
   /** Application configuration */
@@ -187,7 +189,7 @@ export const env = {
     return {
       url: getEnvVar('NEXT_PUBLIC_APP_URL'),
       environment: this.environment,
-    };
+    }
   },
 
   /** Feature flags */
@@ -196,7 +198,7 @@ export const env = {
       analytics: getEnvVar('NEXT_PUBLIC_ENABLE_ANALYTICS'),
       demoMode: getEnvVar('NEXT_PUBLIC_ENABLE_DEMO_MODE'),
       performanceMonitoring: getEnvVar('NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING'),
-    };
+    }
   },
 
   /** Debug settings */
@@ -205,17 +207,17 @@ export const env = {
       enabled: getEnvVar('NEXT_PUBLIC_DEBUG_MODE'),
       mockData: getEnvVar('NEXT_PUBLIC_MOCK_DATA'),
       serviceWorker: getEnvVar('NEXT_PUBLIC_ENABLE_SW'),
-    };
+    }
   },
-} as const;
+} as const
 
 /**
  * Clear cached environment variables (useful for testing)
  * @internal
  */
 export function clearEnvCache(): void {
-  cachedEnv = null;
+  cachedEnv = null
 }
 
 // Export default for convenience
-export default getEnv;
+export default getEnv

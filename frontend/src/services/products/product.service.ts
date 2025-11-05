@@ -111,7 +111,7 @@ export class ProductService {
       requestedQuantity,
       availableStock: (data as any).stock_quantity,
       minOrder: (data as any).min_order_quantity || 1,
-      maxOrder: (data as any).max_order_quantity || (data as any).stock_quantity
+      maxOrder: (data as any).max_order_quantity || (data as any).stock_quantity,
     }
 
     return availability
@@ -126,7 +126,7 @@ export class ProductService {
         {
           event: '*',
           schema: 'public',
-          table: 'products'
+          table: 'products',
         },
         callback
       )
@@ -178,7 +178,7 @@ export class ProductService {
       currentPage: page,
       totalPages: Math.ceil((count || 0) / limit),
       hasNextPage: page < Math.ceil((count || 0) / limit),
-      hasPreviousPage: page > 1
+      hasPreviousPage: page > 1,
     }
   }
 
@@ -186,7 +186,7 @@ export class ProductService {
   formatPrice(price: number): string {
     return `${price.toLocaleString('en-US', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     })} ₾`
   }
 
@@ -195,7 +195,7 @@ export class ProductService {
     if (product.stock_quantity <= 0) {
       return { status: 'out_of_stock', label: 'მარაგი არ არის', color: 'red' }
     }
-    
+
     if (product.stock_quantity <= product.min_stock_level) {
       return { status: 'low_stock', label: 'ცოტა მარაგი', color: 'yellow' }
     }

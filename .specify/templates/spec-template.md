@@ -26,7 +26,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]". Mention Supabase channel listeners, auth expectations, and latency budgets when applicable.]
+**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
 
 **Acceptance Scenarios**:
 
@@ -41,7 +41,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently, including Supabase channel/auth verification if applicable]
+**Independent Test**: [Describe how this can be tested independently]
 
 **Acceptance Scenarios**:
 
@@ -55,7 +55,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently, including Supabase channel/auth verification if applicable]
+**Independent Test**: [Describe how this can be tested independently]
 
 **Acceptance Scenarios**:
 
@@ -74,15 +74,6 @@
 
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
-
-## Real-Time, Auth & Observability Contracts *(mandatory when applicable)*
-
-- **Supabase Channels**: [List channel name(s), payload schema, triggers, or mark `N/A` with justification]
-- **Auth Roles Impacted**: [Admin/Restaurant/Driver/Demo impacts, required role claims, or `N/A` with justification]
-- **Telemetry & Alerts**: [Metrics, logs, and Sentry alerts to update, or explain why no changes are needed]
-- **Performance Budget Impact**: [Expected API p95, LCP target, or `N/A` with rationale]
-
-> Mark `N/A` only when the feature does not touch the area and explain why.
 
 ## Requirements *(mandatory)*
 

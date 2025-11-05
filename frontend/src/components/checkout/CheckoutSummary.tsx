@@ -5,15 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { 
-  ShoppingCart, 
-  Truck, 
-  Phone, 
-  MapPin, 
+import {
+  ShoppingCart,
+  Truck,
+  Phone,
+  MapPin,
   FileText,
   Clock,
   DollarSign,
-  Package
+  Package,
 } from 'lucide-react'
 import { Cart } from '@/types/cart'
 import { ORDER_SUBMISSION_GEORGIAN } from '@/types/order-submission'
@@ -43,13 +43,13 @@ export default function CheckoutSummary({
   priority = 'normal',
   onEditOrder,
   onSubmit,
-  isLoading = false
+  isLoading = false,
 }: CheckoutSummaryProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ka-GE', {
       style: 'currency',
       currency: 'GEL',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(price)
   }
 
@@ -58,7 +58,7 @@ export default function CheckoutSummary({
       day: 'numeric',
       month: 'long',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
@@ -92,7 +92,8 @@ export default function CheckoutSummary({
             {estimatedDeliveryTime && (
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                {ORDER_SUBMISSION_GEORGIAN.labels.estimatedDelivery}: {formatDate(estimatedDeliveryTime)}
+                {ORDER_SUBMISSION_GEORGIAN.labels.estimatedDelivery}:{' '}
+                {formatDate(estimatedDeliveryTime)}
               </div>
             )}
             <Badge variant={priority === 'urgent' ? 'destructive' : 'secondary'}>
@@ -114,38 +115,32 @@ export default function CheckoutSummary({
           {cart.items.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-2">
               <div className="flex-1">
-                <h4 className="font-medium text-sm">
-                  {item.product.name_ka || item.product.name}
-                </h4>
+                <h4 className="font-medium text-sm">{item.product.name_ka || item.product.name}</h4>
                 <div className="text-sm text-muted-foreground">
                   {item.quantity} × {formatPrice(item.unitPrice)} {item.product.unit}
                 </div>
                 {item.notes && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    შენიშვნა: {item.notes}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">შენიშვნა: {item.notes}</p>
                 )}
               </div>
               <div className="text-right">
-                <div className="font-medium">
-                  {formatPrice(item.totalPrice)}
-                </div>
+                <div className="font-medium">{formatPrice(item.totalPrice)}</div>
                 <div className="text-xs text-muted-foreground">
                   {formatPrice(item.unitPrice)} სახელწოდება
                 </div>
               </div>
             </div>
           ))}
-          
+
           <Separator />
-          
+
           {/* Pricing Summary */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>ქვე-ჯამი:</span>
               <span>{formatPrice(cart.totalPrice)}</span>
             </div>
-            
+
             <div className="flex justify-between text-sm">
               <span className="flex items-center gap-1">
                 <Truck className="h-4 w-4" />
@@ -155,15 +150,15 @@ export default function CheckoutSummary({
                 {isFreeDelivery ? 'უფასო' : formatPrice(deliveryFeeAmount)}
               </span>
             </div>
-            
+
             {isFreeDelivery && (
               <p className="text-xs text-green-600">
                 🎉 უფასო მიწოდება! მინიმალური თანხა 500 ლარი იყო.
               </p>
             )}
-            
+
             <Separator />
-            
+
             <div className="flex justify-between font-medium">
               <div className="flex items-center gap-1">
                 <DollarSign className="h-4 w-4" />
@@ -188,7 +183,7 @@ export default function CheckoutSummary({
               <span>{contactPhone}</span>
             </div>
           )}
-          
+
           {deliveryAddress && (
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -196,7 +191,7 @@ export default function CheckoutSummary({
               <span>{deliveryAddress}</span>
             </div>
           )}
-          
+
           {specialInstructions && (
             <div className="flex items-start gap-2 text-sm">
               <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
@@ -211,16 +206,11 @@ export default function CheckoutSummary({
 
       {/* Action Buttons */}
       <div className="flex gap-3">
-        <Button 
-          variant="outline" 
-          onClick={onEditOrder}
-          className="flex-1"
-          disabled={isLoading}
-        >
+        <Button variant="outline" onClick={onEditOrder} className="flex-1" disabled={isLoading}>
           შეკვეთის რედაქტირება
         </Button>
-        
-        <Button 
+
+        <Button
           onClick={onSubmit}
           disabled={isLoading || cart.items.length === 0}
           className="flex-1"

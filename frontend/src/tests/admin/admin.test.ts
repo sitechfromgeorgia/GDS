@@ -1,28 +1,25 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest'
-import { 
-  getAdminClient, 
-  checkAdminConnection, 
+import {
+  getAdminClient,
+  checkAdminConnection,
   getAdminEnvironmentInfo,
   adminDatabase,
-  adminClient
+  adminClient,
 } from '@/lib/supabase/admin'
 import { AdminService } from '@/services/admin'
-import { 
-  AdminValidator, 
-  AdminAuditLogger, 
+import {
+  AdminValidator,
+  AdminAuditLogger,
   AdminBatchProcessor,
   AdminDataProcessor,
-  AdminSecurityHelper
+  AdminSecurityHelper,
 } from '@/lib/admin-utils'
-import { 
-  AuditService, 
-  BulkService 
-} from '@/services/admin'
+import { AuditService, BulkService } from '@/services/admin'
 
 // Mock environment variables
 const mockEnv = {
   NEXT_PUBLIC_SUPABASE_URL: 'https://test.supabase.co',
-  SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key'
+  SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
 }
 
 describe('Admin Client Configuration', () => {
@@ -30,9 +27,9 @@ describe('Admin Client Configuration', () => {
     // Mock environment variables
     vi.stubGlobal('process', {
       ...process,
-      env: mockEnv
+      env: mockEnv,
     })
-    
+
     // Mock window to simulate server context
     vi.stubGlobal('window', undefined)
   })
@@ -68,12 +65,14 @@ describe('Admin Client Configuration', () => {
 
   test('should enforce server-side only usage', () => {
     // Mock browser environment
-    vi.stubGlobal('window', { 
+    vi.stubGlobal('window', {
       location: { hostname: 'localhost' },
-      navigator: { userAgent: 'Mozilla/5.0' }
+      navigator: { userAgent: 'Mozilla/5.0' },
     })
 
-    expect(() => getAdminClient()).toThrow('Admin client can only be accessed from server-side contexts')
+    expect(() => getAdminClient()).toThrow(
+      'Admin client can only be accessed from server-side contexts'
+    )
   })
 })
 
@@ -94,7 +93,7 @@ describe('AdminService', () => {
       const connectionInfo = await adminService.getConnectionInfo()
       expect(connectionInfo).toMatchObject({
         clientType: 'server',
-        hasAdminClient: true
+        hasAdminClient: true,
       })
       expect(connectionInfo.timestamp).toBeDefined()
     } catch (error) {
@@ -138,8 +137,8 @@ describe('AdminValidator', () => {
     const invalidEmail = AdminValidator.validateEmail('invalid-email')
     expect(invalidEmail.isValid).toBe(false)
     expect(invalidEmail.errors).toHaveLength(1)
-    expect(invalidEmail.errors[0].field).toBe('email')
-    expect(invalidEmail.errors[0].code).toBe('invalid_format')
+    expect(invalidEmail.errors?.[0]?.field).toBe('email')
+    expect(invalidEmail.errors?.[0]?.code).toBe('invalid_format')
   })
 
   test('should validate user data', () => {
@@ -147,7 +146,7 @@ describe('AdminValidator', () => {
       email: 'user@example.com',
       full_name: 'John Doe',
       role: 'restaurant',
-      phone: '+995555123456'
+      phone: '+995555123456',
     })
 
     expect(validUserData.isValid).toBe(true)
@@ -156,7 +155,7 @@ describe('AdminValidator', () => {
     const invalidUserData = AdminValidator.validateUserData({
       email: 'invalid-email',
       full_name: '',
-      role: 'invalid-role'
+      role: 'invalid-role',
     })
 
     expect(invalidUserData.isValid).toBe(false)
@@ -168,7 +167,7 @@ describe('AdminValidator', () => {
       name: 'Test Product',
       category: 'food',
       unit: 'kg',
-      price: 29.99
+      price: 29.99,
     })
 
     expect(validProductData.isValid).toBe(true)
@@ -177,7 +176,7 @@ describe('AdminValidator', () => {
       name: '',
       category: '',
       unit: '',
-      price: -10
+      price: -10,
     })
 
     expect(invalidProductData.isValid).toBe(false)
@@ -187,14 +186,14 @@ describe('AdminValidator', () => {
   test('should validate bulk price updates', () => {
     const validBulkUpdates = AdminValidator.validateBulkPriceUpdates([
       { id: 'product-1', price: 29.99 },
-      { id: 'product-2', price: 15.50 }
+      { id: 'product-2', price: 15.5 },
     ])
 
     expect(validBulkUpdates.isValid).toBe(true)
 
     const invalidBulkUpdates = AdminValidator.validateBulkPriceUpdates([
       { id: '', price: -10 },
-      { id: 'product-2', price: 15.50 }
+      { id: 'product-2', price: 15.5 },
     ])
 
     expect(invalidBulkUpdates.isValid).toBe(false)
@@ -208,21 +207,15 @@ describe('AdminAuditLogger', () => {
   })
 
   test('should log admin actions', () => {
-    AdminAuditLogger.log(
-      'user_create',
-      'users',
-      'user-123',
-      'admin-123',
-      { action: 'create_user' }
-    )
+    AdminAuditLogger.log('user_create', 'users', 'user-123', 'admin-123', { action: 'create_user' })
 
     const logs = AdminAuditLogger.getRecentLogs(1)
     expect(logs).toHaveLength(1)
-    expect(logs[0].action).toBe('user_create')
-    expect(logs[0].resource).toBe('users')
-    expect(logs[0].resource_id).toBe('user-123')
-    expect(logs[0].performed_by).toBe('admin-123')
-    expect(logs[0].details.action).toBe('create_user')
+    expect(logs[0]?.action).toBe('user_create')
+    expect(logs[0]?.resource).toBe('users')
+    expect(logs[0]?.resource_id).toBe('user-123')
+    expect(logs[0]?.performed_by).toBe('admin-123')
+    expect(logs[0]?.details?.action).toBe('create_user')
   })
 
   test('should retrieve recent logs', () => {
@@ -233,8 +226,8 @@ describe('AdminAuditLogger', () => {
 
     const recentLogs = AdminAuditLogger.getRecentLogs(2)
     expect(recentLogs).toHaveLength(2)
-    expect(recentLogs[0].action).toBe('product_create') // Most recent
-    expect(recentLogs[1].action).toBe('user_update')
+    expect(recentLogs[0]?.action).toBe('product_create') // Most recent
+    expect(recentLogs[1]?.action).toBe('user_update')
   })
 
   test('should filter logs by action', () => {
@@ -244,7 +237,7 @@ describe('AdminAuditLogger', () => {
 
     const userLogs = AdminAuditLogger.getLogsByAction('user_create')
     expect(userLogs).toHaveLength(1)
-    expect(userLogs[0].action).toBe('user_create')
+    expect(userLogs[0]?.action).toBe('user_create')
   })
 
   test('should filter logs by resource', () => {
@@ -253,7 +246,7 @@ describe('AdminAuditLogger', () => {
 
     const userLogs = AdminAuditLogger.getLogsByResource('users')
     expect(userLogs).toHaveLength(1)
-    expect(userLogs[0].resource).toBe('users')
+    expect(userLogs[0]?.resource).toBe('users')
   })
 })
 
@@ -265,7 +258,7 @@ describe('AdminBatchProcessor', () => {
   test('should create batch operations', () => {
     const batch = AdminBatchProcessor.createBatch('user_status_change', 10, {
       user_ids: ['user-1', 'user-2'],
-      is_active: false
+      is_active: false,
     })
 
     expect(batch).toMatchObject({
@@ -274,7 +267,7 @@ describe('AdminBatchProcessor', () => {
       total_items: 10,
       processed_items: 0,
       success_count: 0,
-      error_count: 0
+      error_count: 0,
     })
   })
 
@@ -308,7 +301,7 @@ describe('AdminBatchProcessor', () => {
 
     const activeBatches = AdminBatchProcessor.getActiveBatches()
     expect(activeBatches).toHaveLength(1)
-    expect(activeBatches[0].id).toBe(batch2.id)
+    expect(activeBatches[0]?.id).toBe(batch2.id)
   })
 
   test('should cleanup old batches', () => {
@@ -332,14 +325,14 @@ describe('AdminDataProcessor', () => {
 
   test('should format dates', () => {
     const date = new Date('2025-01-01T12:00:00Z')
-    
+
     const short = AdminDataProcessor.formatDate(date, 'short')
     expect(short).toContain('2025')
-    
+
     const long = AdminDataProcessor.formatDate(date, 'long')
     expect(long).toContain('January')
     expect(long).toContain('12:00')
-    
+
     const time = AdminDataProcessor.formatDate(date, 'time')
     expect(time).toContain('12:00')
   })
@@ -347,10 +340,10 @@ describe('AdminDataProcessor', () => {
   test('should calculate percentage changes', () => {
     const change = AdminDataProcessor.calculatePercentageChange(120, 100)
     expect(change).toBe(20)
-    
+
     const negativeChange = AdminDataProcessor.calculatePercentageChange(80, 100)
     expect(negativeChange).toBe(-20)
-    
+
     const zeroChange = AdminDataProcessor.calculatePercentageChange(0, 100)
     expect(zeroChange).toBe(-100)
   })
@@ -358,7 +351,7 @@ describe('AdminDataProcessor', () => {
   test('should format percentages', () => {
     const positive = AdminDataProcessor.formatPercentage(20.5)
     expect(positive).toBe('+20.5%')
-    
+
     const negative = AdminDataProcessor.formatPercentage(-15.3)
     expect(negative).toBe('-15.3%')
   })
@@ -371,9 +364,9 @@ describe('AdminDataProcessor', () => {
       revenueByDay: { '2025-01-01': 1000, '2025-01-02': 1500 },
       topProducts: [
         { name: 'Product A', revenue: 1000, rank: 1 },
-        { name: 'Product B', revenue: 800, rank: 2 }
+        { name: 'Product B', revenue: 800, rank: 2 },
       ],
-      averageOrderValue: 50
+      averageOrderValue: 50,
     }
 
     const report = AdminDataProcessor.generateAnalyticsReport(analytics)
@@ -389,7 +382,7 @@ describe('AdminSecurityHelper', () => {
   test('should sanitize input', () => {
     const maliciousInput = '<script>alert("xss")</script>Hello World'
     const sanitized = AdminSecurityHelper.sanitizeInput(maliciousInput)
-    
+
     expect(sanitized).not.toContain('<script>')
     expect(sanitized).not.toContain('</script>')
     expect(sanitized).toContain('Hello World')
@@ -403,13 +396,13 @@ describe('AdminSecurityHelper', () => {
     const invalidFile = new File(['test'], 'test.pdf', { type: 'application/pdf' })
     const invalidValidation = AdminSecurityHelper.validateFileUpload(invalidFile)
     expect(invalidValidation.isValid).toBe(false)
-    expect(invalidValidation.errors[0].field).toBe('file_type')
+    expect(invalidValidation.errors?.[0]?.field).toBe('file_type')
   })
 
   test('should generate secure tokens', () => {
     const token1 = AdminSecurityHelper.generateSecureToken(16)
     const token2 = AdminSecurityHelper.generateSecureToken(16)
-    
+
     expect(token1).toHaveLength(16)
     expect(token2).toHaveLength(16)
     expect(token1).not.toBe(token2) // Should be unique
@@ -433,7 +426,7 @@ describe('BulkService', () => {
   test('should create bulk price update batch', async () => {
     const updates = [
       { id: 'product-1', price: 29.99 },
-      { id: 'product-2', price: 15.50 }
+      { id: 'product-2', price: 15.5 },
     ]
 
     try {
@@ -464,17 +457,18 @@ describe('BulkService', () => {
   test('should require confirmation for destructive operations', async () => {
     const orderIds = ['order-1', 'order-2']
 
-    await expect(bulkService.bulkDeleteOrders(orderIds, 'admin-123', 'INVALID_TOKEN'))
-      .rejects.toThrow('Confirmation token required')
+    await expect(
+      bulkService.bulkDeleteOrders(orderIds, 'admin-123', 'INVALID_TOKEN')
+    ).rejects.toThrow('Confirmation token required')
   })
 
   test('should monitor batch operations', async () => {
     const batch = AdminBatchProcessor.createBatch('product_bulk_update', 10)
-    
+
     try {
       const retrievedBatch = await bulkService.getBatchStatus(batch.id)
       expect(retrievedBatch?.id).toBe(batch.id)
-      
+
       const activeBatches = await bulkService.getActiveBatches()
       expect(activeBatches).toContain(batch)
     } catch (error) {
@@ -553,21 +547,15 @@ describe('Integration Tests', () => {
     const userData = AdminValidator.validateUserData({
       email: 'test@example.com',
       full_name: 'Test User',
-      role: 'restaurant'
+      role: 'restaurant',
     })
     expect(userData.isValid).toBe(true)
 
     // 2. Log action
-    AdminAuditLogger.log(
-      'user_create',
-      'users',
-      null,
-      'admin-123',
-      { validation: userData }
-    )
+    AdminAuditLogger.log('user_create', 'users', null, 'admin-123', { validation: userData })
 
     const logs = AdminAuditLogger.getRecentLogs(1)
-    expect(logs[0].id).toBeDefined()
+    expect(logs[0]?.id).toBeDefined()
 
     // 3. Create batch operation
     const batch = AdminBatchProcessor.createBatch('user_status_change', 1)
@@ -595,7 +583,7 @@ describe('Error Handling', () => {
     const invalidData = AdminValidator.validateUserData({
       email: 'invalid-email',
       full_name: '',
-      role: 'invalid-role'
+      role: 'invalid-role',
     })
 
     expect(invalidData.isValid).toBe(false)
@@ -607,11 +595,11 @@ describe('Error Handling', () => {
 
   test('should handle batch operation errors', () => {
     const batch = AdminBatchProcessor.createBatch('product_bulk_update', 5)
-    
+
     // Simulate partial failure
     AdminBatchProcessor.updateBatchProgress(batch.id, 5, 3, [
       { item_id: 'product-1', error: 'Price too high' },
-      { item_id: 'product-2', error: 'Product not found' }
+      { item_id: 'product-2', error: 'Product not found' },
     ])
 
     const updatedBatch = AdminBatchProcessor.getBatch(batch.id)
@@ -621,7 +609,6 @@ describe('Error Handling', () => {
   })
 
   test('should provide meaningful error messages', async () => {
-    await expect(() => getAdminClient())
-      .toThrow(/service role key|server-side contexts/)
+    await expect(() => getAdminClient()).toThrow(/service role key|server-side contexts/)
   })
 })

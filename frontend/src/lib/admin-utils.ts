@@ -1,42 +1,42 @@
 import { logger } from '@/lib/logger'
-import type { 
-  AdminOperationType, 
-  AdminValidationError, 
+import type {
+  AdminOperationType,
+  AdminValidationError,
   AdminValidationResult,
   AdminBatchOperation,
   AuditLogEntry,
   BulkPriceUpdate,
-  AdminAnalytics 
+  AdminAnalytics,
 } from '@/types/admin'
 
 // Admin validation utilities
 class AdminValidator {
   static validateEmail(email: string): AdminValidationResult {
     const errors: AdminValidationError[] = []
-    
+
     if (!email || typeof email !== 'string') {
       errors.push({
         field: 'email',
         code: 'required',
         message: 'Email is required',
-        severity: 'error'
+        severity: 'error',
       })
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errors.push({
         field: 'email',
         code: 'invalid_format',
         message: 'Email format is invalid',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings: []
+      warnings: [],
     }
   }
-  
+
   static validateUserData(data: {
     email: string
     full_name: string
@@ -45,38 +45,38 @@ class AdminValidator {
   }): AdminValidationResult {
     const errors: AdminValidationError[] = []
     const warnings: AdminValidationError[] = []
-    
+
     // Email validation
     const emailValidation = this.validateEmail(data.email)
     errors.push(...emailValidation.errors)
-    
+
     // Full name validation
     if (!data.full_name || data.full_name.trim().length === 0) {
       errors.push({
         field: 'full_name',
         code: 'required',
         message: 'Full name is required',
-        severity: 'error'
+        severity: 'error',
       })
     } else if (data.full_name.trim().length < 2) {
       errors.push({
         field: 'full_name',
         code: 'too_short',
         message: 'Full name must be at least 2 characters',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     // Role validation
     if (!data.role || !['admin', 'restaurant', 'driver', 'demo'].includes(data.role)) {
       errors.push({
         field: 'role',
         code: 'invalid',
         message: 'Role must be admin, restaurant, driver, or demo',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     // Phone validation (optional but if provided should be valid)
     if (data.phone) {
       const georgianPhoneRegex = /^(\+995|995|0)?[0-9]{9}$/
@@ -85,18 +85,18 @@ class AdminValidator {
           field: 'phone',
           code: 'format_warning',
           message: 'Georgian phone format recommended (e.g., +995555123456)',
-          severity: 'warning'
+          severity: 'warning',
         })
       }
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     }
   }
-  
+
   static validateProductData(data: {
     name: string
     category: string
@@ -104,95 +104,95 @@ class AdminValidator {
     price: number
   }): AdminValidationResult {
     const errors: AdminValidationError[] = []
-    
+
     // Name validation
     if (!data.name || data.name.trim().length === 0) {
       errors.push({
         field: 'name',
         code: 'required',
         message: 'Product name is required',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     // Category validation
     if (!data.category || data.category.trim().length === 0) {
       errors.push({
         field: 'category',
         code: 'required',
         message: 'Product category is required',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     // Unit validation
     if (!data.unit || data.unit.trim().length === 0) {
       errors.push({
         field: 'unit',
         code: 'required',
         message: 'Product unit is required',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     // Price validation
     if (typeof data.price !== 'number' || data.price < 0) {
       errors.push({
         field: 'price',
         code: 'invalid',
         message: 'Price must be a positive number',
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings: []
+      warnings: [],
     }
   }
-  
+
   static validateBulkPriceUpdates(updates: BulkPriceUpdate[]): AdminValidationResult {
     const errors: AdminValidationError[] = []
-    
+
     if (!Array.isArray(updates) || updates.length === 0) {
       errors.push({
         field: 'updates',
         code: 'required',
         message: 'Price updates array is required',
-        severity: 'error'
+        severity: 'error',
       })
       return {
         isValid: false,
         errors,
-        warnings: []
+        warnings: [],
       }
     }
-    
+
     updates.forEach((update, index) => {
       if (!update.id) {
         errors.push({
           field: `updates[${index}].id`,
           code: 'required',
           message: 'Product ID is required for each update',
-          severity: 'error'
+          severity: 'error',
         })
       }
-      
+
       if (typeof update.price !== 'number' || update.price < 0) {
         errors.push({
           field: `updates[${index}].price`,
           code: 'invalid',
           message: 'Price must be a positive number',
-          severity: 'error'
+          severity: 'error',
         })
       }
     })
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings: []
+      warnings: [],
     }
   }
 }
@@ -200,7 +200,7 @@ class AdminValidator {
 // Admin audit logging utilities
 class AdminAuditLogger {
   private static logEntries: AuditLogEntry[] = []
-  
+
   static log(
     action: AdminOperationType,
     resource: string,
@@ -220,29 +220,29 @@ class AdminAuditLogger {
         user_agent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server',
         ip_address: 'server', // Would be populated in real implementation
       },
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     }
-    
+
     this.logEntries.push(entry)
-    
+
     // In production, this would send to a logging service
     logger.info('[ADMIN AUDIT]', entry)
   }
-  
+
   static getRecentLogs(limit: number = 50): AuditLogEntry[] {
     return this.logEntries
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, limit)
   }
-  
+
   static getLogsByAction(action: AdminOperationType): AuditLogEntry[] {
-    return this.logEntries.filter(entry => entry.action === action)
+    return this.logEntries.filter((entry) => entry.action === action)
   }
-  
+
   static getLogsByResource(resource: string): AuditLogEntry[] {
-    return this.logEntries.filter(entry => entry.resource === resource)
+    return this.logEntries.filter((entry) => entry.resource === resource)
   }
-  
+
   static clearLogs(): void {
     this.logEntries = []
   }
@@ -251,7 +251,7 @@ class AdminAuditLogger {
 // Admin batch operation utilities
 class AdminBatchProcessor {
   private static activeBatches: Map<string, AdminBatchOperation> = new Map()
-  
+
   static createBatch(
     type: AdminOperationType,
     totalItems: number,
@@ -265,13 +265,13 @@ class AdminBatchProcessor {
       processed_items: 0,
       success_count: 0,
       error_count: 0,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     }
-    
+
     this.activeBatches.set(batch.id, batch)
     return batch
   }
-  
+
   static updateBatchProgress(
     batchId: string,
     processedItems: number,
@@ -280,54 +280,59 @@ class AdminBatchProcessor {
   ): AdminBatchOperation | null {
     const batch = this.activeBatches.get(batchId)
     if (!batch) return null
-    
+
     batch.processed_items = processedItems
     batch.success_count = successCount
     batch.error_count = processedItems - successCount
-    
+
     if (errors && errors.length > 0) {
       batch.errors = errors
     }
-    
+
     // Auto-complete if all items processed
     if (batch.processed_items >= batch.total_items) {
       batch.status = batch.error_count > 0 ? 'failed' : 'completed'
       batch.completed_at = new Date().toISOString()
     }
-    
+
     this.activeBatches.set(batchId, batch)
     return batch
   }
-  
-  static completeBatch(batchId: string, status: 'completed' | 'failed'): AdminBatchOperation | null {
+
+  static completeBatch(
+    batchId: string,
+    status: 'completed' | 'failed'
+  ): AdminBatchOperation | null {
     const batch = this.activeBatches.get(batchId)
     if (!batch) return null
-    
+
     batch.status = status
     batch.completed_at = new Date().toISOString()
-    
+
     this.activeBatches.set(batchId, batch)
     return batch
   }
-  
+
   static getBatch(batchId: string): AdminBatchOperation | null {
     return this.activeBatches.get(batchId) || null
   }
-  
+
   static getActiveBatches(): AdminBatchOperation[] {
-    return Array.from(this.activeBatches.values())
-      .filter(batch => batch.status === 'pending' || batch.status === 'processing')
+    return Array.from(this.activeBatches.values()).filter(
+      (batch) => batch.status === 'pending' || batch.status === 'processing'
+    )
   }
-  
+
   static getAllBatches(): AdminBatchOperation[] {
-    return Array.from(this.activeBatches.values())
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    return Array.from(this.activeBatches.values()).sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
   }
-  
+
   static cleanupCompletedBatches(olderThanHours: number = 24): void {
     const cutoffTime = new Date()
     cutoffTime.setHours(cutoffTime.getHours() - olderThanHours)
-    
+
     for (const [batchId, batch] of this.activeBatches.entries()) {
       if (batch.completed_at && new Date(batch.completed_at) < cutoffTime) {
         this.activeBatches.delete(batchId)
@@ -342,13 +347,13 @@ class AdminDataProcessor {
     return new Intl.NumberFormat('ka-GE', {
       style: 'currency',
       currency: currency,
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount)
   }
-  
+
   static formatDate(date: string | Date, format: 'short' | 'long' | 'time' = 'short'): string {
     const dateObj = typeof date === 'string' ? new Date(date) : date
-    
+
     switch (format) {
       case 'long':
         return dateObj.toLocaleDateString('ka-GE', {
@@ -356,18 +361,18 @@ class AdminDataProcessor {
           month: 'long',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
         })
       case 'time':
         return dateObj.toLocaleTimeString('ka-GE', {
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
         })
       default:
         return dateObj.toLocaleDateString('ka-GE')
     }
   }
-  
+
   static generateAnalyticsReport(analytics: AdminAnalytics): string {
     const report = `
 # Georgian Distribution System - Analytics Report
@@ -391,41 +396,43 @@ ${Object.entries(analytics.revenueByDay)
 
 ## Top Products
 ${analytics.topProducts
-  .map(product => `- **${product.rank}. ${product.name}**: ${this.formatCurrency(product.revenue)}`)
+  .map(
+    (product) => `- **${product.rank}. ${product.name}**: ${this.formatCurrency(product.revenue)}`
+  )
   .join('\n')}
 `
-    
+
     return report
   }
-  
+
   static calculatePercentageChange(current: number, previous: number): number {
     if (previous === 0) return current > 0 ? 100 : 0
     return ((current - previous) / previous) * 100
   }
-  
+
   static formatPercentage(percentage: number, decimals: number = 1): string {
     const sign = percentage >= 0 ? '+' : ''
     return `${sign}${percentage.toFixed(decimals)}%`
   }
-  
+
   static validateCsvHeaders(headers: string[], requiredHeaders: string[]): AdminValidationResult {
     const errors: AdminValidationError[] = []
-    
-    const missingHeaders = requiredHeaders.filter(header => !headers.includes(header))
-    
+
+    const missingHeaders = requiredHeaders.filter((header) => !headers.includes(header))
+
     if (missingHeaders.length > 0) {
       errors.push({
         field: 'csv_headers',
         code: 'missing_headers',
         message: `Missing required headers: ${missingHeaders.join(', ')}`,
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings: []
+      warnings: [],
     }
   }
 }
@@ -439,36 +446,39 @@ class AdminSecurityHelper {
       .replace(/on\w+=/gi, '') // Remove event handlers
       .trim()
   }
-  
-  static validateFileUpload(file: File, allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/webp']): AdminValidationResult {
+
+  static validateFileUpload(
+    file: File,
+    allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/webp']
+  ): AdminValidationResult {
     const errors: AdminValidationError[] = []
-    
+
     if (!allowedTypes.includes(file.type)) {
       errors.push({
         field: 'file_type',
         code: 'invalid_type',
         message: `File type ${file.type} is not allowed. Allowed types: ${allowedTypes.join(', ')}`,
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
       errors.push({
         field: 'file_size',
         code: 'too_large',
         message: `File size must be less than ${maxSize / (1024 * 1024)}MB`,
-        severity: 'error'
+        severity: 'error',
       })
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
-      warnings: []
+      warnings: [],
     }
   }
-  
+
   static generateSecureToken(length: number = 32): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     let result = ''
@@ -485,5 +495,5 @@ export {
   AdminAuditLogger,
   AdminBatchProcessor,
   AdminDataProcessor,
-  AdminSecurityHelper
+  AdminSecurityHelper,
 }

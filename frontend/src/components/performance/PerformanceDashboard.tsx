@@ -4,21 +4,27 @@
  */
 
 import { logger } from '@/lib/logger'
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import React, { useState, useEffect, useCallback } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Progress } from '@/components/ui/progress'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -26,16 +32,16 @@ import {
   Pie,
   Cell,
   AreaChart,
-  Area
-} from 'recharts';
-import { 
-  Activity, 
-  Zap, 
-  Database, 
-  Globe, 
-  Clock, 
-  TrendingUp, 
-  TrendingDown, 
+  Area,
+} from 'recharts'
+import {
+  Activity,
+  Zap,
+  Database,
+  Globe,
+  Clock,
+  TrendingUp,
+  TrendingDown,
   AlertTriangle,
   CheckCircle,
   RefreshCw,
@@ -45,95 +51,100 @@ import {
   Server,
   Cpu,
   HardDrive,
-  Network
-} from 'lucide-react';
-import { performanceMonitor, getPerformanceReport, getCurrentStats } from '@/lib/monitoring/performance';
-import { slaTracker, getSLAReport } from '@/lib/monitoring/sla-tracker';
-import { gdsBundleAnalysis } from '@/lib/optimization/bundle-analyzer';
-import { georgianDistributionRedis } from '@/lib/cache/redis-cache';
-import { georgianDistributionBrowserCache } from '@/lib/cache/browser-cache';
-import { georgianDistributionAPICache } from '@/lib/cache/api-cache';
+  Network,
+} from 'lucide-react'
+import {
+  performanceMonitor,
+  getPerformanceReport,
+  getCurrentStats,
+} from '@/lib/monitoring/performance'
+import { slaTracker, getSLAReport } from '@/lib/monitoring/sla-tracker'
+import { gdsBundleAnalysis } from '@/lib/optimization/bundle-analyzer'
+import { georgianDistributionRedis } from '@/lib/cache/redis-cache'
+import { georgianDistributionBrowserCache } from '@/lib/cache/browser-cache'
+import { georgianDistributionAPICache } from '@/lib/cache/api-cache'
 
 interface PerformanceDashboardProps {
-  className?: string;
-  refreshInterval?: number;
-  showGeorgianDistributionSpecific?: boolean;
+  className?: string
+  refreshInterval?: number
+  showGeorgianDistributionSpecific?: boolean
 }
 
 interface RealTimeMetric {
-  timestamp: number;
-  responseTime: number;
-  throughput: number;
-  errorRate: number;
-  cpuUsage: number;
-  memoryUsage: number;
-  georgianOrdersPerMinute: number;
-  georgianActiveUsers: number;
+  timestamp: number
+  responseTime: number
+  throughput: number
+  errorRate: number
+  cpuUsage: number
+  memoryUsage: number
+  georgianOrdersPerMinute: number
+  georgianActiveUsers: number
 }
 
 interface GeorgianDistributionMetrics {
-  ordersProcessed: number;
-  averageOrderSize: number;
-  peakOrderTime: string;
-  restaurantUtilization: number;
-  driverEfficiency: number;
-  georgianLanguageUsage: number;
-  mobileUsage: number;
-  rtlCompatibility: number;
+  ordersProcessed: number
+  averageOrderSize: number
+  peakOrderTime: string
+  restaurantUtilization: number
+  driverEfficiency: number
+  georgianLanguageUsage: number
+  mobileUsage: number
+  rtlCompatibility: number
 }
 
 const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
   className = '',
   refreshInterval = 5000,
-  showGeorgianDistributionSpecific = true
+  showGeorgianDistributionSpecific = true,
 }) => {
-  const [timeRange, setTimeRange] = useState<'1h' | '24h' | '7d'>('1h');
-  const [realtimeData, setRealtimeData] = useState<RealTimeMetric[]>([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<string>('responseTime');
-  
-  const [metrics, setMetrics] = useState<any>({});
-  const [georgianDistributionMetrics, setGeorgianDistributionMetrics] = useState<GeorgianDistributionMetrics>({
-    ordersProcessed: 0,
-    averageOrderSize: 0,
-    peakOrderTime: '',
-    restaurantUtilization: 0,
-    driverEfficiency: 0,
-    georgianLanguageUsage: 0,
-    mobileUsage: 0,
-    rtlCompatibility: 100
-  });
+  const [timeRange, setTimeRange] = useState<'1h' | '24h' | '7d'>('1h')
+  const [realtimeData, setRealtimeData] = useState<RealTimeMetric[]>([])
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [selectedMetric, setSelectedMetric] = useState<string>('responseTime')
+
+  const [metrics, setMetrics] = useState<any>({})
+  const [georgianDistributionMetrics, setGeorgianDistributionMetrics] =
+    useState<GeorgianDistributionMetrics>({
+      ordersProcessed: 0,
+      averageOrderSize: 0,
+      peakOrderTime: '',
+      restaurantUtilization: 0,
+      driverEfficiency: 0,
+      georgianLanguageUsage: 0,
+      mobileUsage: 0,
+      rtlCompatibility: 100,
+    })
 
   // Georgian Distribution specific colors
   const COLORS = {
-    primary: '#8B4513',      // Georgian flag brown
-    secondary: '#FFFFFF',    // White
-    accent: '#DC143C',       // Georgian flag red
-    success: '#228B22',      // Green
-    warning: '#FFA500',      // Orange
-    error: '#DC143C',        // Red
-    info: '#4169E1'          // Blue
-  };
+    primary: '#8B4513', // Georgian flag brown
+    secondary: '#FFFFFF', // White
+    accent: '#DC143C', // Georgian flag red
+    success: '#228B22', // Green
+    warning: '#FFA500', // Orange
+    error: '#DC143C', // Red
+    info: '#4169E1', // Blue
+  }
 
-  const chartColors = [COLORS.primary, COLORS.accent, COLORS.success, COLORS.warning, COLORS.error];
+  const chartColors = [COLORS.primary, COLORS.accent, COLORS.success, COLORS.warning, COLORS.error]
 
   const loadMetrics = useCallback(async () => {
-    setIsRefreshing(true);
+    setIsRefreshing(true)
     try {
       // Load various metrics
       const [performanceData, slaData, cacheStats, bundleAnalysis] = await Promise.all([
         getPerformanceReport(timeRange),
         getSLAReport('/api/orders', 'GET', timeRange),
         georgianDistributionRedis.getCacheStats(),
-        gdsBundleAnalysis.analyze()
-      ]);
+        gdsBundleAnalysis.analyze(),
+      ])
 
       setMetrics({
         performance: performanceData,
         sla: slaData,
         cache: cacheStats,
-        bundle: bundleAnalysis
-      });
+        bundle: bundleAnalysis,
+      })
 
       // Simulate Georgian Distribution specific metrics
       setGeorgianDistributionMetrics({
@@ -144,18 +155,17 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
         driverEfficiency: Math.floor(Math.random() * 20) + 80,
         georgianLanguageUsage: Math.floor(Math.random() * 20) + 75,
         mobileUsage: Math.floor(Math.random() * 25) + 60,
-        rtlCompatibility: 100
-      });
-
+        rtlCompatibility: 100,
+      })
     } catch (error) {
-      logger.error('Failed to load metrics:', error);
+      logger.error('Failed to load metrics:', error)
     } finally {
-      setIsRefreshing(false);
+      setIsRefreshing(false)
     }
-  }, [timeRange]);
+  }, [timeRange])
 
   const generateRealtimeData = useCallback(() => {
-    const now = Date.now();
+    const now = Date.now()
     const newDataPoint: RealTimeMetric = {
       timestamp: now,
       responseTime: Math.random() * 1000 + 200,
@@ -164,44 +174,44 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
       cpuUsage: Math.random() * 100,
       memoryUsage: Math.random() * 80,
       georgianOrdersPerMinute: Math.floor(Math.random() * 20) + 5,
-      georgianActiveUsers: Math.floor(Math.random() * 50) + 20
-    };
+      georgianActiveUsers: Math.floor(Math.random() * 50) + 20,
+    }
 
-    setRealtimeData(prev => {
-      const updated = [...prev, newDataPoint];
+    setRealtimeData((prev) => {
+      const updated = [...prev, newDataPoint]
       // Keep only last 20 data points
-      return updated.slice(-20);
-    });
-  }, []);
+      return updated.slice(-20)
+    })
+  }, [])
 
   useEffect(() => {
-    loadMetrics();
-    generateRealtimeData();
+    loadMetrics()
+    generateRealtimeData()
 
-    const metricsInterval = setInterval(loadMetrics, refreshInterval);
-    const realtimeInterval = setInterval(generateRealtimeData, 2000);
+    const metricsInterval = setInterval(loadMetrics, refreshInterval)
+    const realtimeInterval = setInterval(generateRealtimeData, 2000)
 
     return () => {
-      clearInterval(metricsInterval);
-      clearInterval(realtimeInterval);
-    };
-  }, [loadMetrics, generateRealtimeData, refreshInterval]);
+      clearInterval(metricsInterval)
+      clearInterval(realtimeInterval)
+    }
+  }, [loadMetrics, generateRealtimeData, refreshInterval])
 
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
 
-  const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
+  const formatPercentage = (value: number) => `${value.toFixed(1)}%`
 
   const getMetricStatus = (value: number, thresholds: { warning: number; critical: number }) => {
-    if (value >= thresholds.critical) return 'critical';
-    if (value >= thresholds.warning) return 'warning';
-    return 'good';
-  };
+    if (value >= thresholds.critical) return 'critical'
+    if (value >= thresholds.warning) return 'warning'
+    return 'good'
+  }
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -215,7 +225,7 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
             Real-time monitoring for Georgian food distribution operations
           </p>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <Select value={timeRange} onValueChange={(value: any) => setTimeRange(value)}>
             <SelectTrigger className="w-32">
@@ -227,17 +237,12 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
               <SelectItem value="7d">Last 7 days</SelectItem>
             </SelectContent>
           </Select>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={loadMetrics}
-            disabled={isRefreshing}
-          >
+
+          <Button variant="outline" size="sm" onClick={loadMetrics} disabled={isRefreshing}>
             <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          
+
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -251,11 +256,11 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
           <Alert>
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription>
-              Georgian Distribution System performance is optimal. 
-              Order processing time: {(metrics.performance?.averageResponseTime || 0).toFixed(0)}ms
+              Georgian Distribution System performance is optimal. Order processing time:{' '}
+              {(metrics.performance?.averageResponseTime || 0).toFixed(0)}ms
             </AlertDescription>
           </Alert>
-          
+
           <Alert>
             <Globe className="h-4 w-4 text-blue-600" />
             <AlertDescription>
@@ -355,27 +360,25 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={realtimeData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="timestamp" 
+                  <XAxis
+                    dataKey="timestamp"
                     tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                   />
                   <YAxis />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value).toLocaleTimeString()}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="responseTime" 
-                    stackId="1" 
-                    stroke={COLORS.primary} 
+                  <Tooltip labelFormatter={(value) => new Date(value).toLocaleTimeString()} />
+                  <Area
+                    type="monotone"
+                    dataKey="responseTime"
+                    stackId="1"
+                    stroke={COLORS.primary}
                     fill={COLORS.primary}
                     name="Response Time (ms)"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="georgianOrdersPerMinute" 
-                    stackId="2" 
-                    stroke={COLORS.accent} 
+                  <Area
+                    type="monotone"
+                    dataKey="georgianOrdersPerMinute"
+                    stackId="2"
+                    stroke={COLORS.accent}
                     fill={COLORS.accent}
                     name="Georgian Orders/min"
                   />
@@ -396,25 +399,23 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                 <ResponsiveContainer width="100%" height={250}>
                   <LineChart data={realtimeData}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
+                    <XAxis
                       dataKey="timestamp"
                       tickFormatter={(value) => new Date(value).toLocaleTimeString()}
                     />
                     <YAxis />
-                    <Tooltip 
-                      labelFormatter={(value) => new Date(value).toLocaleTimeString()}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="responseTime" 
-                      stroke={COLORS.primary} 
+                    <Tooltip labelFormatter={(value) => new Date(value).toLocaleTimeString()} />
+                    <Line
+                      type="monotone"
+                      dataKey="responseTime"
+                      stroke={COLORS.primary}
                       strokeWidth={2}
                       name="Response Time"
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="cpuUsage" 
-                      stroke={COLORS.warning} 
+                    <Line
+                      type="monotone"
+                      dataKey="cpuUsage"
+                      stroke={COLORS.warning}
                       strokeWidth={2}
                       name="CPU Usage"
                     />
@@ -435,8 +436,8 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                       {(realtimeData[realtimeData.length - 1]?.cpuUsage || 0).toFixed(1)}%
                     </span>
                   </div>
-                  <Progress 
-                    value={realtimeData[realtimeData.length - 1]?.cpuUsage || 0} 
+                  <Progress
+                    value={realtimeData[realtimeData.length - 1]?.cpuUsage || 0}
                     className="h-2"
                   />
                 </div>
@@ -448,8 +449,8 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                       {(realtimeData[realtimeData.length - 1]?.memoryUsage || 0).toFixed(1)}%
                     </span>
                   </div>
-                  <Progress 
-                    value={realtimeData[realtimeData.length - 1]?.memoryUsage || 0} 
+                  <Progress
+                    value={realtimeData[realtimeData.length - 1]?.memoryUsage || 0}
                     className="h-2"
                   />
                 </div>
@@ -461,10 +462,7 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                       {((metrics.cache?.hitRate || 0) * 100).toFixed(1)}%
                     </span>
                   </div>
-                  <Progress 
-                    value={(metrics.cache?.hitRate || 0) * 100} 
-                    className="h-2"
-                  />
+                  <Progress value={(metrics.cache?.hitRate || 0) * 100} className="h-2" />
                 </div>
               </CardContent>
             </Card>
@@ -499,7 +497,8 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                   {georgianDistributionBrowserCache.getStatistics()?.totalEntries || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {formatBytes(georgianDistributionBrowserCache.getStatistics()?.totalSize || 0)} used
+                  {formatBytes(georgianDistributionBrowserCache.getStatistics()?.totalSize || 0)}{' '}
+                  used
                 </p>
               </CardContent>
             </Card>
@@ -535,19 +534,27 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Orders Processed</p>
-                    <p className="text-2xl font-bold">{georgianDistributionMetrics.ordersProcessed}</p>
+                    <p className="text-2xl font-bold">
+                      {georgianDistributionMetrics.ordersProcessed}
+                    </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Avg Order Size</p>
-                    <p className="text-2xl font-bold">{georgianDistributionMetrics.averageOrderSize} GEL</p>
+                    <p className="text-2xl font-bold">
+                      {georgianDistributionMetrics.averageOrderSize} GEL
+                    </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Restaurant Utilization</p>
-                    <p className="text-2xl font-bold">{georgianDistributionMetrics.restaurantUtilization}%</p>
+                    <p className="text-2xl font-bold">
+                      {georgianDistributionMetrics.restaurantUtilization}%
+                    </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Driver Efficiency</p>
-                    <p className="text-2xl font-bold">{georgianDistributionMetrics.driverEfficiency}%</p>
+                    <p className="text-2xl font-bold">
+                      {georgianDistributionMetrics.driverEfficiency}%
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -562,8 +569,14 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                   <PieChart>
                     <Pie
                       data={[
-                        { name: 'Georgian Language', value: georgianDistributionMetrics.georgianLanguageUsage },
-                        { name: 'English', value: 100 - georgianDistributionMetrics.georgianLanguageUsage }
+                        {
+                          name: 'Georgian Language',
+                          value: georgianDistributionMetrics.georgianLanguageUsage,
+                        },
+                        {
+                          name: 'English',
+                          value: 100 - georgianDistributionMetrics.georgianLanguageUsage,
+                        },
                       ]}
                       cx="50%"
                       cy="50%"
@@ -626,13 +639,24 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
             <CardContent>
               <div className="space-y-3">
                 {metrics.bundle?.recommendations?.map((rec: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="space-y-1">
                       <p className="font-medium">{rec.title}</p>
                       <p className="text-sm text-muted-foreground">{rec.description}</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge variant={rec.impact === 'high' ? 'destructive' : rec.impact === 'medium' ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={
+                          rec.impact === 'high'
+                            ? 'destructive'
+                            : rec.impact === 'medium'
+                              ? 'default'
+                              : 'secondary'
+                        }
+                      >
                         {rec.impact}
                       </Badge>
                       <span className="text-sm text-muted-foreground">
@@ -647,7 +671,7 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
+  )
+}
 
-export default PerformanceDashboard;
+export default PerformanceDashboard

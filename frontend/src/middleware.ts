@@ -14,17 +14,15 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@/types/database'
 import { getEnvVar, env } from '@/lib/env'
+import { compareCSRFTokens, extractCSRFTokenFromHeaders } from '@/lib/csrf-utils'
+import { getCSRFCookie } from '@/lib/csrf-cookie'
+import { validateRequestOrigin, requiresCSRFProtection } from '@/lib/csrf-origin-validation'
+import { logger } from '@/lib/logger'
 
 /**
  * Protected routes that require authentication
  */
-const PROTECTED_ROUTES = [
-  '/dashboard',
-  '/orders',
-  '/api/orders',
-  '/api/products',
-  '/api/analytics',
-]
+const PROTECTED_ROUTES = ['/dashboard', '/orders', '/api/orders', '/api/products', '/api/analytics']
 
 /**
  * User role type based on database schema
@@ -55,6 +53,7 @@ const ROLE_ROUTES: Record<string, UserRole[]> = {
 const PUBLIC_ROUTES = [
   '/',
   '/login',
+  '/demo',
   '/signup',
   '/reset-password',
   '/test',
@@ -74,7 +73,7 @@ const MUTATION_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
  * Check if a path matches any of the route patterns
  */
 function matchesRoute(path: string, routes: string[]): boolean {
-  return routes.some(route => {
+  return routes.some((route) => {
     // Exact match
     if (path === route) return true
     // Prefix match for nested routes
@@ -85,25 +84,58 @@ function matchesRoute(path: string, routes: string[]): boolean {
 
 /**
  * Validate CSRF token for mutation requests
+ *
+ * Enhanced security features:
+ * - Timing-safe token comparison (prevents timing attacks)
+ * - Origin/Referer validation (prevents unauthorized origins)
+ * - Secure cookie validation
+ *
+ * @param request - Next.js request object
+ * @returns Validation result with reason for failure
  */
-function validateCSRF(request: NextRequest): boolean {
-  // Skip CSRF for GET requests
-  if (!MUTATION_METHODS.includes(request.method)) {
-    return true
+function validateCSRF(request: NextRequest): { valid: boolean; reason?: string } {
+  // Skip CSRF for safe methods (GET, HEAD, OPTIONS)
+  if (!requiresCSRFProtection(request.method)) {
+    return { valid: true }
   }
 
-  // Get CSRF token from header
-  const csrfToken = request.headers.get('x-csrf-token')
-
-  // Get CSRF token from cookie
-  const csrfCookie = request.cookies.get('csrf-token')?.value
-
-  // Validate tokens match
-  if (!csrfToken || !csrfCookie || csrfToken !== csrfCookie) {
-    return false
+  // 1. Validate request origin
+  const originValidation = validateRequestOrigin(request)
+  if (!originValidation.valid) {
+    return {
+      valid: false,
+      reason: `Origin validation failed: ${originValidation.reason}`,
+    }
   }
 
-  return true
+  // 2. Extract CSRF token from request headers
+  const csrfToken = extractCSRFTokenFromHeaders(request.headers)
+  if (!csrfToken) {
+    return {
+      valid: false,
+      reason: 'Missing CSRF token in request headers',
+    }
+  }
+
+  // 3. Get CSRF token from secure cookie
+  const csrfCookie = getCSRFCookie(request)
+  if (!csrfCookie) {
+    return {
+      valid: false,
+      reason: 'Missing CSRF token cookie',
+    }
+  }
+
+  // 4. Timing-safe comparison of tokens
+  const tokensMatch = compareCSRFTokens(csrfToken, csrfCookie)
+  if (!tokensMatch) {
+    return {
+      valid: false,
+      reason: 'CSRF token mismatch',
+    }
+  }
+
+  return { valid: true }
 }
 
 /**
@@ -159,7 +191,10 @@ export async function middleware(request: NextRequest) {
   )
 
   // Refresh session if needed
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession()
 
   // Add comprehensive security headers (Phase 2 Enhancement)
   response.headers.set('X-Content-Type-Options', 'nosniff')
@@ -174,11 +209,9 @@ export async function middleware(request: NextRequest) {
 
   const cspDirectives = [
     "default-src 'self'",
-    // Development: Allow unsafe-inline and unsafe-eval for Next.js hot reload
-    // Production: Strict CSP without unsafe directives
-    isDevelopment
-      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net"
-      : "script-src 'self' https://cdn.jsdelivr.net",
+    // TEMPORARY FIX: Allow unsafe-inline and unsafe-eval for Next.js to work
+    // TODO: Implement nonce-based CSP for production
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
     // Styles: 'unsafe-inline' kept for Tailwind/Radix UI
     // TODO: Implement nonce-based CSP or extract all inline styles
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -188,7 +221,7 @@ export async function middleware(request: NextRequest) {
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "object-src 'none'"
+    "object-src 'none'",
   ].join('; ')
 
   response.headers.set('Content-Security-Policy', cspDirectives)
@@ -220,6 +253,14 @@ export async function middleware(request: NextRequest) {
   if (isProtectedRoute) {
     // No session - redirect to login
     if (!session) {
+      logger.warn('No session found - redirecting to login', {
+        path: pathname,
+        hasAuthCookie: request.cookies.has('sb-akxmacfsltzhbnunoepb-auth-token'),
+        cookies: request.cookies
+          .getAll()
+          .map((c) => c.name)
+          .join(', '),
+      })
       const redirectUrl = new URL('/login', request.url)
       redirectUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(redirectUrl)
@@ -229,11 +270,17 @@ export async function middleware(request: NextRequest) {
     // Note: Next.js Server Actions (pages using 'use server') have built-in CSRF protection
     // through origin validation configured in next.config.ts experimental.serverActions.allowedOrigins
     // This CSRF check only applies to traditional API routes under /api/*
-    if (pathname.startsWith('/api/') && !validateCSRF(request)) {
-      return NextResponse.json(
-        { error: 'Invalid CSRF token' },
-        { status: 403 }
-      )
+    if (pathname.startsWith('/api/')) {
+      const csrfValidation = validateCSRF(request)
+      if (!csrfValidation.valid) {
+        return NextResponse.json(
+          {
+            error: 'CSRF validation failed',
+            reason: csrfValidation.reason,
+          },
+          { status: 403 }
+        )
+      }
     }
 
     // Check role-based access
@@ -248,10 +295,12 @@ export async function middleware(request: NextRequest) {
 
         // Type guard: Validate profile has correct structure
         const isValidProfile = (p: unknown): p is ProfileRole => {
-          return p !== null &&
-                 typeof p === 'object' &&
-                 'role' in p &&
-                 typeof (p as ProfileRole).role === 'string'
+          return (
+            p !== null &&
+            typeof p === 'object' &&
+            'role' in p &&
+            typeof (p as ProfileRole).role === 'string'
+          )
         }
 
         // Validate profile

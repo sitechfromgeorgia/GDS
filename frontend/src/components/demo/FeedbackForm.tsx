@@ -1,76 +1,80 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Star, MessageSquare } from 'lucide-react';
-import { useDemo } from '@/hooks/useDemo';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Star, MessageSquare } from 'lucide-react'
+import { useDemo } from '@/hooks/useDemo'
+import { useToast } from '@/hooks/use-toast'
 
 interface FeedbackFormProps {
-  trigger?: React.ReactNode;
+  trigger?: React.ReactNode
 }
 
 export function FeedbackForm({ trigger }: FeedbackFormProps) {
-  const { submitFeedback } = useDemo();
-  const { toast } = useToast();
-  const [isOpen, setIsOpen] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [feedback, setFeedback] = useState('');
-  const [contactInfo, setContactInfo] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { submitFeedback } = useDemo()
+  const { toast } = useToast()
+  const [isOpen, setIsOpen] = useState(false)
+  const [rating, setRating] = useState(0)
+  const [feedback, setFeedback] = useState('')
+  const [contactInfo, setContactInfo] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async () => {
     if (rating === 0) {
       toast({
-        title: "Rating required",
-        description: "Please select a rating before submitting.",
-        variant: "destructive",
-      });
-      return;
+        title: 'Rating required',
+        description: 'Please select a rating before submitting.',
+        variant: 'destructive',
+      })
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      await submitFeedback();
+      await submitFeedback()
 
       toast({
-        title: "Thank you for your feedback!",
-        description: "Your feedback helps us improve the demo experience.",
-      });
+        title: 'Thank you for your feedback!',
+        description: 'Your feedback helps us improve the demo experience.',
+      })
 
       // Reset form
-      setRating(0);
-      setFeedback('');
-      setContactInfo('');
-      setIsOpen(false);
+      setRating(0)
+      setFeedback('')
+      setContactInfo('')
+      setIsOpen(false)
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to submit feedback. Please try again.",
-        variant: "destructive",
-      });
+        title: 'Error',
+        description: 'Failed to submit feedback. Please try again.',
+        variant: 'destructive',
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const defaultTrigger = (
     <Button variant="outline" size="sm" className="flex items-center gap-2">
       <MessageSquare className="h-4 w-4" />
       Give Feedback
     </Button>
-  );
+  )
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -86,11 +90,7 @@ export function FeedbackForm({ trigger }: FeedbackFormProps) {
             <Label className="text-base font-medium">How would you rate the demo?</Label>
             <div className="flex items-center gap-1 mt-2">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className="focus:outline-none"
-                >
+                <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
                   <Star
                     className={`h-8 w-8 ${
                       star <= rating
@@ -103,11 +103,11 @@ export function FeedbackForm({ trigger }: FeedbackFormProps) {
             </div>
             {rating > 0 && (
               <p className="text-sm text-gray-600 mt-1">
-                {rating === 1 && "Poor"}
-                {rating === 2 && "Fair"}
-                {rating === 3 && "Good"}
-                {rating === 4 && "Very Good"}
-                {rating === 5 && "Excellent"}
+                {rating === 1 && 'Poor'}
+                {rating === 2 && 'Fair'}
+                {rating === 3 && 'Good'}
+                {rating === 4 && 'Very Good'}
+                {rating === 5 && 'Excellent'}
               </p>
             )}
           </div>
@@ -143,11 +143,7 @@ export function FeedbackForm({ trigger }: FeedbackFormProps) {
 
           {/* Submit Button */}
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => setIsOpen(false)} className="flex-1">
               Cancel
             </Button>
             <Button
@@ -161,5 +157,5 @@ export function FeedbackForm({ trigger }: FeedbackFormProps) {
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

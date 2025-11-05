@@ -22,13 +22,13 @@ export interface GDSError {
 }
 
 // Error categories for Georgian Distribution System
-export type GDSErrorCategory = 
-  | 'network' 
-  | 'auth' 
-  | 'permission' 
-  | 'validation' 
-  | 'server' 
-  | 'not_found' 
+export type GDSErrorCategory =
+  | 'network'
+  | 'auth'
+  | 'permission'
+  | 'validation'
+  | 'server'
+  | 'not_found'
   | 'conflict'
   | 'unknown'
 
@@ -39,79 +39,81 @@ export const GDS_ERROR_CATEGORIES = {
     georgianMessage: 'ქსელის შეცდომა',
     englishMessage: 'Network error',
     recoverable: true,
-    retryable: true
+    retryable: true,
   },
   auth: {
     category: 'auth' as GDSErrorCategory,
     georgianMessage: 'ავტორიზაციის შეცდომა',
     englishMessage: 'Authentication error',
     recoverable: true,
-    retryable: false
+    retryable: false,
   },
   permission: {
     category: 'permission' as GDSErrorCategory,
     georgianMessage: 'წვდომის შეზღუდვა',
     englishMessage: 'Access denied',
     recoverable: false,
-    retryable: false
+    retryable: false,
   },
   validation: {
     category: 'validation' as GDSErrorCategory,
     georgianMessage: 'მონაცემების ვალიდაცია',
     englishMessage: 'Validation error',
     recoverable: true,
-    retryable: false
+    retryable: false,
   },
   server: {
     category: 'server' as GDSErrorCategory,
     georgianMessage: 'სერვერის შეცდომა',
     englishMessage: 'Server error',
     recoverable: true,
-    retryable: true
+    retryable: true,
   },
   not_found: {
     category: 'not_found' as GDSErrorCategory,
     georgianMessage: 'მონაცემები ვერ მოიძებნა',
     englishMessage: 'Data not found',
     recoverable: false,
-    retryable: true
+    retryable: true,
   },
   conflict: {
     category: 'conflict' as GDSErrorCategory,
     georgianMessage: 'კონფლიქტი',
     englishMessage: 'Conflict',
     recoverable: true,
-    retryable: false
+    retryable: false,
   },
   unknown: {
     category: 'unknown' as GDSErrorCategory,
     georgianMessage: 'გაურკვეველი შეცდომა',
     englishMessage: 'Unknown error',
     recoverable: false,
-    retryable: true
-  }
+    retryable: true,
+  },
 }
 
 // Error classification function for Georgian Distribution System
 export function classifyGDSError(error: any): GDSError {
   // Network errors
-  if (error?.message?.includes('fetch') || 
-      error?.name === 'NetworkError' || 
-      !navigator.onLine ||
-      error?.code === 'NETWORK_ERROR') {
+  if (
+    error?.message?.includes('fetch') ||
+    error?.name === 'NetworkError' ||
+    !navigator.onLine ||
+    error?.code === 'NETWORK_ERROR'
+  ) {
     return {
       message: error?.message || 'Network error',
       georgianMessage: 'ქსელის შეცდომა',
       recoverable: true,
       retryable: true,
-      category: 'network'
+      category: 'network',
     }
   }
 
   // HTTP status codes
   if (error?.status) {
     const status = error.status as number
-    
+
     switch (status) {
       case 401:
       case 403:
@@ -120,7 +122,7 @@ export function classifyGDSError(error: any): GDSError {
           georgianMessage: 'ავტორიზაციის შეცდომა',
           recoverable: true,
           retryable: false,
-          category: 'auth'
+          category: 'auth',
         }
       case 404:
         return {
@@ -128,7 +130,7 @@ export function classifyGDSError(error: any): GDSError {
           georgianMessage: 'მონაცემები ვერ მოიძებნა',
           recoverable: false,
           retryable: true,
-          category: 'not_found'
+          category: 'not_found',
         }
       case 409:
         return {
@@ -136,7 +138,7 @@ export function classifyGDSError(error: any): GDSError {
           georgianMessage: 'კონფლიქტი',
           recoverable: true,
           retryable: false,
-          category: 'conflict'
+          category: 'conflict',
         }
       case 422:
         return {
@@ -144,7 +146,7 @@ export function classifyGDSError(error: any): GDSError {
           georgianMessage: 'მონაცემების ვალიდაცია',
           recoverable: true,
           retryable: false,
-          category: 'validation'
+          category: 'validation',
         }
       case 500:
       case 502:
@@ -155,7 +157,7 @@ export function classifyGDSError(error: any): GDSError {
           georgianMessage: 'სერვერის შეცდომა',
           recoverable: true,
           retryable: true,
-          category: 'server'
+          category: 'server',
         }
     }
   }
@@ -170,7 +172,7 @@ export function classifyGDSError(error: any): GDSError {
           recoverable: false,
           retryable: true,
           category: 'not_found',
-          code: error.code
+          code: error.code,
         }
       case '42501': // Insufficient privilege
         return {
@@ -179,7 +181,7 @@ export function classifyGDSError(error: any): GDSError {
           recoverable: false,
           retryable: false,
           category: 'permission',
-          code: error.code
+          code: error.code,
         }
       case '23505': // Unique constraint violation
         return {
@@ -188,7 +190,7 @@ export function classifyGDSError(error: any): GDSError {
           recoverable: true,
           retryable: false,
           category: 'conflict',
-          code: error.code
+          code: error.code,
         }
     }
   }
@@ -198,7 +200,7 @@ export function classifyGDSError(error: any): GDSError {
     georgianMessage: 'გაურკვეველი შეცდომა',
     recoverable: false,
     retryable: true,
-    category: 'unknown'
+    category: 'unknown',
   }
 }
 
@@ -209,17 +211,17 @@ interface GDSErrorBoundaryProps {
   onError?: (error: GDSError) => void
 }
 
-export function GDSErrorBoundary({ 
-  children, 
-  fallback: Fallback = DefaultErrorFallback, 
-  onError 
+export function GDSErrorBoundary({
+  children,
+  fallback: Fallback = DefaultErrorFallback,
+  onError,
 }: GDSErrorBoundaryProps) {
   const [error, setError] = useState<GDSError | null>(null)
   const [retryKey, setRetryKey] = useState(0)
 
   const handleRetry = useCallback(() => {
     setError(null)
-    setRetryKey(prev => prev + 1)
+    setRetryKey((prev) => prev + 1)
   }, [])
 
   if (error) {
@@ -227,25 +229,25 @@ export function GDSErrorBoundary({
   }
 
   return (
-    <ErrorCapture onError={(err) => {
-      const classifiedError = classifyGDSError(err)
-      setError(classifiedError)
-      onError?.(classifiedError)
-    }}>
-      <div key={retryKey}>
-        {children}
-      </div>
+    <ErrorCapture
+      onError={(err) => {
+        const classifiedError = classifyGDSError(err)
+        setError(classifiedError)
+        onError?.(classifiedError)
+      }}
+    >
+      <div key={retryKey}>{children}</div>
     </ErrorCapture>
   )
 }
 
 // Error capture component
-function ErrorCapture({ 
-  children, 
-  onError 
-}: { 
+function ErrorCapture({
+  children,
+  onError,
+}: {
   children: React.ReactNode
-  onError: (error: any) => void 
+  onError: (error: any) => void
 }) {
   // This would typically capture React errors
   return <>{children}</>
@@ -258,9 +260,7 @@ function DefaultErrorFallback({ error, retry }: { error: GDSError; retry: () => 
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex flex-col gap-2">
         <span>{error.georgianMessage || error.message}</span>
-        {error.details && (
-          <span className="text-sm opacity-80">{error.details}</span>
-        )}
+        {error.details && <span className="text-sm opacity-80">{error.details}</span>}
         {error.retryable && (
           <Button onClick={retry} variant="outline" size="sm" className="mt-2">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -282,24 +282,24 @@ interface GDSLoadingStateProps {
   className?: string
 }
 
-export function GDSLoadingState({ 
+export function GDSLoadingState({
   type = 'spinner',
   size = 'md',
   text,
   georgianText,
   showText = true,
-  className = ''
+  className = '',
 }: GDSLoadingStateProps) {
   const sizeClasses = {
     sm: 'h-4 w-4',
-    md: 'h-6 w-6', 
-    lg: 'h-8 w-8'
+    md: 'h-6 w-6',
+    lg: 'h-8 w-8',
   }
 
   const textSizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
-    lg: 'text-lg'
+    lg: 'text-lg',
   }
 
   const loadingText = georgianText || text || 'იტვირთება...'
@@ -309,9 +309,7 @@ export function GDSLoadingState({
       return (
         <div className={`flex items-center justify-center gap-2 ${className}`}>
           <Loader2 className={`${sizeClasses[size]} animate-spin`} />
-          {showText && (
-            <span className={textSizeClasses[size]}>{loadingText}</span>
-          )}
+          {showText && <span className={textSizeClasses[size]}>{loadingText}</span>}
         </div>
       )
 
@@ -327,12 +325,19 @@ export function GDSLoadingState({
     case 'dots':
       return (
         <div className={`flex items-center justify-center gap-1 ${className}`}>
-          <div className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`} style={{ animationDelay: '0ms' }}></div>
-          <div className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`} style={{ animationDelay: '150ms' }}></div>
-          <div className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`} style={{ animationDelay: '300ms' }}></div>
-          {showText && (
-            <span className={`${textSizeClasses[size]} ml-2`}>{loadingText}</span>
-          )}
+          <div
+            className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`}
+            style={{ animationDelay: '0ms' }}
+          ></div>
+          <div
+            className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`}
+            style={{ animationDelay: '150ms' }}
+          ></div>
+          <div
+            className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`}
+            style={{ animationDelay: '300ms' }}
+          ></div>
+          {showText && <span className={`${textSizeClasses[size]} ml-2`}>{loadingText}</span>}
         </div>
       )
 
@@ -340,9 +345,7 @@ export function GDSLoadingState({
       return (
         <div className={`flex items-center justify-center gap-2 ${className}`}>
           <div className={`${sizeClasses[size]} bg-gray-300 rounded-full animate-pulse`}></div>
-          {showText && (
-            <span className={textSizeClasses[size]}>{loadingText}</span>
-          )}
+          {showText && <span className={textSizeClasses[size]}>{loadingText}</span>}
         </div>
       )
 
@@ -391,32 +394,35 @@ export function GDSNetworkStatus() {
 export function useGDSErrorHandler() {
   const queryClient = useQueryClient()
 
-  const handleError = useCallback((error: any, context?: string) => {
-    const classifiedError = classifyGDSError(error)
-    
-    // Log error for monitoring
-    logger.error(`[GDS Error] ${context || 'Unknown context'}:`, classifiedError)
-    
-    // Handle network errors specifically for Georgian users
-    if (classifiedError.category === 'network') {
-      // Could show offline notification
-      logger.warn('[GDS] Network issue detected - user may be offline')
-    }
+  const handleError = useCallback(
+    (error: any, context?: string) => {
+      const classifiedError = classifyGDSError(error)
 
-    // Handle authentication errors
-    if (classifiedError.category === 'auth') {
-      // Could redirect to login
-      logger.warn('[GDS] Authentication error - user may need to login')
-    }
+      // Log error for monitoring
+      logger.error(`[GDS Error] ${context || 'Unknown context'}:`, classifiedError)
 
-    // Handle permission errors
-    if (classifiedError.category === 'permission') {
-      // Could show access denied message
-      logger.warn('[GDS] Permission denied - user lacks access')
-    }
+      // Handle network errors specifically for Georgian users
+      if (classifiedError.category === 'network') {
+        // Could show offline notification
+        logger.warn('[GDS] Network issue detected - user may be offline')
+      }
 
-    return classifiedError
-  }, [queryClient])
+      // Handle authentication errors
+      if (classifiedError.category === 'auth') {
+        // Could redirect to login
+        logger.warn('[GDS] Authentication error - user may need to login')
+      }
+
+      // Handle permission errors
+      if (classifiedError.category === 'permission') {
+        // Could show access denied message
+        logger.warn('[GDS] Permission denied - user lacks access')
+      }
+
+      return classifiedError
+    },
+    [queryClient]
+  )
 
   return { handleError }
 }
@@ -441,9 +447,7 @@ export function useGDSLoadingState() {
     loadingText,
     startLoading,
     stopLoading,
-    LoadingComponent: () => isLoading ? (
-      <GDSLoadingState georgianText={loadingText} />
-    ) : null
+    LoadingComponent: () => (isLoading ? <GDSLoadingState georgianText={loadingText} /> : null),
   }
 }
 
@@ -459,9 +463,13 @@ interface GDSQueryStatusProps {
 export function GDSQueryStatus({
   query,
   loadingComponent: LoadingComponent = () => <GDSLoadingState georgianText="იტვირთება..." />,
-  errorComponent: ErrorComponent = ({ error }) => <DefaultErrorFallback error={error} retry={() => query.refetch()} />,
-  emptyComponent: EmptyComponent = () => <div className="text-center text-gray-500 py-8">მონაცემები არ არის</div>,
-  children
+  errorComponent: ErrorComponent = ({ error }) => (
+    <DefaultErrorFallback error={error} retry={() => query.refetch()} />
+  ),
+  emptyComponent: EmptyComponent = () => (
+    <div className="text-center text-gray-500 py-8">მონაცემები არ არის</div>
+  ),
+  children,
 }: GDSQueryStatusProps) {
   if (query.isLoading) {
     return <LoadingComponent />
@@ -487,5 +495,5 @@ export default {
   useGDSErrorHandler,
   useGDSLoadingState,
   GDSQueryStatus,
-  GDS_ERROR_CATEGORIES
+  GDS_ERROR_CATEGORIES,
 }

@@ -6,7 +6,10 @@ export default async function OrdersPage() {
   const supabase = await createServerClient()
 
   // Verify authentication
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
   if (error || !user) {
     redirect('/login')
@@ -34,15 +37,10 @@ export default async function OrdersPage() {
     <div className="container mx-auto py-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-        <p className="text-gray-600 mt-2">
-          Manage and track all orders in the system
-        </p>
+        <p className="text-gray-600 mt-2">Manage and track all orders in the system</p>
       </div>
 
-      <OrderManagementClient
-        user={profile}
-        role={role}
-      />
+      <OrderManagementClient user={profile} role={role} />
     </div>
   )
 }

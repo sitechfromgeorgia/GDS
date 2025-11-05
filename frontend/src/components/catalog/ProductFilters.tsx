@@ -1,20 +1,18 @@
 import React from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { 
-  Search, 
-  Filter, 
-  X, 
-  RotateCcw,
-  DollarSign,
-  Package,
-  Tag
-} from 'lucide-react'
+import { Search, Filter, X, RotateCcw, DollarSign, Package, Tag } from 'lucide-react'
 import { ProductFilterInput } from '@/lib/validators/products/products'
 
 interface ProductFiltersProps {
@@ -34,20 +32,19 @@ export function ProductFilters({
   onReset,
   className,
   showAdvancedFilters = true,
-  priceRange = { min: 0, max: 1000 }
+  priceRange = { min: 0, max: 1000 },
 }: ProductFiltersProps) {
-  
   const handleSearchChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      search: value || undefined
+      search: value || undefined,
     })
   }
 
   const handleCategoryChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      category: value === 'all' ? undefined : value
+      category: value === 'all' ? undefined : value,
     })
   }
 
@@ -58,7 +55,7 @@ export function ProductFilters({
   const clearCategory = () => {
     onFiltersChange({
       ...filters,
-      category: undefined
+      category: undefined,
     })
   }
 
@@ -66,7 +63,7 @@ export function ProductFilters({
     onFiltersChange({
       ...filters,
       min_price: undefined,
-      max_price: undefined
+      max_price: undefined,
     })
   }
 
@@ -76,10 +73,10 @@ export function ProductFilters({
   }
 
   const hasActiveFilters = Boolean(
-    filters.search || 
-    filters.category || 
-    filters.min_price !== undefined || 
-    filters.max_price !== undefined
+    filters.search ||
+      filters.category ||
+      filters.min_price !== undefined ||
+      filters.max_price !== undefined
   )
 
   const getActiveFilterCount = () => {
@@ -104,12 +101,7 @@ export function ProductFilters({
             )}
           </CardTitle>
           {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearAllFilters}
-              className="text-xs"
-            >
+            <Button variant="outline" size="sm" onClick={clearAllFilters} className="text-xs">
               <RotateCcw className="w-3 h-3 mr-1" />
               გასუფთავება
             </Button>
@@ -153,10 +145,7 @@ export function ProductFilters({
             <Tag className="w-4 h-4" />
             კატეგორია
           </Label>
-          <Select
-            value={filters.category || 'all'}
-            onValueChange={handleCategoryChange}
-          >
+          <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
             <SelectTrigger>
               <SelectValue placeholder="აირჩიეთ კატეგორია" />
             </SelectTrigger>
@@ -175,12 +164,7 @@ export function ProductFilters({
                 <Package className="w-3 h-3 mr-1" />
                 {filters.category}
               </Badge>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={clearCategory}
-              >
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={clearCategory}>
                 <X className="w-3 h-3" />
               </Button>
             </div>
@@ -201,12 +185,14 @@ export function ProductFilters({
               {/* Current Price Range Display */}
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <div>
-                  მინ. ფას: <span className="font-medium">
+                  მინ. ფას:{' '}
+                  <span className="font-medium">
                     {filters.min_price !== undefined ? `${filters.min_price} ₾` : 'ყველა'}
                   </span>
                 </div>
                 <div>
-                  მაქს. ფას: <span className="font-medium">
+                  მაქს. ფას:{' '}
+                  <span className="font-medium">
                     {filters.max_price !== undefined ? `${filters.max_price} ₾` : 'ყველა'}
                   </span>
                 </div>
@@ -219,10 +205,12 @@ export function ProductFilters({
                   type="number"
                   placeholder={`${priceRange.min}₾-დან`}
                   value={filters.min_price || ''}
-                  onChange={(e) => onFiltersChange({
-                    ...filters,
-                    min_price: e.target.value ? parseFloat(e.target.value) : undefined
-                  })}
+                  onChange={(e) =>
+                    onFiltersChange({
+                      ...filters,
+                      min_price: e.target.value ? parseFloat(e.target.value) : undefined,
+                    })
+                  }
                   min={priceRange.min}
                   max={priceRange.max}
                   step={10}
@@ -236,10 +224,12 @@ export function ProductFilters({
                   type="number"
                   placeholder={`${priceRange.max}₾-მდე`}
                   value={filters.max_price || ''}
-                  onChange={(e) => onFiltersChange({
-                    ...filters,
-                    max_price: e.target.value ? parseFloat(e.target.value) : undefined
-                  })}
+                  onChange={(e) =>
+                    onFiltersChange({
+                      ...filters,
+                      max_price: e.target.value ? parseFloat(e.target.value) : undefined,
+                    })
+                  }
                   min={priceRange.min}
                   max={priceRange.max}
                   step={10}
@@ -275,8 +265,7 @@ export function ProductFilters({
               <div className="flex flex-wrap gap-2">
                 {filters.search && (
                   <Badge variant="default" className="text-xs">
-                    <Search className="w-3 h-3 mr-1" />
-                    "{filters.search}"
+                    <Search className="w-3 h-3 mr-1" />"{filters.search}"
                   </Badge>
                 )}
                 {filters.category && (

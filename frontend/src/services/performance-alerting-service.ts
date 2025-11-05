@@ -1,63 +1,63 @@
 /**
  * Performance Alerting Service
- * 
+ *
  * Service for monitoring performance metrics and sending alerts when thresholds are exceeded.
  */
 
 // Import performance monitoring utilities
 import { logger } from '@/lib/logger'
-import { getPerformanceMonitor } from '@/lib/performance-monitoring';
+import { getPerformanceMonitor } from '@/lib/performance-monitoring'
 
 /**
  * Alert Severity Levels
  */
-export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical';
+export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical'
 
 /**
  * Performance Alert Interface
  */
 export interface PerformanceAlert {
-  id: string;
-  timestamp: number;
-  metric: string;
-  value: number;
-  threshold: number;
-  severity: AlertSeverity;
-  message: string;
-  tags?: Record<string, string>;
+  id: string
+  timestamp: number
+  metric: string
+  value: number
+  threshold: number
+  severity: AlertSeverity
+  message: string
+  tags?: Record<string, string>
 }
 
 /**
  * Alert Threshold Configuration
  */
 export interface AlertThreshold {
-  metric: string;
-  threshold: number;
-  severity: AlertSeverity;
-  enabled: boolean;
-  cooldownPeriod: number; // in milliseconds
+  metric: string
+  threshold: number
+  severity: AlertSeverity
+  enabled: boolean
+  cooldownPeriod: number // in milliseconds
 }
 
 /**
  * Alert Callback Function
  */
-export type AlertCallback = (alert: PerformanceAlert) => void;
+export type AlertCallback = (alert: PerformanceAlert) => void
 
 /**
  * Performance Alerting Service
  */
 class PerformanceAlertingService {
-  private thresholds: AlertThreshold[] = [];
-  private callbacks: AlertCallback[] = [];
-  private lastAlertTimes: Record<string, number> = {};
-  private isEnabled: boolean = true;
+  private thresholds: AlertThreshold[] = []
+  private callbacks: AlertCallback[] = []
+  private lastAlertTimes: Record<string, number> = {}
+  private isEnabled: boolean = true
 
   constructor() {
     // Set default thresholds
-    this.setDefaultThresholds();
-    
+    this.setDefaultThresholds()
+
     // Start monitoring
-    this.startMonitoring();
+    this.startMonitoring()
   }
 
   /**
@@ -71,21 +71,21 @@ class PerformanceAlertingService {
         threshold: 2500, // 2.5 seconds
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       {
         metric: 'fid',
         threshold: 100, // 100ms
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       {
         metric: 'cls',
         threshold: 0.1, // 0.1
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       // Performance thresholds
       {
@@ -93,21 +93,21 @@ class PerformanceAlertingService {
         threshold: 3000, // 3 seconds
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       {
         metric: 'api_response_time',
         threshold: 1000, // 1 second
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       {
         metric: 'error_rate',
         threshold: 0.05, // 5%
         severity: 'error',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       // Georgian Distribution System specific thresholds
       {
@@ -115,58 +115,58 @@ class PerformanceAlertingService {
         threshold: 5000, // 5 seconds
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
+        cooldownPeriod: 300000, // 5 minutes
       },
       {
         metric: 'database_query_time',
         threshold: 1000, // 1 second
         severity: 'warning',
         enabled: true,
-        cooldownPeriod: 300000 // 5 minutes
-      }
-    ];
+        cooldownPeriod: 300000, // 5 minutes
+      },
+    ]
   }
 
   /**
    * Start monitoring performance metrics
    */
   private startMonitoring(): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
     // Check metrics periodically
     setInterval(() => {
-      this.checkPerformanceMetrics();
-    }, 30000); // Check every 30 seconds
+      this.checkPerformanceMetrics()
+    }, 30000) // Check every 30 seconds
   }
 
   /**
    * Check performance metrics against thresholds
    */
   private checkPerformanceMetrics(): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
-    const performanceMonitor = getPerformanceMonitor();
-    const coreWebVitals = performanceMonitor.getCoreWebVitals();
-    const performanceSummary = performanceMonitor.getPerformanceSummary();
+    const performanceMonitor = getPerformanceMonitor()
+    const coreWebVitals = performanceMonitor.getCoreWebVitals()
+    const performanceSummary = performanceMonitor.getPerformanceSummary()
 
     // Check Core Web Vitals
     if (coreWebVitals) {
-      this.checkThreshold('lcp', coreWebVitals.LCP);
-      this.checkThreshold('fid', coreWebVitals.FID);
-      this.checkThreshold('cls', coreWebVitals.CLS);
-      this.checkThreshold('fcp', coreWebVitals.FCP);
-      this.checkThreshold('ttfb', coreWebVitals.TTFB);
+      this.checkThreshold('lcp', coreWebVitals.LCP)
+      this.checkThreshold('fid', coreWebVitals.FID)
+      this.checkThreshold('cls', coreWebVitals.CLS)
+      this.checkThreshold('fcp', coreWebVitals.FCP)
+      this.checkThreshold('ttfb', coreWebVitals.TTFB)
     }
 
     // Check performance summary metrics
     if (performanceSummary) {
-      this.checkThreshold('page_load_time', performanceSummary.avgLoadTime);
-      this.checkThreshold('resource_load_time', performanceSummary.avgResourceLoadTime);
-      
+      this.checkThreshold('page_load_time', performanceSummary.avgLoadTime)
+      this.checkThreshold('resource_load_time', performanceSummary.avgResourceLoadTime)
+
       // Calculate error rate
       if (performanceSummary.totalInteractions > 0) {
-        const errorRate = performanceSummary.totalErrors / performanceSummary.totalInteractions;
-        this.checkThreshold('error_rate', errorRate);
+        const errorRate = performanceSummary.totalErrors / performanceSummary.totalInteractions
+        this.checkThreshold('error_rate', errorRate)
       }
     }
   }
@@ -177,18 +177,18 @@ class PerformanceAlertingService {
    * @param value Metric value
    */
   private checkThreshold(metric: string, value: number): void {
-    const thresholdConfig = this.thresholds.find(t => t.metric === metric);
-    
+    const thresholdConfig = this.thresholds.find((t) => t.metric === metric)
+
     if (!thresholdConfig || !thresholdConfig.enabled) {
-      return;
+      return
     }
 
     // Check if value exceeds threshold
     if (value > thresholdConfig.threshold) {
       // Check cooldown period
-      const now = Date.now();
-      const lastAlertTime = this.lastAlertTimes[metric] || 0;
-      
+      const now = Date.now()
+      const lastAlertTime = this.lastAlertTimes[metric] || 0
+
       if (now - lastAlertTime > thresholdConfig.cooldownPeriod) {
         // Create alert
         const alert: PerformanceAlert = {
@@ -202,15 +202,15 @@ class PerformanceAlertingService {
           tags: {
             metric,
             threshold: thresholdConfig.threshold.toString(),
-            value: value.toString()
-          }
-        };
+            value: value.toString(),
+          },
+        }
 
         // Send alert
-        this.sendAlert(alert);
-        
+        this.sendAlert(alert)
+
         // Update last alert time
-        this.lastAlertTimes[metric] = now;
+        this.lastAlertTimes[metric] = now
       }
     }
   }
@@ -220,14 +220,14 @@ class PerformanceAlertingService {
    * @param alert Performance alert to send
    */
   private sendAlert(alert: PerformanceAlert): void {
-    logger.warn(`Performance Alert: ${alert.message}`);
-    
+    logger.warn(`Performance Alert: ${alert.message}`)
+
     // Send to all callbacks
     for (const callback of this.callbacks) {
       try {
-        callback(alert);
+        callback(alert)
       } catch (error) {
-        logger.error('Error in performance alert callback:', error);
+        logger.error('Error in performance alert callback:', error)
       }
     }
   }
@@ -237,7 +237,7 @@ class PerformanceAlertingService {
    * @param callback Function to call when alert is triggered
    */
   public addAlertCallback(callback: AlertCallback): void {
-    this.callbacks.push(callback);
+    this.callbacks.push(callback)
   }
 
   /**
@@ -245,9 +245,9 @@ class PerformanceAlertingService {
    * @param callback Function to remove
    */
   public removeAlertCallback(callback: AlertCallback): void {
-    const index = this.callbacks.indexOf(callback);
+    const index = this.callbacks.indexOf(callback)
     if (index !== -1) {
-      this.callbacks.splice(index, 1);
+      this.callbacks.splice(index, 1)
     }
   }
 
@@ -266,21 +266,21 @@ class PerformanceAlertingService {
     enabled: boolean = true,
     cooldownPeriod: number = 300000
   ): void {
-    const existingThreshold = this.thresholds.find(t => t.metric === metric);
-    
+    const existingThreshold = this.thresholds.find((t) => t.metric === metric)
+
     if (existingThreshold) {
-      existingThreshold.threshold = threshold;
-      existingThreshold.severity = severity;
-      existingThreshold.enabled = enabled;
-      existingThreshold.cooldownPeriod = cooldownPeriod;
+      existingThreshold.threshold = threshold
+      existingThreshold.severity = severity
+      existingThreshold.enabled = enabled
+      existingThreshold.cooldownPeriod = cooldownPeriod
     } else {
       this.thresholds.push({
         metric,
         threshold,
         severity,
         enabled,
-        cooldownPeriod
-      });
+        cooldownPeriod,
+      })
     }
   }
 
@@ -288,15 +288,15 @@ class PerformanceAlertingService {
    * Enable performance alerting
    */
   public enable(): void {
-    this.isEnabled = true;
-    this.startMonitoring();
+    this.isEnabled = true
+    this.startMonitoring()
   }
 
   /**
    * Disable performance alerting
    */
   public disable(): void {
-    this.isEnabled = false;
+    this.isEnabled = false
   }
 
   /**
@@ -304,7 +304,7 @@ class PerformanceAlertingService {
    * @returns Boolean indicating if alerting is enabled
    */
   public isEnabledAlerting(): boolean {
-    return this.isEnabled;
+    return this.isEnabled
   }
 
   /**
@@ -312,16 +312,16 @@ class PerformanceAlertingService {
    * @returns Array of alert thresholds
    */
   public getThresholds(): AlertThreshold[] {
-    return [...this.thresholds];
+    return [...this.thresholds]
   }
 
   /**
    * Clear last alert times (for testing)
    */
   public clearLastAlertTimes(): void {
-    this.lastAlertTimes = {};
+    this.lastAlertTimes = {}
   }
 }
 
 // Export singleton instance
-export const performanceAlertingService = new PerformanceAlertingService();
+export const performanceAlertingService = new PerformanceAlertingService()

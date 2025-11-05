@@ -1,54 +1,51 @@
-'use client';
+'use client'
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { usePerformanceMonitoring } from '@/hooks/usePerformanceMonitoring';
-import { getPerformanceMonitor, CoreWebVitals } from '@/lib/performance-monitoring';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { usePerformanceMonitoring } from '@/hooks/usePerformanceMonitoring'
+import { getPerformanceMonitor, CoreWebVitals } from '@/lib/performance-monitoring'
 
 interface PerformanceContextType {
-  isEnabled: boolean;
-  togglePerformanceMonitoring: () => void;
-  getCoreWebVitals: () => CoreWebVitals | null;
+  isEnabled: boolean
+  togglePerformanceMonitoring: () => void
+  getCoreWebVitals: () => CoreWebVitals | null
   getPerformanceSummary: () => {
-    avgLoadTime: number;
-    avgResourceLoadTime: number;
-    avgFID: number;
-    avgLCP: number;
-    totalInteractions: number;
-    totalErrors: number;
-  };
-  sendPerformanceData: (endpoint?: string) => Promise<void>;
+    avgLoadTime: number
+    avgResourceLoadTime: number
+    avgFID: number
+    avgLCP: number
+    totalInteractions: number
+    totalErrors: number
+  }
+  sendPerformanceData: (endpoint?: string) => Promise<void>
 }
 
-const PerformanceContext = createContext<PerformanceContextType | undefined>(undefined);
+const PerformanceContext = createContext<PerformanceContextType | undefined>(undefined)
 
 export const PerformanceProvider = ({ children }: { children: ReactNode }) => {
-  const [isEnabled, setIsEnabled] = useState(true);
-  const {
-    getCoreWebVitals,
-    getPerformanceSummary,
-    sendPerformanceData
-  } = usePerformanceMonitoring();
+  const [isEnabled, setIsEnabled] = useState(true)
+  const { getCoreWebVitals, getPerformanceSummary, sendPerformanceData } =
+    usePerformanceMonitoring()
 
   const togglePerformanceMonitoring = () => {
-    setIsEnabled(!isEnabled);
+    setIsEnabled(!isEnabled)
     if (isEnabled) {
-      getPerformanceMonitor().disable();
+      getPerformanceMonitor().disable()
     } else {
-      getPerformanceMonitor().enable();
+      getPerformanceMonitor().enable()
     }
-  };
+  }
 
   // Initialize performance monitoring
   useEffect(() => {
     if (isEnabled) {
-      getPerformanceMonitor().enable();
+      getPerformanceMonitor().enable()
     }
 
     // Cleanup on unmount
     return () => {
-      getPerformanceMonitor().disable();
-    };
-  }, [isEnabled]);
+      getPerformanceMonitor().disable()
+    }
+  }, [isEnabled])
 
   return (
     <PerformanceContext.Provider
@@ -57,18 +54,18 @@ export const PerformanceProvider = ({ children }: { children: ReactNode }) => {
         togglePerformanceMonitoring,
         getCoreWebVitals,
         getPerformanceSummary,
-        sendPerformanceData
+        sendPerformanceData,
       }}
     >
       {children}
     </PerformanceContext.Provider>
-  );
-};
+  )
+}
 
 export const usePerformance = () => {
-  const context = useContext(PerformanceContext);
+  const context = useContext(PerformanceContext)
   if (context === undefined) {
-    throw new Error('usePerformance must be used within a PerformanceProvider');
+    throw new Error('usePerformance must be used within a PerformanceProvider')
   }
-  return context;
-};
+  return context
+}

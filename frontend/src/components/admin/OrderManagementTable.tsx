@@ -5,15 +5,29 @@ import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent } from '@/components/ui/card'
 import {
-  MoreHorizontal,
-  Eye,
-  DollarSign
-} from 'lucide-react'
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Card, CardContent } from '@/components/ui/card'
+import { MoreHorizontal, Eye, DollarSign } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { createBrowserClient } from '@/lib/supabase'
 import { Database } from '@/types/database'
@@ -21,8 +35,8 @@ import { format } from 'date-fns'
 import { ka } from 'date-fns/locale'
 
 type Order = Database['public']['Tables']['orders']['Row'] & {
-  restaurants?: { name: string } | null
-  drivers?: { full_name: string } | null
+  restaurants?: { full_name: string | null } | null
+  drivers?: { full_name: string | null } | null
   restaurant_name?: string
   driver_name?: string
 }
@@ -45,7 +59,7 @@ export function OrderManagementTable({
   statusFilter,
   dateRange,
   onViewOrder,
-  onEditPricing
+  onEditPricing,
 }: OrderManagementTableProps) {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,13 +76,14 @@ export function OrderManagementTable({
     try {
       setLoading(true)
 
-      let query = supabase
-        .from('orders')
-        .select(`
+      let query = supabase.from('orders').select(
+        `
           *,
-          restaurants:restaurant_id(name),
-          drivers:driver_id(full_name)
-        `, { count: 'exact' })
+          restaurants:profiles!restaurant_id(full_name),
+          drivers:profiles!driver_id(full_name)
+        `,
+        { count: 'exact' }
+      )
 
       // Apply search filter
       if (searchTerm) {
@@ -101,16 +116,18 @@ export function OrderManagementTable({
       if (error) throw error
 
       // Explicitly type the query result to fix TypeScript inference issues
-      type QueryResult = Array<Database['public']['Tables']['orders']['Row'] & {
-        restaurants?: { name: string } | null
-        drivers?: { full_name: string } | null
-      }>
+      type QueryResult = Array<
+        Database['public']['Tables']['orders']['Row'] & {
+          restaurants?: { full_name: string | null } | null
+          drivers?: { full_name: string | null } | null
+        }
+      >
 
-      const formattedOrders = (data as QueryResult || []).map(order => ({
+      const formattedOrders = ((data as QueryResult) || []).map((order) => ({
         ...order,
-        restaurant_name: order.restaurants?.name,
-        driver_name: order.drivers?.full_name
-      }))
+        restaurant_name: order.restaurants?.full_name,
+        driver_name: order.drivers?.full_name,
+      })) as Order[]
 
       setOrders(formattedOrders)
       setTotalPages(Math.ceil((count || 0) / itemsPerPage))
@@ -132,15 +149,15 @@ export function OrderManagementTable({
 
   const handleSelectOrder = (orderId: string, checked: boolean) => {
     if (checked) {
-      setSelectedOrders(prev => [...prev, orderId])
+      setSelectedOrders((prev) => [...prev, orderId])
     } else {
-      setSelectedOrders(prev => prev.filter(id => id !== orderId))
+      setSelectedOrders((prev) => prev.filter((id) => id !== orderId))
     }
   }
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedOrders(orders.map(o => o.id))
+      setSelectedOrders(orders.map((o) => o.id))
     } else {
       setSelectedOrders([])
     }
@@ -150,13 +167,10 @@ export function OrderManagementTable({
     try {
       const updateData = {
         status: newStatus,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
-      const { error } = await (supabase
-        .from('orders') as any)
-        .update(updateData)
-        .eq('id', orderId)
+      const { error } = await (supabase.from('orders') as any).update(updateData).eq('id', orderId)
 
       if (error) throw error
 
@@ -180,11 +194,10 @@ export function OrderManagementTable({
     try {
       const updateData = {
         status: newStatus,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
-      const { error } = await (supabase
-        .from('orders') as any)
+      const { error } = await (supabase.from('orders') as any)
         .update(updateData)
         .in('id', selectedOrders)
 
@@ -240,9 +253,7 @@ export function OrderManagementTable({
       {/* Bulk Actions */}
       {selectedOrders.length > 0 && (
         <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
-          <span className="text-sm font-medium">
-            არჩეულია {selectedOrders.length} შეკვეთა
-          </span>
+          <span className="text-sm font-medium">არჩეულია {selectedOrders.length} შეკვეთა</span>
           <Select onValueChange={(value) => handleBulkStatusUpdate(value as OrderStatus)}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="სტატუსის შეცვლა" />
@@ -318,14 +329,16 @@ export function OrderManagementTable({
                     <div>
                       <div className="font-medium">#{order.id.slice(-8)}</div>
                       <div className="text-sm text-muted-foreground">
-                        {format(new Date(order.created_at), "dd/MM/yyyy HH:mm", { locale: ka })}
+                        {format(new Date(order.created_at), 'dd/MM/yyyy HH:mm', { locale: ka })}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div>
                       <div className="font-medium">{order.delivery_address || 'N/A'}</div>
-                      <div className="text-sm text-muted-foreground">{order.delivery_time || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {order.delivery_time || 'N/A'}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -335,13 +348,17 @@ export function OrderManagementTable({
                     <div className="text-sm">{order.driver_name || 'არ არის მინიჭებული'}</div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium">{order.total_amount ? `${order.total_amount}₾` : 'ფასი არ არის დადასტურებული'}</div>
+                    <div className="font-medium">
+                      {order.total_amount ? `${order.total_amount}₾` : 'ფასი არ არის დადასტურებული'}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Select
                         value={order.status}
-                        onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)}
+                        onValueChange={(value) =>
+                          handleStatusChange(order.id, value as OrderStatus)
+                        }
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue />
@@ -357,11 +374,14 @@ export function OrderManagementTable({
                           <SelectItem value="cancelled">გაუქმებული</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Badge 
+                      <Badge
                         variant={
-                          priorityColor === 'destructive' ? 'destructive' : 
-                          priorityColor === 'warning' ? 'secondary' : 'default'
-                        } 
+                          priorityColor === 'destructive'
+                            ? 'destructive'
+                            : priorityColor === 'warning'
+                              ? 'secondary'
+                              : 'default'
+                        }
                         className="ml-2"
                       >
                         {priorityColor === 'destructive' && 'სასწრაფო'}
@@ -371,10 +391,10 @@ export function OrderManagementTable({
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      {format(new Date(order.created_at), "dd/MM/yyyy", { locale: ka })}
+                      {format(new Date(order.created_at), 'dd/MM/yyyy', { locale: ka })}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {format(new Date(order.created_at), "HH:mm", { locale: ka })}
+                      {format(new Date(order.created_at), 'HH:mm', { locale: ka })}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -413,7 +433,7 @@ export function OrderManagementTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
               წინა
@@ -421,7 +441,7 @@ export function OrderManagementTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
               შემდეგი

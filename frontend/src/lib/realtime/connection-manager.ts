@@ -12,12 +12,7 @@
 import { RealtimeChannel, RealtimeClient, REALTIME_LISTEN_TYPES } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
-export type ConnectionState =
-  | 'disconnected'
-  | 'connecting'
-  | 'connected'
-  | 'reconnecting'
-  | 'error'
+export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error'
 
 export type ConnectionQuality = 'excellent' | 'good' | 'poor' | 'disconnected'
 
@@ -63,7 +58,7 @@ export class RealtimeConnectionManager {
     maxReconnectDelay: 30000, // 30 seconds
     heartbeatInterval: 30000, // 30 seconds
     messageQueueSize: 100,
-    enableLogging: process.env.NODE_ENV === 'development'
+    enableLogging: process.env.NODE_ENV === 'development',
   }
 
   // Reconnection
@@ -87,7 +82,7 @@ export class RealtimeConnectionManager {
     totalMessages: 0,
     failedMessages: 0,
     averageLatency: 0,
-    lastHeartbeat: null
+    lastHeartbeat: null,
   }
 
   // Event listeners
@@ -106,10 +101,10 @@ export class RealtimeConnectionManager {
   private initialize() {
     if (!this.client) return
 
-    // Set up client event listeners
-    this.client.onOpen(() => this.handleOpen())
-    this.client.onClose(() => this.handleClose())
-    this.client.onError((error) => this.handleError(error))
+    // Note: Supabase Realtime v2 removed onOpen/onClose/onError methods
+    // Connection state is now managed per-channel via channel.subscribe() callbacks
+    // For global connection monitoring, we rely on channel state changes
+    // TODO: Implement connection monitoring via channel state tracking
 
     this.log('Connection manager initialized')
   }
@@ -147,7 +142,7 @@ export class RealtimeConnectionManager {
     this.setState('error')
 
     const err = error instanceof Error ? error : new Error(String(error))
-    this.errorListeners.forEach(listener => listener(err))
+    this.errorListeners.forEach((listener) => listener(err))
 
     // Attempt reconnection
     this.attemptReconnect()
@@ -170,13 +165,12 @@ export class RealtimeConnectionManager {
 
     // Exponential backoff with jitter
     const jitter = Math.random() * 1000
-    this.reconnectDelay = Math.min(
-      this.reconnectDelay * 2,
-      this.config.maxReconnectDelay
-    )
+    this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.config.maxReconnectDelay)
     const delay = this.reconnectDelay + jitter
 
-    this.log(`Reconnecting in ${Math.round(delay / 1000)}s (attempt ${this.reconnectAttempt}/${this.config.maxReconnectAttempts})`)
+    this.log(
+      `Reconnecting in ${Math.round(delay / 1000)}s (attempt ${this.reconnectAttempt}/${this.config.maxReconnectAttempts})`
+    )
 
     this.reconnectTimeout = setTimeout(() => {
       this.client?.connect()
@@ -216,8 +210,7 @@ export class RealtimeConnectionManager {
         this.latencies.shift()
       }
 
-      this.stats.averageLatency =
-        this.latencies.reduce((a, b) => a + b, 0) / this.latencies.length
+      this.stats.averageLatency = this.latencies.reduce((a, b) => a + b, 0) / this.latencies.length
 
       this.setQuality(this.calculateQuality())
     } catch (error) {
@@ -269,7 +262,7 @@ export class RealtimeConnectionManager {
     await channel.send({
       type: 'broadcast',
       event: message.event,
-      payload: message.payload
+      payload: message.payload,
     })
   }
 
@@ -281,7 +274,7 @@ export class RealtimeConnectionManager {
       payload: message.payload,
       timestamp: message.timestamp || Date.now(),
       retryCount: message.retryCount || 0,
-      maxRetries: message.maxRetries || 3
+      maxRetries: message.maxRetries || 3,
     }
 
     this.messageQueue.push(queuedMessage)
@@ -325,8 +318,8 @@ export class RealtimeConnectionManager {
    * Unsubscribe from all channels
    */
   async unsubscribeAll(): Promise<void> {
-    const unsubscribePromises = Array.from(this.channels.keys()).map(
-      channelName => this.unsubscribe(channelName)
+    const unsubscribePromises = Array.from(this.channels.keys()).map((channelName) =>
+      this.unsubscribe(channelName)
     )
     await Promise.all(unsubscribePromises)
   }
@@ -348,7 +341,7 @@ export class RealtimeConnectionManager {
         payload,
         timestamp: Date.now(),
         retryCount: 0,
-        maxRetries: 3
+        maxRetries: 3,
       })
       this.stats.totalMessages++
     } catch (error) {
@@ -438,7 +431,7 @@ export class RealtimeConnectionManager {
     if (this.state !== newState) {
       this.state = newState
       this.log(`State changed to: ${newState}`)
-      this.stateChangeListeners.forEach(listener => listener(newState))
+      this.stateChangeListeners.forEach((listener) => listener(newState))
     }
   }
 
@@ -446,7 +439,7 @@ export class RealtimeConnectionManager {
     if (this.quality !== newQuality) {
       this.quality = newQuality
       this.log(`Quality changed to: ${newQuality}`)
-      this.qualityChangeListeners.forEach(listener => listener(newQuality))
+      this.qualityChangeListeners.forEach((listener) => listener(newQuality))
     }
   }
 
@@ -475,7 +468,10 @@ let connectionManagerInstance: RealtimeConnectionManager | null = null
 /**
  * Get or create the global connection manager instance
  */
-export function getConnectionManager(client: RealtimeClient, config?: ConnectionConfig): RealtimeConnectionManager {
+export function getConnectionManager(
+  client: RealtimeClient,
+  config?: ConnectionConfig
+): RealtimeConnectionManager {
   if (!connectionManagerInstance) {
     connectionManagerInstance = new RealtimeConnectionManager(client, config)
   }

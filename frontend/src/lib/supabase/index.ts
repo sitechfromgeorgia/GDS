@@ -47,5 +47,5 @@ export type {
   UserRole,
   OrderStatus,
   NotificationType,
-  DeliveryStatus
+  DeliveryStatus,
 } from '@/types/database'

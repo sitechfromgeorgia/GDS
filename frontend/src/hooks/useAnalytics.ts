@@ -1,30 +1,30 @@
 // Custom hook for Analytics Dashboard state management
 // Uses Zustand for filter state and TanStack Query for data fetching
 
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useCallback, useMemo, useState } from 'react';
-import type { KPISummary, DateRange, OrderStatus, AnalyticsFilters } from '@/types/analytics';
-import { isLargeDateRange } from '@/lib/validators/analytics';
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { useCallback, useMemo, useState } from 'react'
+import type { KPISummary, DateRange, OrderStatus, AnalyticsFilters } from '@/types/analytics'
+import { isLargeDateRange } from '@/lib/validators/analytics'
 
 interface UseAnalyticsOptions {
-  initialDateRange?: DateRange;
-  initialStatus?: OrderStatus[];
+  initialDateRange?: DateRange
+  initialStatus?: OrderStatus[]
 }
 
 export function useAnalytics(options?: UseAnalyticsOptions) {
   // Default to last 7 days
   const defaultFrom = useMemo(() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 7);
-    return date.toISOString();
-  }, []);
+    const date = new Date()
+    date.setDate(date.getDate() - 7)
+    return date.toISOString()
+  }, [])
 
-  const defaultTo = useMemo(() => new Date().toISOString(), []);
+  const defaultTo = useMemo(() => new Date().toISOString(), [])
 
   const [filters, setFilters] = useState<AnalyticsFilters>({
     dateRange: options?.initialDateRange || { from: defaultFrom, to: defaultTo },
     status: options?.initialStatus || [],
-  });
+  })
 
   // Fetch KPIs with TanStack Query
   const {
@@ -38,24 +38,24 @@ export function useAnalytics(options?: UseAnalyticsOptions) {
       const params = new URLSearchParams({
         from: filters.dateRange.from,
         to: filters.dateRange.to,
-      });
+      })
 
       if (filters.status.length > 0) {
-        params.set('status', filters.status.join(','));
+        params.set('status', filters.status.join(','))
       }
 
-      const response = await fetch(`/api/analytics/kpis?${params.toString()}`);
+      const response = await fetch(`/api/analytics/kpis?${params.toString()}`)
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch KPIs');
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to fetch KPIs')
       }
 
-      return response.json();
+      return response.json()
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 2,
-  });
+  })
 
   // Export CSV mutation
   const exportMutation = useMutation({
@@ -63,55 +63,55 @@ export function useAnalytics(options?: UseAnalyticsOptions) {
       const params = new URLSearchParams({
         from: filters.dateRange.from,
         to: filters.dateRange.to,
-      });
+      })
 
       if (filters.status.length > 0) {
-        params.set('status', filters.status.join(','));
+        params.set('status', filters.status.join(','))
       }
 
-      const response = await fetch(`/api/analytics/export?${params.toString()}`);
+      const response = await fetch(`/api/analytics/export?${params.toString()}`)
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to export data');
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to export data')
       }
 
       // Download CSV file
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `analytics-export-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `analytics-export-${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
     },
-  });
+  })
 
   // Update date range
   const updateDateRange = useCallback((dateRange: DateRange) => {
-    setFilters((prev) => ({ ...prev, dateRange }));
-  }, []);
+    setFilters((prev) => ({ ...prev, dateRange }))
+  }, [])
 
   // Update status filter
   const updateStatus = useCallback((status: OrderStatus[]) => {
-    setFilters((prev) => ({ ...prev, status }));
-  }, []);
+    setFilters((prev) => ({ ...prev, status }))
+  }, [])
 
   // Reset filters to default
   const resetFilters = useCallback(() => {
     setFilters({
       dateRange: { from: defaultFrom, to: defaultTo },
       status: [],
-    });
-  }, [defaultFrom, defaultTo]);
+    })
+  }, [defaultFrom, defaultTo])
 
   // Check if date range is large (for performance warning)
   const showPerformanceWarning = useMemo(
     () => isLargeDateRange(filters.dateRange.from, filters.dateRange.to),
     [filters.dateRange]
-  );
+  )
 
   return {
     // State
@@ -129,5 +129,5 @@ export function useAnalytics(options?: UseAnalyticsOptions) {
     exportCSV: exportMutation.mutate,
     isExporting: exportMutation.isPending,
     exportError: exportMutation.error,
-  };
+  }
 }

@@ -1,17 +1,17 @@
 // Analytics Dashboard Page
 // Based on specs/001-analytics-dashboard/plan.md
 
-'use client';
+'use client'
 
-import { useAnalytics } from '@/hooks/useAnalytics';
-import { KPICard } from '@/components/analytics/KPICard';
-import { DateRangeFilter } from '@/components/analytics/DateRangeFilter';
-import { StatusFilter } from '@/components/analytics/StatusFilter';
-import { ExportButton } from '@/components/analytics/ExportButton';
-import { EmptyState } from '@/components/analytics/EmptyState';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
-import type { KPICardData } from '@/types/analytics';
+import { useAnalytics } from '@/hooks/useAnalytics'
+import { KPICard } from '@/components/analytics/KPICard'
+import { DateRangeFilter } from '@/components/analytics/DateRangeFilter'
+import { StatusFilter } from '@/components/analytics/StatusFilter'
+import { ExportButton } from '@/components/analytics/ExportButton'
+import { EmptyState } from '@/components/analytics/EmptyState'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertTriangle } from 'lucide-react'
+import type { KPICardData } from '@/types/analytics'
 
 export default function AnalyticsPage() {
   const {
@@ -25,7 +25,7 @@ export default function AnalyticsPage() {
     exportCSV,
     isExporting,
     exportError,
-  } = useAnalytics();
+  } = useAnalytics()
 
   // Transform KPI data into card format
   const kpiCards: KPICardData[] = [
@@ -39,9 +39,10 @@ export default function AnalyticsPage() {
     },
     {
       label: 'On-time Delivery Rate',
-      value: kpiData?.on_time_rate !== null && kpiData?.on_time_rate !== undefined 
-        ? `${kpiData.on_time_rate}%` 
-        : 'N/A',
+      value:
+        kpiData?.on_time_rate !== null && kpiData?.on_time_rate !== undefined
+          ? `${kpiData.on_time_rate}%`
+          : 'N/A',
       unit: kpiData?.on_time_rate !== null ? 'of delivered orders' : undefined,
       tooltip: 'Percentage of orders delivered within 30 minutes of promised window',
       isLoading: isLoadingKPIs,
@@ -55,7 +56,7 @@ export default function AnalyticsPage() {
       isLoading: isLoadingKPIs,
       error: kpiError ? 'Failed to load' : undefined,
     },
-  ];
+  ]
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -79,7 +80,8 @@ export default function AnalyticsPage() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            Large date range may impact performance. Consider narrowing your selection to less than 90 days.
+            Large date range may impact performance. Consider narrowing your selection to less than
+            90 days.
           </AlertDescription>
         </Alert>
       )}
@@ -88,7 +90,8 @@ export default function AnalyticsPage() {
       {exportError && (
         <Alert variant="destructive">
           <AlertDescription>
-            Failed to export data: {exportError instanceof Error ? exportError.message : 'Unknown error'}
+            Failed to export data:{' '}
+            {exportError instanceof Error ? exportError.message : 'Unknown error'}
           </AlertDescription>
         </Alert>
       )}
@@ -108,7 +111,8 @@ export default function AnalyticsPage() {
       {kpiData && kpiData.excluded_count > 0 && (
         <Alert>
           <AlertDescription>
-            {kpiData.excluded_count} order{kpiData.excluded_count > 1 ? 's' : ''} excluded from calculations due to incomplete data.
+            {kpiData.excluded_count} order{kpiData.excluded_count > 1 ? 's' : ''} excluded from
+            calculations due to incomplete data.
           </AlertDescription>
         </Alert>
       )}
@@ -120,10 +124,14 @@ export default function AnalyticsPage() {
           {new Date(kpiData.date_range.from).toLocaleDateString()} to{' '}
           {new Date(kpiData.date_range.to).toLocaleDateString()}
           {kpiData.filters.status && kpiData.filters.status.length > 0 && (
-            <> (filtered by {kpiData.filters.status.length} status{kpiData.filters.status.length > 1 ? 'es' : ''})</>
+            <>
+              {' '}
+              (filtered by {kpiData.filters.status.length} status
+              {kpiData.filters.status.length > 1 ? 'es' : ''})
+            </>
           )}
         </div>
       )}
     </div>
-  );
+  )
 }

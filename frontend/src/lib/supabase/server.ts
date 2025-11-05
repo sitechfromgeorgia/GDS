@@ -12,7 +12,7 @@
 
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import type { CookieOptions } from '@supabase/ssr'
 import type { Database } from '@/types/database'
 import { getEnvVar } from '@/lib/env'
@@ -49,15 +49,21 @@ export async function createServerClient() {
             // Ignore error - cookies can't be removed in Server Components
             // This is expected and harmless
           }
-        }
+        },
       },
       auth: {
         autoRefreshToken: true,
-        persistSession: true
-      }
+        persistSession: true,
+      },
     }
   )
 }
+
+/**
+ * Alias for createServerClient - for backward compatibility
+ * Use this in Server Components, Route Handlers, and Server Actions
+ */
+export const createClient = createServerClient
 
 /**
  * Alias for createServerClient - for route handlers
@@ -86,16 +92,12 @@ export function createAdminClient() {
   // Use env validation layer for secure access to service role key
   const serviceRoleKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY')
 
-  return createClient<Database>(
-    getEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
-    serviceRoleKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
+  return createSupabaseClient<Database>(getEnvVar('NEXT_PUBLIC_SUPABASE_URL'), serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
 }
 
 // Export types for convenience

@@ -6,18 +6,22 @@ import { productFilterSchema } from '@/lib/validators/products/products'
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createServerClient()
-    
+
     // Get URL parameters
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
-    
+
     // Build filters object from search params
     const filters = {
       category: searchParams.get('category') || undefined,
       search: searchParams.get('search') || undefined,
-      min_price: searchParams.get('min_price') ? parseFloat(searchParams.get('min_price')!) : undefined,
-      max_price: searchParams.get('max_price') ? parseFloat(searchParams.get('max_price')!) : undefined,
+      min_price: searchParams.get('min_price')
+        ? parseFloat(searchParams.get('min_price')!)
+        : undefined,
+      max_price: searchParams.get('max_price')
+        ? parseFloat(searchParams.get('max_price')!)
+        : undefined,
     }
 
     // Validate filters
@@ -41,7 +45,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (validatedFilters.search) {
-      query = query.or(`name.ilike.%${validatedFilters.search}%,description.ilike.%${validatedFilters.search}%`)
+      query = query.or(
+        `name.ilike.%${validatedFilters.search}%,description.ilike.%${validatedFilters.search}%`
+      )
     }
 
     if (validatedFilters.min_price !== undefined) {
@@ -72,14 +78,13 @@ export async function GET(request: NextRequest) {
         total: count || 0,
         totalPages,
         hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1
+        hasPreviousPage: page > 1,
       },
-      filters: validatedFilters
+      filters: validatedFilters,
     })
-
   } catch (error) {
     logger.error('API error:', error)
-    
+
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
         { error: 'Invalid request parameters', details: error.message },
@@ -87,10 +92,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -101,12 +103,8 @@ export async function POST(request: NextRequest) {
 
     // Validate request body (you can extend the schema based on requirements)
     // For now, we'll allow basic product creation
-    
-    const { data, error } = await supabase
-      .from('products')
-      .insert(body)
-      .select()
-      .single()
+
+    const { data, error } = await supabase.from('products').insert(body).select().single()
 
     if (error) {
       logger.error('Database error:', error)
@@ -117,12 +115,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ product: data }, { status: 201 })
-
   } catch (error) {
     logger.error('API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

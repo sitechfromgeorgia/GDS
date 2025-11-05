@@ -46,21 +46,15 @@ export function Header() {
         <div className="hidden md:flex items-center space-x-4">
           {user ? (
             <Button asChild>
-              <Link href="/dashboard">
-                Dashboard
-              </Link>
+              <Link href="/dashboard">Dashboard</Link>
             </Button>
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link href="/demo">
-                  Try Demo
-                </Link>
+                <Link href="/demo">Try Demo</Link>
               </Button>
               <Button asChild>
-                <Link href="/login">
-                  Sign In
-                </Link>
+                <Link href="/login">Sign In</Link>
               </Button>
             </>
           )}
@@ -76,7 +70,11 @@ export function Header() {
           </SheetTrigger>
           <SheetContent className="w-[300px] sm:w-[400px]">
             <div className="flex flex-col space-y-4 mt-4">
-              <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+              <Link
+                href="/"
+                className="flex items-center space-x-2"
+                onClick={() => setIsOpen(false)}
+              >
                 <Truck className="h-6 w-6 text-primary" />
                 <span className="text-lg font-bold">Georgian Distribution</span>
               </Link>

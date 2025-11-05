@@ -8,23 +8,23 @@ interface UseCartReturn {
   itemCount: number
   totalPrice: number
   isEmpty: boolean
-  
+
   // Loading states
   isLoading: boolean
   isAdding: boolean
   isUpdating: boolean
   isRemoving: boolean
   isClearing: boolean
-  
+
   // Error state
   error: Error | null
-  
+
   // Actions
   addItem: (input: CartItemInput) => Promise<void>
   updateItem: (input: CartUpdateInput) => Promise<void>
   removeItem: (itemId: string) => Promise<void>
   clearCart: () => Promise<void>
-  
+
   // Helpers
   hasItem: (productId: string) => boolean
   getItemQuantity: (productId: string) => number
@@ -116,22 +116,34 @@ export function useCart(): UseCartReturn {
   }, [])
 
   // Helper functions
-  const hasItem = useCallback((productId: string): boolean => {
-    return cart ? cart.items.some(item => item.productId === productId) : false
-  }, [cart])
+  const hasItem = useCallback(
+    (productId: string): boolean => {
+      return cart ? cart.items.some((item) => item.productId === productId) : false
+    },
+    [cart]
+  )
 
-  const getItemQuantity = useCallback((productId: string): number => {
-    const item = cart?.items.find(item => item.productId === productId)
-    return item ? item.quantity : 0
-  }, [cart])
+  const getItemQuantity = useCallback(
+    (productId: string): number => {
+      const item = cart?.items.find((item) => item.productId === productId)
+      return item ? item.quantity : 0
+    },
+    [cart]
+  )
 
-  const getItemByProductId = useCallback((productId: string): CartItem | undefined => {
-    return cart?.items.find(item => item.productId === productId)
-  }, [cart])
+  const getItemByProductId = useCallback(
+    (productId: string): CartItem | undefined => {
+      return cart?.items.find((item) => item.productId === productId)
+    },
+    [cart]
+  )
 
-  const formatTotal = useCallback((total?: number): string => {
-    return cartService.formatCartTotal(total ?? (cart?.totalPrice || 0))
-  }, [cart])
+  const formatTotal = useCallback(
+    (total?: number): string => {
+      return cartService.formatCartTotal(total ?? (cart?.totalPrice || 0))
+    },
+    [cart]
+  )
 
   const itemCount = cart ? cart.totalItems : 0
   const totalPrice = cart ? cart.totalPrice : 0
@@ -143,23 +155,23 @@ export function useCart(): UseCartReturn {
     itemCount,
     totalPrice,
     isEmpty,
-    
+
     // Loading states
     isLoading,
     isAdding,
     isUpdating,
     isRemoving,
     isClearing,
-    
+
     // Error state
     error,
-    
+
     // Actions
     addItem,
     updateItem,
     removeItem,
     clearCart,
-    
+
     // Helpers
     hasItem,
     getItemQuantity,

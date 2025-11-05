@@ -6,13 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
-  ShoppingCart, 
-  ArrowLeft, 
-  CheckCircle, 
-  AlertCircle,
-  Loader2
-} from 'lucide-react'
+import { ShoppingCart, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
 import CheckoutForm, { CheckoutFormData } from '@/components/checkout/CheckoutForm'
 import CheckoutSummary from '@/components/checkout/CheckoutSummary'
@@ -24,7 +18,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { cart, clearCart } = useCart()
   const { submitOrder, isLoading, error, success } = useOrderSubmission()
-  
+
   const [currentStep, setCurrentStep] = useState<'form' | 'summary' | 'success'>('form')
   const [checkoutData, setCheckoutData] = useState<CheckoutFormData | null>(null)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
@@ -49,7 +43,7 @@ export default function CheckoutPage() {
   const handleFormSubmit = async (formData: CheckoutFormData) => {
     setCheckoutData(formData)
     setValidationErrors([])
-    
+
     // Create order submission data
     const orderData = {
       restaurantId: cart?.restaurantId || '00000000-0000-0000-0000-000000000000', // Default restaurant ID
@@ -59,7 +53,7 @@ export default function CheckoutPage() {
       contactPhone: formData.contactPhone,
       deliveryAddress: formData.deliveryAddress,
       priority: formData.priority,
-      paymentMethod: formData.paymentMethod
+      paymentMethod: formData.paymentMethod,
     }
 
     try {
@@ -89,7 +83,7 @@ export default function CheckoutPage() {
     return new Intl.NumberFormat('ka-GE', {
       style: 'currency',
       currency: 'GEL',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(price)
   }
 
@@ -102,9 +96,7 @@ export default function CheckoutPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-2">
             {ORDER_SUBMISSION_GEORGIAN.messages.submitting}
           </h2>
-          <p className="text-gray-600">
-            თქვენი შეკვეთა იგზავნება, გთხოვთ დაელოდოთ...
-          </p>
+          <p className="text-gray-600">თქვენი შეკვეთა იგზავნება, გთხოვთ დაელოდოთ...</p>
         </div>
       </div>
     )
@@ -124,15 +116,13 @@ export default function CheckoutPage() {
                 <CardTitle className="text-2xl text-green-800">
                   {ORDER_SUBMISSION_GEORGIAN.messages.success}
                 </CardTitle>
-                <p className="text-gray-600 mt-2">
-                  თქვენი შეკვეთა წარმატებით გაეგზავნა!
-                </p>
+                <p className="text-gray-600 mt-2">თქვენი შეკვეთა წარმატებით გაეგზავნა!</p>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Order Confirmation Details */}
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                   <h3 className="font-semibold text-gray-900">შეკვეთის დეტალები:</h3>
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium text-gray-700">ტელეფონი:</span>
@@ -164,14 +154,14 @@ export default function CheckoutPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-semibold text-blue-900 mb-2">მოსალოდნელი მიწოდების დრო:</h3>
                   <p className="text-blue-800">
-                    {checkoutData.priority === 'urgent' 
+                    {checkoutData.priority === 'urgent'
                       ? '45 წუთის განმავლობაში'
-                      : '1-2 საათის განმავლობაში'
-                    }
+                      : '1-2 საათის განმავლობაში'}
                   </p>
                   {checkoutData.preferredDeliveryDate && (
                     <p className="text-sm text-blue-600 mt-1">
-                      მოსალოდნელი თარიღი: {new Date(checkoutData.preferredDeliveryDate).toLocaleString('ka-GE')}
+                      მოსალოდნელი თარიღი:{' '}
+                      {new Date(checkoutData.preferredDeliveryDate).toLocaleString('ka-GE')}
                     </p>
                   )}
                 </div>
@@ -197,18 +187,11 @@ export default function CheckoutPage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={handleContinueShopping}
-                    className="flex-1"
-                  >
+                  <Button variant="outline" onClick={handleContinueShopping} className="flex-1">
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     კიდევ შეკვეთისთვის
                   </Button>
-                  <Button 
-                    onClick={() => router.push('/orders')}
-                    className="flex-1"
-                  >
+                  <Button onClick={() => router.push('/orders')} className="flex-1">
                     ჩემი შეკვეთები
                   </Button>
                 </div>
@@ -246,9 +229,13 @@ export default function CheckoutPage() {
               {currentStep === 'form' && (
                 <>
                   <div className="flex items-center gap-2 mb-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      currentStep === 'form' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                    }`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                        currentStep === 'form'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-200 text-gray-600'
+                      }`}
+                    >
                       1
                     </div>
                     <h2 className="font-semibold">კონტაქტისა და მიწოდების ინფორმაცია</h2>
@@ -331,9 +318,9 @@ export default function CheckoutPage() {
                         <span>ჯამური თანხა:</span>
                         <span className="text-lg">
                           {formatPrice(
-                            (cart?.totalPrice || 0) + 
-                            (cart && cart.totalPrice >= 500 ? 0 : 25) +
-                            (checkoutData?.priority === 'urgent' ? 10 : 0)
+                            (cart?.totalPrice || 0) +
+                              (cart && cart.totalPrice >= 500 ? 0 : 25) +
+                              (checkoutData?.priority === 'urgent' ? 10 : 0)
                           )}
                         </span>
                       </div>
@@ -342,9 +329,7 @@ export default function CheckoutPage() {
                     {/* Delivery Estimate */}
                     {checkoutData && (
                       <div className="bg-blue-50 rounded-lg p-3 text-sm">
-                        <div className="font-medium text-blue-900 mb-1">
-                          მოსალოდნელი დრო:
-                        </div>
+                        <div className="font-medium text-blue-900 mb-1">მოსალოდნელი დრო:</div>
                         <div className="text-blue-800">
                           {checkoutData.priority === 'urgent' ? '45 წუთი' : '1-2 საათი'}
                         </div>

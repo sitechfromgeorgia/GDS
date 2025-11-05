@@ -27,13 +27,13 @@ interface AuthState {
   clearSession: () => void
 }
 
-const SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
-const WARNING_TIME = 5 * 60 * 1000 // 5 minutes before timeout
+const SESSION_TIMEOUT = 5 * 60 * 60 * 1000 // 5 hours (matches JWT expiry)
+const WARNING_TIME = 10 * 60 * 1000 // 10 minutes before timeout
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
-  loading: true,
+  loading: false, // Changed from true - AuthProvider handles initialization loading state
   sessionInfo: null,
   mfaRequired: false,
   setUser: (user) => set({ user }),
@@ -47,22 +47,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         sessionInfo: {
           ...sessionInfo,
-          lastActivity: Date.now()
-        }
+          lastActivity: Date.now(),
+        },
       })
     }
   },
-  signOut: () => set({
-    user: null,
-    profile: null,
-    loading: false,
-    sessionInfo: null,
-    mfaRequired: false
-  }),
-  clearSession: () => set({
-    sessionInfo: null,
-    mfaRequired: false
-  })
+  signOut: () =>
+    set({
+      user: null,
+      profile: null,
+      loading: false,
+      sessionInfo: null,
+      mfaRequired: false,
+    }),
+  clearSession: () =>
+    set({
+      sessionInfo: null,
+      mfaRequired: false,
+    }),
 }))
 
 // Session monitoring

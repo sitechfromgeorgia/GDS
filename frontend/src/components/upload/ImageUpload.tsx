@@ -37,100 +37,109 @@ export function ImageUpload({
   allowedTypes,
   className,
   accept = 'image/*',
-  children
+  children,
 }: ImageUploadProps) {
   const [uploads, setUploads] = useState<UploadProgress[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
   const storage = useStorage()
 
-  const handleFiles = useCallback(async (files: FileList | File[]) => {
-    const fileArray = Array.from(files)
-    
-    // Create upload entries
-    const newUploads: UploadProgress[] = fileArray.map(file => ({
-      file,
-      progress: 0,
-      status: 'uploading' as const
-    }))
-    
-    setUploads(prev => [...prev, ...newUploads])
+  const handleFiles = useCallback(
+    async (files: FileList | File[]) => {
+      const fileArray = Array.from(files)
 
-    // Process uploads
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i]
-      if (!file) continue;
+      // Create upload entries
+      const newUploads: UploadProgress[] = fileArray.map((file) => ({
+        file,
+        progress: 0,
+        status: 'uploading' as const,
+      }))
 
-      const uploadIndex = newUploads.findIndex(u => u.file === file)
+      setUploads((prev) => [...prev, ...newUploads])
 
-      try {
-        // Validate file
-        const validation = bucket === STORAGE_BUCKETS.PRODUCT_IMAGES
-          ? FileValidator.validateImage(file, 'product')
-          : bucket === STORAGE_BUCKETS.AVATARS
-          ? FileValidator.validateImage(file, 'avatar')
-          : bucket === STORAGE_BUCKETS.RESTAURANT_LOGOS
-          ? FileValidator.validateImage(file, 'logo')
-          : FileValidator.validateImage(file, 'product')
+      // Process uploads
+      for (let i = 0; i < fileArray.length; i++) {
+        const file = fileArray[i]
+        if (!file) continue
 
-        if (!validation.valid) {
-          throw new Error(validation.error || 'File validation failed')
-        }
+        const uploadIndex = newUploads.findIndex((u) => u.file === file)
 
-        // Generate unique path
-        const fileName = `${Date.now()}-${file.name}`
-        const fullPath = `${path}/${fileName}`
+        try {
+          // Validate file
+          const validation =
+            bucket === STORAGE_BUCKETS.PRODUCT_IMAGES
+              ? FileValidator.validateImage(file, 'product')
+              : bucket === STORAGE_BUCKETS.AVATARS
+                ? FileValidator.validateImage(file, 'avatar')
+                : bucket === STORAGE_BUCKETS.RESTAURANT_LOGOS
+                  ? FileValidator.validateImage(file, 'logo')
+                  : FileValidator.validateImage(file, 'product')
 
-        // Simulate progress (in a real implementation, you'd track actual upload progress)
-        const progressInterval = setInterval(() => {
-          setUploads(prev => prev.map((upload, index) => 
-            upload.file === file && upload.status === 'uploading' && upload.progress < 90
-              ? { ...upload, progress: upload.progress + 10 }
-              : upload
-          ))
-        }, 200)
+          if (!validation.valid) {
+            throw new Error(validation.error || 'File validation failed')
+          }
 
-        // Upload file
-        const result = await storage.uploadFile(bucket, file, fullPath)
-        
-        clearInterval(progressInterval)
+          // Generate unique path
+          const fileName = `${Date.now()}-${file.name}`
+          const fullPath = `${path}/${fileName}`
 
-        if (result.error) {
-          throw result.error
-        }
+          // Simulate progress (in a real implementation, you'd track actual upload progress)
+          const progressInterval = setInterval(() => {
+            setUploads((prev) =>
+              prev.map((upload, index) =>
+                upload.file === file && upload.status === 'uploading' && upload.progress < 90
+                  ? { ...upload, progress: upload.progress + 10 }
+                  : upload
+              )
+            )
+          }, 200)
 
-        // Update upload status
-        setUploads(prev => prev.map((upload, index) => 
-          upload.file === file 
-            ? { ...upload, status: 'success' as const, progress: 100 }
-            : upload
-        ))
+          // Upload file
+          const result = await storage.uploadFile(bucket, file, fullPath)
 
-        // Call success callback
-        if (onUpload && result.data) {
-          onUpload({
-            url: result.data.publicUrl,
-            path: fullPath
-          })
-        }
+          clearInterval(progressInterval)
 
-      } catch (error) {
-        logger.error('Upload error:', error)
-        
-        // Update upload status with error
-        const errorMessage = error instanceof Error ? error.message : 'Upload failed'
-        setUploads(prev => prev.map((upload, index) => 
-          upload.file === file 
-            ? { ...upload, status: 'error' as const, error: errorMessage }
-            : upload
-        ))
+          if (result.error) {
+            throw result.error
+          }
 
-        // Call error callback
-        if (onError) {
-          onError(errorMessage)
+          // Update upload status
+          setUploads((prev) =>
+            prev.map((upload, index) =>
+              upload.file === file
+                ? { ...upload, status: 'success' as const, progress: 100 }
+                : upload
+            )
+          )
+
+          // Call success callback
+          if (onUpload && result.data) {
+            onUpload({
+              url: result.data.publicUrl,
+              path: fullPath,
+            })
+          }
+        } catch (error) {
+          logger.error('Upload error:', error)
+
+          // Update upload status with error
+          const errorMessage = error instanceof Error ? error.message : 'Upload failed'
+          setUploads((prev) =>
+            prev.map((upload, index) =>
+              upload.file === file
+                ? { ...upload, status: 'error' as const, error: errorMessage }
+                : upload
+            )
+          )
+
+          // Call error callback
+          if (onError) {
+            onError(errorMessage)
+          }
         }
       }
-    }
-  }, [bucket, path, storage, onUpload, onError])
+    },
+    [bucket, path, storage, onUpload, onError]
+  )
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -142,24 +151,30 @@ export function ImageUpload({
     setIsDragOver(false)
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-    const files = e.dataTransfer.files
-    if (files.length > 0) {
-      handleFiles(files)
-    }
-  }, [handleFiles])
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      setIsDragOver(false)
+      const files = e.dataTransfer.files
+      if (files.length > 0) {
+        handleFiles(files)
+      }
+    },
+    [handleFiles]
+  )
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      handleFiles(files)
-    }
-  }, [handleFiles])
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files
+      if (files && files.length > 0) {
+        handleFiles(files)
+      }
+    },
+    [handleFiles]
+  )
 
   const removeUpload = useCallback((index: number) => {
-    setUploads(prev => prev.filter((_, i) => i !== index))
+    setUploads((prev) => prev.filter((_, i) => i !== index))
   }, [])
 
   const getStatusIcon = (status: UploadProgress['status']) => {
@@ -178,9 +193,7 @@ export function ImageUpload({
       {/* Upload Area */}
       <Card
         className={`border-2 border-dashed transition-colors ${
-          isDragOver 
-            ? 'border-blue-400 bg-blue-50' 
-            : 'border-gray-300 hover:border-gray-400'
+          isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -188,7 +201,7 @@ export function ImageUpload({
       >
         <CardContent className="flex flex-col items-center justify-center py-8 px-4">
           <Upload className="w-8 h-8 text-gray-400 mb-4" />
-          
+
           {children || (
             <>
               <p className="text-sm text-gray-600 mb-2">
@@ -221,23 +234,15 @@ export function ImageUpload({
               <div className="flex items-center space-x-3">
                 <ImageIcon className="w-5 h-5 text-gray-400" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {upload.file.name}
-                  </p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{upload.file.name}</p>
                   <div className="mt-1">
                     <Progress value={upload.progress} className="h-2" />
                   </div>
-                  {upload.error && (
-                    <p className="text-xs text-red-600 mt-1">{upload.error}</p>
-                  )}
+                  {upload.error && <p className="text-xs text-red-600 mt-1">{upload.error}</p>}
                 </div>
                 <div className="flex items-center space-x-2">
                   {getStatusIcon(upload.status)}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeUpload(index)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => removeUpload(index)}>
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
@@ -252,14 +257,14 @@ export function ImageUpload({
 
 // Specialized components for Georgian Distribution System
 
-export function ProductImageUpload({ 
-  productId, 
-  onUpload, 
-  onError 
-}: { 
+export function ProductImageUpload({
+  productId,
+  onUpload,
+  onError,
+}: {
   productId: string
   onUpload?: (file: { url: string; path: string }) => void
-  onError?: (error: string) => void 
+  onError?: (error: string) => void
 }) {
   return (
     <ImageUpload
@@ -279,14 +284,14 @@ export function ProductImageUpload({
   )
 }
 
-export function UserAvatarUpload({ 
-  userId, 
-  onUpload, 
-  onError 
-}: { 
+export function UserAvatarUpload({
+  userId,
+  onUpload,
+  onError,
+}: {
   userId: string
   onUpload?: (file: { url: string; path: string }) => void
-  onError?: (error: string) => void 
+  onError?: (error: string) => void
 }) {
   return (
     <ImageUpload
@@ -306,14 +311,14 @@ export function UserAvatarUpload({
   )
 }
 
-export function RestaurantLogoUpload({ 
-  restaurantId, 
-  onUpload, 
-  onError 
-}: { 
+export function RestaurantLogoUpload({
+  restaurantId,
+  onUpload,
+  onError,
+}: {
   restaurantId: string
   onUpload?: (file: { url: string; path: string }) => void
-  onError?: (error: string) => void 
+  onError?: (error: string) => void
 }) {
   return (
     <ImageUpload
@@ -333,14 +338,14 @@ export function RestaurantLogoUpload({
   )
 }
 
-export function DeliveryProofUpload({ 
-  orderId, 
-  onUpload, 
-  onError 
-}: { 
+export function DeliveryProofUpload({
+  orderId,
+  onUpload,
+  onError,
+}: {
   orderId: string
   onUpload?: (file: { url: string; path: string }) => void
-  onError?: (error: string) => void 
+  onError?: (error: string) => void
 }) {
   return (
     <ImageUpload

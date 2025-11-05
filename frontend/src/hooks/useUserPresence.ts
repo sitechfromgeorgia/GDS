@@ -52,7 +52,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
     userId,
     userIds = [],
     autoUpdate = true,
-    awayTimeout = 5 * 60 * 1000 // 5 minutes
+    awayTimeout = 5 * 60 * 1000, // 5 minutes
   } = options
 
   const supabase = createBrowserClient()
@@ -75,14 +75,14 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
       try {
         const presenceData: UserPresenceUpdate = {
           status,
-          last_seen_at: new Date().toISOString()
+          last_seen_at: new Date().toISOString(),
         }
 
         const { data, error: upsertError } = await supabase
           .from('user_presence')
           .upsert({
             user_id: userId,
-            ...presenceData
+            ...presenceData,
           } as UserPresenceInsert)
           .eq('user_id', userId)
           .select()
@@ -114,7 +114,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
           .update({
             current_latitude: latitude,
             current_longitude: longitude,
-            last_seen_at: new Date().toISOString()
+            last_seen_at: new Date().toISOString(),
           } as UserPresenceUpdate)
           .eq('user_id', userId)
           .select()
@@ -178,9 +178,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
           event: '*',
           schema: 'public',
           table: 'user_presence',
-          filter: trackingIds.length > 0
-            ? `user_id=in.(${trackingIds.join(',')})`
-            : undefined
+          filter: trackingIds.length > 0 ? `user_id=in.(${trackingIds.join(',')})` : undefined,
         },
         (payload) => {
           const updatedPresence = payload.new as UserPresence
@@ -191,7 +189,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
           }
 
           // Update multiple users presence
-          setPresences(prev => {
+          setPresences((prev) => {
             const newMap = new Map(prev)
             newMap.set(updatedPresence.user_id, updatedPresence)
             return newMap
@@ -221,7 +219,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
 
     // Setup activity listeners
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart']
-    events.forEach(event => {
+    events.forEach((event) => {
       window.addEventListener(event, handleActivity)
     })
 
@@ -232,7 +230,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
 
     return () => {
       // Cleanup activity listeners
-      events.forEach(event => {
+      events.forEach((event) => {
         window.removeEventListener(event, handleActivity)
       })
 
@@ -248,7 +246,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
 
   return {
     presence,
-    status: presence?.status as PresenceStatus || 'offline',
+    status: (presence?.status as PresenceStatus) || 'offline',
     lastSeen: presence?.last_seen_at ? new Date(presence.last_seen_at) : null,
     presences,
     isConnected,
@@ -258,6 +256,6 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
     goOnline,
     goOffline,
     goAway,
-    goBusy
+    goBusy,
   }
 }

@@ -16,7 +16,14 @@ export interface TestResult {
   duration: number
   error?: string
   details?: Record<string, unknown>
-  category: 'connection' | 'authentication' | 'database' | 'storage' | 'realtime' | 'cors' | 'environment'
+  category:
+    | 'connection'
+    | 'authentication'
+    | 'database'
+    | 'storage'
+    | 'realtime'
+    | 'cors'
+    | 'environment'
 }
 
 export interface TestSuite {
@@ -77,9 +84,9 @@ export async function runVPSDiagnostics(): Promise<{
   suites.push(corsSuite)
 
   const totalDuration = Date.now() - startTime
-  const allResults = suites.flatMap(suite => suite.tests)
-  const passed = allResults.filter(test => test.success).length
-  const failed = allResults.filter(test => !test.success).length
+  const allResults = suites.flatMap((suite) => suite.tests)
+  const passed = allResults.filter((test) => test.success).length
+  const failed = allResults.filter((test) => !test.success).length
 
   // Determine overall status
   let overall: 'success' | 'partial' | 'failure'
@@ -99,8 +106,8 @@ export async function runVPSDiagnostics(): Promise<{
       totalTests: allResults.length,
       passedTests: passed,
       failedTests: failed,
-      totalDuration
-    }
+      totalDuration,
+    },
   }
 }
 
@@ -127,8 +134,8 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
         hasUrl,
         hasAnonKey,
         hasServiceKey,
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL
-      }
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      },
     })
   } catch (error) {
     tests.push({
@@ -136,7 +143,7 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'environment',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
@@ -160,9 +167,11 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
         isValidAnon,
         isValidService,
         keysMatch,
-        securityIssue: keysMatch ? 'CRITICAL: ANON_KEY and SERVICE_ROLE_KEY are identical!' : undefined
+        securityIssue: keysMatch
+          ? 'CRITICAL: ANON_KEY and SERVICE_ROLE_KEY are identical!'
+          : undefined,
       },
-      error: keysMatch ? 'Security vulnerability: JWT keys are identical' : undefined
+      error: keysMatch ? 'Security vulnerability: JWT keys are identical' : undefined,
     })
   } catch (error) {
     tests.push({
@@ -170,7 +179,7 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'environment',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
@@ -180,10 +189,10 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }
 
@@ -201,10 +210,10 @@ async function testBackendAccessibility(): Promise<TestSuite> {
     const start = Date.now()
     const response = await fetch(`${baseUrl}/rest/v1/`, {
       headers: {
-        'apikey': anonKey || '',
-        'Authorization': `Bearer ${anonKey}`,
-        'Content-Type': 'application/json'
-      }
+        apikey: anonKey || '',
+        Authorization: `Bearer ${anonKey}`,
+        'Content-Type': 'application/json',
+      },
     })
     const duration = Date.now() - start
 
@@ -216,9 +225,9 @@ async function testBackendAccessibility(): Promise<TestSuite> {
       details: {
         status: response.status,
         statusText: response.statusText,
-        url: `${baseUrl}/rest/v1/`
+        url: `${baseUrl}/rest/v1/`,
       },
-      error: !response.ok ? `HTTP ${response.status}: ${response.statusText}` : undefined
+      error: !response.ok ? `HTTP ${response.status}: ${response.statusText}` : undefined,
     })
   } catch (error) {
     tests.push({
@@ -226,7 +235,7 @@ async function testBackendAccessibility(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'connection',
-      error: error instanceof Error ? error.message : 'Network error'
+      error: error instanceof Error ? error.message : 'Network error',
     })
   }
 
@@ -235,8 +244,8 @@ async function testBackendAccessibility(): Promise<TestSuite> {
     const start = Date.now()
     const response = await fetch(`${baseUrl}/auth/v1/health`, {
       headers: {
-        'apikey': anonKey || ''
-      }
+        apikey: anonKey || '',
+      },
     })
     const duration = Date.now() - start
 
@@ -248,9 +257,9 @@ async function testBackendAccessibility(): Promise<TestSuite> {
       details: {
         status: response.status,
         statusText: response.statusText,
-        url: `${baseUrl}/auth/v1/health`
+        url: `${baseUrl}/auth/v1/health`,
       },
-      error: !response.ok ? `HTTP ${response.status}: ${response.statusText}` : undefined
+      error: !response.ok ? `HTTP ${response.status}: ${response.statusText}` : undefined,
     })
   } catch (error) {
     tests.push({
@@ -258,7 +267,7 @@ async function testBackendAccessibility(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'connection',
-      error: error instanceof Error ? error.message : 'Network error'
+      error: error instanceof Error ? error.message : 'Network error',
     })
   }
 
@@ -267,9 +276,9 @@ async function testBackendAccessibility(): Promise<TestSuite> {
     const start = Date.now()
     const response = await fetch(`${baseUrl}/storage/v1/bucket`, {
       headers: {
-        'apikey': anonKey || '',
-        'Authorization': `Bearer ${anonKey}`
-      }
+        apikey: anonKey || '',
+        Authorization: `Bearer ${anonKey}`,
+      },
     })
     const duration = Date.now() - start
 
@@ -281,9 +290,9 @@ async function testBackendAccessibility(): Promise<TestSuite> {
       details: {
         status: response.status,
         statusText: response.statusText,
-        url: `${baseUrl}/storage/v1/bucket`
+        url: `${baseUrl}/storage/v1/bucket`,
       },
-      error: !response.ok ? `HTTP ${response.status}: ${response.statusText}` : undefined
+      error: !response.ok ? `HTTP ${response.status}: ${response.statusText}` : undefined,
     })
   } catch (error) {
     tests.push({
@@ -291,7 +300,7 @@ async function testBackendAccessibility(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'connection',
-      error: error instanceof Error ? error.message : 'Network error'
+      error: error instanceof Error ? error.message : 'Network error',
     })
   }
 
@@ -301,10 +310,10 @@ async function testBackendAccessibility(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }
 
@@ -328,9 +337,9 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
       category: 'authentication',
       details: {
         hasSession: !!data.session,
-        sessionValid: data.session?.access_token ? true : false
+        sessionValid: data.session?.access_token ? true : false,
       },
-      error: error?.message
+      error: error?.message,
     })
   } catch (error) {
     tests.push({
@@ -338,18 +347,19 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'authentication',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
   // Test 3.2: JWT token validation
   try {
     const start = performance.now()
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     const duration = Math.round(performance.now() - start)
 
-    const hasValidToken = session?.access_token &&
-                         session.access_token.split('.').length === 3
+    const hasValidToken = session?.access_token && session.access_token.split('.').length === 3
 
     tests.push({
       name: 'JWT Token Structure',
@@ -359,9 +369,9 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
       details: {
         hasAccessToken: !!session?.access_token,
         tokenLength: session?.access_token?.length || 0,
-        tokenStructureValid: Boolean(hasValidToken)
+        tokenStructureValid: Boolean(hasValidToken),
       },
-      error: !hasValidToken ? 'Invalid or missing JWT token structure' : undefined
+      error: !hasValidToken ? 'Invalid or missing JWT token structure' : undefined,
     })
   } catch (error) {
     tests.push({
@@ -369,7 +379,7 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'authentication',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
@@ -379,10 +389,10 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }
 
@@ -410,9 +420,9 @@ async function testDatabaseOperations(): Promise<TestSuite> {
       details: {
         hasData: !!data,
         recordCount: count,
-        queryDuration: duration
+        queryDuration: duration,
       },
-      error: error?.message
+      error: error?.message,
     })
   } catch (error) {
     tests.push({
@@ -420,7 +430,7 @@ async function testDatabaseOperations(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'database',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
@@ -428,11 +438,7 @@ async function testDatabaseOperations(): Promise<TestSuite> {
   try {
     const start = performance.now()
     // Try to access admin data (should be controlled by RLS)
-    const { error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('role', 'admin')
-      .limit(1)
+    const { error } = await supabase.from('profiles').select('*').eq('role', 'admin').limit(1)
     const duration = Math.round(performance.now() - start)
 
     // Error is expected due to RLS, but CORS error indicates configuration issue
@@ -448,9 +454,9 @@ async function testDatabaseOperations(): Promise<TestSuite> {
         isCORSError,
         isRLSError,
         errorCode: error?.code,
-        errorMessage: error?.message
+        errorMessage: error?.message,
       },
-      error: isCORSError ? 'CORS error suggests backend misconfiguration' : undefined
+      error: isCORSError ? 'CORS error suggests backend misconfiguration' : undefined,
     })
   } catch (error) {
     tests.push({
@@ -458,7 +464,7 @@ async function testDatabaseOperations(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'database',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
@@ -468,10 +474,10 @@ async function testDatabaseOperations(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }
 
@@ -495,9 +501,9 @@ async function testStorageServices(): Promise<TestSuite> {
       category: 'storage',
       details: {
         bucketCount: data?.length || 0,
-        buckets: data?.map(b => b.name) || []
+        buckets: data?.map((b) => b.name) || [],
       },
-      error: error?.message
+      error: error?.message,
     })
   } catch (error) {
     tests.push({
@@ -505,7 +511,7 @@ async function testStorageServices(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'storage',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
@@ -515,10 +521,10 @@ async function testStorageServices(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }
 
@@ -566,9 +572,9 @@ async function testRealtimeFeatures(): Promise<TestSuite> {
       category: 'realtime',
       details: {
         connected,
-        connectionTime: duration
+        connectionTime: duration,
       },
-      error: errorMessage || undefined
+      error: errorMessage || undefined,
     })
   } catch (error) {
     tests.push({
@@ -576,7 +582,7 @@ async function testRealtimeFeatures(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'realtime',
-      error: error instanceof Error ? error.message : 'Connection failed'
+      error: error instanceof Error ? error.message : 'Connection failed',
     })
   }
 
@@ -586,10 +592,10 @@ async function testRealtimeFeatures(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }
 
@@ -608,17 +614,18 @@ async function testCORSConfiguration(): Promise<TestSuite> {
     const response = await fetch(`${baseUrl}/rest/v1/profiles?select=count&limit=1`, {
       method: 'OPTIONS',
       headers: {
-        'apikey': anonKey || '',
-        'Authorization': `Bearer ${anonKey}`,
-        'Origin': 'http://localhost:3000',
+        apikey: anonKey || '',
+        Authorization: `Bearer ${anonKey}`,
+        Origin: 'http://localhost:3000',
         'Access-Control-Request-Method': 'GET',
-        'Access-Control-Request-Headers': 'apikey, authorization'
-      }
+        'Access-Control-Request-Headers': 'apikey, authorization',
+      },
     })
     const duration = Math.round(performance.now() - start)
 
-    const hasCORSHeaders = response.headers.get('access-control-allow-origin') ||
-                          response.headers.get('Access-Control-Allow-Origin')
+    const hasCORSHeaders =
+      response.headers.get('access-control-allow-origin') ||
+      response.headers.get('Access-Control-Allow-Origin')
 
     tests.push({
       name: 'CORS Preflight Response',
@@ -630,9 +637,9 @@ async function testCORSConfiguration(): Promise<TestSuite> {
         statusText: response.statusText,
         hasCORSHeaders,
         allowedOrigin: response.headers.get('access-control-allow-origin'),
-        allowedMethods: response.headers.get('access-control-allow-methods')
+        allowedMethods: response.headers.get('access-control-allow-methods'),
       },
-      error: response.status >= 400 ? `HTTP ${response.status}: ${response.statusText}` : undefined
+      error: response.status >= 400 ? `HTTP ${response.status}: ${response.statusText}` : undefined,
     })
   } catch (error) {
     tests.push({
@@ -640,7 +647,7 @@ async function testCORSConfiguration(): Promise<TestSuite> {
       success: false,
       duration: Date.now() - startTime,
       category: 'cors',
-      error: error instanceof Error ? error.message : 'Network error'
+      error: error instanceof Error ? error.message : 'Network error',
     })
   }
 
@@ -650,9 +657,9 @@ async function testCORSConfiguration(): Promise<TestSuite> {
     tests,
     summary: {
       total: tests.length,
-      passed: tests.filter(t => t.success).length,
-      failed: tests.filter(t => !t.success).length,
-      duration: Date.now() - startTime
-    }
+      passed: tests.filter((t) => t.success).length,
+      failed: tests.filter((t) => !t.success).length,
+      duration: Date.now() - startTime,
+    },
   }
 }

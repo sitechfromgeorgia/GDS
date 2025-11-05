@@ -11,8 +11,10 @@ import { DemoCTA } from '@/components/landing/DemoCTA'
 
 export const metadata: Metadata = {
   title: 'Georgian Distribution System - Modern Food Distribution Platform',
-  description: 'Transform your food distribution business with our comprehensive platform. Real-time order tracking, automated pricing, and seamless logistics for restaurants, distributors, and drivers in Georgia.',
-  keywords: 'food distribution, restaurant ordering, delivery management, Georgia, real-time tracking, automated pricing',
+  description:
+    'Transform your food distribution business with our comprehensive platform. Real-time order tracking, automated pricing, and seamless logistics for restaurants, distributors, and drivers in Georgia.',
+  keywords:
+    'food distribution, restaurant ordering, delivery management, Georgia, real-time tracking, automated pricing',
   authors: [{ name: 'Georgian Distribution System' }],
   openGraph: {
     title: 'Georgian Distribution System - Modern Food Distribution Platform',

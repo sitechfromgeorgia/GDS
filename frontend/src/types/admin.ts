@@ -7,6 +7,10 @@ export type User = {
   restaurant_name: string | null
   phone: string | null
   address: string | null
+  google_maps_link: string | null
+  base_salary: number
+  per_delivery_rate: number
+  bonus_amount: number
   is_active: boolean
   created_at: string
   updated_at: string
@@ -70,6 +74,10 @@ export type UserFormData = {
   restaurant_name?: string
   phone?: string
   address?: string
+  google_maps_link?: string
+  base_salary?: number
+  per_delivery_rate?: number
+  bonus_amount?: number
   role: 'admin' | 'restaurant' | 'driver'
   is_active: boolean
 }

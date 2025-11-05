@@ -13,7 +13,7 @@ export class RealtimeService {
   // Subscribe to order changes
   subscribeToOrders(userId: string, callback: SubscriptionCallback) {
     const channelName = `orders:${userId}`
-    
+
     // Unsubscribe from existing channel if it exists
     this.unsubscribeFromChannel(channelName)
 
@@ -25,7 +25,7 @@ export class RealtimeService {
           event: '*',
           schema: 'public',
           table: 'orders',
-          filter: `restaurant_id=eq.${userId}`
+          filter: `restaurant_id=eq.${userId}`,
         },
         callback
       )
@@ -38,7 +38,7 @@ export class RealtimeService {
   // Subscribe to order status changes for drivers
   subscribeToOrderStatusChanges(callback: SubscriptionCallback) {
     const channelName = 'order_status_changes'
-    
+
     this.unsubscribeFromChannel(channelName)
 
     const channel = this.client
@@ -48,7 +48,7 @@ export class RealtimeService {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'orders'
+          table: 'orders',
         },
         callback
       )
@@ -61,7 +61,7 @@ export class RealtimeService {
   // Subscribe to notifications
   subscribeToNotifications(userId: string, callback: SubscriptionCallback) {
     const channelName = `notifications:${userId}`
-    
+
     this.unsubscribeFromChannel(channelName)
 
     const channel = this.client
@@ -72,7 +72,7 @@ export class RealtimeService {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${userId}`
+          filter: `user_id=eq.${userId}`,
         },
         callback
       )
@@ -85,7 +85,7 @@ export class RealtimeService {
   // Subscribe to admin dashboard changes
   subscribeToAdminDashboard(callback: SubscriptionCallback) {
     const channelName = 'admin_dashboard'
-    
+
     this.unsubscribeFromChannel(channelName)
 
     const channel = this.client
@@ -95,7 +95,7 @@ export class RealtimeService {
         {
           event: '*',
           schema: 'public',
-          table: 'orders'
+          table: 'orders',
         },
         callback
       )
@@ -104,7 +104,7 @@ export class RealtimeService {
         {
           event: '*',
           schema: 'public',
-          table: 'profiles'
+          table: 'profiles',
         },
         callback
       )
@@ -115,13 +115,9 @@ export class RealtimeService {
   }
 
   // Generic subscription to any table changes
-  subscribeToTable(
-    table: string,
-    filter?: string,
-    callback?: SubscriptionCallback
-  ) {
+  subscribeToTable(table: string, filter?: string, callback?: SubscriptionCallback) {
     const channelName = `table:${table}${filter ? `:${filter}` : ''}`
-    
+
     this.unsubscribeFromChannel(channelName)
 
     let channel = this.client.channel(channelName)
@@ -129,7 +125,7 @@ export class RealtimeService {
     const config: any = {
       event: '*',
       schema: 'public',
-      table: table
+      table: table,
     }
 
     if (filter) {
@@ -172,7 +168,7 @@ export class RealtimeService {
       return channel.send({
         type: 'broadcast',
         event,
-        payload
+        payload,
       })
     }
     throw new Error(`Channel ${channelName} not found`)
@@ -186,7 +182,7 @@ export class RealtimeService {
         user_id: userId,
         user_name: userData.user_name,
         user_role: userData.user_role,
-        online_at: new Date().toISOString()
+        online_at: new Date().toISOString(),
       })
     }
     throw new Error(`Channel ${channelName} not found`)

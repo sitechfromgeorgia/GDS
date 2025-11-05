@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       inquiry_type: validatedData.inquiryType,
       message: validatedData.message,
       submitted_at: new Date().toISOString(),
-      status: 'new'
+      status: 'new',
     })
 
     // Here you could also send an email notification
@@ -48,9 +48,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

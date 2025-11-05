@@ -16,7 +16,7 @@ export function RoleGuard({
   children,
   allowedRoles,
   fallback = null,
-  requireAuth = true
+  requireAuth = true,
 }: RoleGuardProps) {
   const { user, profile, loading, isAuthenticated } = useAuth()
 
@@ -43,7 +43,13 @@ export function RoleGuard({
 }
 
 // Convenience components for specific roles
-export function AdminOnly({ children, fallback }: { children: React.ReactNode, fallback?: React.ReactNode }) {
+export function AdminOnly({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}) {
   return (
     <RoleGuard allowedRoles={['admin']} fallback={fallback}>
       {children}
@@ -51,7 +57,13 @@ export function AdminOnly({ children, fallback }: { children: React.ReactNode, f
   )
 }
 
-export function RestaurantOnly({ children, fallback }: { children: React.ReactNode, fallback?: React.ReactNode }) {
+export function RestaurantOnly({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}) {
   return (
     <RoleGuard allowedRoles={['restaurant']} fallback={fallback}>
       {children}
@@ -59,7 +71,13 @@ export function RestaurantOnly({ children, fallback }: { children: React.ReactNo
   )
 }
 
-export function DriverOnly({ children, fallback }: { children: React.ReactNode, fallback?: React.ReactNode }) {
+export function DriverOnly({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}) {
   return (
     <RoleGuard allowedRoles={['driver']} fallback={fallback}>
       {children}
@@ -67,7 +85,13 @@ export function DriverOnly({ children, fallback }: { children: React.ReactNode, 
   )
 }
 
-export function AdminOrRestaurant({ children, fallback }: { children: React.ReactNode, fallback?: React.ReactNode }) {
+export function AdminOrRestaurant({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}) {
   return (
     <RoleGuard allowedRoles={['admin', 'restaurant']} fallback={fallback}>
       {children}
@@ -75,7 +99,13 @@ export function AdminOrRestaurant({ children, fallback }: { children: React.Reac
   )
 }
 
-export function AdminOrDriver({ children, fallback }: { children: React.ReactNode, fallback?: React.ReactNode }) {
+export function AdminOrDriver({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode
+  fallback?: React.ReactNode
+}) {
   return (
     <RoleGuard allowedRoles={['admin', 'driver']} fallback={fallback}>
       {children}

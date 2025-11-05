@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
     // Set the session with the tokens from URL
     supabase.auth.setSession({
       access_token: accessToken,
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
     })
   }, [searchParams])
 
@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password: password,
       })
 
       if (error) throw error
@@ -77,7 +77,6 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push('/')
       }, 3000)
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update password')
     } finally {
@@ -112,9 +111,7 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle>ახალი პაროლის დაყენება</CardTitle>
-          <CardDescription>
-            შეიყვანეთ თქვენი ახალი პაროლი
-          </CardDescription>
+          <CardDescription>შეიყვანეთ თქვენი ახალი პაროლი</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,7 +127,8 @@ export default function ResetPasswordPage() {
                 minLength={8}
               />
               <p className="text-sm text-gray-600 mt-1">
-                პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს, დიდ და პატარა ასოებს, ციფრებს და სპეციალურ სიმბოლოს
+                პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს, დიდ და პატარა ასოებს, ციფრებს და სპეციალურ
+                სიმბოლოს
               </p>
             </div>
 

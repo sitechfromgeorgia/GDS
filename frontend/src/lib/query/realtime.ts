@@ -12,7 +12,7 @@ import { GDSCacheManager, GDSInvalidationPatterns } from '@/lib/query/cache'
 import { classifyGDSError } from '@/lib/query/error-handling'
 
 // Georgian Distribution System Real-time Events
-export type GDSEventType = 
+export type GDSEventType =
   | 'order.created'
   | 'order.updated'
   | 'order.delivered'
@@ -73,28 +73,28 @@ export const GDS_REALTIME_CONFIG: GDSRealtimeConfig = {
   orders: {
     enabled: true,
     channels: ['orders', 'order_updates'],
-    events: ['order.created', 'order.updated', 'order.delivered', 'order.cancelled']
+    events: ['order.created', 'order.updated', 'order.delivered', 'order.cancelled'],
   },
   products: {
     enabled: true,
     channels: ['products', 'product_updates'],
-    events: ['product.created', 'product.updated', 'product.deleted']
+    events: ['product.created', 'product.updated', 'product.deleted'],
   },
   users: {
     enabled: true,
     channels: ['user_presence'],
-    events: ['user.connected', 'user.disconnected']
+    events: ['user.connected', 'user.disconnected'],
   },
   deliveries: {
     enabled: true,
     channels: ['delivery_tracking'],
-    events: ['delivery.status_changed']
+    events: ['delivery.status_changed'],
   },
   network: {
     retryAttempts: 5,
     retryDelay: 2000,
-    heartbeatInterval: 30000
-  }
+    heartbeatInterval: 30000,
+  },
 }
 
 // Georgian Distribution System Real-time Manager
@@ -108,11 +108,7 @@ export class GDSRealtimeManager {
   private connectionAttempts: number = 0
   private eventHandlers: Map<string, (payload: GDSEventPayload) => void> = new Map()
 
-  constructor(
-    supabaseClient: any,
-    queryClient: any,
-    config: Partial<GDSRealtimeConfig> = {}
-  ) {
+  constructor(supabaseClient: any, queryClient: any, config: Partial<GDSRealtimeConfig> = {}) {
     this.supabase = supabaseClient
     this.queryClient = queryClient
     this.cacheManager = new GDSCacheManager(queryClient)
@@ -147,17 +143,17 @@ export class GDSRealtimeManager {
       this.isConnected = true
       this.connectionAttempts = 0
       logger.info('[GDS Realtime] Connected successfully')
-      
+
       return true
     } catch (error) {
       logger.error('[GDS Realtime] Connection failed:', { error })
       this.isConnected = false
-      
+
       if (this.connectionAttempts < this.config.network.retryAttempts) {
         this.connectionAttempts++
         setTimeout(() => this.connect(), this.config.network.retryDelay)
       }
-      
+
       return false
     }
   }
@@ -166,13 +162,17 @@ export class GDSRealtimeManager {
   private async subscribeToOrders() {
     const ordersChannel = this.supabase
       .channel('orders-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'orders'
-      }, (payload: any) => {
-        this.handleOrderEvent(payload)
-      })
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+        },
+        (payload: any) => {
+          this.handleOrderEvent(payload)
+        }
+      )
       .subscribe()
 
     this.channels.set('orders', ordersChannel)
@@ -183,13 +183,17 @@ export class GDSRealtimeManager {
   private async subscribeToProducts() {
     const productsChannel = this.supabase
       .channel('products-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'products'
-      }, (payload: any) => {
-        this.handleProductEvent(payload)
-      })
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'products',
+        },
+        (payload: any) => {
+          this.handleProductEvent(payload)
+        }
+      )
       .subscribe()
 
     this.channels.set('products', productsChannel)
@@ -219,15 +223,19 @@ export class GDSRealtimeManager {
   private async subscribeToDeliveries() {
     const deliveriesChannel = this.supabase
       .channel('delivery-tracking')
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'orders'
-      }, (payload: any) => {
-        if (payload.new?.status === 'out_for_delivery' || payload.new?.status === 'delivered') {
-          this.handleDeliveryEvent(payload)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+        },
+        (payload: any) => {
+          if (payload.new?.status === 'out_for_delivery' || payload.new?.status === 'delivered') {
+            this.handleDeliveryEvent(payload)
+          }
         }
-      })
+      )
       .subscribe()
 
     this.channels.set('deliveries', deliveriesChannel)
@@ -240,7 +248,7 @@ export class GDSRealtimeManager {
     const event: GDSEventPayload = {
       type: eventType,
       data: payload.new || payload.old,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     logger.info(`[GDS Realtime] Order event: ${eventType}`, { payload })
@@ -263,7 +271,7 @@ export class GDSRealtimeManager {
     const event: GDSEventPayload = {
       type: eventType,
       data: payload.new || payload.old,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     logger.info(`[GDS Realtime] Product event: ${eventType}`, { payload })
@@ -281,7 +289,7 @@ export class GDSRealtimeManager {
     const event: GDSEventPayload = {
       type: eventType,
       data: payload.new,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     logger.info(`[GDS Realtime] Delivery event: ${eventType}`, { delivery: payload.new })
@@ -307,7 +315,7 @@ export class GDSRealtimeManager {
       type: 'user.connected',
       data: { userId, presences },
       userId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     logger.info('[GDS Realtime] User joined:', { userId })
@@ -319,7 +327,7 @@ export class GDSRealtimeManager {
       type: 'user.disconnected',
       data: { userId, presences },
       userId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     logger.info('[GDS Realtime] User left:', { userId })
@@ -339,7 +347,7 @@ export class GDSRealtimeManager {
       'product.deleted': 'პროდუქტი წაიშალა',
       'user.connected': 'მომხმარებელი დაკავშირდა',
       'user.disconnected': 'მომხმარებელი განთავისუფლდა',
-      'delivery.status_changed': 'მიწოდების სტატუსი შეიცვალა'
+      'delivery.status_changed': 'მიწოდების სტატუსი შეიცვალა',
     }
 
     const message = georgianMessages[event.type] || 'ცვლილება მოხდა'
@@ -367,11 +375,11 @@ export class GDSRealtimeManager {
   // Disconnect from real-time
   disconnect() {
     logger.info('[GDS Realtime] Disconnecting...')
-    
+
     this.channels.forEach((channel) => {
       channel.unsubscribe()
     })
-    
+
     this.channels.clear()
     this.isConnected = false
     logger.info('[GDS Realtime] Disconnected')
@@ -382,7 +390,7 @@ export class GDSRealtimeManager {
     return {
       connected: this.isConnected,
       channelsCount: this.channels.size,
-      eventHandlersCount: this.eventHandlers.size
+      eventHandlersCount: this.eventHandlers.size,
     }
   }
 }
@@ -394,7 +402,7 @@ export function useGDSRealtime(config?: Partial<GDSRealtimeConfig>) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const supabase = createBrowserClient()
-  
+
   const finalConfig = { ...GDS_REALTIME_CONFIG, ...config }
 
   // Initialize real-time manager
@@ -416,29 +424,35 @@ export function useGDSRealtime(config?: Partial<GDSRealtimeConfig>) {
   }, [supabase, queryClient, user])
 
   // Event handler registration
-  const subscribe = useCallback((eventType: GDSEventType, handler: (payload: GDSEventPayload) => void) => {
-    if (realtimeManager) {
-      realtimeManager.on(eventType, handler)
-    }
-  }, [realtimeManager])
+  const subscribe = useCallback(
+    (eventType: GDSEventType, handler: (payload: GDSEventPayload) => void) => {
+      if (realtimeManager) {
+        realtimeManager.on(eventType, handler)
+      }
+    },
+    [realtimeManager]
+  )
 
-  const unsubscribe = useCallback((eventType: GDSEventType) => {
-    if (realtimeManager) {
-      realtimeManager.off(eventType)
-    }
-  }, [realtimeManager])
+  const unsubscribe = useCallback(
+    (eventType: GDSEventType) => {
+      if (realtimeManager) {
+        realtimeManager.off(eventType)
+      }
+    },
+    [realtimeManager]
+  )
 
   return {
     manager: realtimeManager,
     isConnected,
     subscribe,
     unsubscribe,
-    status: realtimeManager?.getStatus() || null
+    status: realtimeManager?.getStatus() || null,
   }
 }
 
 export default {
   GDSRealtimeManager,
   useGDSRealtime,
-  GDS_REALTIME_CONFIG
+  GDS_REALTIME_CONFIG,
 }

@@ -2,16 +2,16 @@
 import { logger } from '@/lib/logger'
 
 import { createBrowserClient } from '@/lib/supabase'
-import { 
-  OrderSubmissionInput, 
-  OrderSubmissionResult, 
-  OrderWithItems, 
+import {
+  OrderSubmissionInput,
+  OrderSubmissionResult,
+  OrderWithItems,
   CartToOrderConversion,
   OrderConfirmation,
   OrderSubmissionEvent,
   OrderSubmissionStats,
   BulkOrderSubmission,
-  BulkOrderResult
+  BulkOrderResult,
 } from '@/types/order-submission'
 import { Cart } from '@/types/cart'
 import { RealtimeCartService } from './realtime-cart.service'
@@ -42,12 +42,12 @@ export class OrderSubmissionService {
       requireDeliveryAddress: true,
       maxOrderValue: 10000,
       minOrderValue: 100,
-      ...config
+      ...config,
     }
-    
+
     this.realtimeCartService = new RealtimeCartService({
       enableRealTime: true,
-      userId: this.config.userId
+      userId: this.config.userId,
     })
   }
 
@@ -63,7 +63,7 @@ export class OrderSubmissionService {
           success: false,
           totalAmount: 0,
           message: 'მონაცემების ვალიდაცია ვერ მოხერხდა',
-          validationErrors: validationResult.errors
+          validationErrors: validationResult.errors,
         }
       }
 
@@ -73,7 +73,7 @@ export class OrderSubmissionService {
         return {
           success: false,
           totalAmount: 0,
-          message: 'კალათა ცარიეა ან არ მოიძებნა'
+          message: 'კალათა ცარიეა ან არ მოიძებნა',
         }
       }
 
@@ -83,7 +83,7 @@ export class OrderSubmissionService {
       // Create order
       const order = await this.createOrder({
         ...input,
-        items: orderItems
+        items: orderItems,
       })
 
       // Clear cart after successful order
@@ -98,15 +98,14 @@ export class OrderSubmissionService {
         orderNumber: order.order_number,
         estimatedDeliveryDate: confirmation.estimatedDeliveryTime,
         totalAmount: order.total_amount,
-        message: 'შეკვეთა წარმატებით გაიგზავნა'
+        message: 'შეკვეთა წარმატებით გაიგზავნა',
       }
-
     } catch (error) {
       logger.error('Order submission failed:', error)
       return {
         success: false,
         totalAmount: 0,
-        message: error instanceof Error ? error.message : 'შეკვეთის გაგზავნა ვერ მოხერხდა'
+        message: error instanceof Error ? error.message : 'შეკვეთის გაგზავნა ვერ მოხერხდა',
       }
     }
   }
@@ -136,7 +135,7 @@ export class OrderSubmissionService {
         field: 'restaurantId',
         code: 'REQUIRED_FIELD',
         message: 'Restaurant ID is required',
-        georgianMessage: 'რესტორნის ID აუცილებელია'
+        georgianMessage: 'რესტორნის ID აუცილებელია',
       })
     }
 
@@ -146,7 +145,7 @@ export class OrderSubmissionService {
         field: 'cartSessionId',
         code: 'REQUIRED_FIELD',
         message: 'Cart session is required',
-        georgianMessage: 'კალათის სესია აუცილებელია'
+        georgianMessage: 'კალათის სესია აუცილებელია',
       })
     }
 
@@ -156,7 +155,7 @@ export class OrderSubmissionService {
         field: 'deliveryAddress',
         code: 'REQUIRED_FIELD',
         message: 'Delivery address is required',
-        georgianMessage: 'მიწოდების მისამართი აუცილებელია'
+        georgianMessage: 'მიწოდების მისამართი აუცილებელია',
       })
     }
 
@@ -166,7 +165,7 @@ export class OrderSubmissionService {
         field: 'contactPhone',
         code: 'REQUIRED_FIELD',
         message: 'Contact phone is required',
-        georgianMessage: 'საკონტაქტო ტელეფონი აუცილებელია'
+        georgianMessage: 'საკონტაქტო ტელეფონი აუცილებელია',
       })
     }
 
@@ -175,13 +174,13 @@ export class OrderSubmissionService {
       const cart = await this.getCartData(input.cartSessionId)
       if (cart) {
         const totalValue = cart.totalPrice
-        
+
         if (totalValue < this.config.minOrderValue!) {
           errors.push({
             field: 'totalAmount',
             code: 'MIN_ORDER_VALUE',
             message: `Minimum order value is ${this.config.minOrderValue}`,
-            georgianMessage: `შეკვეთის მინიმალური თანხა ${this.config.minOrderValue} ლარია`
+            georgianMessage: `შეკვეთის მინიმალური თანხა ${this.config.minOrderValue} ლარია`,
           })
         }
 
@@ -190,7 +189,7 @@ export class OrderSubmissionService {
             field: 'totalAmount',
             code: 'MAX_ORDER_VALUE',
             message: `Maximum order value is ${this.config.maxOrderValue}`,
-            georgianMessage: `შეკვეთის მაქსიმალური თანხა ${this.config.maxOrderValue} ლარია`
+            georgianMessage: `შეკვეთის მაქსიმალური თანხა ${this.config.maxOrderValue} ლარია`,
           })
         }
       }
@@ -198,7 +197,7 @@ export class OrderSubmissionService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
@@ -210,14 +209,14 @@ export class OrderSubmissionService {
       if (cartSessionId) {
         // Get cart from cart service
         const originalService = new RealtimeCartService({
-          enableRealTime: false // Don't need real-time for order submission
+          enableRealTime: false, // Don't need real-time for order submission
         })
-        
+
         // This would need to be adjusted to work with specific session
         // For now, return null to indicate implementation needed
         return null
       }
-      
+
       return null
     } catch (error) {
       logger.error('Failed to get cart data:', error)
@@ -236,7 +235,7 @@ export class OrderSubmissionService {
         product_id: cartItem.productId,
         quantity: cartItem.quantity,
         price: cartItem.unitPrice,
-        notes: cartItem.notes
+        notes: cartItem.notes,
       })
     }
 
@@ -258,22 +257,26 @@ export class OrderSubmissionService {
     items: any[]
   }): Promise<any> {
     // Calculate delivery fee
-    const deliveryFee = data.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) >= 500 ? 0 : 25
+    const deliveryFee =
+      data.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0) >= 500
+        ? 0
+        : 25
 
     // Create order
-    const { data: order, error: orderError } = await (supabase
-      .from('orders') as any)
+    const { data: order, error: orderError } = await (supabase.from('orders') as any)
       .insert({
         restaurant_id: data.restaurantId,
         status: 'pending',
-        total_amount: data.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + deliveryFee,
+        total_amount:
+          data.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0) +
+          deliveryFee,
         special_instructions: data.specialInstructions,
         preferred_delivery_date: data.preferredDeliveryDate,
         contact_phone: data.contactPhone,
         delivery_address: data.deliveryAddress,
         priority: data.priority || 'normal',
         payment_method: data.paymentMethod || 'cash',
-        delivery_fee: deliveryFee
+        delivery_fee: deliveryFee,
       })
       .select()
       .single()
@@ -287,12 +290,10 @@ export class OrderSubmissionService {
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
-      price: item.price
+      price: item.price,
     }))
 
-    const { error: itemsError } = await (supabase
-      .from('order_items') as any)
-      .insert(orderItems)
+    const { error: itemsError } = await (supabase.from('order_items') as any).insert(orderItems)
 
     if (itemsError) {
       // Clean up order if items creation fails
@@ -309,7 +310,7 @@ export class OrderSubmissionService {
   private async clearCartAfterOrder(cartSessionId: string): Promise<void> {
     try {
       const service = new RealtimeCartService({
-        enableRealTime: false
+        enableRealTime: false,
       })
       // Implementation would need session ID access
       // service.clearCart()
@@ -323,23 +324,23 @@ export class OrderSubmissionService {
    */
   private async generateOrderConfirmation(order: any): Promise<OrderConfirmation> {
     // Get restaurant info
-    const { data: restaurant } = await (supabase
-      .from('profiles') as any)
+    const { data: restaurant } = await (supabase.from('profiles') as any)
       .select('full_name')
       .eq('id', order.restaurant_id)
       .single()
 
     // Get order items
-    const { data: orderItems } = await (supabase
-      .from('order_items') as any)
-      .select(`
+    const { data: orderItems } = await (supabase.from('order_items') as any)
+      .select(
+        `
         *,
         products (
           name,
           name_ka,
           unit
         )
-      `)
+      `
+      )
       .eq('order_id', order.id)
 
     return {
@@ -349,22 +350,23 @@ export class OrderSubmissionService {
       totalAmount: order.total_amount,
       estimatedDeliveryTime: this.calculateEstimatedDeliveryTime(order),
       status: order.status,
-      items: orderItems?.map((item: any) => ({
-        id: item.id,
-        productId: item.product_id,
-        productName: item.products.name,
-        productNameKa: item.products.name_ka,
-        quantity: item.quantity,
-        unitPrice: item.price,
-        totalPrice: item.price * item.quantity,
-        unit: item.products.unit,
-        notes: item.notes
-      })) || [],
+      items:
+        orderItems?.map((item: any) => ({
+          id: item.id,
+          productId: item.product_id,
+          productName: item.products.name,
+          productNameKa: item.products.name_ka,
+          quantity: item.quantity,
+          unitPrice: item.price,
+          totalPrice: item.price * item.quantity,
+          unit: item.products.unit,
+          notes: item.notes,
+        })) || [],
       contactInfo: {
         phone: order.contact_phone,
         address: order.delivery_address,
-        specialInstructions: order.special_instructions
-      }
+        specialInstructions: order.special_instructions,
+      },
     }
   }
 
@@ -375,12 +377,12 @@ export class OrderSubmissionService {
     const now = new Date()
     const estimatedMinutes = order.priority === 'urgent' ? 45 : 90
     const deliveryTime = new Date(now.getTime() + estimatedMinutes * 60000)
-    
+
     return deliveryTime.toLocaleString('ka-GE', {
       hour: '2-digit',
       minute: '2-digit',
       day: 'numeric',
-      month: 'long'
+      month: 'long',
     })
   }
 
@@ -389,7 +391,8 @@ export class OrderSubmissionService {
    */
   async submitBulkOrders(bulkSubmission: BulkOrderSubmission): Promise<BulkOrderResult> {
     const successfulOrders: string[] = []
-    const failedOrders: Array<{ input: OrderSubmissionInput; error: string; errorCode: string }> = []
+    const failedOrders: Array<{ input: OrderSubmissionInput; error: string; errorCode: string }> =
+      []
 
     for (const orderInput of bulkSubmission.orders) {
       try {
@@ -400,14 +403,14 @@ export class OrderSubmissionService {
           failedOrders.push({
             input: orderInput,
             error: result.message,
-            errorCode: 'SUBMISSION_FAILED'
+            errorCode: 'SUBMISSION_FAILED',
           })
         }
       } catch (error) {
         failedOrders.push({
           input: orderInput,
           error: error instanceof Error ? error.message : 'Unknown error',
-          errorCode: 'SYSTEM_ERROR'
+          errorCode: 'SYSTEM_ERROR',
         })
       }
     }
@@ -418,7 +421,7 @@ export class OrderSubmissionService {
       successfulOrders,
       failedOrders,
       totalAmount,
-      estimatedDeliveryWindow: this.calculateBulkDeliveryWindow(successfulOrders.length)
+      estimatedDeliveryWindow: this.calculateBulkDeliveryWindow(successfulOrders.length),
     }
   }
 
@@ -438,9 +441,9 @@ export class OrderSubmissionService {
    */
   async trackOrder(orderId: string): Promise<OrderWithItems | null> {
     try {
-      const { data: order, error } = await (supabase
-        .from('orders') as any)
-        .select(`
+      const { data: order, error } = await (supabase.from('orders') as any)
+        .select(
+          `
           *,
           order_items (
             *,
@@ -450,7 +453,8 @@ export class OrderSubmissionService {
               unit
             )
           )
-        `)
+        `
+        )
         .eq('id', orderId)
         .single()
 
@@ -470,17 +474,18 @@ export class OrderSubmissionService {
         contactPhone: order.contact_phone,
         deliveryAddress: order.delivery_address,
         orderNumber: order.order_number,
-        items: order.order_items?.map((item: any) => ({
-          id: item.id,
-          productId: item.product_id,
-          productName: item.products.name,
-          productNameKa: item.products.name_ka,
-          quantity: item.quantity,
-          unitPrice: item.price,
-          totalPrice: item.price * item.quantity,
-          unit: item.products.unit,
-          notes: item.notes
-        })) || []
+        items:
+          order.order_items?.map((item: any) => ({
+            id: item.id,
+            productId: item.product_id,
+            productName: item.products.name,
+            productNameKa: item.products.name_ka,
+            quantity: item.quantity,
+            unitPrice: item.price,
+            totalPrice: item.price * item.quantity,
+            unit: item.products.unit,
+            notes: item.notes,
+          })) || [],
       }
     } catch (error) {
       logger.error('Failed to track order:', error)
@@ -491,14 +496,16 @@ export class OrderSubmissionService {
   /**
    * Cancel order
    */
-  async cancelOrder(orderId: string, reason?: string): Promise<{ success: boolean; message: string; totalAmount: number }> {
+  async cancelOrder(
+    orderId: string,
+    reason?: string
+  ): Promise<{ success: boolean; message: string; totalAmount: number }> {
     try {
-      const { data, error } = await (supabase
-        .from('orders') as any)
-        .update({ 
+      const { data, error } = await (supabase.from('orders') as any)
+        .update({
           status: 'cancelled',
           cancellation_reason: reason,
-          cancelled_at: new Date().toISOString()
+          cancelled_at: new Date().toISOString(),
         })
         .eq('id', orderId)
         .select()
@@ -511,13 +518,13 @@ export class OrderSubmissionService {
       return {
         success: true,
         message: 'შეკვეთა წარმატებით გაუქმდა',
-        totalAmount: data?.total_amount || 0
+        totalAmount: data?.total_amount || 0,
       }
     } catch (error) {
       return {
         success: false,
         message: error instanceof Error ? error.message : 'შეკვეთის გაუქმება ვერ მოხერხდა',
-        totalAmount: 0
+        totalAmount: 0,
       }
     }
   }
@@ -527,9 +534,9 @@ export class OrderSubmissionService {
    */
   async getOrderStats(): Promise<OrderSubmissionStats> {
     try {
-      const { data: orders, error } = await (supabase
-        .from('orders') as any)
-        .select('status, total_amount, order_items(product_id, products(name))')
+      const { data: orders, error } = await (supabase.from('orders') as any).select(
+        'status, total_amount, order_items(product_id, products(name))'
+      )
 
       if (error) {
         throw new Error(`Failed to fetch order stats: ${error.message}`)
@@ -538,9 +545,10 @@ export class OrderSubmissionService {
       const totalOrders = orders?.length || 0
       const pendingOrders = orders?.filter((o: any) => o.status === 'pending').length || 0
       const completedOrders = orders?.filter((o: any) => o.status === 'completed').length || 0
-      const averageOrderValue = totalOrders > 0
-        ? orders!.reduce((sum: number, o: any) => sum + o.total_amount, 0) / totalOrders
-        : 0
+      const averageOrderValue =
+        totalOrders > 0
+          ? orders!.reduce((sum: number, o: any) => sum + o.total_amount, 0) / totalOrders
+          : 0
 
       // Popular products calculation
       const productCounts: Record<string, { name: string; count: number }> = {}
@@ -559,7 +567,7 @@ export class OrderSubmissionService {
         .map(([productId, data]) => ({
           productId,
           productName: data.name,
-          orderCount: data.count
+          orderCount: data.count,
         }))
         .sort((a, b) => b.orderCount - a.orderCount)
         .slice(0, 10)
@@ -569,7 +577,7 @@ export class OrderSubmissionService {
         pendingOrders,
         completedOrders,
         averageOrderValue,
-        popularProducts
+        popularProducts,
       }
     } catch (error) {
       logger.error('Failed to get order stats:', error)
@@ -578,14 +586,16 @@ export class OrderSubmissionService {
         pendingOrders: 0,
         completedOrders: 0,
         averageOrderValue: 0,
-        popularProducts: []
+        popularProducts: [],
       }
     }
   }
 }
 
 // Service factory function
-export function createOrderSubmissionService(config: OrderSubmissionConfig): OrderSubmissionService {
+export function createOrderSubmissionService(
+  config: OrderSubmissionConfig
+): OrderSubmissionService {
   return new OrderSubmissionService(config)
 }
 
@@ -593,5 +603,5 @@ export function createOrderSubmissionService(config: OrderSubmissionConfig): Ord
 export const orderSubmissionService = createOrderSubmissionService({
   restaurantId: '', // Will be set when used
   enableNotifications: true,
-  autoConfirm: false
+  autoConfirm: false,
 })

@@ -1,6 +1,14 @@
 import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
-import { Cart, CartItem, CartItemInput, CartUpdateInput, CartFilters, CartValidationResult, CartStatistics } from '@/types/cart'
+import {
+  Cart,
+  CartItem,
+  CartItemInput,
+  CartUpdateInput,
+  CartFilters,
+  CartValidationResult,
+  CartStatistics,
+} from '@/types/cart'
 import { productService } from '@/services/products/product.service'
 import { z } from 'zod'
 
@@ -29,7 +37,10 @@ export class CartService {
 
   // Get current user from session
   private async getCurrentUser() {
-    const { data: { user }, error } = await this.supabase.auth.getUser()
+    const {
+      data: { user },
+      error,
+    } = await this.supabase.auth.getUser()
     if (error) {
       logger.error('Error getting current user:', error)
       return null
@@ -42,7 +53,7 @@ export class CartService {
     try {
       const cartData = {
         ...cart,
-        expiresAt: new Date(Date.now() + this.CART_TTL)
+        expiresAt: new Date(Date.now() + this.CART_TTL),
       }
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartData))
     } catch (error) {
@@ -57,7 +68,7 @@ export class CartService {
       if (!cartData) return null
 
       const cart = JSON.parse(cartData)
-      
+
       // Check if cart is expired
       if (cart.expiresAt && new Date(cart.expiresAt) < new Date()) {
         this.clearStorage()
@@ -73,7 +84,7 @@ export class CartService {
       cart.items = cart.items.map((item: any) => ({
         ...item,
         addedAt: new Date(item.addedAt),
-        updatedAt: new Date(item.updatedAt)
+        updatedAt: new Date(item.updatedAt),
       }))
 
       return cart
@@ -95,8 +106,8 @@ export class CartService {
 
   // Validate cart item input
   validateCartItemInput(input: CartItemInput): CartValidationResult {
-    const errors: {code: string; message: string; field?: string}[] = []
-    const warnings: {code: string; message: string; field?: string}[] = []
+    const errors: { code: string; message: string; field?: string }[] = []
+    const warnings: { code: string; message: string; field?: string }[] = []
 
     try {
       cartItemInputSchema.parse(input)
@@ -106,7 +117,7 @@ export class CartService {
           errors.push({
             code: 'VALIDATION_ERROR',
             message: err.message,
-            field: err.path.join('.')
+            field: err.path.join('.'),
           })
         })
       }
@@ -115,7 +126,7 @@ export class CartService {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     }
   }
 
@@ -123,11 +134,13 @@ export class CartService {
   async addItemToCart(input: CartItemInput): Promise<Cart> {
     const validation = this.validateCartItemInput(input)
     if (!validation.isValid) {
-      throw new Error(`Cart validation failed: ${validation.errors.map(e => e.message).join(', ')}`)
+      throw new Error(
+        `Cart validation failed: ${validation.errors.map((e) => e.message).join(', ')}`
+      )
     }
 
     const user = await this.getCurrentUser()
-    
+
     // Load existing cart or create new one
     let cart = this.loadCartFromStorage()
     if (!cart) {
@@ -141,8 +154,8 @@ export class CartService {
     }
 
     // Check if item already exists in cart
-    const existingItemIndex = cart.items.findIndex(item => item.productId === input.productId)
-    
+    const existingItemIndex = cart.items.findIndex((item) => item.productId === input.productId)
+
     if (existingItemIndex >= 0) {
       // Update existing item
       const existingItem = cart.items[existingItemIndex]
@@ -156,7 +169,7 @@ export class CartService {
         quantity: newQuantity,
         totalPrice: newQuantity * existingItem.unitPrice,
         updatedAt: new Date().toISOString(),
-        notes: input.notes || existingItem.notes
+        notes: input.notes || existingItem.notes,
       }
     } else {
       // Add new item
@@ -170,16 +183,16 @@ export class CartService {
           price: (product as any).price,
           unit: (product as any).unit,
           image_url: (product as any).image_url,
-          category: (product as any).category
+          category: (product as any).category,
         },
         quantity: input.quantity ?? 0,
         unitPrice: (product as any).price,
         totalPrice: (product as any).price * (input.quantity ?? 0),
         notes: input.notes,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       }
-      
+
       cart.items.push(newItem)
     }
 
@@ -216,7 +229,7 @@ export class CartService {
       throw new Error('No active cart found')
     }
 
-    const itemIndex = cart.items.findIndex(item => item.id === input.itemId)
+    const itemIndex = cart.items.findIndex((item) => item.id === input.itemId)
     if (itemIndex < 0) {
       throw new Error('Cart item not found')
     }
@@ -236,7 +249,7 @@ export class CartService {
         quantity: input.quantity || item.quantity,
         totalPrice: (input.quantity || item.quantity) * item.unitPrice,
         updatedAt: new Date().toISOString(),
-        notes: input.notes !== undefined ? input.notes : item.notes
+        notes: input.notes !== undefined ? input.notes : item.notes,
       } as CartItem
     }
 
@@ -270,7 +283,7 @@ export class CartService {
   async clearCart(): Promise<Cart> {
     const user = await this.getCurrentUser()
     const cartId = user?.id || 'anonymous'
-    
+
     const cart = this.createNewCart(cartId)
     this.saveCartToStorage(cart)
 
@@ -303,7 +316,7 @@ export class CartService {
       status: 'active',
       createdAt: now,
       updatedAt: now,
-      expiresAt: new Date(Date.now() + this.CART_TTL).toISOString()
+      expiresAt: new Date(Date.now() + this.CART_TTL).toISOString(),
     }
   }
 
@@ -315,7 +328,7 @@ export class CartService {
     // In a real implementation, this would sync to Supabase
     // For now, we'll just log the sync attempt
     logger.info('Syncing cart to backend', { cartId: cart.id, userId: user.id })
-    
+
     // TODO: Implement backend cart sync when cart tables are created
     // const { error } = await this.supabase.from('carts').upsert({
     //   id: cart.id,
@@ -327,7 +340,7 @@ export class CartService {
     //   created_at: cart.createdAt,
     //   updated_at: cart.updatedAt
     // })
-    // 
+    //
     // if (error) {
     //   throw new Error(`Failed to sync cart: ${error.message}`)
     // }
@@ -368,7 +381,7 @@ export class CartService {
     if (cart.items.length === 0) {
       errors.push({
         code: 'EMPTY_CART',
-        message: 'კალათა ცარიეა'
+        message: 'კალათა ცარიეა',
       })
     }
 
@@ -378,7 +391,7 @@ export class CartService {
         errors.push({
           code: 'INVALID_QUANTITY',
           message: 'რაოდენობა უნდა იყოს 0-ზე მეტი',
-          itemId: item.id
+          itemId: item.id,
         })
       }
 
@@ -386,7 +399,7 @@ export class CartService {
         errors.push({
           code: 'NEGATIVE_TOTAL',
           message: 'ჯამური ფასი არ შეიძლება იყოს უარყოფითი',
-          itemId: item.id
+          itemId: item.id,
         })
       }
     }
@@ -394,7 +407,7 @@ export class CartService {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     }
   }
 
@@ -407,7 +420,7 @@ export class CartService {
       submittedCarts: 0,
       averageItemsPerCart: 0,
       averageValuePerCart: 0,
-      mostAddedProducts: []
+      mostAddedProducts: [],
     }
   }
 }

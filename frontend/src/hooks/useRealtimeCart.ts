@@ -15,28 +15,28 @@ export function useRealtimeCart() {
     isEmpty: context.isEmpty,
     itemCount: context.itemCount,
     totalPrice: context.totalPrice,
-    
+
     // Cart state management
     setCart: context.setCart,
     clearCart: context.clearCart,
-    
+
     // Cart operations
     addProductToCart: context.addProductToCart,
     updateProductQuantity: context.updateProductQuantity,
     removeProductFromCart: context.removeProductFromCart,
-    
+
     // UI state
     isLoading: context.isLoading,
     error: context.error,
     isCartOpen: context.isCartOpen,
     setIsCartOpen: context.setIsCartOpen,
-    
+
     // Real-time state
     isRealtimeEnabled: context.isRealtimeEnabled,
     isConnected: context.isConnected,
     session: context.session,
     enableRealtime: context.enableRealtime,
-    
+
     // Utilities
     formatTotal: context.formatTotal,
   }
@@ -47,7 +47,7 @@ export function useRealtimeCart() {
  */
 export function useRealtimeCartConnection() {
   const { isRealtimeEnabled, isConnected, session } = useRealtimeCart()
-  
+
   return {
     isEnabled: isRealtimeEnabled,
     isConnected,
@@ -61,7 +61,7 @@ export function useRealtimeCartConnection() {
  */
 export function useRealtimeCartStats() {
   const { cart, itemCount, totalPrice, formatTotal } = useRealtimeCart()
-  
+
   return {
     totalItems: itemCount,
     totalValue: totalPrice,
@@ -77,7 +77,7 @@ export function useRealtimeCartStats() {
  */
 export function useRealtimeCartItems() {
   const { cart } = useRealtimeCart()
-  
+
   return {
     items: cart?.items || [],
     itemsCount: cart?.items.length || 0,
@@ -89,14 +89,9 @@ export function useRealtimeCartItems() {
  * Hook for cart operations with loading states
  */
 export function useRealtimeCartOperations() {
-  const { 
-    addProductToCart, 
-    updateProductQuantity, 
-    removeProductFromCart, 
-    clearCart,
-    isLoading 
-  } = useRealtimeCart()
-  
+  const { addProductToCart, updateProductQuantity, removeProductFromCart, clearCart, isLoading } =
+    useRealtimeCart()
+
   return {
     addProduct: addProductToCart,
     updateQuantity: updateProductQuantity,
@@ -112,7 +107,7 @@ export function useRealtimeCartOperations() {
  */
 export function useRealtimeCartUI() {
   const { isCartOpen, setIsCartOpen } = useRealtimeCart()
-  
+
   return {
     isOpen: isCartOpen,
     open: () => setIsCartOpen(true),
@@ -126,7 +121,7 @@ export function useRealtimeCartUI() {
  */
 export function useRealtimeCartSession() {
   const { session, isConnected, enableRealtime } = useRealtimeCart()
-  
+
   return {
     sessionId: session?.id,
     sessionToken: session?.sessionToken,
@@ -143,14 +138,14 @@ export function useRealtimeCartSession() {
  */
 export function useRealtimeCartSync() {
   const { session, isConnected, isRealtimeEnabled } = useRealtimeCart()
-  
+
   return {
     isSyncEnabled: isRealtimeEnabled,
     isConnected,
     syncStatus: isConnected ? 'synced' : isRealtimeEnabled ? 'disconnected' : 'disabled',
     lastSync: session?.lastActivity,
     sessionId: session?.id,
-    timeSinceLastSync: session?.lastActivity 
+    timeSinceLastSync: session?.lastActivity
       ? Date.now() - new Date(session.lastActivity).getTime()
       : null,
   }

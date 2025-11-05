@@ -17,7 +17,7 @@ import {
   DollarSign,
   Truck,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react'
 import { ORDER_SUBMISSION_GEORGIAN } from '@/types/order-submission'
 
@@ -41,7 +41,7 @@ export default function CheckoutForm({
   onSubmit,
   isLoading = false,
   validationErrors = [],
-  initialData = {}
+  initialData = {},
 }: CheckoutFormProps) {
   const [formData, setFormData] = useState<CheckoutFormData>({
     contactPhone: initialData.contactPhone || '',
@@ -49,16 +49,16 @@ export default function CheckoutForm({
     specialInstructions: initialData.specialInstructions || '',
     preferredDeliveryDate: initialData.preferredDeliveryDate || '',
     paymentMethod: initialData.paymentMethod || 'cash',
-    priority: initialData.priority || 'normal'
+    priority: initialData.priority || 'normal',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
     // Clear field error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
   }
 
@@ -90,7 +90,8 @@ export default function CheckoutForm({
 
     // Special instructions validation
     if (formData.specialInstructions.length > 500) {
-      newErrors.specialInstructions = 'განსაკუთრებული ინსტრუქციები ძალიან გრძელია (მაქსიმუმ 500 სიმბოლო)'
+      newErrors.specialInstructions =
+        'განსაკუთრებული ინსტრუქციები ძალიან გრძელია (მაქსიმუმ 500 სიმბოლო)'
     }
 
     setErrors(newErrors)
@@ -99,7 +100,7 @@ export default function CheckoutForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (validateForm()) {
       onSubmit(formData)
     }
@@ -108,7 +109,7 @@ export default function CheckoutForm({
   const formatPhoneForInput = (phone: string) => {
     // Remove all non-digits and + signs
     const cleaned = phone.replace(/[^\d+]/g, '')
-    
+
     // Format Georgian numbers
     if (cleaned.startsWith('+995')) {
       return cleaned // Keep international format
@@ -119,7 +120,7 @@ export default function CheckoutForm({
     } else if (cleaned.length >= 9) {
       return `+995${cleaned}` // Assume Georgian number
     }
-    
+
     return phone
   }
 
@@ -147,9 +148,7 @@ export default function CheckoutForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="contactPhone">
-              ტელეფონის ნომერი *
-            </Label>
+            <Label htmlFor="contactPhone">ტელეფონის ნომერი *</Label>
             <Input
               id="contactPhone"
               type="tel"
@@ -179,9 +178,7 @@ export default function CheckoutForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="deliveryAddress">
-              მიწოდების მისამართი *
-            </Label>
+            <Label htmlFor="deliveryAddress">მიწოდების მისამართი *</Label>
             <Textarea
               id="deliveryAddress"
               placeholder="ჩაწერეთ სრული მისამართი რუქისა და ქუჩის დასახელებით"
@@ -219,7 +216,8 @@ export default function CheckoutForm({
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              ამ ველის ცარიელად დატოვების შემთხვევაში, მიწოდების დრო შეთანხმების საფუძველზე განისაზღვრება
+              ამ ველის ცარიელად დატოვების შემთხვევაში, მიწოდების დრო შეთანხმების საფუძველზე
+              განისაზღვრება
             </p>
           </div>
         </CardContent>
@@ -309,11 +307,9 @@ export default function CheckoutForm({
                   </div>
                 </Label>
               </div>
-              <div className="text-xs text-muted-foreground">
-                ჩვეულებრივი ფასი
-              </div>
+              <div className="text-xs text-muted-foreground">ჩვეულებრივი ფასი</div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <input
@@ -362,9 +358,7 @@ export default function CheckoutForm({
             disabled={isLoading}
           />
           <div className="flex justify-between items-center mt-2">
-            <p className="text-xs text-muted-foreground">
-              მაქსიმუმ 500 სიმბოლო
-            </p>
+            <p className="text-xs text-muted-foreground">მაქსიმუმ 500 სიმბოლო</p>
             <span className="text-xs text-muted-foreground">
               {formData.specialInstructions.length}/500
             </span>
@@ -396,12 +390,7 @@ export default function CheckoutForm({
       )}
 
       {/* Submit Button */}
-      <Button 
-        type="submit" 
-        className="w-full" 
-        size="lg"
-        disabled={isLoading}
-      >
+      <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
         {isLoading ? (
           <>
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -418,8 +407,8 @@ export default function CheckoutForm({
       {/* Order Summary Notice */}
       <div className="text-center">
         <p className="text-xs text-muted-foreground">
-          შეკვეთის გაგზავნის შემდეგ, თქვენი შეკვეთა გაეგზავნება რესტორანს 
-          და შესაბამისი განმარტება მოგეკითხებათ.
+          შეკვეთის გაგზავნის შემდეგ, თქვენი შეკვეთა გაეგზავნება რესტორანს და შესაბამისი განმარტება
+          მოგეკითხებათ.
         </p>
       </div>
     </form>

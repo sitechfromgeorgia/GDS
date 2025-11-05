@@ -45,7 +45,7 @@ import {
   Search,
   Filter,
   Download,
-  Upload
+  Upload,
 } from 'lucide-react'
 import { User, FilterParams, AdminAction } from '@/types/admin'
 import { USER_ROLES } from '@/constants'
@@ -65,7 +65,7 @@ export function UserTable({
   onEdit,
   onDelete,
   onToggleStatus,
-  onBulkAction
+  onBulkAction,
 }: UserTableProps) {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -75,14 +75,16 @@ export function UserTable({
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
 
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
-      const matchesSearch = searchTerm === '' ||
+    return users.filter((user) => {
+      const matchesSearch =
+        searchTerm === '' ||
         user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.restaurant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.phone?.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesRole = roleFilter === 'all' || user.role === roleFilter
-      const matchesStatus = statusFilter === 'all' ||
+      const matchesStatus =
+        statusFilter === 'all' ||
         (statusFilter === 'active' && user.is_active) ||
         (statusFilter === 'inactive' && !user.is_active)
 
@@ -92,7 +94,7 @@ export function UserTable({
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(filteredUsers.map(user => user.id))
+      setSelectedUsers(filteredUsers.map((user) => user.id))
     } else {
       setSelectedUsers([])
     }
@@ -100,9 +102,9 @@ export function UserTable({
 
   const handleSelectUser = (userId: string, checked: boolean) => {
     if (checked) {
-      setSelectedUsers(prev => [...prev, userId])
+      setSelectedUsers((prev) => [...prev, userId])
     } else {
-      setSelectedUsers(prev => prev.filter(id => id !== userId))
+      setSelectedUsers((prev) => prev.filter((id) => id !== userId))
     }
   }
 
@@ -210,25 +212,13 @@ export function UserTable({
 
         {selectedUsers.length > 0 && (
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkAction('activate')}
-            >
+            <Button variant="outline" size="sm" onClick={() => handleBulkAction('activate')}>
               გააქტიურება ({selectedUsers.length})
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkAction('deactivate')}
-            >
+            <Button variant="outline" size="sm" onClick={() => handleBulkAction('deactivate')}>
               დეაქტივაცია ({selectedUsers.length})
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkAction('export')}
-            >
+            <Button variant="outline" size="sm" onClick={() => handleBulkAction('export')}>
               <Download className="w-4 h-4 mr-1" />
               ექსპორტი
             </Button>
@@ -243,7 +233,9 @@ export function UserTable({
             <TableRow>
               <TableHead className="w-12">
                 <Checkbox
-                  checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                  checked={
+                    selectedUsers.length === filteredUsers.length && filteredUsers.length > 0
+                  }
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
@@ -272,24 +264,12 @@ export function UserTable({
                       onCheckedChange={(checked: boolean) => handleSelectUser(user.id, checked)}
                     />
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {user.full_name || 'უსახელო'}
-                  </TableCell>
-                  <TableCell>
-                    {user.restaurant_name || '-'}
-                  </TableCell>
-                  <TableCell>
-                    {getRoleBadge(user.role)}
-                  </TableCell>
-                  <TableCell>
-                    {getStatusBadge(user.is_active)}
-                  </TableCell>
-                  <TableCell>
-                    {user.phone || '-'}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(user.created_at).toLocaleDateString('ka-GE')}
-                  </TableCell>
+                  <TableCell className="font-medium">{user.full_name || 'უსახელო'}</TableCell>
+                  <TableCell>{user.restaurant_name || '-'}</TableCell>
+                  <TableCell>{getRoleBadge(user.role)}</TableCell>
+                  <TableCell>{getStatusBadge(user.is_active)}</TableCell>
+                  <TableCell>{user.phone || '-'}</TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString('ka-GE')}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -303,9 +283,7 @@ export function UserTable({
                           <Edit className="mr-2 h-4 w-4" />
                           რედაქტირება
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => onToggleStatus(user.id, !user.is_active)}
-                        >
+                        <DropdownMenuItem onClick={() => onToggleStatus(user.id, !user.is_active)}>
                           {user.is_active ? (
                             <>
                               <UserX className="mr-2 h-4 w-4" />
@@ -345,8 +323,8 @@ export function UserTable({
           <DialogHeader>
             <DialogTitle>მომხმარებლის წაშლა</DialogTitle>
             <DialogDescription>
-              დარწმუნებული ხართ რომ გსურთ წაშალოთ მომხმარებელი "{userToDelete?.full_name}"?
-              ეს მოქმედება შეუქცევადია.
+              დარწმუნებული ხართ რომ გსურთ წაშალოთ მომხმარებელი "{userToDelete?.full_name}"? ეს
+              მოქმედება შეუქცევადია.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

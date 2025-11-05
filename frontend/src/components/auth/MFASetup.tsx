@@ -41,7 +41,7 @@ export function MFASetup({ onComplete, onCancel }: MFASetupProps) {
 
     try {
       const { data, error } = await supabase.auth.mfa.enroll({
-        factorType: 'totp'
+        factorType: 'totp',
       })
 
       if (error) throw error
@@ -79,7 +79,7 @@ export function MFASetup({ onComplete, onCancel }: MFASetupProps) {
 
       // Challenge the factor first
       const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: totpFactor.id
+        factorId: totpFactor.id,
       })
 
       if (challengeError) throw challengeError
@@ -88,7 +88,7 @@ export function MFASetup({ onComplete, onCancel }: MFASetupProps) {
       const { data, error } = await supabase.auth.mfa.verify({
         factorId: totpFactor.id,
         challengeId: challenge.id,
-        code: verificationCode
+        code: verificationCode,
       })
 
       if (error) throw error
@@ -118,8 +118,7 @@ export function MFASetup({ onComplete, onCancel }: MFASetupProps) {
         <CardDescription>
           {step === 'enroll'
             ? 'დააყენეთ ავტორიზაციის აპი თქვენს ტელეფონზე'
-            : 'შეიყვანეთ კოდი ავტორიზაციის აპიდან'
-          }
+            : 'შეიყვანეთ კოდი ავტორიზაციის აპიდან'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -131,14 +130,13 @@ export function MFASetup({ onComplete, onCancel }: MFASetupProps) {
               </div>
               <Alert>
                 <AlertDescription>
-                  დაასკანერეთ QR კოდი თქვენს ავტორიზაციის აპში (Google Authenticator, Authy, 1Password და სხვ.)
+                  დაასკანერეთ QR კოდი თქვენს ავტორიზაციის აპში (Google Authenticator, Authy,
+                  1Password და სხვ.)
                 </AlertDescription>
               </Alert>
               <div className="text-sm text-gray-600">
                 <p>ან შეიყვანეთ საიდუმლო კოდი ხელით:</p>
-                <code className="bg-gray-100 px-2 py-1 rounded text-xs break-all">
-                  {secret}
-                </code>
+                <code className="bg-gray-100 px-2 py-1 rounded text-xs break-all">{secret}</code>
               </div>
             </div>
           )}

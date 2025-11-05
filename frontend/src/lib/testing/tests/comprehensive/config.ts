@@ -4,90 +4,91 @@
  */
 
 export interface TestEnvironment {
-  name: string;
-  supabaseUrl: string;
-  supabaseAnonKey: string;
-  supabaseServiceKey?: string;
-  description: string;
-  isProduction: boolean;
+  name: string
+  supabaseUrl: string
+  supabaseAnonKey: string
+  supabaseServiceKey?: string
+  description: string
+  isProduction: boolean
 }
 
 export interface TestCredentials {
   admin: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   restaurant: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   driver: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   demo: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
 }
 
 export interface TestTimeouts {
-  connection: number;
-  api: number;
-  auth: number;
-  realtime: number;
-  businessLogic: number;
-  overall: number;
+  connection: number
+  api: number
+  auth: number
+  realtime: number
+  businessLogic: number
+  overall: number
 }
 
 export interface TestThresholds {
   performance: {
-    apiResponseTime: number; // ms
-    realtimeLatency: number; // ms
-    overallScore: number; // percentage
-  };
+    apiResponseTime: number // ms
+    realtimeLatency: number // ms
+    overallScore: number // percentage
+  }
   quality: {
-    minTestCoverage: number; // percentage
-    maxErrorRate: number; // percentage
-    maxSkippedTests: number; // percentage
-  };
+    minTestCoverage: number // percentage
+    maxErrorRate: number // percentage
+    maxSkippedTests: number // percentage
+  }
 }
 
 export class TestConfig {
-  private static instance: TestConfig;
-  private environment: TestEnvironment;
-  private credentials: TestCredentials;
-  private timeouts: TestTimeouts;
-  private thresholds: TestThresholds;
+  private static instance: TestConfig
+  private environment: TestEnvironment
+  private credentials: TestCredentials
+  private timeouts: TestTimeouts
+  private thresholds: TestThresholds
 
   private constructor() {
-    this.environment = this.loadEnvironment();
-    this.credentials = this.loadCredentials();
-    this.timeouts = this.loadTimeouts();
-    this.thresholds = this.loadThresholds();
+    this.environment = this.loadEnvironment()
+    this.credentials = this.loadCredentials()
+    this.timeouts = this.loadTimeouts()
+    this.thresholds = this.loadThresholds()
   }
 
   public static getInstance(): TestConfig {
     if (!TestConfig.instance) {
-      TestConfig.instance = new TestConfig();
+      TestConfig.instance = new TestConfig()
     }
-    return TestConfig.instance;
+    return TestConfig.instance
   }
 
   /**
    * Load environment configuration
    */
   private loadEnvironment(): TestEnvironment {
-    const env = process.env.TEST_ENVIRONMENT || 'development';
+    const env = process.env.TEST_ENVIRONMENT || 'development'
 
     const environments: Record<string, TestEnvironment> = {
       development: {
         name: 'development',
-        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co',
+        supabaseUrl:
+          process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co',
         supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
         supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
         description: 'Official Supabase development environment',
-        isProduction: false
+        isProduction: false,
       },
       production: {
         name: 'production',
@@ -95,19 +96,20 @@ export class TestConfig {
         supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_PROD || '',
         supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY_PROD,
         description: 'Self-hosted Supabase production environment',
-        isProduction: true
+        isProduction: true,
       },
       staging: {
         name: 'staging',
-        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL_STAGING || 'https://staging.greenland77.ge',
+        supabaseUrl:
+          process.env.NEXT_PUBLIC_SUPABASE_URL_STAGING || 'https://staging.greenland77.ge',
         supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_STAGING || '',
         supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY_STAGING,
         description: 'Staging environment for testing',
-        isProduction: false
-      }
-    };
+        isProduction: false,
+      },
+    }
 
-    return (environments[env] || environments.development) as TestEnvironment;
+    return (environments[env] || environments.development) as TestEnvironment
   }
 
   /**
@@ -117,21 +119,21 @@ export class TestConfig {
     return {
       admin: {
         email: process.env.TEST_ADMIN_EMAIL || 'admin@test.ge',
-        password: process.env.TEST_ADMIN_PASSWORD || 'admin123'
+        password: process.env.TEST_ADMIN_PASSWORD || 'admin123',
       },
       restaurant: {
         email: process.env.TEST_RESTAURANT_EMAIL || 'restaurant@test.ge',
-        password: process.env.TEST_RESTAURANT_PASSWORD || 'restaurant123'
+        password: process.env.TEST_RESTAURANT_PASSWORD || 'restaurant123',
       },
       driver: {
         email: process.env.TEST_DRIVER_EMAIL || 'driver@test.ge',
-        password: process.env.TEST_DRIVER_PASSWORD || 'driver123'
+        password: process.env.TEST_DRIVER_PASSWORD || 'driver123',
       },
       demo: {
         email: process.env.TEST_DEMO_EMAIL || 'demo@test.ge',
-        password: process.env.TEST_DEMO_PASSWORD || 'demo123'
-      }
-    };
+        password: process.env.TEST_DEMO_PASSWORD || 'demo123',
+      },
+    }
   }
 
   /**
@@ -144,8 +146,8 @@ export class TestConfig {
       auth: parseInt(process.env.TEST_AUTH_TIMEOUT || '20000'),
       realtime: parseInt(process.env.TEST_REALTIME_TIMEOUT || '15000'),
       businessLogic: parseInt(process.env.TEST_BUSINESS_LOGIC_TIMEOUT || '45000'),
-      overall: parseInt(process.env.TEST_OVERALL_TIMEOUT || '300000')
-    };
+      overall: parseInt(process.env.TEST_OVERALL_TIMEOUT || '300000'),
+    }
   }
 
   /**
@@ -156,97 +158,97 @@ export class TestConfig {
       performance: {
         apiResponseTime: parseInt(process.env.TEST_API_RESPONSE_THRESHOLD || '1000'),
         realtimeLatency: parseInt(process.env.TEST_REALTIME_LATENCY_THRESHOLD || '100'),
-        overallScore: parseInt(process.env.TEST_OVERALL_SCORE_THRESHOLD || '80')
+        overallScore: parseInt(process.env.TEST_OVERALL_SCORE_THRESHOLD || '80'),
       },
       quality: {
         minTestCoverage: parseInt(process.env.TEST_MIN_COVERAGE || '70'),
         maxErrorRate: parseInt(process.env.TEST_MAX_ERROR_RATE || '5'),
-        maxSkippedTests: parseInt(process.env.TEST_MAX_SKIPPED || '10')
-      }
-    };
+        maxSkippedTests: parseInt(process.env.TEST_MAX_SKIPPED || '10'),
+      },
+    }
   }
 
   /**
    * Get current environment
    */
   public getEnvironment(): TestEnvironment {
-    return this.environment;
+    return this.environment
   }
 
   /**
    * Get test credentials
    */
   public getCredentials(): TestCredentials {
-    return this.credentials;
+    return this.credentials
   }
 
   /**
    * Get timeout configurations
    */
   public getTimeouts(): TestTimeouts {
-    return this.timeouts;
+    return this.timeouts
   }
 
   /**
    * Get performance and quality thresholds
    */
   public getThresholds(): TestThresholds {
-    return this.thresholds;
+    return this.thresholds
   }
 
   /**
    * Check if current environment is production
    */
   public isProduction(): boolean {
-    return this.environment.isProduction;
+    return this.environment.isProduction
   }
 
   /**
    * Validate configuration
    */
   public validate(): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
+    const errors: string[] = []
 
     // Check required environment variables
     if (!this.environment.supabaseUrl) {
-      errors.push('NEXT_PUBLIC_SUPABASE_URL is required');
+      errors.push('NEXT_PUBLIC_SUPABASE_URL is required')
     }
 
     if (!this.environment.supabaseAnonKey) {
-      errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required');
+      errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required')
     }
 
     // Check credentials format
     Object.entries(this.credentials).forEach(([role, creds]) => {
       if (!creds.email || !creds.email.includes('@')) {
-        errors.push(`Invalid email for ${role} role`);
+        errors.push(`Invalid email for ${role} role`)
       }
       if (!creds.password || creds.password.length < 6) {
-        errors.push(`Invalid password for ${role} role (must be at least 6 characters)`);
+        errors.push(`Invalid password for ${role} role (must be at least 6 characters)`)
       }
-    });
+    })
 
     // Check timeouts are reasonable
     Object.entries(this.timeouts).forEach(([key, value]) => {
       if (value < 1000) {
-        errors.push(`${key} timeout too low: ${value}ms (minimum 1000ms)`);
+        errors.push(`${key} timeout too low: ${value}ms (minimum 1000ms)`)
       }
       if (value > 300000) {
-        errors.push(`${key} timeout too high: ${value}ms (maximum 300000ms)`);
+        errors.push(`${key} timeout too high: ${value}ms (maximum 300000ms)`)
       }
-    });
+    })
 
     return {
       valid: errors.length === 0,
-      errors
-    };
+      errors,
+    }
   }
 
   /**
    * Get configuration summary
    */
   public getSummary(): string {
-    const validation = this.validate();
+    const validation = this.validate()
 
     return `
 Test Configuration Summary
@@ -275,8 +277,8 @@ Thresholds:
 - Overall Score: >${this.thresholds.performance.overallScore}%
 
 Configuration Valid: ${validation.valid ? '✅' : '❌'}
-${validation.errors.length > 0 ? 'Errors:\n' + validation.errors.map(e => `  - ${e}`).join('\n') : ''}
-    `.trim();
+${validation.errors.length > 0 ? 'Errors:\n' + validation.errors.map((e) => `  - ${e}`).join('\n') : ''}
+    `.trim()
   }
 
   /**
@@ -288,20 +290,20 @@ ${validation.errors.length > 0 ? 'Errors:\n' + validation.errors.map(e => `  - $
       credentials: this.credentials,
       timeouts: this.timeouts,
       thresholds: this.thresholds,
-      validation: this.validate()
-    };
+      validation: this.validate(),
+    }
   }
 }
 
 // Export singleton instance
-export const testConfig = TestConfig.getInstance();
+export const testConfig = TestConfig.getInstance()
 
 // Export convenience functions
-export const getTestEnvironment = () => testConfig.getEnvironment();
-export const getTestCredentials = () => testConfig.getCredentials();
-export const getTestTimeouts = () => testConfig.getTimeouts();
-export const getTestThresholds = () => testConfig.getThresholds();
-export const isProductionEnvironment = () => testConfig.isProduction();
-export const validateTestConfig = () => testConfig.validate();
+export const getTestEnvironment = () => testConfig.getEnvironment()
+export const getTestCredentials = () => testConfig.getCredentials()
+export const getTestTimeouts = () => testConfig.getTimeouts()
+export const getTestThresholds = () => testConfig.getThresholds()
+export const isProductionEnvironment = () => testConfig.isProduction()
+export const validateTestConfig = () => testConfig.validate()
 
 // Export types (already exported as interfaces above)

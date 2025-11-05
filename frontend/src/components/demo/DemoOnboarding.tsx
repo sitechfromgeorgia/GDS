@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Play, Users, Package, Truck, BarChart3 } from 'lucide-react';
-import { useDemo } from '@/hooks/useDemo';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { CheckCircle, Play, Users, Package, Truck, BarChart3 } from 'lucide-react'
+import { useDemo } from '@/hooks/useDemo'
 
 interface DemoOnboardingProps {
-  onComplete: () => void;
+  onComplete: () => void
 }
 
 export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
-  const { startTour, switchRole } = useDemo();
-  const [currentStep, setCurrentStep] = useState(0);
+  const { startTour, switchRole } = useDemo()
+  const [currentStep, setCurrentStep] = useState(0)
 
   const steps = [
     {
@@ -24,8 +24,8 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
       content: (
         <div className="space-y-4">
           <p className="text-muted-foreground">
-            Our platform connects restaurants, drivers, and customers in a seamless delivery ecosystem.
-            This demo will show you how each role interacts with the system.
+            Our platform connects restaurants, drivers, and customers in a seamless delivery
+            ecosystem. This demo will show you how each role interacts with the system.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-primary/10 rounded-lg border">
@@ -45,7 +45,7 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
             </div>
           </div>
         </div>
-      )
+      ),
     },
     {
       title: 'Interactive Demo Experience',
@@ -72,7 +72,7 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
             </div>
           </div>
         </div>
-      )
+      ),
     },
     {
       title: 'Key Features Overview',
@@ -86,7 +86,9 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <h4 className="font-semibold text-sm">Real-time Updates</h4>
-              <p className="text-sm text-muted-foreground">Live order tracking and status updates</p>
+              <p className="text-sm text-muted-foreground">
+                Live order tracking and status updates
+              </p>
             </div>
             <div className="space-y-2">
               <h4 className="font-semibold text-sm">Analytics Dashboard</h4>
@@ -102,33 +104,33 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
             </div>
           </div>
         </div>
-      )
-    }
-  ];
+      ),
+    },
+  ]
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(currentStep + 1)
     } else {
       // Start the guided tour
-      startTour();
-      onComplete();
+      startTour()
+      onComplete()
     }
-  };
-
-  const handleSkip = () => {
-    startTour();
-    onComplete();
-  };
-
-  const progress = ((currentStep + 1) / steps.length) * 100;
-  const currentStepData = steps[currentStep];
-
-  if (!currentStepData) {
-    return null;
   }
 
-  const Icon = currentStepData.icon;
+  const handleSkip = () => {
+    startTour()
+    onComplete()
+  }
+
+  const progress = ((currentStep + 1) / steps.length) * 100
+  const currentStepData = steps[currentStep]
+
+  if (!currentStepData) {
+    return null
+  }
+
+  const Icon = currentStepData.icon
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -159,10 +161,7 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
 
             <div className="flex gap-3">
               {currentStep > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentStep(currentStep - 1)}
-                >
+                <Button variant="outline" onClick={() => setCurrentStep(currentStep - 1)}>
                   Previous
                 </Button>
               )}
@@ -175,5 +174,5 @@ export function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

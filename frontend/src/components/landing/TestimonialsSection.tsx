@@ -9,50 +9,56 @@ const testimonials = [
     name: 'Marina K.',
     role: 'Restaurant Owner',
     company: 'Tbilisi Bistro',
-    content: 'This platform has transformed how we manage our food distribution. Real-time tracking and automated pricing have saved us hours every week.',
+    content:
+      'This platform has transformed how we manage our food distribution. Real-time tracking and automated pricing have saved us hours every week.',
     rating: 5,
-    avatar: 'MK'
+    avatar: 'MK',
   },
   {
     name: 'Giorgi M.',
     role: 'Distribution Manager',
     company: 'Caucasus Foods',
-    content: 'The analytics dashboard gives us incredible insights into our operations. We\'ve improved efficiency by 40% since implementing this system.',
+    content:
+      "The analytics dashboard gives us incredible insights into our operations. We've improved efficiency by 40% since implementing this system.",
     rating: 5,
-    avatar: 'GM'
+    avatar: 'GM',
   },
   {
     name: 'Nino T.',
     role: 'Driver',
     company: 'Independent Contractor',
-    content: 'The mobile app is fantastic. GPS tracking, easy navigation, and instant notifications make deliveries so much smoother.',
+    content:
+      'The mobile app is fantastic. GPS tracking, easy navigation, and instant notifications make deliveries so much smoother.',
     rating: 5,
-    avatar: 'NT'
+    avatar: 'NT',
   },
   {
     name: 'David L.',
     role: 'Operations Director',
     company: 'Batumi Restaurants Group',
-    content: 'Outstanding platform with excellent support. The multi-role system works perfectly for our complex distribution network.',
+    content:
+      'Outstanding platform with excellent support. The multi-role system works perfectly for our complex distribution network.',
     rating: 5,
-    avatar: 'DL'
+    avatar: 'DL',
   },
   {
     name: 'Ana P.',
     role: 'Restaurant Manager',
     company: 'Traditional Georgian Cuisine',
-    content: 'Finally, a system that understands the unique needs of Georgian restaurants. The interface is intuitive and the features are comprehensive.',
+    content:
+      'Finally, a system that understands the unique needs of Georgian restaurants. The interface is intuitive and the features are comprehensive.',
     rating: 5,
-    avatar: 'AP'
+    avatar: 'AP',
   },
   {
     name: 'Levan R.',
     role: 'Fleet Manager',
     company: 'Tbilisi Delivery Services',
-    content: 'Managing 50+ drivers has never been easier. Real-time tracking and automated dispatch have revolutionized our operations.',
+    content:
+      'Managing 50+ drivers has never been easier. Real-time tracking and automated dispatch have revolutionized our operations.',
     rating: 5,
-    avatar: 'LR'
-  }
+    avatar: 'LR',
+  },
 ]
 
 export function TestimonialsSection() {
@@ -68,8 +74,8 @@ export function TestimonialsSection() {
             Trusted by Leading Restaurants and Distributors
           </h2>
           <p className="text-lg text-muted-foreground">
-            See what our customers say about transforming their food distribution operations
-            with our comprehensive platform.
+            See what our customers say about transforming their food distribution operations with
+            our comprehensive platform.
           </p>
         </div>
 

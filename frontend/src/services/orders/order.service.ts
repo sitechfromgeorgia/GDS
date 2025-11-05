@@ -6,24 +6,23 @@ export const orderItemSchema = z.object({
   product_id: z.string().uuid(),
   quantity: z.number().min(1, 'Quantity must be at least 1'),
   unit: z.string().min(1, 'Unit is required'),
-  special_instructions: z.string().optional()
+  special_instructions: z.string().optional(),
 })
 
 export const orderCreateSchema = z.object({
   restaurant_id: z.string().uuid(),
   delivery_address: z.string().min(1, 'Delivery address is required'),
   special_instructions: z.string().optional(),
-  items: z.array(orderItemSchema).min(1, 'At least one item is required')
+  items: z.array(orderItemSchema).min(1, 'At least one item is required'),
 })
 
 export const orderUpdateSchema = z.object({
-  status: z.enum([
-    'pending', 'confirmed', 'preparing', 'out_for_delivery', 
-    'delivered', 'completed'
-  ]).optional(),
+  status: z
+    .enum(['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered', 'completed'])
+    .optional(),
   driver_id: z.string().uuid().optional(),
   total_amount: z.number().min(0).optional(),
-  special_instructions: z.string().optional()
+  special_instructions: z.string().optional(),
 })
 
 export type OrderItem = z.infer<typeof orderItemSchema>
@@ -44,19 +43,18 @@ export class OrderService {
     const totalAmount = orderData.items.reduce((sum, item) => {
       // In a real implementation, you'd fetch product prices from the database
       // For now, we'll assume a default price
-      return sum + (item.quantity * 10) // Default price of 10 per unit
+      return sum + item.quantity * 10 // Default price of 10 per unit
     }, 0)
 
-    const { data, error } = await (this.supabase
-      .from('orders') as any)
+    const { data, error } = await (this.supabase.from('orders') as any)
       .insert([
         {
           restaurant_id: orderData.restaurant_id,
           delivery_address: orderData.delivery_address,
           special_instructions: orderData.special_instructions,
           status: 'pending',
-          total_amount: totalAmount
-        }
+          total_amount: totalAmount,
+        },
       ])
       .select()
       .single()
@@ -66,16 +64,16 @@ export class OrderService {
     }
 
     // Create order items
-    const orderItems = orderData.items.map(item => ({
+    const orderItems = orderData.items.map((item) => ({
       order_id: data.id,
       product_id: item.product_id,
       quantity: item.quantity,
-      price: item.quantity * 10 // Default price
+      price: item.quantity * 10, // Default price
     }))
 
-    const { error: itemsError } = await (this.supabase
-      .from('order_items') as any)
-      .insert(orderItems)
+    const { error: itemsError } = await (this.supabase.from('order_items') as any).insert(
+      orderItems
+    )
 
     if (itemsError) {
       // If order items creation fails, delete the order
@@ -89,11 +87,13 @@ export class OrderService {
   async getOrdersForRole(userId: string, role: string) {
     let query = this.supabase
       .from('orders')
-      .select(`
+      .select(
+        `
         *,
         restaurants(name),
         drivers(name)
-      `)
+      `
+      )
       .order('created_at', { ascending: false })
 
     switch (role) {
@@ -124,7 +124,8 @@ export class OrderService {
   async getOrderById(orderId: string) {
     const { data, error } = await this.supabase
       .from('orders')
-      .select(`
+      .select(
+        `
         *,
         order_items(
           *,
@@ -132,7 +133,8 @@ export class OrderService {
         ),
         restaurants(name, name_ka),
         drivers(name)
-      `)
+      `
+      )
       .eq('id', orderId)
       .single()
 
@@ -145,13 +147,12 @@ export class OrderService {
 
   async updateOrderStatus(orderId: string, status: string, driverId?: string) {
     const updateData: any = { status }
-    
+
     if (driverId) {
       updateData.driver_id = driverId
     }
 
-    const { data, error } = await (this.supabase
-      .from('orders') as any)
+    const { data, error } = await (this.supabase.from('orders') as any)
       .update(updateData)
       .eq('id', orderId)
       .select()
@@ -171,18 +172,21 @@ export class OrderService {
       .order('created_at', { ascending: false })
 
     const { data: restaurants } = await this.supabase
-      .from('restaurants')
+      .from('profiles' as any)
       .select('*')
+      .eq('role', 'restaurant')
 
     const { data: drivers } = await this.supabase
-      .from('drivers')
+      .from('profiles' as any)
       .select('*')
+      .eq('role', 'driver')
 
     // Calculate analytics
     const totalOrders = orders?.length || 0
     const activeRestaurants = restaurants?.length || 0
     const activeDrivers = drivers?.length || 0
-    const totalRevenue = orders?.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0) || 0
+    const totalRevenue =
+      orders?.reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0) || 0
 
     return {
       totalOrders,
@@ -190,7 +194,7 @@ export class OrderService {
       activeDrivers,
       totalRevenue,
       ordersByStatus: this.groupOrdersByStatus(orders || []),
-      revenueByDay: this.calculateRevenueByDay(orders || [])
+      revenueByDay: this.calculateRevenueByDay(orders || []),
     }
   }
 
@@ -215,10 +219,7 @@ export class OrderService {
   }
 
   async deleteOrder(orderId: string) {
-    const { error } = await this.supabase
-      .from('orders')
-      .delete()
-      .eq('id', orderId)
+    const { error } = await this.supabase.from('orders').delete().eq('id', orderId)
 
     if (error) {
       throw new Error(`Failed to delete order: ${error.message}`)
@@ -228,11 +229,10 @@ export class OrderService {
   }
 
   async assignDriver(orderId: string, driverId: string) {
-    const { data, error } = await (this.supabase
-      .from('orders') as any)
+    const { data, error } = await (this.supabase.from('orders') as any)
       .update({
         driver_id: driverId,
-        status: 'confirmed'
+        status: 'confirmed',
       })
       .eq('id', orderId)
       .select()

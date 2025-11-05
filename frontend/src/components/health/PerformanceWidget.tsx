@@ -7,23 +7,23 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
   Activity,
   Clock,
   Database,
-  Zap
+  Zap,
 } from 'lucide-react'
 import { getPerformanceReport } from '@/lib/monitoring/performance'
 // Mock SLA compliance data since the function doesn't exist yet
 const getSLAComplianceReport = () => ({
   status: 'healthy' as const,
   compliance: 0.96,
-  violations: 2
+  violations: 2,
 })
 
 interface PerformanceMetrics {
@@ -57,20 +57,20 @@ export default function PerformanceWidget() {
   const loadPerformanceData = async () => {
     try {
       setLoading(true)
-      
+
       // Get performance metrics
       const report = getPerformanceReport('1h')
       const slaReport = getSLAComplianceReport()
-      
+
       const performanceMetrics: PerformanceMetrics = {
         averageResponseTime: report.averageResponseTime,
         p95ResponseTime: report.p95ResponseTime,
         p99ResponseTime: report.p99ResponseTime,
         successRate: report.successfulOperations / report.totalOperations,
         totalRequests: report.totalOperations,
-        errorRate: report.failedOperations / report.totalOperations
+        errorRate: report.failedOperations / report.totalOperations,
       }
-      
+
       setMetrics(performanceMetrics)
       setSLAStatus(slaReport)
       setLastUpdated(new Date().toLocaleTimeString())
@@ -83,17 +83,23 @@ export default function PerformanceWidget() {
 
   const getStatusColor = (status: 'healthy' | 'warning' | 'critical') => {
     switch (status) {
-      case 'healthy': return 'bg-green-100 text-green-800'
-      case 'warning': return 'bg-yellow-100 text-yellow-800'
-      case 'critical': return 'bg-red-100 text-red-800'
+      case 'healthy':
+        return 'bg-green-100 text-green-800'
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'critical':
+        return 'bg-red-100 text-red-800'
     }
   }
 
   const getStatusIcon = (status: 'healthy' | 'warning' | 'critical') => {
     switch (status) {
-      case 'healthy': return <CheckCircle className="h-4 w-4" />
-      case 'warning': return <AlertTriangle className="h-4 w-4" />
-      case 'critical': return <XCircle className="h-4 w-4" />
+      case 'healthy':
+        return <CheckCircle className="h-4 w-4" />
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4" />
+      case 'critical':
+        return <XCircle className="h-4 w-4" />
     }
   }
 
@@ -136,9 +142,7 @@ export default function PerformanceWidget() {
             <Activity className="h-5 w-5" />
             Performance Monitoring
             {lastUpdated && (
-              <span className="text-sm font-normal text-gray-500">
-                Updated: {lastUpdated}
-              </span>
+              <span className="text-sm font-normal text-gray-500">Updated: {lastUpdated}</span>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -148,11 +152,7 @@ export default function PerformanceWidget() {
                 <span className="ml-1">{slaStatus.status.toUpperCase()}</span>
               </Badge>
             )}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
               {isExpanded ? 'Collapse' : 'Details'}
             </Button>
           </div>
@@ -171,12 +171,12 @@ export default function PerformanceWidget() {
                 <div className="text-2xl font-bold">
                   {formatResponseTime(metrics.averageResponseTime)}
                 </div>
-                <Progress 
+                <Progress
                   value={Math.min((metrics.averageResponseTime / 1000) * 100, 100)}
                   className="h-2"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <TrendingUp className="h-4 w-4" />
@@ -185,34 +185,27 @@ export default function PerformanceWidget() {
                 <div className="text-2xl font-bold">
                   {formatResponseTime(metrics.p95ResponseTime)}
                 </div>
-                <Progress 
+                <Progress
                   value={Math.min((metrics.p95ResponseTime / 2000) * 100, 100)}
                   className="h-2"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <Database className="h-4 w-4" />
                   <span>Success Rate</span>
                 </div>
-                <div className="text-2xl font-bold">
-                  {(metrics.successRate * 100).toFixed(1)}%
-                </div>
-                <Progress 
-                  value={metrics.successRate * 100}
-                  className="h-2"
-                />
+                <div className="text-2xl font-bold">{(metrics.successRate * 100).toFixed(1)}%</div>
+                <Progress value={metrics.successRate * 100} className="h-2" />
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <Zap className="h-4 w-4" />
                   <span>Total Requests</span>
                 </div>
-                <div className="text-2xl font-bold">
-                  {metrics.totalRequests.toLocaleString()}
-                </div>
+                <div className="text-2xl font-bold">{metrics.totalRequests.toLocaleString()}</div>
                 <div className="text-sm text-gray-500">
                   Error Rate: {(metrics.errorRate * 100).toFixed(2)}%
                 </div>
@@ -226,9 +219,7 @@ export default function PerformanceWidget() {
                   <AlertDescription>
                     SLA Compliance: {(slaStatus.compliance * 100).toFixed(1)}%
                     {slaStatus.violations > 0 && (
-                      <span className="ml-2 text-red-600">
-                        ({slaStatus.violations} violations)
-                      </span>
+                      <span className="ml-2 text-red-600">({slaStatus.violations} violations)</span>
                     )}
                   </AlertDescription>
                   <Badge variant={slaStatus.compliance >= 0.95 ? 'default' : 'destructive'}>
@@ -242,40 +233,52 @@ export default function PerformanceWidget() {
             {isExpanded && (
               <div className="space-y-4 border-t pt-4">
                 <h4 className="font-semibold">Performance Breakdown</h4>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <h5 className="font-medium">Response Time Distribution</h5>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>P50 (Median)</span>
-                        <span className="font-mono">{formatResponseTime(metrics.averageResponseTime * 0.8)}</span>
+                        <span className="font-mono">
+                          {formatResponseTime(metrics.averageResponseTime * 0.8)}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>P95</span>
-                        <span className="font-mono">{formatResponseTime(metrics.p95ResponseTime)}</span>
+                        <span className="font-mono">
+                          {formatResponseTime(metrics.p95ResponseTime)}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>P99</span>
-                        <span className="font-mono">{formatResponseTime(metrics.p99ResponseTime)}</span>
+                        <span className="font-mono">
+                          {formatResponseTime(metrics.p99ResponseTime)}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <h5 className="font-medium">Status Indicators</h5>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Database Queries</span>
-                        <Badge variant="outline" className="text-green-600">Healthy</Badge>
+                        <Badge variant="outline" className="text-green-600">
+                          Healthy
+                        </Badge>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>API Endpoints</span>
-                        <Badge variant="outline" className="text-yellow-600">Warning</Badge>
+                        <Badge variant="outline" className="text-yellow-600">
+                          Warning
+                        </Badge>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Memory Usage</span>
-                        <Badge variant="outline" className="text-green-600">Healthy</Badge>
+                        <Badge variant="outline" className="text-green-600">
+                          Healthy
+                        </Badge>
                       </div>
                     </div>
                   </div>
@@ -285,12 +288,7 @@ export default function PerformanceWidget() {
 
             {/* Refresh Button */}
             <div className="flex justify-end">
-              <Button 
-                onClick={loadPerformanceData} 
-                disabled={loading}
-                size="sm"
-                variant="outline"
-              >
+              <Button onClick={loadPerformanceData} disabled={loading} size="sm" variant="outline">
                 {loading ? 'Updating...' : 'Refresh'}
               </Button>
             </div>

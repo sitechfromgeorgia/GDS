@@ -1,7 +1,7 @@
 // 🚫 API ROUTE DEPRECATED - SUPABASE OPTIMIZATION
-// 
+//
 // This API route has been REMOVED as it duplicated Supabase functionality.
-// 
+//
 // USE: Direct Supabase Auth MFA instead:
 // - supabase.auth.mfa.enroll()
 // - supabase.auth.mfa.challenge()
@@ -19,14 +19,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   return NextResponse.json(
-    { 
+    {
       error: 'API Deprecated',
       message: 'Use Supabase Auth MFA directly: supabase.auth.mfa.enroll()',
       migration: {
         from: 'GET /api/auth/mfa/setup',
         to: 'supabase.auth.mfa.enroll({ factorType: "totp" })',
-        documentation: 'https://supabase.com/docs/guides/auth/auth-mfa'
-      }
+        documentation: 'https://supabase.com/docs/guides/auth/auth-mfa',
+      },
     },
     { status: 410 } // Gone
   )

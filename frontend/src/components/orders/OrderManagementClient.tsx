@@ -9,22 +9,61 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Search, Filter, Plus, Download, Eye, Edit, Trash2, Package, Truck, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import {
+  Search,
+  Filter,
+  Plus,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  Package,
+  Truck,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from 'lucide-react'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
 
 type Order = Database['public']['Tables']['orders']['Row']
 type OrderWithDetails = Order & {
-  restaurant: Database['public']['Tables']['profiles']['Row'] | null
-  driver: Database['public']['Tables']['profiles']['Row'] | null
-  items: Database['public']['Tables']['order_items']['Row'][] & {
-    product: Database['public']['Tables']['products']['Row'] | null
-  }[]
+  restaurant: {
+    full_name: string | null
+    email: string | null
+    phone: string | null
+    restaurant_name: string | null
+  } | null
+  driver: {
+    full_name: string | null
+    phone: string | null
+  } | null
+  items: Array<
+    Database['public']['Tables']['order_items']['Row'] & {
+      product: {
+        name: string
+        image_url: string | null
+      } | null
+    }
+  >
 }
 
 interface OrderManagementClientProps {
@@ -49,7 +88,8 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
     try {
       let query = supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           *,
           restaurant:profiles!orders_restaurant_id_fkey(full_name, email, phone, restaurant_name),
           driver:profiles!orders_driver_id_fkey(full_name, phone),
@@ -57,7 +97,8 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
             *,
             product:products(name, image_url)
           )
-        `)
+        `
+        )
         .order('created_at', { ascending: false })
 
       // Apply role-based filtering
@@ -73,7 +114,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
       if (error) {
         logger.error('Error fetching orders:', error)
       } else {
-        setOrders(data || [])
+        setOrders((data as OrderWithDetails[]) || [])
       }
     } catch (error) {
       logger.error('Error:', error)
@@ -87,7 +128,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
   }, [fetchOrders])
 
   // Filter orders
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.restaurant?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,10 +142,8 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
 
   // Handle order selection
   const handleOrderSelect = (orderId: string) => {
-    setSelectedOrders(prev =>
-      prev.includes(orderId)
-        ? prev.filter(id => id !== orderId)
-        : [...prev, orderId]
+    setSelectedOrders((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
     )
   }
 
@@ -123,28 +162,44 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
   // Get status badge variant
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'pending': return 'secondary'
-      case 'confirmed': return 'default'
-      case 'preparing': return 'default'
-      case 'ready': return 'default'
-      case 'in_delivery': return 'default'
-      case 'delivered': return 'default'
-      case 'cancelled': return 'destructive'
-      default: return 'secondary'
+      case 'pending':
+        return 'secondary'
+      case 'confirmed':
+        return 'default'
+      case 'preparing':
+        return 'default'
+      case 'ready':
+        return 'default'
+      case 'in_delivery':
+        return 'default'
+      case 'delivered':
+        return 'default'
+      case 'cancelled':
+        return 'destructive'
+      default:
+        return 'secondary'
     }
   }
 
   // Get status icon
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />
-      case 'confirmed': return <CheckCircle className="h-4 w-4" />
-      case 'preparing': return <Package className="h-4 w-4" />
-      case 'ready': return <Package className="h-4 w-4" />
-      case 'in_delivery': return <Truck className="h-4 w-4" />
-      case 'delivered': return <CheckCircle className="h-4 w-4" />
-      case 'cancelled': return <AlertCircle className="h-4 w-4" />
-      default: return <Clock className="h-4 w-4" />
+      case 'pending':
+        return <Clock className="h-4 w-4" />
+      case 'confirmed':
+        return <CheckCircle className="h-4 w-4" />
+      case 'preparing':
+        return <Package className="h-4 w-4" />
+      case 'ready':
+        return <Package className="h-4 w-4" />
+      case 'in_delivery':
+        return <Truck className="h-4 w-4" />
+      case 'delivered':
+        return <CheckCircle className="h-4 w-4" />
+      case 'cancelled':
+        return <AlertCircle className="h-4 w-4" />
+      default:
+        return <Clock className="h-4 w-4" />
     }
   }
 
@@ -168,7 +223,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
         </div>
 
         {role === 'admin' && (
-          <Button onClick={() => window.location.href = '/orders/new'}>
+          <Button onClick={() => (window.location.href = '/orders/new')}>
             <Plus className="h-4 w-4 mr-2" />
             New Order
           </Button>
@@ -183,7 +238,9 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
         <CardContent>
           <div className="flex gap-4 items-end">
             <div className="flex-1">
-              <label htmlFor="search" className="block text-sm font-medium mb-1">Search</label>
+              <label htmlFor="search" className="block text-sm font-medium mb-1">
+                Search
+              </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 text-gray-400 -translate-y-1/2" />
                 <Input
@@ -197,7 +254,9 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
             </div>
 
             <div className="w-48">
-              <label htmlFor="status" className="block text-sm font-medium mb-1">Status</label>
+              <label htmlFor="status" className="block text-sm font-medium mb-1">
+                Status
+              </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
@@ -245,7 +304,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
                         checked={selectedOrders.length === filteredOrders.length}
                         onCheckedChange={(checked: boolean) => {
                           if (checked) {
-                            setSelectedOrders(filteredOrders.map(order => order.id))
+                            setSelectedOrders(filteredOrders.map((order) => order.id))
                           } else {
                             setSelectedOrders([])
                           }
@@ -273,12 +332,12 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
                         />
                       </TableCell>
                     )}
-                    <TableCell className="font-mono">
-                      #{order.id.slice(0, 8)}
-                    </TableCell>
+                    <TableCell className="font-mono">#{order.id.slice(0, 8)}</TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{order.restaurant?.restaurant_name || order.restaurant?.full_name}</p>
+                        <p className="font-medium">
+                          {order.restaurant?.restaurant_name || order.restaurant?.full_name}
+                        </p>
                         <p className="text-sm text-gray-500">{order.restaurant?.email}</p>
                       </div>
                     </TableCell>
@@ -293,32 +352,25 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(order.status)} className="flex items-center gap-2">
+                      <Badge
+                        variant={getStatusVariant(order.status)}
+                        className="flex items-center gap-2"
+                      >
                         {getStatusIcon(order.status)}
                         {order.status.replace('_', ' ').toUpperCase()}
                       </Badge>
                     </TableCell>
                     <TableCell>₾{order.total_amount?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell>
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </TableCell>
+                    <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOrderDetails(order)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleOrderDetails(order)}>
                           <Eye className="h-4 w-4" />
                         </Button>
 
                         {role === 'admin' && (
                           <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handlePricing(order)}
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => handlePricing(order)}>
                               <Edit className="h-4 w-4" />
                             </Button>
 
@@ -349,7 +401,6 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
           </DialogHeader>
           {selectedOrder && (
             <OrderDetailModal
-               
               order={selectedOrder as any}
               onClose={() => setIsDetailModalOpen(false)}
               userRole={role}
@@ -368,16 +419,15 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="cost-price" className="block text-sm font-medium mb-1">Cost Price</label>
-                  <Input
-                    id="cost-price"
-                    type="number"
-                    step="0.01"
-                    placeholder="Enter cost price"
-                  />
+                  <label htmlFor="cost-price" className="block text-sm font-medium mb-1">
+                    Cost Price
+                  </label>
+                  <Input id="cost-price" type="number" step="0.01" placeholder="Enter cost price" />
                 </div>
                 <div>
-                  <label htmlFor="selling-price" className="block text-sm font-medium mb-1">Selling Price</label>
+                  <label htmlFor="selling-price" className="block text-sm font-medium mb-1">
+                    Selling Price
+                  </label>
                   <Input
                     id="selling-price"
                     type="number"
@@ -391,14 +441,22 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
                 <h4 className="font-medium">Order Items</h4>
                 <div className="space-y-2">
                   {pricingOrder.items.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded"
+                    >
                       <div>
                         <p className="font-medium">{(item as any).product?.name}</p>
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium">₾{item.selling_price?.toFixed(2) || '0.00'}</p>
-                        <p className="text-sm text-gray-500">Total: ₾{item.selling_price ? (item.selling_price * item.quantity).toFixed(2) : '0.00'}</p>
+                        <p className="text-sm text-gray-500">
+                          Total: ₾
+                          {item.selling_price
+                            ? (item.selling_price * item.quantity).toFixed(2)
+                            : '0.00'}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -409,9 +467,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
                 <Button variant="outline" onClick={() => setIsPricingModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button>
-                  Save Pricing
-                </Button>
+                <Button>Save Pricing</Button>
               </div>
             </div>
           )}

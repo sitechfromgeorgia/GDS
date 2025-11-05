@@ -19,8 +19,8 @@ export function DemoCTA() {
               Experience the Future of Food Distribution
             </h2>
             <p className="text-lg text-muted-foreground">
-              See how our platform can transform your operations with our interactive demo.
-              No setup required, just click and explore.
+              See how our platform can transform your operations with our interactive demo. No setup
+              required, just click and explore.
             </p>
           </div>
 
@@ -80,9 +80,7 @@ export function DemoCTA() {
                   <Play className="h-5 w-5 text-primary" />
                   <span>Demo Preview</span>
                 </CardTitle>
-                <CardDescription>
-                  What you&apos;ll experience in our demo
-                </CardDescription>
+                <CardDescription>What you&apos;ll experience in our demo</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -129,14 +127,10 @@ export function DemoCTA() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
-                <Link href="/demo">
-                  Try Demo Now
-                </Link>
+                <Link href="/demo">Try Demo Now</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="#contact">
-                  Contact Sales
-                </Link>
+                <Link href="#contact">Contact Sales</Link>
               </Button>
             </div>
           </div>

@@ -3,7 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Check, Star, Zap } from 'lucide-react'
@@ -19,14 +26,11 @@ const plans = [
       'Basic analytics',
       'Email support',
       'Mobile app access',
-      'Standard integrations'
+      'Standard integrations',
     ],
-    limitations: [
-      'Limited to 1 restaurant location',
-      'Basic reporting only'
-    ],
+    limitations: ['Limited to 1 restaurant location', 'Basic reporting only'],
     popular: false,
-    cta: 'Start Free Trial'
+    cta: 'Start Free Trial',
   },
   {
     name: 'Professional',
@@ -40,11 +44,11 @@ const plans = [
       'Custom integrations',
       'Multi-location support',
       'API access',
-      'Advanced user management'
+      'Advanced user management',
     ],
     limitations: [],
     popular: true,
-    cta: 'Start Free Trial'
+    cta: 'Start Free Trial',
   },
   {
     name: 'Enterprise',
@@ -59,12 +63,12 @@ const plans = [
       'White-label solution',
       '24/7 phone support',
       'SLA guarantees',
-      'Custom training'
+      'Custom training',
     ],
     limitations: [],
     popular: false,
-    cta: 'Contact Sales'
-  }
+    cta: 'Contact Sales',
+  },
 ]
 
 const addons = [
@@ -72,20 +76,20 @@ const addons = [
     name: 'Advanced Analytics',
     description: 'Enhanced reporting and business intelligence',
     price: 99,
-    period: 'month'
+    period: 'month',
   },
   {
     name: 'Custom Integrations',
     description: 'Connect with your existing systems',
     price: 199,
-    period: 'month'
+    period: 'month',
   },
   {
     name: 'Dedicated Support',
     description: 'Priority support with faster response times',
     price: 299,
-    period: 'month'
-  }
+    period: 'month',
+  },
 ]
 
 export function PricingSection() {
@@ -103,13 +107,15 @@ export function PricingSection() {
             Choose the Perfect Plan for Your Business
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Start free and scale as you grow. All plans include our core features
-            with no hidden fees or setup costs.
+            Start free and scale as you grow. All plans include our core features with no hidden
+            fees or setup costs.
           </p>
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center space-x-4">
-            <span className={`text-sm ${!isAnnual ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+            <span
+              className={`text-sm ${!isAnnual ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+            >
               Monthly
             </span>
             <Switch
@@ -117,7 +123,9 @@ export function PricingSection() {
               onCheckedChange={setIsAnnual}
               className="data-[state=checked]:bg-primary"
             />
-            <span className={`text-sm ${isAnnual ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+            <span
+              className={`text-sm ${isAnnual ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+            >
               Annual
             </span>
             <Badge variant="secondary" className="ml-2">
@@ -129,7 +137,10 @@ export function PricingSection() {
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {plans.map((plan, index) => (
-            <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg' : ''}`}>
+            <Card
+              key={index}
+              className={`relative ${plan.popular ? 'border-primary shadow-lg' : ''}`}
+            >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-primary text-primary-foreground">
@@ -146,12 +157,10 @@ export function PricingSection() {
                   <span className="text-4xl font-bold">
                     ${isAnnual ? plan.annualPrice : plan.monthlyPrice}
                   </span>
-                  <span className="text-muted-foreground">
-                    /{isAnnual ? 'year' : 'month'}
-                  </span>
+                  <span className="text-muted-foreground">/{isAnnual ? 'year' : 'month'}</span>
                   {isAnnual && (
                     <div className="text-sm text-muted-foreground mt-1">
-                      ${(plan.monthlyPrice)}/month billed annually
+                      ${plan.monthlyPrice}/month billed annually
                     </div>
                   )}
                 </div>
@@ -182,14 +191,8 @@ export function PricingSection() {
               </CardContent>
 
               <CardFooter>
-                <Button
-                  className="w-full"
-                  variant={plan.popular ? 'default' : 'outline'}
-                  asChild
-                >
-                  <Link href={plan.cta === 'Contact Sales' ? '#contact' : '/demo'}>
-                    {plan.cta}
-                  </Link>
+                <Button className="w-full" variant={plan.popular ? 'default' : 'outline'} asChild>
+                  <Link href={plan.cta === 'Contact Sales' ? '#contact' : '/demo'}>{plan.cta}</Link>
                 </Button>
               </CardFooter>
             </Card>
@@ -226,19 +229,15 @@ export function PricingSection() {
             <Zap className="h-12 w-12 text-primary mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">Ready to Get Started?</h3>
             <p className="text-muted-foreground mb-6">
-              Join hundreds of restaurants already using our platform.
-              Start your free trial today with no credit card required.
+              Join hundreds of restaurants already using our platform. Start your free trial today
+              with no credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
-                <Link href="/demo">
-                  Start Free Trial
-                </Link>
+                <Link href="/demo">Start Free Trial</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="#contact">
-                  Contact Sales
-                </Link>
+                <Link href="#contact">Contact Sales</Link>
               </Button>
             </div>
           </div>

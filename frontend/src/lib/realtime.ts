@@ -3,7 +3,11 @@ import { createBrowserClient } from '@/lib/supabase'
 
 const supabase = createBrowserClient()
 import { Database } from '@/types/database'
-import type { RealtimeChannel, RealtimePostgresChangesPayload, RealtimePresenceState } from '@supabase/supabase-js'
+import type {
+  RealtimeChannel,
+  RealtimePostgresChangesPayload,
+  RealtimePresenceState,
+} from '@supabase/supabase-js'
 
 type Order = Database['public']['Tables']['orders']['Row']
 type OrderUpdate = Database['public']['Tables']['orders']['Update']
@@ -76,7 +80,13 @@ interface OrderWithJoinedProfiles {
 
 export interface OrderNotification {
   order_id: string
-  type: 'status_change' | 'assigned' | 'created' | 'cancelled' | 'location_update' | 'delivery_update'
+  type:
+    | 'status_change'
+    | 'assigned'
+    | 'created'
+    | 'cancelled'
+    | 'location_update'
+    | 'delivery_update'
   message: string
   recipient_id: string
   recipient_role: 'admin' | 'restaurant' | 'driver'
@@ -88,8 +98,8 @@ export interface DriverLocation {
   order_id: string
   latitude: number
   longitude: number
- timestamp: string
- accuracy?: number
+  timestamp: string
+  accuracy?: number
 }
 
 /**
@@ -98,20 +108,26 @@ export interface DriverLocation {
 export class OrderRealtimeManager {
   private subscriptions: Map<string, RealtimeChannel> = new Map()
   private locationUpdateCallbacks: Map<string, (location: DriverLocation) => void> = new Map()
-  private orderUpdateCallbacks: Map<string, (payload: SupabasePostgresChangePayload<Order>) => void> = new Map()
+  private orderUpdateCallbacks: Map<
+    string,
+    (payload: SupabasePostgresChangePayload<Order>) => void
+  > = new Map()
   private notificationCallbacks: Map<string, (notification: OrderNotification) => void> = new Map()
   private connectionStates: Map<string, ConnectionState> = new Map()
   private reconnectTimeouts: Map<string, NodeJS.Timeout> = new Map()
   private throttleBuckets: Map<string, { count: number; resetTime: number }> = new Map()
   private readonly throttleConfig: ThrottleConfig = {
     maxUpdatesPerSecond: 5,
-    maxBurstSize: 10
+    maxBurstSize: 10,
   }
 
   /**
    * Subscribe to order updates for a specific user
    */
-  subscribeToOrderUpdates(userId: string, callback: (payload: SupabasePostgresChangePayload<Order>) => void) {
+  subscribeToOrderUpdates(
+    userId: string,
+    callback: (payload: SupabasePostgresChangePayload<Order>) => void
+  ) {
     const channelName = `orders:${userId}`
 
     // Unsubscribe if already subscribed
@@ -125,9 +141,14 @@ export class OrderRealtimeManager {
           event: 'UPDATE',
           schema: 'public',
           table: 'orders',
-          filter: `restaurant_id=eq.${userId}`
+          filter: `restaurant_id=eq.${userId}`,
         },
-        (payload: unknown) => this.handleThrottledCallback(userId, callback, payload as SupabasePostgresChangePayload<Order>)
+        (payload: unknown) =>
+          this.handleThrottledCallback(
+            userId,
+            callback,
+            payload as SupabasePostgresChangePayload<Order>
+          )
       )
       .on(
         'postgres_changes',
@@ -135,7 +156,7 @@ export class OrderRealtimeManager {
           event: 'UPDATE',
           schema: 'public',
           table: 'orders',
-          filter: `driver_id=eq.${userId}`
+          filter: `driver_id=eq.${userId}`,
         },
         (payload: any) => this.handleThrottledCallback(userId, callback, payload)
       )
@@ -145,7 +166,7 @@ export class OrderRealtimeManager {
           event: 'INSERT',
           schema: 'public',
           table: 'orders',
-          filter: `restaurant_id=eq.${userId}`
+          filter: `restaurant_id=eq.${userId}`,
         },
         (payload: any) => this.handleThrottledCallback(userId, callback, payload)
       )
@@ -188,9 +209,14 @@ export class OrderRealtimeManager {
         {
           event: '*',
           schema: 'public',
-          table: 'orders'
+          table: 'orders',
         },
-        (payload) => this.handleThrottledCallback('all', callback, payload as unknown as SupabasePostgresChangePayload<Order>)
+        (payload) =>
+          this.handleThrottledCallback(
+            'all',
+            callback,
+            payload as unknown as SupabasePostgresChangePayload<Order>
+          )
       )
       .subscribe((status) => {
         this.connectionStates.set('all', status === 'SUBSCRIBED' ? 'connected' : 'disconnected')
@@ -225,13 +251,9 @@ export class OrderRealtimeManager {
 
     const channel = supabase
       .channel(channelName)
-      .on(
-        'broadcast',
-        { event: 'location-update' },
-        (payload) => {
-          callback(payload.payload as DriverLocation)
-        }
-      )
+      .on('broadcast', { event: 'location-update' }, (payload) => {
+        callback(payload.payload as DriverLocation)
+      })
       .subscribe()
 
     this.subscriptions.set(`location:${orderId}`, channel)
@@ -262,13 +284,9 @@ export class OrderRealtimeManager {
 
     const channel = supabase
       .channel(channelName)
-      .on(
-        'broadcast',
-        { event: 'notification' },
-        (payload) => {
-          callback(payload.payload as OrderNotification)
-        }
-      )
+      .on('broadcast', { event: 'notification' }, (payload) => {
+        callback(payload.payload as OrderNotification)
+      })
       .subscribe()
 
     this.subscriptions.set(`notification:${userId}`, channel)
@@ -298,21 +316,21 @@ export class OrderRealtimeManager {
       .channel(channelName, {
         config: {
           presence: {
-            key: 'driver'
-          }
-        }
+            key: 'driver',
+          },
+        },
       })
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState()
         const transformedState: PresenceState = {}
-        Object.keys(state).forEach(key => {
+        Object.keys(state).forEach((key) => {
           const presences = state[key]
           if (presences) {
-            transformedState[key] = presences.map(p => ({
+            transformedState[key] = presences.map((p) => ({
               id: (p as any).id || key,
               status: (p as any).status || 'available',
               timestamp: (p as any).timestamp || new Date().toISOString(),
-              full_name: (p as any).full_name
+              full_name: (p as any).full_name,
             }))
           }
         })
@@ -321,14 +339,14 @@ export class OrderRealtimeManager {
       .on('presence', { event: 'join' }, (payload) => {
         const transformedState: PresenceState = {}
         const newPresences = payload.newPresences as unknown as Record<string, any[]>
-        Object.keys(newPresences).forEach(key => {
+        Object.keys(newPresences).forEach((key) => {
           const presences = newPresences[key]
           if (presences) {
-            transformedState[key] = presences.map(p => ({
+            transformedState[key] = presences.map((p) => ({
               id: (p as any).id || key,
               status: (p as any).status || 'available',
               timestamp: (p as any).timestamp || new Date().toISOString(),
-              full_name: (p as any).full_name
+              full_name: (p as any).full_name,
             }))
           }
         })
@@ -337,21 +355,24 @@ export class OrderRealtimeManager {
       .on('presence', { event: 'leave' }, (payload) => {
         const transformedState: PresenceState = {}
         const leftPresences = payload.leftPresences as unknown as Record<string, any[]>
-        Object.keys(leftPresences).forEach(key => {
+        Object.keys(leftPresences).forEach((key) => {
           const presences = leftPresences[key]
           if (presences) {
-            transformedState[key] = presences.map(p => ({
+            transformedState[key] = presences.map((p) => ({
               id: (p as any).id || key,
               status: (p as any).status || 'offline',
               timestamp: (p as any).timestamp || new Date().toISOString(),
-              full_name: (p as any).full_name
+              full_name: (p as any).full_name,
             }))
           }
         })
         callback(transformedState)
       })
       .subscribe((status) => {
-        this.connectionStates.set('presence', status === 'SUBSCRIBED' ? 'connected' : 'disconnected')
+        this.connectionStates.set(
+          'presence',
+          status === 'SUBSCRIBED' ? 'connected' : 'disconnected'
+        )
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           this.scheduleReconnect('presence', () => this.subscribeToDriverPresence(callback))
         }
@@ -370,7 +391,7 @@ export class OrderRealtimeManager {
       await channel.track({
         id: driverId,
         status,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
     }
   }
@@ -384,19 +405,18 @@ export class OrderRealtimeManager {
 
       const channel = supabase.channel(channelName, {
         config: {
-          broadcast: { self: false }
-        }
+          broadcast: { self: false },
+        },
       })
 
       await channel.send({
         type: 'broadcast',
         event: 'notification',
-        payload: notification
+        payload: notification,
       })
 
       // Clean up channel after sending
       supabase.removeChannel(channel)
-
     } catch (error) {
       logger.error('Failed to send notification:', error)
     }
@@ -411,23 +431,22 @@ export class OrderRealtimeManager {
 
       const channel = supabase.channel(channelName, {
         config: {
-          broadcast: { self: false }
-        }
+          broadcast: { self: false },
+        },
       })
 
       await channel.send({
         type: 'broadcast',
         event: 'location-update',
-        payload: location
+        payload: location,
       })
 
       // Clean up channel after sending
       supabase.removeChannel(channel)
-
     } catch (error) {
       logger.error('Failed to send driver location update:', error)
     }
- }
+  }
 
   /**
    * Send notifications when order status changes
@@ -435,9 +454,10 @@ export class OrderRealtimeManager {
   async notifyOrderStatusChange(orderId: string, oldStatus: string, newStatus: string) {
     try {
       // Get order details with related data
-      const { data: order } = await supabase
+      const { data: order } = (await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           id,
           restaurant_id,
           driver_id,
@@ -449,9 +469,10 @@ export class OrderRealtimeManager {
           profiles!orders_driver_id_fkey (
             full_name
           )
-        `)
+        `
+        )
         .eq('id', orderId)
-        .single() as { data: any; error: any }
+        .single()) as { data: any; error: any }
 
       if (!order) return
 
@@ -469,8 +490,9 @@ export class OrderRealtimeManager {
             order_id: orderId,
             old_status: oldStatus,
             new_status: newStatus,
-            restaurant_name: (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name
-          }
+            restaurant_name:
+              (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name,
+          },
         })
       }
 
@@ -486,13 +508,16 @@ export class OrderRealtimeManager {
             order_id: orderId,
             old_status: oldStatus,
             new_status: newStatus,
-            restaurant_name: (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name
-          }
+            restaurant_name:
+              (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name,
+          },
         })
       }
 
       // Notify admins for important status changes
-      if (['assigned', 'out_for_delivery', 'delivered', 'completed', 'cancelled'].includes(newStatus)) {
+      if (
+        ['assigned', 'out_for_delivery', 'delivered', 'completed', 'cancelled'].includes(newStatus)
+      ) {
         // In a real app, you'd get all admin users
         // For now, we'll broadcast to an admin channel
         notifications.push({
@@ -505,30 +530,29 @@ export class OrderRealtimeManager {
             order_id: orderId,
             old_status: oldStatus,
             new_status: newStatus,
-            restaurant_name: (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name,
-            driver_name: (order as any).profiles ? (order as any).profiles.full_name : null
-          }
+            restaurant_name:
+              (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name,
+            driver_name: (order as any).profiles ? (order as any).profiles.full_name : null,
+          },
         })
       }
 
       // Send all notifications
-      await Promise.all(
-        notifications.map(notification => this.sendNotification(notification))
-      )
-
+      await Promise.all(notifications.map((notification) => this.sendNotification(notification)))
     } catch (error) {
       logger.error('Failed to send order status notifications:', error)
     }
- }
+  }
 
   /**
    * Send notification when order is assigned to driver
    */
   async notifyOrderAssigned(orderId: string, driverId: string) {
     try {
-      const { data: order } = await supabase
+      const { data: order } = (await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           id,
           restaurant_id,
           profiles!orders_restaurant_id_fkey (
@@ -538,9 +562,10 @@ export class OrderRealtimeManager {
           profiles!orders_driver_id_fkey (
             full_name
           )
-        `)
+        `
+        )
         .eq('id', orderId)
-        .single() as { data: any; error: any }
+        .single()) as { data: any; error: any }
 
       if (!order) return
 
@@ -555,8 +580,8 @@ export class OrderRealtimeManager {
         recipient_role: 'driver',
         data: {
           order_id: orderId,
-          restaurant_name: order.profiles?.restaurant_name || order.profiles?.full_name
-        }
+          restaurant_name: order.profiles?.restaurant_name || order.profiles?.full_name,
+        },
       })
 
       // Notify restaurant
@@ -569,8 +594,8 @@ export class OrderRealtimeManager {
           recipient_role: 'restaurant',
           data: {
             order_id: orderId,
-            driver_name: order.profiles ? order.profiles.full_name : null
-          }
+            driver_name: order.profiles ? order.profiles.full_name : null,
+          },
         })
       }
 
@@ -584,35 +609,34 @@ export class OrderRealtimeManager {
         data: {
           order_id: orderId,
           driver_name: order.profiles ? order.profiles.full_name : null,
-          restaurant_name: order.profiles?.restaurant_name || order.profiles?.full_name
-        }
+          restaurant_name: order.profiles?.restaurant_name || order.profiles?.full_name,
+        },
       })
 
-      await Promise.all(
-        notifications.map(notification => this.sendNotification(notification))
-      )
-
+      await Promise.all(notifications.map((notification) => this.sendNotification(notification)))
     } catch (error) {
       logger.error('Failed to send order assignment notifications:', error)
     }
   }
 
- /**
+  /**
    * Send notification for new order creation
    */
   async notifyOrderCreated(orderId: string, restaurantId: string) {
     try {
-      const { data: order } = await supabase
+      const { data: order } = (await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           id,
           profiles!orders_restaurant_id_fkey (
             full_name,
             restaurant_name
           )
-        `)
+        `
+        )
         .eq('id', orderId)
-        .single() as { data: any; error: any }
+        .single()) as { data: any; error: any }
 
       if (!order) return
 
@@ -625,10 +649,9 @@ export class OrderRealtimeManager {
         recipient_role: 'admin',
         data: {
           order_id: orderId,
-          restaurant_name: order.profiles?.restaurant_name || order.profiles?.full_name
-        }
+          restaurant_name: order.profiles?.restaurant_name || order.profiles?.full_name,
+        },
       })
-
     } catch (error) {
       logger.error('Failed to send order creation notification:', error)
     }
@@ -641,7 +664,8 @@ export class OrderRealtimeManager {
     try {
       const { data: order } = await supabase
         .from('orders')
-        .select(`
+        .select(
+          `
           id,
           restaurant_id,
           profiles!orders_restaurant_id_fkey (
@@ -651,7 +675,8 @@ export class OrderRealtimeManager {
           profiles!orders_driver_id_fkey (
             full_name
           )
-        `)
+        `
+        )
         .eq('id', orderId)
         .single()
 
@@ -670,8 +695,8 @@ export class OrderRealtimeManager {
           data: {
             order_id: orderId,
             status,
-            driver_name: (order as any).profiles ? (order as any).profiles.full_name : null
-          }
+            driver_name: (order as any).profiles ? (order as any).profiles.full_name : null,
+          },
         })
       }
 
@@ -686,14 +711,12 @@ export class OrderRealtimeManager {
           order_id: orderId,
           status,
           driver_name: (order as any).profiles ? (order as any).profiles.full_name : null,
-          restaurant_name: (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name
-        }
+          restaurant_name:
+            (order as any).profiles?.restaurant_name || (order as any).profiles?.full_name,
+        },
       })
 
-      await Promise.all(
-        notifications.map(notification => this.sendNotification(notification))
-      )
-
+      await Promise.all(notifications.map((notification) => this.sendNotification(notification)))
     } catch (error) {
       logger.error('Failed to send delivery status update notification:', error)
     }
@@ -702,11 +725,7 @@ export class OrderRealtimeManager {
   /**
    * Handle throttled callback execution
    */
-  private handleThrottledCallback<T>(
-    key: string,
-    callback: (payload: T) => void,
-    payload: T
-  ) {
+  private handleThrottledCallback<T>(key: string, callback: (payload: T) => void, payload: T) {
     const now = Date.now()
     const bucket = this.throttleBuckets.get(key) || { count: 0, resetTime: now + 1000 }
 
@@ -735,7 +754,10 @@ export class OrderRealtimeManager {
       clearTimeout(existingTimeout)
     }
 
-    const delay = Math.min(1000 * Math.pow(2, this.connectionStates.get(key) === 'error' ? 1 : 0), 30000)
+    const delay = Math.min(
+      1000 * Math.pow(2, this.connectionStates.get(key) === 'error' ? 1 : 0),
+      30000
+    )
     const timeout = setTimeout(() => {
       logger.info(`Reconnecting ${key}...`)
       reconnectFn()
@@ -779,7 +801,7 @@ export class OrderRealtimeManager {
       return new Notification(title, {
         icon: '/favicon.ico',
         badge: '/favicon.ico',
-        ...options
+        ...options,
       })
     }
     return undefined
@@ -817,10 +839,13 @@ import { useEffect, useRef, useCallback } from 'react'
 export function useOrderRealtime(userId: string) {
   const callbackRef = useRef<((payload: PostgresChangePayload<Order>) => void) | null>(null)
 
-  const subscribe = useCallback((callback: (payload: PostgresChangePayload<Order>) => void) => {
-    callbackRef.current = callback
-    return orderRealtimeManager.subscribeToOrderUpdates(userId, callback)
-  }, [userId])
+  const subscribe = useCallback(
+    (callback: (payload: PostgresChangePayload<Order>) => void) => {
+      callbackRef.current = callback
+      return orderRealtimeManager.subscribeToOrderUpdates(userId, callback)
+    },
+    [userId]
+  )
 
   const unsubscribe = useCallback(() => {
     orderRealtimeManager.unsubscribeFromOrderUpdates(userId)
@@ -859,10 +884,13 @@ export function useAdminOrderRealtime() {
 export function useDriverLocationTracking(orderId: string) {
   const callbackRef = useRef<((location: DriverLocation) => void) | null>(null)
 
-  const subscribe = useCallback((callback: (location: DriverLocation) => void) => {
-    callbackRef.current = callback
-    return orderRealtimeManager.subscribeToDriverLocation(orderId, callback)
-  }, [orderId])
+  const subscribe = useCallback(
+    (callback: (location: DriverLocation) => void) => {
+      callbackRef.current = callback
+      return orderRealtimeManager.subscribeToDriverLocation(orderId, callback)
+    },
+    [orderId]
+  )
 
   const unsubscribe = useCallback(() => {
     orderRealtimeManager.unsubscribeFromDriverLocation(orderId)
@@ -884,10 +912,13 @@ export function useDriverLocationTracking(orderId: string) {
 export function useNotifications(userId: string) {
   const callbackRef = useRef<((notification: OrderNotification) => void) | null>(null)
 
-  const subscribe = useCallback((callback: (notification: OrderNotification) => void) => {
-    callbackRef.current = callback
-    return orderRealtimeManager.subscribeToNotifications(userId, callback)
-  }, [userId])
+  const subscribe = useCallback(
+    (callback: (notification: OrderNotification) => void) => {
+      callbackRef.current = callback
+      return orderRealtimeManager.subscribeToNotifications(userId, callback)
+    },
+    [userId]
+  )
 
   const unsubscribe = useCallback(() => {
     orderRealtimeManager.unsubscribeFromNotifications(userId)
@@ -914,9 +945,12 @@ export function useDriverPresence() {
     return await orderRealtimeManager.subscribeToDriverPresence(callback)
   }, [])
 
-  const trackPresence = useCallback((driverId: string, status: 'available' | 'busy' | 'offline') => {
-    return orderRealtimeManager.trackDriverPresence(driverId, status)
-  }, [])
+  const trackPresence = useCallback(
+    (driverId: string, status: 'available' | 'busy' | 'offline') => {
+      return orderRealtimeManager.trackDriverPresence(driverId, status)
+    },
+    []
+  )
 
   useEffect(() => {
     return () => {
@@ -940,7 +974,7 @@ export async function setupOrderStatusChangeListener(
         event: 'UPDATE',
         schema: 'public',
         table: 'orders',
-        filter: `id=eq.${orderId}`
+        filter: `id=eq.${orderId}`,
       },
       (payload) => {
         const oldStatus = payload.old.status

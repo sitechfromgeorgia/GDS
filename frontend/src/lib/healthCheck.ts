@@ -20,7 +20,7 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
     database: false,
     auth: false,
     storage: false,
-    realtime: false
+    realtime: false,
   }
 
   try {
@@ -58,18 +58,18 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
     }
 
     const latency = Date.now() - startTime
-    const allHealthy = Object.values(checks).every(check => check === true)
+    const allHealthy = Object.values(checks).every((check) => check === true)
 
     return {
       status: allHealthy ? 'healthy' : 'unhealthy',
       checks,
-      latency
+      latency,
     }
   } catch (error) {
     return {
       status: 'unknown',
       checks,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }
@@ -79,6 +79,6 @@ export function getBackendInfo() {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not configured',
     hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    environment: process.env.NODE_ENV || 'unknown'
+    environment: process.env.NODE_ENV || 'unknown',
   }
 }

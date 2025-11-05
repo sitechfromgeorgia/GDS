@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useChatMessages } from '@/hooks/useChatMessages'
 import { useUserPresence } from '@/hooks/useUserPresence'
 import type { ChatMessage } from '@/types/database'
+import { logger } from '@/lib/logger'
 
 interface LiveChatProps {
   orderId: string
@@ -30,7 +31,7 @@ export function LiveChat({
   userId,
   otherUserId,
   otherUserName,
-  className = ''
+  className = '',
 }: LiveChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -47,19 +48,20 @@ export function LiveChat({
     markAllAsRead,
     isOtherUserTyping,
     startTyping,
-    stopTyping
+    stopTyping,
   } = useChatMessages({
     orderId,
     userId,
-    markAsReadOnReceive: true
+    markAsReadOnReceive: true,
   })
 
   const { presences } = useUserPresence({
-    userIds: [otherUserId]
+    userIds: [otherUserId],
   })
 
   const otherUserPresence = presences.get(otherUserId)
-  const isOtherUserOnline = otherUserPresence?.status === 'online' || otherUserPresence?.status === 'busy'
+  const isOtherUserOnline =
+    otherUserPresence?.status === 'online' || otherUserPresence?.status === 'busy'
 
   /**
    * Scroll to bottom of messages
@@ -84,7 +86,7 @@ export function LiveChat({
         inputRef.current.style.height = 'auto'
       }
     } catch (err) {
-      console.error('Failed to send message:', err)
+      logger.error('Failed to send chat message', err as Error, { orderId })
     }
   }
 
@@ -144,7 +146,7 @@ export function LiveChat({
     let currentGroup: ChatMessage[] = []
     let lastSenderId: string | null = null
 
-    msgs.forEach(msg => {
+    msgs.forEach((msg) => {
       if (msg.sender_id !== lastSenderId) {
         if (currentGroup.length > 0) {
           grouped.push(currentGroup)
@@ -202,9 +204,7 @@ export function LiveChat({
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">{otherUserName}</h3>
-            <p className="text-xs text-gray-500">
-              {isOtherUserOnline ? 'Online' : 'Offline'}
-            </p>
+            <p className="text-xs text-gray-500">{isOtherUserOnline ? 'Online' : 'Offline'}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -233,7 +233,7 @@ export function LiveChat({
         ) : (
           <>
             {groupMessages(messages).map((group, groupIndex) => {
-              const isOwnMessage = group[0].sender_id === userId
+              const isOwnMessage = group[0]?.sender_id === userId
               return (
                 <div
                   key={groupIndex}
@@ -249,9 +249,7 @@ export function LiveChat({
                             : 'bg-gray-100 text-gray-900 rounded-bl-none'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap break-words">
-                          {message.message}
-                        </p>
+                        <p className="text-sm whitespace-pre-wrap break-words">{message.message}</p>
                         {index === group.length - 1 && (
                           <div
                             className={`flex items-center justify-end space-x-1 mt-1 text-xs ${
@@ -279,8 +277,14 @@ export function LiveChat({
                 <div className="bg-gray-100 rounded-lg rounded-bl-none px-4 py-3">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.1s' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.2s' }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -317,7 +321,12 @@ export function LiveChat({
             className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex-shrink-0 h-[42px]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
             </svg>
           </button>
         </div>

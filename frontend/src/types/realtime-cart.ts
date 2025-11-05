@@ -12,11 +12,7 @@ export interface CartSession {
   updatedAt: string
 }
 
-export type CartActivityType = 
-  | 'item_added'
-  | 'item_updated' 
-  | 'item_removed'
-  | 'cart_cleared'
+export type CartActivityType = 'item_added' | 'item_updated' | 'item_removed' | 'cart_cleared'
 
 export interface RealtimeCartUpdate {
   type: string

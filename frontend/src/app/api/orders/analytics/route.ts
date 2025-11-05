@@ -17,13 +17,15 @@ type Profile = Database['public']['Tables']['profiles']['Row']
 
 // Extended types for analytics queries
 interface OrderWithItems extends Order {
-  order_items: (OrderItem & {
-    products: {
-      id: string
-      name: string
-      category: string
-    } | null
-  })[] | null
+  order_items:
+    | (OrderItem & {
+        products: {
+          id: string
+          name: string
+          category: string
+        } | null
+      })[]
+    | null
   profiles: Profile | null
 }
 
@@ -33,8 +35,19 @@ const analyticsQuerySchema = z.object({
   end_date: z.string().datetime().optional(),
   restaurant_id: z.string().uuid().optional(),
   driver_id: z.string().uuid().optional(),
-  status: z.enum(['pending', 'confirmed', 'priced', 'assigned', 'out_for_delivery', 'delivered', 'completed', 'cancelled']).optional(),
-  limit: z.number().int().min(1).max(1000).optional().default(100)
+  status: z
+    .enum([
+      'pending',
+      'confirmed',
+      'priced',
+      'assigned',
+      'out_for_delivery',
+      'delivered',
+      'completed',
+      'cancelled',
+    ])
+    .optional(),
+  limit: z.number().int().min(1).max(1000).optional().default(100),
 })
 
 /**
@@ -46,12 +59,12 @@ export async function GET(request: NextRequest) {
     const supabase = await createServerClient()
 
     // Verify authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
     // Get user role
@@ -62,10 +75,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'User profile not found' }, { status: 403 })
     }
 
     // Type assertion for profile
@@ -79,7 +89,7 @@ export async function GET(request: NextRequest) {
       restaurant_id: url.searchParams.get('restaurant_id') || undefined,
       driver_id: url.searchParams.get('driver_id') || undefined,
       status: url.searchParams.get('status') as OrderStatus | undefined,
-      limit: parseInt(url.searchParams.get('limit') || '100')
+      limit: parseInt(url.searchParams.get('limit') || '100'),
     }
 
     const parsed = analyticsQuerySchema.safeParse(queryParams)
@@ -91,9 +101,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build base query with role-based filtering
-    let ordersQuery = supabase
-      .from('orders')
-      .select(`
+    let ordersQuery = supabase.from('orders').select(`
         id,
         restaurant_id,
         driver_id,
@@ -145,18 +153,13 @@ export async function GET(request: NextRequest) {
     // Admin can see all orders
 
     // Apply limit and ordering
-    ordersQuery = ordersQuery
-      .order('created_at', { ascending: false })
-      .limit(parsed.data.limit)
+    ordersQuery = ordersQuery.order('created_at', { ascending: false }).limit(parsed.data.limit)
 
     const { data: orders, error: ordersError } = await ordersQuery
 
     if (ordersError) {
       logger.error('Failed to fetch orders for analytics:', ordersError)
-      return NextResponse.json(
-        { error: 'Failed to fetch analytics data' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch analytics data' }, { status: 500 })
     }
 
     // Type assertion for orders
@@ -167,32 +170,32 @@ export async function GET(request: NextRequest) {
       summary: {
         total_orders: typedOrders?.length || 0,
         total_revenue: typedOrders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0,
-        completed_orders: typedOrders?.filter(order => order.status === 'completed').length || 0,
-        pending_orders: typedOrders?.filter(order => order.status === 'pending').length || 0,
-        cancelled_orders: typedOrders?.filter(order => order.status === 'cancelled').length || 0
+        completed_orders: typedOrders?.filter((order) => order.status === 'completed').length || 0,
+        pending_orders: typedOrders?.filter((order) => order.status === 'pending').length || 0,
+        cancelled_orders: typedOrders?.filter((order) => order.status === 'cancelled').length || 0,
       },
-      orders_by_status: typedOrders?.reduce((acc, order) => {
-        acc[order.status] = (acc[order.status] || 0) + 1
-        return acc
-      }, {} as Record<string, number>) || {},
+      orders_by_status:
+        typedOrders?.reduce(
+          (acc, order) => {
+            acc[order.status] = (acc[order.status] || 0) + 1
+            return acc
+          },
+          {} as Record<string, number>
+        ) || {},
       profit_analysis: calculateProfitAnalysis(typedOrders || []),
       top_products: calculateTopProducts(typedOrders || []),
-      performance_metrics: calculatePerformanceMetrics(typedOrders || [])
+      performance_metrics: calculatePerformanceMetrics(typedOrders || []),
     }
 
     return NextResponse.json({
       success: true,
       analytics,
       data: orders,
-      query: parsed.data
+      query: parsed.data,
     })
-
   } catch (error) {
     logger.error('Analytics API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -203,14 +206,14 @@ function calculateProfitAnalysis(orders: OrderWithItems[]) {
   let totalRevenue = 0
   let totalProfit = 0
 
-  orders.forEach(order => {
+  orders.forEach((order) => {
     if (order.order_items) {
       order.order_items.forEach((item) => {
         const cost = (item.cost_price || 0) * item.quantity
         const revenue = (item.selling_price || 0) * item.quantity
         totalCost += cost
         totalRevenue += revenue
-        totalProfit += (revenue - cost)
+        totalProfit += revenue - cost
       })
     }
   })
@@ -219,14 +222,17 @@ function calculateProfitAnalysis(orders: OrderWithItems[]) {
     total_cost: totalCost,
     total_revenue: totalRevenue,
     total_profit: totalProfit,
-    profit_margin: totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0
+    profit_margin: totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0,
   }
 }
 
 function calculateTopProducts(orders: OrderWithItems[]) {
-  const productStats: Record<string, { name: string; total_quantity: number; total_revenue: number }> = {}
+  const productStats: Record<
+    string,
+    { name: string; total_quantity: number; total_revenue: number }
+  > = {}
 
-  orders.forEach(order => {
+  orders.forEach((order) => {
     if (order.order_items) {
       order.order_items.forEach((item) => {
         const productId = item.products?.id
@@ -237,7 +243,7 @@ function calculateTopProducts(orders: OrderWithItems[]) {
             productStats[productId] = {
               name: productName,
               total_quantity: 0,
-              total_revenue: 0
+              total_revenue: 0,
             }
           }
 
@@ -254,28 +260,31 @@ function calculateTopProducts(orders: OrderWithItems[]) {
 }
 
 function calculatePerformanceMetrics(orders: OrderWithItems[]) {
-  const completedOrders = orders.filter(order => order.status === 'completed')
+  const completedOrders = orders.filter((order) => order.status === 'completed')
 
   if (completedOrders.length === 0) {
     return {
       average_delivery_time: 0,
       on_time_delivery_rate: 0,
-      total_deliveries: 0
+      total_deliveries: 0,
     }
   }
 
   // Calculate average delivery time (simplified - in real app, you'd track actual delivery timestamps)
-  const avgDeliveryTime = completedOrders.length > 0
-    ? completedOrders.reduce((sum, order) => {
-        const created = new Date(order.created_at).getTime()
-        const updated = new Date(order.updated_at).getTime()
-        return sum + (updated - created)
-      }, 0) / completedOrders.length / (1000 * 60 * 60) // Convert to hours
-    : 0
+  const avgDeliveryTime =
+    completedOrders.length > 0
+      ? completedOrders.reduce((sum, order) => {
+          const created = new Date(order.created_at).getTime()
+          const updated = new Date(order.updated_at).getTime()
+          return sum + (updated - created)
+        }, 0) /
+        completedOrders.length /
+        (1000 * 60 * 60) // Convert to hours
+      : 0
 
   return {
     average_delivery_time: Math.round(avgDeliveryTime * 100) / 100, // Round to 2 decimal places
     on_time_delivery_rate: 0, // Would need delivery time targets to calculate
-    total_deliveries: completedOrders.length
+    total_deliveries: completedOrders.length,
   }
 }

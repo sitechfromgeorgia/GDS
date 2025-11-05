@@ -46,19 +46,16 @@ export default function OrderPage() {
   }, [saveCartToStorage])
 
   const handleAddToCart = (product: Product, quantity: number, notes?: string) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.product.id === product.id)
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item.product.id === product.id)
 
       if (existingItem) {
-        return prevItems.map(item =>
+        return prevItems.map((item) =>
           item.product.id === product.id
             ? {
                 ...item,
-                quantity: Math.min(
-                  item.quantity + quantity,
-                  product.max_order_quantity || 100
-                ),
-                notes: notes || item.notes
+                quantity: Math.min(item.quantity + quantity, product.max_order_quantity || 100),
+                notes: notes || item.notes,
               }
             : item
         )
@@ -79,19 +76,13 @@ export default function OrderPage() {
   }
 
   const handleUpdateQuantity = (productId: string, quantity: number) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.product.id === productId
-          ? { ...item, quantity }
-          : item
-      )
+    setCartItems((prevItems) =>
+      prevItems.map((item) => (item.product.id === productId ? { ...item, quantity } : item))
     )
   }
 
   const handleRemoveItem = (productId: string) => {
-    setCartItems(prevItems =>
-      prevItems.filter(item => item.product.id !== productId)
-    )
+    setCartItems((prevItems) => prevItems.filter((item) => item.product.id !== productId))
 
     toast({
       title: 'ამოღებულია კალათიდან',
@@ -100,12 +91,8 @@ export default function OrderPage() {
   }
 
   const handleUpdateNotes = (productId: string, notes: string) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.product.id === productId
-          ? { ...item, notes }
-          : item
-      )
+    setCartItems((prevItems) =>
+      prevItems.map((item) => (item.product.id === productId ? { ...item, notes } : item))
     )
   }
 
@@ -127,7 +114,7 @@ export default function OrderPage() {
         toast({
           title: 'შეცდომა',
           description: 'კალათი ცარიელია',
-          variant: 'destructive'
+          variant: 'destructive',
         })
         return
       }
@@ -136,7 +123,7 @@ export default function OrderPage() {
         items: cartItems,
         delivery_address: orderData.deliveryAddress,
         delivery_time: orderData.deliveryTime,
-        special_instructions: orderData.specialInstructions
+        special_instructions: orderData.specialInstructions,
       })
 
       // Clear cart after successful order
@@ -155,7 +142,7 @@ export default function OrderPage() {
       toast({
         title: 'შეცდომა',
         description: 'შეკვეთის გაგზავნა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -164,9 +151,7 @@ export default function OrderPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">ახალი შეკვეთა</h1>
-        <p className="text-muted-foreground">
-          აირჩიეთ პროდუქტები და განათავსეთ შეკვეთა
-        </p>
+        <p className="text-muted-foreground">აირჩიეთ პროდუქტები და განათავსეთ შეკვეთა</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -178,10 +163,7 @@ export default function OrderPage() {
         </TabsList>
 
         <TabsContent value="catalog" className="mt-6">
-          <ProductCatalog
-            onAddToCart={handleAddToCart}
-            cartItems={cartItems}
-          />
+          <ProductCatalog onAddToCart={handleAddToCart} cartItems={cartItems} />
         </TabsContent>
 
         <TabsContent value="cart" className="mt-6">

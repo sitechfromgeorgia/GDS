@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-import { useDemo } from '@/hooks/useDemo';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Package, Truck, BarChart3, Clock, Star } from 'lucide-react';
+import { useDemo } from '@/hooks/useDemo'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Users, Package, Truck, BarChart3, Clock, Star } from 'lucide-react'
 
 export default function DemoDashboard() {
-  const { currentRole, sampleData, analyticsData, isLoading } = useDemo();
+  const { currentRole, sampleData, analyticsData, isLoading } = useDemo()
 
   // Access the correct analytics data structure
   const adminAnalytics = analyticsData[currentRole || 'admin'] || {
@@ -18,34 +18,42 @@ export default function DemoDashboard() {
     total_revenue: 0,
     active_restaurants: 0,
     active_drivers: 0,
-    monthly_growth: 0
-  };
+    monthly_growth: 0,
+  }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
-    );
+    )
   }
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return <Users className="h-5 w-5" />;
-      case 'restaurant': return <Package className="h-5 w-5" />;
-      case 'driver': return <Truck className="h-5 w-5" />;
-      default: return <Users className="h-5 w-5" />;
+      case 'admin':
+        return <Users className="h-5 w-5" />
+      case 'restaurant':
+        return <Package className="h-5 w-5" />
+      case 'driver':
+        return <Truck className="h-5 w-5" />
+      default:
+        return <Users className="h-5 w-5" />
     }
-  };
+  }
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-primary/10 text-primary';
-      case 'restaurant': return 'bg-green-500/10 text-green-700 dark:text-green-400';
-      case 'driver': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin':
+        return 'bg-primary/10 text-primary'
+      case 'restaurant':
+        return 'bg-green-500/10 text-green-700 dark:text-green-400'
+      case 'driver':
+        return 'bg-orange-100 text-orange-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -57,12 +65,15 @@ export default function DemoDashboard() {
               Welcome to Georgian Distribution Demo
             </h1>
             <p className="text-gray-600 mt-1">
-              Experience our comprehensive food delivery management system from different perspectives
+              Experience our comprehensive food delivery management system from different
+              perspectives
             </p>
           </div>
           <Badge className={`${getRoleColor(currentRole || 'demo')} flex items-center gap-2`}>
             {getRoleIcon(currentRole || 'demo')}
-            {(currentRole || 'demo').charAt(0).toUpperCase() + (currentRole || 'demo').slice(1)} View
+            {(currentRole || 'demo').charAt(0).toUpperCase() +
+              (currentRole || 'demo').slice(1)}{' '}
+            View
           </Badge>
         </div>
       </div>
@@ -76,9 +87,7 @@ export default function DemoDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Demo data
-            </p>
+            <p className="text-xs text-muted-foreground">Demo data</p>
           </CardContent>
         </Card>
 
@@ -89,9 +98,7 @@ export default function DemoDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₾--</div>
-            <p className="text-xs text-muted-foreground">
-              Demo data
-            </p>
+            <p className="text-xs text-muted-foreground">Demo data</p>
           </CardContent>
         </Card>
 
@@ -102,9 +109,7 @@ export default function DemoDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Demo environment
-            </p>
+            <p className="text-xs text-muted-foreground">Demo environment</p>
           </CardContent>
         </Card>
 
@@ -115,9 +120,7 @@ export default function DemoDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Demo environment
-            </p>
+            <p className="text-xs text-muted-foreground">Demo environment</p>
           </CardContent>
         </Card>
       </div>
@@ -127,9 +130,7 @@ export default function DemoDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Sample Data Overview</CardTitle>
-          <CardDescription>
-            Preview of the demo data available in this session
-          </CardDescription>
+          <CardDescription>Preview of the demo data available in this session</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -153,5 +154,5 @@ export default function DemoDashboard() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

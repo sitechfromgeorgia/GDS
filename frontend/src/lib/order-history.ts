@@ -4,7 +4,7 @@ import { ORDER_STATUSES, USER_ROLES } from '@/constants'
 import { createServerClient } from '@/lib/supabase/server'
 
 type Order = Database['public']['Tables']['orders']['Row']
-type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
+type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES]
 
 /**
  * Order status change history entry
@@ -27,7 +27,15 @@ export interface OrderStatusHistory {
 export interface OrderAuditLog {
   id: string
   order_id: string
-  action: 'created' | 'updated' | 'deleted' | 'status_changed' | 'assigned' | 'priced' | 'delivered' | 'completed'
+  action:
+    | 'created'
+    | 'updated'
+    | 'deleted'
+    | 'status_changed'
+    | 'assigned'
+    | 'priced'
+    | 'delivered'
+    | 'completed'
   user_id: string
   user_role: UserRole
   old_data?: Record<string, unknown>
@@ -42,7 +50,6 @@ export interface OrderAuditLog {
  * Tracks all status changes and audit logs for orders
  */
 export class OrderHistoryManager {
-
   /**
    * Record a status change in history
    */
@@ -59,18 +66,16 @@ export class OrderHistoryManager {
       const supabase = await createServerClient()
 
       // Insert status change record
-      const { error } = await supabase
-        .from('order_status_history')
-        .insert({
-          order_id: orderId,
-          old_status: oldStatus,
-          new_status: newStatus,
-          changed_by: userId,
-          changed_by_role: userRole,
-          changed_at: new Date().toISOString(),
-          notes,
-          metadata
-        } as any)
+      const { error } = await supabase.from('order_status_history').insert({
+        order_id: orderId,
+        old_status: oldStatus,
+        new_status: newStatus,
+        changed_by: userId,
+        changed_by_role: userRole,
+        changed_at: new Date().toISOString(),
+        notes,
+        metadata,
+      } as any)
 
       if (error) {
         logger.error('Failed to record status change:', error)
@@ -85,9 +90,8 @@ export class OrderHistoryManager {
         user_role: userRole,
         old_data: oldStatus ? { status: oldStatus } : undefined,
         new_data: { status: newStatus },
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
-
     } catch (error) {
       logger.error('Error recording status change:', error)
     }
@@ -102,7 +106,8 @@ export class OrderHistoryManager {
 
       const { data, error } = await supabase
         .from('order_status_history')
-        .select(`
+        .select(
+          `
           id,
           order_id,
           old_status,
@@ -115,7 +120,8 @@ export class OrderHistoryManager {
           profiles!order_status_history_changed_by_fkey (
             full_name
           )
-        `)
+        `
+        )
         .eq('order_id', orderId)
         .order('changed_at', { ascending: true })
 
@@ -124,8 +130,7 @@ export class OrderHistoryManager {
         return []
       }
 
-      return data || []
-
+      return (data || []) as any
     } catch (error) {
       logger.error('Error getting order status history:', error)
       return []
@@ -150,8 +155,7 @@ export class OrderHistoryManager {
         return []
       }
 
-      return data || []
-
+      return (data || []) as any
     } catch (error) {
       logger.error('Error getting order audit log:', error)
       return []
@@ -165,14 +169,11 @@ export class OrderHistoryManager {
     try {
       const supabase = await createServerClient()
 
-      const { error } = await supabase
-        .from('order_audit_logs')
-        .insert(logEntry as any)
+      const { error } = await supabase.from('order_audit_logs').insert(logEntry as any)
 
       if (error) {
         logger.error('Failed to create audit log:', error)
       }
-
     } catch (error) {
       logger.error('Error creating audit log:', error)
     }
@@ -181,18 +182,20 @@ export class OrderHistoryManager {
   /**
    * Get order timeline (combines status changes and other events)
    */
-  static async getOrderTimeline(orderId: string): Promise<Array<{
-    id: string
-    type: 'status_change' | 'assignment' | 'delivery' | 'completion' | 'cancellation'
-    timestamp: string
-    description: string
-    user?: string
-    metadata?: Record<string, unknown>
-  }>> {
+  static async getOrderTimeline(orderId: string): Promise<
+    Array<{
+      id: string
+      type: 'status_change' | 'assignment' | 'delivery' | 'completion' | 'cancellation'
+      timestamp: string
+      description: string
+      user?: string
+      metadata?: Record<string, unknown>
+    }>
+  > {
     try {
       const [statusHistory, auditLogs] = await Promise.all([
         this.getOrderStatusHistory(orderId),
-        this.getOrderAuditLog(orderId)
+        this.getOrderAuditLog(orderId),
       ])
 
       const timeline: Array<{
@@ -205,7 +208,7 @@ export class OrderHistoryManager {
       }> = []
 
       // Add status changes
-      statusHistory.forEach(entry => {
+      statusHistory.forEach((entry) => {
         timeline.push({
           id: entry.id,
           type: 'status_change',
@@ -215,28 +218,30 @@ export class OrderHistoryManager {
           metadata: {
             old_status: entry.old_status,
             new_status: entry.new_status,
-            notes: entry.notes
-          }
+            notes: entry.notes,
+          },
         })
       })
 
       // Add other audit events
-      auditLogs.forEach(log => {
-        if (log.action !== 'status_changed') { // Avoid duplicates
+      auditLogs.forEach((log) => {
+        if (log.action !== 'status_changed') {
+          // Avoid duplicates
           timeline.push({
             id: log.id,
             type: this.mapAuditActionToType(log.action),
             timestamp: log.timestamp,
             description: this.getAuditDescription(log),
             user: 'System', // Would need to join with profiles table
-            metadata: undefined
+            metadata: undefined,
           })
         }
       })
 
       // Sort by timestamp
-      return timeline.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-
+      return timeline.sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      )
     } catch (error) {
       logger.error('Error getting order timeline:', error)
       return []
@@ -256,7 +261,8 @@ export class OrderHistoryManager {
 
       const { data, error } = await supabase
         .from('order_status_history')
-        .select(`
+        .select(
+          `
           *,
           orders (
             id,
@@ -266,7 +272,8 @@ export class OrderHistoryManager {
               full_name
             )
           )
-        `)
+        `
+        )
         .eq('changed_by', userId)
         .gte('changed_at', startDate)
         .lte('changed_at', endDate)
@@ -277,8 +284,7 @@ export class OrderHistoryManager {
         return []
       }
 
-      return data || []
-
+      return (data || []) as any
     } catch (error) {
       logger.error('Error getting user activity:', error)
       return []
@@ -312,7 +318,7 @@ export class OrderHistoryManager {
           totalChanges: 0,
           changesByStatus: {},
           changesByUser: {},
-          averageTimeInStatus: {}
+          averageTimeInStatus: {},
         }
       }
 
@@ -320,7 +326,7 @@ export class OrderHistoryManager {
       const changesByUser: Record<string, number> = {}
 
       const typedChanges = (changes || []) as Array<{ new_status: string; changed_by: string }>
-      typedChanges.forEach(change => {
+      typedChanges.forEach((change) => {
         // Count changes by new status
         changesByStatus[change.new_status] = (changesByStatus[change.new_status] || 0) + 1
 
@@ -332,16 +338,15 @@ export class OrderHistoryManager {
         totalChanges: changes.length,
         changesByStatus,
         changesByUser,
-        averageTimeInStatus: {} // Would need more complex calculation
+        averageTimeInStatus: {}, // Would need more complex calculation
       }
-
     } catch (error) {
       logger.error('Error getting status change stats:', error)
       return {
         totalChanges: 0,
         changesByStatus: {},
         changesByUser: {},
-        averageTimeInStatus: {}
+        averageTimeInStatus: {},
       }
     }
   }
@@ -367,7 +372,6 @@ export class OrderHistoryManager {
       }
 
       return { deleted: data?.length || 0 }
-
     } catch (error) {
       logger.error('Error cleaning up old history:', error)
       return { deleted: 0 }

@@ -12,70 +12,79 @@ const faqs = [
     questions: [
       {
         question: 'How do I get started with Georgian Distribution?',
-        answer: 'Getting started is easy! Simply sign up for a free trial, and our team will guide you through the setup process. We\'ll help you configure your account, import your data, and train your team on using the platform.'
+        answer:
+          "Getting started is easy! Simply sign up for a free trial, and our team will guide you through the setup process. We'll help you configure your account, import your data, and train your team on using the platform.",
       },
       {
         question: 'Do you offer a free trial?',
-        answer: 'Yes! We offer a 14-day free trial with full access to all features. No credit card required to get started. During your trial, you\'ll have access to our support team to help you get the most out of the platform.'
+        answer:
+          "Yes! We offer a 14-day free trial with full access to all features. No credit card required to get started. During your trial, you'll have access to our support team to help you get the most out of the platform.",
       },
       {
         question: 'What types of businesses can use your platform?',
-        answer: 'Our platform is designed for restaurants, food distributors, and delivery drivers. Whether you\'re a single restaurant, a chain of restaurants, or a food distribution company, our platform scales to meet your needs.'
-      }
-    ]
+        answer:
+          "Our platform is designed for restaurants, food distributors, and delivery drivers. Whether you're a single restaurant, a chain of restaurants, or a food distribution company, our platform scales to meet your needs.",
+      },
+    ],
   },
   {
     category: 'Features & Functionality',
     questions: [
       {
         question: 'How does real-time order tracking work?',
-        answer: 'Our platform provides real-time GPS tracking for all deliveries. Restaurants can see the exact location of their orders, estimated delivery times, and receive automatic notifications when orders are picked up, in transit, and delivered.'
+        answer:
+          'Our platform provides real-time GPS tracking for all deliveries. Restaurants can see the exact location of their orders, estimated delivery times, and receive automatic notifications when orders are picked up, in transit, and delivered.',
       },
       {
         question: 'Can I integrate with my existing systems?',
-        answer: 'Yes! We offer comprehensive API access and pre-built integrations with popular POS systems, accounting software, and other business tools. Our integration team can help you connect your existing systems.'
+        answer:
+          'Yes! We offer comprehensive API access and pre-built integrations with popular POS systems, accounting software, and other business tools. Our integration team can help you connect your existing systems.',
       },
       {
         question: 'Is the platform mobile-friendly?',
-        answer: 'Absolutely! We have dedicated mobile apps for drivers and a responsive web interface that works perfectly on all devices. Drivers can manage deliveries on the go, and restaurants can access all features from their phones or tablets.'
+        answer:
+          'Absolutely! We have dedicated mobile apps for drivers and a responsive web interface that works perfectly on all devices. Drivers can manage deliveries on the go, and restaurants can access all features from their phones or tablets.',
       },
       {
         question: 'How secure is my data?',
-        answer: 'Security is our top priority. We use bank-level encryption, comply with GDPR standards, and implement multi-factor authentication. Your data is stored securely and never shared with third parties without your consent.'
-      }
-    ]
+        answer:
+          'Security is our top priority. We use bank-level encryption, comply with GDPR standards, and implement multi-factor authentication. Your data is stored securely and never shared with third parties without your consent.',
+      },
+    ],
   },
   {
     category: 'Pricing & Support',
     questions: [
       {
         question: 'What are your pricing plans?',
-        answer: 'We offer three main plans: Starter ($49/month), Professional ($149/month), and Enterprise ($399/month). All plans include a 14-day free trial. Annual billing saves you 20%. Contact our sales team for custom enterprise pricing.'
+        answer:
+          'We offer three main plans: Starter ($49/month), Professional ($149/month), and Enterprise ($399/month). All plans include a 14-day free trial. Annual billing saves you 20%. Contact our sales team for custom enterprise pricing.',
       },
       {
         question: 'Do you offer refunds?',
-        answer: 'We offer a 30-day money-back guarantee for all paid plans. If you\'re not completely satisfied with our platform, we\'ll refund your payment in full, no questions asked.'
+        answer:
+          "We offer a 30-day money-back guarantee for all paid plans. If you're not completely satisfied with our platform, we'll refund your payment in full, no questions asked.",
       },
       {
         question: 'What kind of support do you provide?',
-        answer: 'We provide 24/7 technical support, comprehensive documentation, video tutorials, and dedicated account managers for enterprise customers. Our average response time is under 2 hours.'
+        answer:
+          'We provide 24/7 technical support, comprehensive documentation, video tutorials, and dedicated account managers for enterprise customers. Our average response time is under 2 hours.',
       },
       {
         question: 'Can I change my plan later?',
-        answer: 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we\'ll prorate any billing adjustments. Contact our support team to make changes to your account.'
-      }
-    ]
-  }
+        answer:
+          "Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any billing adjustments. Contact our support team to make changes to your account.",
+      },
+    ],
+  },
 ]
 
 export function FAQSection() {
   const [openItems, setOpenItems] = useState<string[]>([])
 
   const toggleItem = (itemId: string) => {
-    setOpenItems(prev =>
-      prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
+    setOpenItems((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
     )
   }
 
@@ -116,9 +125,7 @@ export function FAQSection() {
                         onClick={() => toggleItem(itemId)}
                       >
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg text-left pr-4">
-                            {faq.question}
-                          </CardTitle>
+                          <CardTitle className="text-lg text-left pr-4">{faq.question}</CardTitle>
                           <div className="flex-shrink-0">
                             {isOpen ? (
                               <ChevronUp className="h-5 w-5 text-muted-foreground" />
@@ -129,10 +136,12 @@ export function FAQSection() {
                         </div>
                       </CardHeader>
 
-                      <div className={cn(
-                        "overflow-hidden transition-all duration-300 ease-in-out",
-                        isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                      )}>
+                      <div
+                        className={cn(
+                          'overflow-hidden transition-all duration-300 ease-in-out',
+                          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                        )}
+                      >
                         <CardContent className="pt-0">
                           <CardDescription className="text-base leading-relaxed">
                             {faq.answer}

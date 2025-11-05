@@ -31,16 +31,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- ✅ **Real-Time Check**: Does the feature require real-time updates? If yes, are Supabase channels and payload contracts documented?
-- ✅ **Security Check**: Are RLS policies defined for new tables and role matrices updated?
-- ✅ **Type Safety Check**: Are Supabase types regenerated and TypeScript strictness preserved?
-- ✅ **User Story Check**: Are stories independently testable with clear priorities?
-- ✅ **Environment Check**: Is the feature compatible with dual environment setup?
-- ✅ **Performance Check**: Are latency budgets and required indexes planned?
-- ✅ **Localization Check**: Does the feature support Georgian language/currency?
-- ✅ **Authentication Check**: Are Supabase Auth flows implemented end-to-end without mocks?
-- ✅ **Observability Check**: Are logging, metrics, and alerts updated for the change?
-- ✅ **Quality Gate Check**: Does the plan enforce zero TypeScript/lint errors and console hygiene?
+[Gates determined based on constitution file]
 
 ## Project Structure
 

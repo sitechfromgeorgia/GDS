@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, memo } from 'react'
 import Image from 'next/image'
 import { Minus, Plus, Trash2, Edit3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -18,11 +18,11 @@ interface CartItemProps {
   compact?: boolean
 }
 
-export function CartItem({ 
-  item, 
-  className, 
-  showActions = true, 
-  compact = false 
+export const CartItem = memo(function CartItem({
+  item,
+  className,
+  showActions = true,
+  compact = false,
 }: CartItemProps) {
   const { updateProductQuantity, removeProductFromCart, formatTotal } = useCartContext()
   const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -30,7 +30,7 @@ export function CartItem({
 
   const handleQuantityChange = async (newQuantity: number) => {
     if (newQuantity < 0) return
-    
+
     try {
       await updateProductQuantity(item.productId, newQuantity)
     } catch (error) {
@@ -64,13 +64,15 @@ export function CartItem({
             {item.product.name_ka || item.product.name}
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{item.quantity} × {formatTotal(item.unitPrice)}</span>
+            <span>
+              {item.quantity} × {formatTotal(item.unitPrice)}
+            </span>
             <Badge variant="outline" className="text-xs">
               {formatTotal(item.totalPrice)}
             </Badge>
           </div>
         </div>
-        
+
         {showActions && (
           <div className="flex items-center gap-1">
             <Button
@@ -82,9 +84,7 @@ export function CartItem({
             >
               <Minus className="h-3 w-3" />
             </Button>
-            <span className="text-sm font-medium w-8 text-center">
-              {item.quantity}
-            </span>
+            <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
             <Button
               variant="ghost"
               size="sm"
@@ -123,7 +123,7 @@ export function CartItem({
               />
             </div>
           )}
-          
+
           {/* Product Details */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
@@ -134,15 +134,11 @@ export function CartItem({
                 <p className="text-sm text-muted-foreground mt-1">
                   კატეგორია: {item.product.category}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  ერთეული: {item.product.unit}
-                </p>
+                <p className="text-sm text-muted-foreground">ერთეული: {item.product.unit}</p>
               </div>
-              
+
               <div className="text-right">
-                <div className="text-lg font-semibold">
-                  {formatTotal(item.totalPrice)}
-                </div>
+                <div className="text-lg font-semibold">{formatTotal(item.totalPrice)}</div>
                 <div className="text-sm text-muted-foreground">
                   {item.quantity} × {formatTotal(item.unitPrice)}
                 </div>
@@ -198,12 +194,7 @@ export function CartItem({
                   </div>
                 </div>
 
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleRemove}
-                  className="gap-2"
-                >
+                <Button variant="destructive" size="sm" onClick={handleRemove} className="gap-2">
                   <Trash2 className="h-4 w-4" />
                   წაშლა
                 </Button>
@@ -214,7 +205,7 @@ export function CartItem({
       </CardContent>
     </Card>
   )
-}
+})
 
 // Compact Cart Item for list views
 export function CompactCartItem({ item, className }: CartItemProps) {
@@ -230,11 +221,13 @@ export function CompactCartItem({ item, className }: CartItemProps) {
   }
 
   return (
-    <div className={cn(
-      'flex items-center justify-between p-3 border rounded-lg',
-      'hover:bg-muted/50 transition-colors duration-200',
-      className
-    )}>
+    <div
+      className={cn(
+        'flex items-center justify-between p-3 border rounded-lg',
+        'hover:bg-muted/50 transition-colors duration-200',
+        className
+      )}
+    >
       <div className="flex items-center gap-3">
         {item.product.image_url && (
           <Image
@@ -246,9 +239,7 @@ export function CompactCartItem({ item, className }: CartItemProps) {
           />
         )}
         <div>
-          <p className="font-medium text-sm">
-            {item.product.name_ka || item.product.name}
-          </p>
+          <p className="font-medium text-sm">{item.product.name_ka || item.product.name}</p>
           <p className="text-xs text-muted-foreground">
             {formatTotal(item.unitPrice)} / {item.product.unit}
           </p>
@@ -265,9 +256,7 @@ export function CompactCartItem({ item, className }: CartItemProps) {
         >
           <Minus className="h-3 w-3" />
         </Button>
-        <span className="w-8 text-center text-sm font-medium">
-          {item.quantity}
-        </span>
+        <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
         <Button
           variant="outline"
           size="sm"
@@ -276,9 +265,7 @@ export function CompactCartItem({ item, className }: CartItemProps) {
         >
           <Plus className="h-3 w-3" />
         </Button>
-        <div className="text-sm font-medium w-16 text-right">
-          {formatTotal(item.totalPrice)}
-        </div>
+        <div className="text-sm font-medium w-16 text-right">{formatTotal(item.totalPrice)}</div>
         <Button
           variant="ghost"
           size="sm"

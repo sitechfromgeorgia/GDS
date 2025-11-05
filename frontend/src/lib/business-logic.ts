@@ -35,7 +35,6 @@ export interface ProfitSummary {
  * Business logic utilities for order management
  */
 export class OrderBusinessLogic {
-
   /**
    * Calculate profit for a single order
    */
@@ -72,12 +71,12 @@ export class OrderBusinessLogic {
     const productMap = new Map<string, ShoppingListItem>()
 
     // Only include orders that need to be fulfilled (confirmed, priced, assigned)
-    const activeOrders = orders.filter(order =>
+    const activeOrders = orders.filter((order) =>
       ['confirmed', 'priced', 'assigned', 'out_for_delivery'].includes(order.status)
     )
 
-    activeOrders.forEach(order => {
-      order.order_items.forEach(item => {
+    activeOrders.forEach((order) => {
+      order.order_items.forEach((item) => {
         const product = item.products
         const existing = productMap.get(item.product_id)
 
@@ -96,21 +95,21 @@ export class OrderBusinessLogic {
             orders_count: 1,
             estimated_cost: (item.cost_price || 0) * item.quantity,
             estimated_revenue: (item.selling_price || 0) * item.quantity,
-            profit_margin: 0
+            profit_margin: 0,
           })
         }
       })
     })
 
     // Calculate profit margins
-    productMap.forEach(item => {
-      item.profit_margin = item.estimated_cost > 0
-        ? ((item.estimated_revenue - item.estimated_cost) / item.estimated_cost) * 100
-        : 0
+    productMap.forEach((item) => {
+      item.profit_margin =
+        item.estimated_cost > 0
+          ? ((item.estimated_revenue - item.estimated_cost) / item.estimated_cost) * 100
+          : 0
     })
 
-    return Array.from(productMap.values())
-      .sort((a, b) => b.total_quantity - a.total_quantity)
+    return Array.from(productMap.values()).sort((a, b) => b.total_quantity - a.total_quantity)
   }
 
   /**
@@ -121,7 +120,7 @@ export class OrderBusinessLogic {
     let totalRevenue = 0
     let orderCount = 0
 
-    orders.forEach(order => {
+    orders.forEach((order) => {
       if (order.status === 'completed') {
         totalCost += this.calculateOrderCost(order)
         totalRevenue += this.calculateOrderRevenue(order)
@@ -139,32 +138,35 @@ export class OrderBusinessLogic {
       total_profit: totalProfit,
       profit_margin: profitMargin,
       order_count: orderCount,
-      average_order_value: averageOrderValue
+      average_order_value: averageOrderValue,
     }
   }
 
   /**
    * Validate order lifecycle transitions
    */
-  static validateStatusTransition(currentStatus: Order['status'], newStatus: Order['status']): {
+  static validateStatusTransition(
+    currentStatus: Order['status'],
+    newStatus: Order['status']
+  ): {
     valid: boolean
     reason?: string
   } {
     const validTransitions: Record<Order['status'], Order['status'][]> = {
-      'pending': ['confirmed', 'cancelled'],
-      'confirmed': ['priced', 'cancelled'],
-      'priced': ['assigned', 'cancelled'],
-      'assigned': ['out_for_delivery', 'cancelled'],
-      'out_for_delivery': ['delivered'],
-      'delivered': ['completed'],
-      'completed': [], // Terminal state
-      'cancelled': [] // Terminal state
+      pending: ['confirmed', 'cancelled'],
+      confirmed: ['priced', 'cancelled'],
+      priced: ['assigned', 'cancelled'],
+      assigned: ['out_for_delivery', 'cancelled'],
+      out_for_delivery: ['delivered'],
+      delivered: ['completed'],
+      completed: [], // Terminal state
+      cancelled: [], // Terminal state
     }
 
-    if (!validTransitions[currentStatus].includes(newStatus)) {
+    if (!validTransitions[currentStatus]?.includes(newStatus)) {
       return {
         valid: false,
-        reason: `Invalid transition from ${currentStatus} to ${newStatus}`
+        reason: `Invalid transition from ${currentStatus} to ${newStatus}`,
       }
     }
 
@@ -174,7 +176,11 @@ export class OrderBusinessLogic {
   /**
    * Check if order can be cancelled by user role
    */
-  static canCancelOrder(order: Order, userRole: 'admin' | 'restaurant' | 'driver', userId: string): {
+  static canCancelOrder(
+    order: Order,
+    userRole: 'admin' | 'restaurant' | 'driver',
+    userId: string
+  ): {
     canCancel: boolean
     reason?: string
   } {
@@ -192,13 +198,13 @@ export class OrderBusinessLogic {
     if (userRole === 'driver') {
       return {
         canCancel: false,
-        reason: 'Drivers cannot cancel orders'
+        reason: 'Drivers cannot cancel orders',
       }
     }
 
     return {
       canCancel: false,
-      reason: 'Unauthorized to cancel this order'
+      reason: 'Unauthorized to cancel this order',
     }
   }
 
@@ -295,7 +301,7 @@ export class OrderBusinessLogic {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     }
   }
 

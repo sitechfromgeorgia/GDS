@@ -5,7 +5,7 @@
  * Covers log levels, environment-aware logging, and performance tracking.
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
 
 // Note: We cannot easily test logging output because the logger module
 // is evaluated once on import, and the config.enabled flag is set at that time.

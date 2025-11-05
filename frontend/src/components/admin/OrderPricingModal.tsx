@@ -9,7 +9,13 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { DollarSign, Calculator, Receipt } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { createBrowserClient } from '@/lib/supabase'
@@ -52,7 +58,7 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
     tax_amount: 0,
     discount_amount: 0,
     total_amount: 0,
-    pricing_notes: ''
+    pricing_notes: '',
   })
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
@@ -65,7 +71,7 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
         tax_amount: order.tax_amount || 0,
         discount_amount: order.discount_amount || 0,
         total_amount: order.total_amount || 0,
-        pricing_notes: order.pricing_notes || ''
+        pricing_notes: order.pricing_notes || '',
       })
     }
   }, [order])
@@ -91,7 +97,6 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
     setLoading(true)
 
     try {
-       
       const { error } = await (supabase as any)
         .from('orders')
         .update({
@@ -101,7 +106,7 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
           discount_amount: pricingData.discount_amount,
           total_amount: pricingData.total_amount,
           pricing_notes: pricingData.pricing_notes,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', order.id)
 
@@ -152,7 +157,10 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
             <CardContent>
               <div className="space-y-3">
                 {order.items?.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                  <div
+                    key={index}
+                    className="flex justify-between items-center py-2 border-b last:border-b-0"
+                  >
                     <div>
                       <p className="font-medium">{item.product_name}</p>
                       <p className="text-sm text-muted-foreground">
@@ -201,7 +209,9 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
                     step="0.01"
                     min="0"
                     value={pricingData.delivery_fee}
-                    onChange={(e) => handleInputChange('delivery_fee', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange('delivery_fee', parseFloat(e.target.value) || 0)
+                    }
                   />
                 </div>
 
@@ -213,7 +223,9 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
                     step="0.01"
                     min="0"
                     value={pricingData.tax_amount}
-                    onChange={(e) => handleInputChange('tax_amount', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange('tax_amount', parseFloat(e.target.value) || 0)
+                    }
                   />
                 </div>
 
@@ -225,7 +237,9 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
                     step="0.01"
                     min="0"
                     value={pricingData.discount_amount}
-                    onChange={(e) => handleInputChange('discount_amount', parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange('discount_amount', parseFloat(e.target.value) || 0)
+                    }
                   />
                 </div>
               </div>
@@ -245,7 +259,9 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
             <Textarea
               id="pricing_notes"
               value={pricingData.pricing_notes}
-              onChange={(e) => setPricingData(prev => ({ ...prev, pricing_notes: e.target.value }))}
+              onChange={(e) =>
+                setPricingData((prev) => ({ ...prev, pricing_notes: e.target.value }))
+              }
               placeholder="დამატებითი ინფორმაცია ფასის შესახებ..."
               rows={3}
             />
@@ -261,7 +277,12 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
                 <div>
                   <span className="text-muted-foreground">ხარჯები:</span>
                   <span className="font-medium ml-2">
-                    {(pricingData.subtotal + pricingData.delivery_fee + pricingData.tax_amount).toFixed(2)}₾
+                    {(
+                      pricingData.subtotal +
+                      pricingData.delivery_fee +
+                      pricingData.tax_amount
+                    ).toFixed(2)}
+                    ₾
                   </span>
                 </div>
                 <div>
@@ -272,12 +293,22 @@ export function OrderPricingModal({ order, open, onClose }: OrderPricingModalPro
                 </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">მოგება:</span>
-                  <span className={`font-medium ml-2 ${
-                    pricingData.total_amount - (pricingData.subtotal + pricingData.delivery_fee + pricingData.tax_amount) >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }`}>
-                    {(pricingData.total_amount - (pricingData.subtotal + pricingData.delivery_fee + pricingData.tax_amount)).toFixed(2)}₾
+                  <span
+                    className={`font-medium ml-2 ${
+                      pricingData.total_amount -
+                        (pricingData.subtotal +
+                          pricingData.delivery_fee +
+                          pricingData.tax_amount) >=
+                      0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}
+                  >
+                    {(
+                      pricingData.total_amount -
+                      (pricingData.subtotal + pricingData.delivery_fee + pricingData.tax_amount)
+                    ).toFixed(2)}
+                    ₾
                   </span>
                 </div>
               </div>

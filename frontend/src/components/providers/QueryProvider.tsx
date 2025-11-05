@@ -30,9 +30,9 @@ const georgianQueryConfig = {
       meta: {
         errorMessage: {
           ka: 'მონაცემების ჩატვირთვის შეცდომა',
-          en: 'Data loading error'
-        }
-      }
+          en: 'Data loading error',
+        },
+      },
     },
     mutations: {
       retry: 1,
@@ -40,11 +40,11 @@ const georgianQueryConfig = {
       meta: {
         errorMessage: {
           ka: 'ოპერაციის შესრულების შეცდომა',
-          en: 'Operation execution error'
-        }
-      }
-    }
-  }
+          en: 'Operation execution error',
+        },
+      },
+    },
+  },
 }
 
 // Create QueryClient with Georgian Distribution System settings
@@ -54,11 +54,11 @@ function createQueryClient() {
 }
 
 // Main QueryProvider Component
-export function QueryProvider({ 
-  children, 
+export function QueryProvider({
+  children,
   enableDevtools = false,
-  enablePersistence = true 
-}: { 
+  enablePersistence = true,
+}: {
   children: React.ReactNode
   enableDevtools?: boolean
   enablePersistence?: boolean
@@ -68,7 +68,7 @@ export function QueryProvider({
   // Initialize Supabase real-time integration with React Query
   const initializeRealTimeIntegration = () => {
     const supabase = createBrowserClient()
-    
+
     // Set up real-time query invalidation
     queryClient.setDefaultOptions({
       queries: {
@@ -81,8 +81,8 @@ export function QueryProvider({
             return timeSinceLastUpdate > georgianQueryConfig.defaultOptions.queries.staleTime!
           }
           return false
-        }
-      }
+        },
+      },
     })
 
     return supabase
@@ -94,11 +94,7 @@ export function QueryProvider({
   })
 
   // Georgian Distribution System specific providers
-  const providers = (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  const providers = <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 
   return providers
 }
@@ -110,9 +106,11 @@ export const gdsQueryUtils = {
     const key = ['gds', entity]
     if (id) key.push(id)
     if (filters) {
-      Object.keys(filters).sort().forEach(k => {
-        key.push(`${k}:${JSON.stringify(filters[k])}`)
-      })
+      Object.keys(filters)
+        .sort()
+        .forEach((k) => {
+          key.push(`${k}:${JSON.stringify(filters[k])}`)
+        })
     }
     return key
   },
@@ -131,11 +129,11 @@ export const gdsQueryUtils = {
   // Georgian-specific cache keys
   cacheKeys: {
     orders: 'gds-orders',
-    products: 'gds-products', 
+    products: 'gds-products',
     users: 'gds-users',
     analytics: 'gds-analytics',
-    profiles: 'gds-profiles'
-  }
+    profiles: 'gds-profiles',
+  },
 }
 
 export default QueryProvider

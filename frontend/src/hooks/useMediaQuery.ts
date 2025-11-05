@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 /**
  * Hook to track media query matches
@@ -6,42 +6,42 @@ import { useState, useEffect } from 'react';
  * @returns boolean indicating if the query matches
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(false)
 
   useEffect(() => {
     // Check if window is available (client-side)
     if (typeof window === 'undefined') {
-      return;
+      return
     }
 
-    const mediaQuery = window.matchMedia(query);
+    const mediaQuery = window.matchMedia(query)
 
     // Set initial value
-    setMatches(mediaQuery.matches);
+    setMatches(mediaQuery.matches)
 
     // Create event listener
     const handler = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
+      setMatches(event.matches)
+    }
 
     // Add listener (use deprecated method for older browsers)
     if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handler);
+      mediaQuery.addEventListener('change', handler)
     } else {
-      // @ts-ignore - for older browsers
-      mediaQuery.addListener(handler);
+      // Fallback for older browsers with deprecated addListener
+      ;(mediaQuery as any).addListener(handler)
     }
 
     // Cleanup
     return () => {
       if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handler);
+        mediaQuery.removeEventListener('change', handler)
       } else {
-        // @ts-ignore - for older browsers
-        mediaQuery.removeListener(handler);
+        // Fallback for older browsers with deprecated removeListener
+        ;(mediaQuery as any).removeListener(handler)
       }
-    };
-  }, [query]);
+    }
+  }, [query])
 
-  return matches;
+  return matches
 }

@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
-import { useHaptic } from './useHaptic';
+import { useCallback } from 'react'
+import { useHaptic } from './useHaptic'
 
 export interface TouchInteractionOptions {
-  hapticFeedback?: boolean;
-  hapticPattern?: 'light' | 'medium' | 'heavy';
-  onPress?: () => void;
-  onLongPress?: () => void;
-  longPressDuration?: number; // in milliseconds
+  hapticFeedback?: boolean
+  hapticPattern?: 'light' | 'medium' | 'heavy'
+  onPress?: () => void
+  onLongPress?: () => void
+  longPressDuration?: number // in milliseconds
 }
 
 /**
@@ -20,56 +20,56 @@ export function useTouchInteraction(options: TouchInteractionOptions = {}) {
     onPress,
     onLongPress,
     longPressDuration = 500,
-  } = options;
+  } = options
 
-  const { triggerHaptic } = useHaptic();
+  const { triggerHaptic } = useHaptic()
 
   const handlePress = useCallback(() => {
     if (hapticFeedback) {
-      triggerHaptic(hapticPattern);
+      triggerHaptic(hapticPattern)
     }
-    onPress?.();
-  }, [hapticFeedback, hapticPattern, onPress, triggerHaptic]);
+    onPress?.()
+  }, [hapticFeedback, hapticPattern, onPress, triggerHaptic])
 
   const handleLongPress = useCallback(() => {
     if (hapticFeedback) {
-      triggerHaptic('medium');
+      triggerHaptic('medium')
     }
-    onLongPress?.();
-  }, [hapticFeedback, onLongPress, triggerHaptic]);
+    onLongPress?.()
+  }, [hapticFeedback, onLongPress, triggerHaptic])
 
   // Touch handlers
-  let pressTimer: NodeJS.Timeout | null = null;
+  let pressTimer: NodeJS.Timeout | null = null
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (onLongPress) {
         pressTimer = setTimeout(() => {
-          handleLongPress();
-        }, longPressDuration);
+          handleLongPress()
+        }, longPressDuration)
       }
     },
     [onLongPress, longPressDuration, handleLongPress]
-  );
+  )
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       if (pressTimer) {
-        clearTimeout(pressTimer);
-        pressTimer = null;
+        clearTimeout(pressTimer)
+        pressTimer = null
       }
-      handlePress();
+      handlePress()
     },
     [handlePress]
-  );
+  )
 
   const handleTouchMove = useCallback(() => {
     // Cancel long press if user moves finger
     if (pressTimer) {
-      clearTimeout(pressTimer);
-      pressTimer = null;
+      clearTimeout(pressTimer)
+      pressTimer = null
     }
-  }, []);
+  }, [])
 
   return {
     handlePress,
@@ -79,5 +79,5 @@ export function useTouchInteraction(options: TouchInteractionOptions = {}) {
       onTouchEnd: handleTouchEnd,
       onTouchMove: handleTouchMove,
     },
-  };
+  }
 }

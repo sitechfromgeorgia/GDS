@@ -1,16 +1,16 @@
 import { logger } from '@/lib/logger'
-import { DEMO_SAMPLE_DATA } from './demo-data';
-import type { DemoSession, DemoRole } from '@/types/demo';
+import { DEMO_SAMPLE_DATA } from './demo-data'
+import type { DemoSession, DemoRole } from '@/types/demo'
 
 export class DemoUtils {
-  private static currentSession: DemoSession | null = null;
+  private static currentSession: DemoSession | null = null
 
   static getCurrentDemoSession(): DemoSession | null {
-    return this.currentSession;
+    return this.currentSession
   }
 
   static setCurrentDemoSession(session: DemoSession | null) {
-    this.currentSession = session;
+    this.currentSession = session
   }
 
   static async initializeDemoSession(userId: string): Promise<DemoSession> {
@@ -19,26 +19,26 @@ export class DemoUtils {
       role: 'demo',
       data: {},
       startedAt: new Date().toISOString(),
-      tourSteps: []
-    };
-    this.setCurrentDemoSession(session);
-    return session;
+      tourSteps: [],
+    }
+    this.setCurrentDemoSession(session)
+    return session
   }
 
   static async generateSampleData() {
-    return DEMO_SAMPLE_DATA;
+    return DEMO_SAMPLE_DATA
   }
 
   static async attemptConversion(sessionId: string, userId: string, conversionType: string) {
-    logger.info('Demo conversion attempt:', { sessionId, userId, conversionType });
+    logger.info('Demo conversion attempt:', { sessionId, userId, conversionType })
     // Mock conversion tracking
-    return { success: true, conversionType };
+    return { success: true, conversionType }
   }
 
   static async trackDemoAction(sessionId: string, userId: string, action: string, metadata?: any) {
-    logger.info('Demo action tracked:', { sessionId, userId, action, metadata });
+    logger.info('Demo action tracked:', { sessionId, userId, action, metadata })
     // Mock action tracking
-    return { success: true };
+    return { success: true }
   }
 
   static generateRandomOrder() {
@@ -47,8 +47,8 @@ export class DemoUtils {
       customer: 'Demo Restaurant',
       items: ['Product A', 'Product B'],
       total: 49.99,
-      status: 'pending'
-    };
+      status: 'pending',
+    }
   }
 
   static generateRandomUser() {
@@ -56,8 +56,8 @@ export class DemoUtils {
       id: `demo_user_${Date.now()}`,
       name: 'Demo User',
       email: 'demo@example.com',
-      role: 'restaurant'
-    };
+      role: 'restaurant',
+    }
   }
 
   static generateRandomProduct() {
@@ -65,27 +65,27 @@ export class DemoUtils {
       id: `demo_product_${Date.now()}`,
       name: 'Demo Product',
       price: 29.99,
-      category: 'general'
-    };
+      category: 'general',
+    }
   }
 
   static formatCurrency(amount: number) {
-    return `$${amount.toFixed(2)}`;
+    return `$${amount.toFixed(2)}`
   }
 
   static formatDate(date: Date) {
-    return date.toLocaleDateString();
+    return date.toLocaleDateString()
   }
 
   static simulateNetworkDelay() {
-    return new Promise(resolve => setTimeout(resolve, 1000));
+    return new Promise((resolve) => setTimeout(resolve, 1000))
   }
 
   static generateRandomId() {
-    return Math.random().toString(36).substring(2, 15);
+    return Math.random().toString(36).substring(2, 15)
   }
 
   static getSampleData(role: string) {
-    return DEMO_SAMPLE_DATA[role as keyof typeof DEMO_SAMPLE_DATA] || DEMO_SAMPLE_DATA.admin;
+    return DEMO_SAMPLE_DATA[role as keyof typeof DEMO_SAMPLE_DATA] || DEMO_SAMPLE_DATA.admin
   }
 }

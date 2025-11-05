@@ -43,7 +43,7 @@ export class AuthSecurity {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
@@ -99,14 +99,20 @@ export class OrderSecurity {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
   private static isValidOrderStatus(status: string): status is Order['status'] {
     const validStatuses: Order['status'][] = [
-      'pending', 'confirmed', 'priced', 'assigned',
-      'out_for_delivery', 'delivered', 'completed', 'cancelled'
+      'pending',
+      'confirmed',
+      'priced',
+      'assigned',
+      'out_for_delivery',
+      'delivered',
+      'completed',
+      'cancelled',
     ]
     return validStatuses.includes(status as Order['status'])
   }
@@ -116,17 +122,13 @@ export class OrderSecurity {
  * Input sanitization utilities
  */
 export class InputSanitizer {
-
   /**
    * Sanitize string input
    */
   static sanitizeString(input: string, maxLength: number = 1000): string {
     if (!input || typeof input !== 'string') return ''
 
-    return input
-      .trim()
-      .substring(0, maxLength)
-      .replace(/[<>]/g, '') // Basic XSS prevention
+    return input.trim().substring(0, maxLength).replace(/[<>]/g, '') // Basic XSS prevention
   }
 
   /**
@@ -164,7 +166,6 @@ export class InputSanitizer {
  * SQL injection prevention utilities
  */
 export class SQLSecurity {
-
   /**
    * Check if input contains potentially dangerous SQL patterns
    */
@@ -175,16 +176,18 @@ export class SQLSecurity {
       /(\bUNION\b|\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b|\bCREATE\b|\bALTER\b)/i,
       /(-{2}|\/\*|\*\/)/, // Comments
       /('|(\\x27)|(\\x2D))/, // Quotes and dashes
-      /(<script|javascript:|vbscript:|onload=|onerror=)/i // XSS vectors
+      /(<script|javascript:|vbscript:|onload=|onerror=)/i, // XSS vectors
     ]
 
-    return dangerousPatterns.some(pattern => pattern.test(input))
+    return dangerousPatterns.some((pattern) => pattern.test(input))
   }
 
   /**
    * Validate order ID format
    */
   static isValidOrderId(orderId: string): boolean {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId)
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      orderId
+    )
   }
 }

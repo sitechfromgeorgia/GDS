@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -15,7 +21,7 @@ export default function RegisterPage() {
     confirmPassword: '',
     role: '',
     full_name: '',
-    restaurant_name: ''
+    restaurant_name: '',
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -46,7 +52,10 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="role">როლი</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <Select
+                value={formData.role}
+                onValueChange={(value) => setFormData({ ...formData, role: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="აირჩიეთ როლი" />
                 </SelectTrigger>

@@ -12,6 +12,7 @@
 import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
+import { logger } from '@/lib/logger'
 
 // Environment configuration
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -29,14 +30,14 @@ export const clientOptions = {
   },
   realtime: {
     params: {
-      eventsPerSecond: 10
-    }
+      eventsPerSecond: 10,
+    },
   },
   global: {
     headers: {
-      'X-Client-Info': 'georgian-distribution-system@1.0.0'
-    }
-  }
+      'X-Client-Info': 'georgian-distribution-system@1.0.0',
+    },
+  },
 }
 
 /**
@@ -52,15 +53,61 @@ export function createBrowserClient() {
   return createSupabaseBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get(name: string) {
-        return document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1]
+        if (typeof document === 'undefined') return undefined
+        return document.cookie
+          .split('; ')
+          .find((row) => row.startsWith(name + '='))
+          ?.split('=')[1]
       },
       set(name: string, value: string, options: any) {
-        document.cookie = `${name}=${value}; path=/; ${options.maxAge ? `max-age=${options.maxAge};` : ''}`
+        if (typeof document === 'undefined') return
+
+        const cookieParts = [`${name}=${value}`, 'path=/']
+
+        // Add SameSite attribute (critical for cross-page auth)
+        if (options.sameSite !== undefined) {
+          cookieParts.push(`SameSite=${options.sameSite}`)
+        } else {
+          cookieParts.push('SameSite=Lax') // Default to Lax for navigation
+        }
+
+        // Add Secure flag in production
+        if (
+          options.secure ||
+          (typeof window !== 'undefined' && window.location.protocol === 'https:')
+        ) {
+          cookieParts.push('Secure')
+        }
+
+        // Add domain if specified
+        if (options.domain) {
+          cookieParts.push(`domain=${options.domain}`)
+        }
+
+        // Add max-age
+        if (options.maxAge) {
+          cookieParts.push(`max-age=${options.maxAge}`)
+        }
+
+        // Add expires if specified
+        if (options.expires) {
+          cookieParts.push(`expires=${options.expires}`)
+        }
+
+        document.cookie = cookieParts.join('; ')
       },
       remove(name: string, options: any) {
-        document.cookie = `${name}=; path=/; max-age=0`
-      }
-    }
+        if (typeof document === 'undefined') return
+
+        const cookieParts = [`${name}=`, 'path=/', 'max-age=0']
+
+        if (options.domain) {
+          cookieParts.push(`domain=${options.domain}`)
+        }
+
+        document.cookie = cookieParts.join('; ')
+      },
+    },
   })
 }
 
@@ -78,7 +125,7 @@ export function createLegacyClient(): SupabaseClient<Database> {
   // Add global error handler for auth state changes
   if (typeof window !== 'undefined') {
     client.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email || 'No user')
+      logger.info('Auth state changed', { event, userEmail: session?.user?.email || 'No user' })
     })
   }
 
@@ -92,7 +139,7 @@ export async function checkSupabaseConnection(): Promise<boolean> {
     const { error } = await client.from('profiles').select('id').limit(1)
     return !error
   } catch (error) {
-    console.error('Supabase connection check failed:', error)
+    logger.error('Supabase connection check failed', error as Error)
     return false
   }
 }
@@ -103,9 +150,12 @@ export function getEnvironmentInfo() {
     url: supabaseUrl,
     isLocal: supabaseUrl?.includes('localhost') || supabaseUrl?.includes('127.0.0.1'),
     hasAnonKey: !!supabaseAnonKey,
-    clientInfo: 'georgian-distribution-system@1.0.0'
+    clientInfo: 'georgian-distribution-system@1.0.0',
   }
 }
 
 // Export types for convenience
 export type { Database } from '@/types/database'
+
+// Default export alias for backward compatibility
+export { createBrowserClient as createClient }

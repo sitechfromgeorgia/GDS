@@ -8,37 +8,55 @@ import type { Order, OrderItem } from '@/types/database'
 
 // Validation schemas
 const createOrderSchema = z.object({
-  items: z.array(z.object({
-    product_id: z.string().uuid(),
-    quantity: z.number().int().positive().max(1000)
-  })).min(1).max(100),
-  notes: z.string().max(1000).optional()
+  items: z
+    .array(
+      z.object({
+        product_id: z.string().uuid(),
+        quantity: z.number().int().positive().max(1000),
+      })
+    )
+    .min(1)
+    .max(100),
+  notes: z.string().max(1000).optional(),
 })
 
 const updateOrderStatusSchema = z.object({
   orderId: z.string().uuid(),
-  status: z.enum(['pending', 'confirmed', 'priced', 'assigned', 'out_for_delivery', 'delivered', 'completed', 'cancelled']),
-  notes: z.string().max(1000).optional()
+  status: z.enum([
+    'pending',
+    'confirmed',
+    'priced',
+    'assigned',
+    'out_for_delivery',
+    'delivered',
+    'completed',
+    'cancelled',
+  ]),
+  notes: z.string().max(1000).optional(),
 })
 
 const assignOrderSchema = z.object({
   orderId: z.string().uuid(),
-  driverId: z.string().uuid()
+  driverId: z.string().uuid(),
 })
 
 const setPricingSchema = z.object({
   orderId: z.string().uuid(),
-  items: z.array(z.object({
-    product_id: z.string().uuid(),
-    cost_price: z.number().positive(),
-    selling_price: z.number().positive(),
-    quantity: z.number().int().positive()
-  })).min(1)
+  items: z
+    .array(
+      z.object({
+        product_id: z.string().uuid(),
+        cost_price: z.number().positive(),
+        selling_price: z.number().positive(),
+        quantity: z.number().int().positive(),
+      })
+    )
+    .min(1),
 })
 
 const cancelOrderSchema = z.object({
   orderId: z.string().uuid(),
-  reason: z.string().min(1).max(500)
+  reason: z.string().min(1).max(500),
 })
 
 // Server Actions
@@ -49,15 +67,17 @@ const cancelOrderSchema = z.object({
 export async function createOrder(formData: FormData) {
   try {
     const supabase = await createServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return { error: 'Not authenticated' }
     }
 
     // Verify role
-     
-    const { data: profile, error: profileError } = await (supabase
-      .from('profiles') as any)
+
+    const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
       .single()
@@ -73,25 +93,24 @@ export async function createOrder(formData: FormData) {
     // Parse and validate input
     const rawData = {
       items: JSON.parse(formData.get('items') as string),
-      notes: formData.get('notes') as string || undefined
+      notes: (formData.get('notes') as string) || undefined,
     }
 
     const parsed = createOrderSchema.safeParse(rawData)
     if (!parsed.success) {
       return {
         error: 'Invalid input',
-        details: parsed.error.format()
+        details: parsed.error.format(),
       }
     }
 
     // Create order
-     
-    const { data: order, error: orderError } = await (supabase
-      .from('orders') as any)
+
+    const { data: order, error: orderError } = await (supabase.from('orders') as any)
       .insert({
         restaurant_id: user.id,
         status: 'pending',
-        notes: parsed.data.notes
+        notes: parsed.data.notes,
       })
       .select()
       .single()
@@ -102,20 +121,17 @@ export async function createOrder(formData: FormData) {
     }
 
     // Create order items
-    const orderItems = parsed.data.items.map(item => ({
+    const orderItems = parsed.data.items.map((item) => ({
       order_id: order.id,
       product_id: item.product_id,
-      quantity: item.quantity
+      quantity: item.quantity,
     }))
 
-     
-    const { error: itemsError } = await (supabase
-      .from('order_items') as any)
-      .insert(orderItems)
+    const { error: itemsError } = await (supabase.from('order_items') as any).insert(orderItems)
 
     if (itemsError) {
       // Rollback: delete order
-       
+
       await (supabase.from('orders') as any).delete().eq('id', order.id)
       logger.error('Failed to create order items:', itemsError)
       return { error: 'Failed to create order items' }
@@ -127,7 +143,7 @@ export async function createOrder(formData: FormData) {
     return {
       success: true,
       orderId: order.id,
-      message: 'Order created successfully'
+      message: 'Order created successfully',
     }
   } catch (error) {
     logger.error('Unexpected error in createOrder:', error)
@@ -141,15 +157,17 @@ export async function createOrder(formData: FormData) {
 export async function updateOrderStatus(formData: FormData) {
   try {
     const supabase = await createServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return { error: 'Not authenticated' }
     }
 
     // Get user role
-     
-    const { data: profile, error: profileError } = await (supabase
-      .from('profiles') as any)
+
+    const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
       .single()
@@ -162,21 +180,20 @@ export async function updateOrderStatus(formData: FormData) {
     const rawData = {
       orderId: formData.get('orderId') as string,
       status: formData.get('status') as string,
-      notes: formData.get('notes') as string || undefined
+      notes: (formData.get('notes') as string) || undefined,
     }
 
     const parsed = updateOrderStatusSchema.safeParse(rawData)
     if (!parsed.success) {
       return {
         error: 'Invalid input',
-        details: parsed.error.format()
+        details: parsed.error.format(),
       }
     }
 
     // Check permissions based on status change and role
-     
-    const { data: order, error: orderError } = await (supabase
-      .from('orders') as any)
+
+    const { data: order, error: orderError } = await (supabase.from('orders') as any)
       .select('restaurant_id, driver_id, status')
       .eq('id', parsed.data.orderId)
       .single()
@@ -201,8 +218,12 @@ export async function updateOrderStatus(formData: FormData) {
         case 'completed':
           return profile.role === 'restaurant' && order.restaurant_id === user.id
         case 'cancelled':
-          return profile.role === 'admin' ||
-                 (profile.role === 'restaurant' && order.restaurant_id === user.id && order.status === 'pending')
+          return (
+            profile.role === 'admin' ||
+            (profile.role === 'restaurant' &&
+              order.restaurant_id === user.id &&
+              order.status === 'pending')
+          )
         default:
           return false
       }
@@ -224,7 +245,7 @@ export async function updateOrderStatus(formData: FormData) {
     // Update order
     const updateData = {
       status: parsed.data.status,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     } as Record<string, any>
 
     // Add notes if provided
@@ -232,9 +253,7 @@ export async function updateOrderStatus(formData: FormData) {
       updateData.notes = parsed.data.notes
     }
 
-     
-    const { data: updatedOrder, error: updateError } = await (supabase
-      .from('orders') as any)
+    const { data: updatedOrder, error: updateError } = await (supabase.from('orders') as any)
       .update(updateData)
       .eq('id', parsed.data.orderId)
       .select()
@@ -253,7 +272,7 @@ export async function updateOrderStatus(formData: FormData) {
     return {
       success: true,
       order: updatedOrder,
-      message: `Order status updated to ${parsed.data.status}`
+      message: `Order status updated to ${parsed.data.status}`,
     }
   } catch (error) {
     logger.error('Unexpected error in updateOrderStatus:', error)
@@ -268,13 +287,15 @@ export async function assignOrderToDriver(formData: FormData) {
   try {
     const supabase = await createServerClient()
     // Verify authentication and admin role
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return { error: 'Not authenticated' }
     }
 
-    const { data: profile, error: profileError } = await (supabase
-      .from('profiles') as any)
+    const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
       .single()
@@ -290,20 +311,19 @@ export async function assignOrderToDriver(formData: FormData) {
     // Parse and validate input
     const rawData = {
       orderId: formData.get('orderId') as string,
-      driverId: formData.get('driverId') as string
+      driverId: formData.get('driverId') as string,
     }
 
     const parsed = assignOrderSchema.safeParse(rawData)
     if (!parsed.success) {
       return {
         error: 'Invalid input',
-        details: parsed.error.format()
+        details: parsed.error.format(),
       }
     }
 
     // Verify order exists and is in correct state
-    const { data: order, error: orderError } = await (supabase
-      .from('orders') as any)
+    const { data: order, error: orderError } = await (supabase.from('orders') as any)
       .select('status')
       .eq('id', parsed.data.orderId)
       .single()
@@ -317,8 +337,7 @@ export async function assignOrderToDriver(formData: FormData) {
     }
 
     // Verify driver exists and is active
-    const { data: driver, error: driverError } = await (supabase
-      .from('profiles') as any)
+    const { data: driver, error: driverError } = await (supabase.from('profiles') as any)
       .select('role, is_active')
       .eq('id', parsed.data.driverId)
       .single()
@@ -332,12 +351,11 @@ export async function assignOrderToDriver(formData: FormData) {
     }
 
     // Assign order to driver
-    const { data: updatedOrder, error: updateError } = await (supabase
-      .from('orders') as any)
+    const { data: updatedOrder, error: updateError } = await (supabase.from('orders') as any)
       .update({
         driver_id: parsed.data.driverId,
         status: 'assigned',
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', parsed.data.orderId)
       .select()
@@ -355,7 +373,7 @@ export async function assignOrderToDriver(formData: FormData) {
     return {
       success: true,
       order: updatedOrder,
-      message: 'Order assigned to driver successfully'
+      message: 'Order assigned to driver successfully',
     }
   } catch (error) {
     logger.error('Unexpected error in assignOrderToDriver:', error)
@@ -370,13 +388,15 @@ export async function setOrderPricing(formData: FormData) {
   try {
     const supabase = await createServerClient()
     // Verify authentication and admin role
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return { error: 'Not authenticated' }
     }
 
-    const { data: profile, error: profileError } = await (supabase
-      .from('profiles') as any)
+    const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
       .single()
@@ -392,20 +412,19 @@ export async function setOrderPricing(formData: FormData) {
     // Parse and validate input
     const rawData = {
       orderId: formData.get('orderId') as string,
-      items: JSON.parse(formData.get('items') as string)
+      items: JSON.parse(formData.get('items') as string),
     }
 
     const parsed = setPricingSchema.safeParse(rawData)
     if (!parsed.success) {
       return {
         error: 'Invalid input',
-        details: parsed.error.format()
+        details: parsed.error.format(),
       }
     }
 
     // Verify order exists and is in correct state
-    const { data: order, error: orderError } = await (supabase
-      .from('orders') as any)
+    const { data: order, error: orderError } = await (supabase.from('orders') as any)
       .select('status')
       .eq('id', parsed.data.orderId)
       .single()
@@ -419,12 +438,11 @@ export async function setOrderPricing(formData: FormData) {
     }
 
     // Update order items with pricing
-    const updatePromises = parsed.data.items.map(item =>
-      (supabase
-        .from('order_items') as any)
+    const updatePromises = parsed.data.items.map((item) =>
+      (supabase.from('order_items') as any)
         .update({
           cost_price: item.cost_price,
-          selling_price: item.selling_price
+          selling_price: item.selling_price,
         })
         .eq('order_id', parsed.data.orderId)
         .eq('product_id', item.product_id)
@@ -440,17 +458,16 @@ export async function setOrderPricing(formData: FormData) {
 
     // Calculate total amount
     const totalAmount = parsed.data.items.reduce(
-      (sum, item) => sum + (item.selling_price * item.quantity),
+      (sum, item) => sum + item.selling_price * item.quantity,
       0
     )
 
     // Update order status and total
-    const { data: updatedOrder, error: orderUpdateError } = await (supabase
-      .from('orders') as any)
+    const { data: updatedOrder, error: orderUpdateError } = await (supabase.from('orders') as any)
       .update({
         status: 'priced',
         total_amount: totalAmount,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', parsed.data.orderId)
       .select()
@@ -467,7 +484,7 @@ export async function setOrderPricing(formData: FormData) {
     return {
       success: true,
       order: updatedOrder,
-      message: 'Order pricing set successfully'
+      message: 'Order pricing set successfully',
     }
   } catch (error) {
     logger.error('Unexpected error in setOrderPricing:', error)
@@ -482,14 +499,16 @@ export async function cancelOrder(formData: FormData) {
   try {
     const supabase = await createServerClient()
     // Verify authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return { error: 'Not authenticated' }
     }
 
     // Get user role
-    const { data: profile, error: profileError } = await (supabase
-      .from('profiles') as any)
+    const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
       .select('role')
       .eq('id', user.id)
       .single()
@@ -501,20 +520,19 @@ export async function cancelOrder(formData: FormData) {
     // Parse and validate input
     const rawData = {
       orderId: formData.get('orderId') as string,
-      reason: formData.get('reason') as string
+      reason: formData.get('reason') as string,
     }
 
     const parsed = cancelOrderSchema.safeParse(rawData)
     if (!parsed.success) {
       return {
         error: 'Invalid input',
-        details: parsed.error.format()
+        details: parsed.error.format(),
       }
     }
 
     // Verify order exists and check permissions
-    const { data: order, error: orderError } = await (supabase
-      .from('orders') as any)
+    const { data: order, error: orderError } = await (supabase.from('orders') as any)
       .select('restaurant_id, status')
       .eq('id', parsed.data.orderId)
       .single()
@@ -524,22 +542,22 @@ export async function cancelOrder(formData: FormData) {
     }
 
     // Permission checks
-    const canCancel = profile.role === 'admin' ||
-                     (profile.role === 'restaurant' &&
-                      order.restaurant_id === user.id &&
-                      order.status === 'pending')
+    const canCancel =
+      profile.role === 'admin' ||
+      (profile.role === 'restaurant' &&
+        order.restaurant_id === user.id &&
+        order.status === 'pending')
 
     if (!canCancel) {
       return { error: 'Unauthorized: Cannot cancel this order' }
     }
 
     // Update order status to cancelled
-    const { data: updatedOrder, error: updateError } = await (supabase
-      .from('orders') as any)
+    const { data: updatedOrder, error: updateError } = await (supabase.from('orders') as any)
       .update({
         status: 'cancelled',
         notes: `CANCELLED: ${parsed.data.reason}`,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', parsed.data.orderId)
       .select()
@@ -557,7 +575,7 @@ export async function cancelOrder(formData: FormData) {
     return {
       success: true,
       order: updatedOrder,
-      message: 'Order cancelled successfully'
+      message: 'Order cancelled successfully',
     }
   } catch (error) {
     logger.error('Unexpected error in cancelOrder:', error)

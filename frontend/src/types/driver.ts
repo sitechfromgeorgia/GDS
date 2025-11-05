@@ -85,13 +85,16 @@ export interface RouteOptimization {
 
 export type DeliveryStatus = DriverDelivery['status']
 
-export const DELIVERY_STATUSES: Record<DeliveryStatus, { label: string; color: string; icon: string }> = {
+export const DELIVERY_STATUSES: Record<
+  DeliveryStatus,
+  { label: string; color: string; icon: string }
+> = {
   assigned: { label: 'დანიშნული', color: 'blue', icon: '📋' },
   picked_up: { label: 'აღებულია', color: 'orange', icon: '📦' },
   in_transit: { label: 'გზაშია', color: 'purple', icon: '🚚' },
   delivered: { label: 'მიწოდებული', color: 'green', icon: '✅' },
   failed: { label: 'წარუმატებელი', color: 'red', icon: '❌' },
-  cancelled: { label: 'გაუქმებული', color: 'gray', icon: '🚫' }
+  cancelled: { label: 'გაუქმებული', color: 'gray', icon: '🚫' },
 }
 
 export interface DriverFilters {

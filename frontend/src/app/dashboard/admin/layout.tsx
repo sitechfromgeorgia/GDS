@@ -18,7 +18,7 @@ import {
   Bell,
   Moon,
   Sun,
-  LogOut
+  LogOut,
 } from 'lucide-react'
 import { useAuthContext } from '@/components/auth/AuthProvider'
 import { useTheme } from 'next-themes'
@@ -38,10 +38,7 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className={cn(
-      "flex flex-col h-full",
-      mobile ? "w-full" : "w-64"
-    )}>
+    <div className={cn('flex flex-col h-full', mobile ? 'w-full' : 'w-64')}>
       <div className="flex items-center justify-center h-16 px-4 border-b">
         <h1 className="text-xl font-bold text-primary">ადმინისტრატორი</h1>
       </div>
@@ -55,10 +52,10 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
               href={item.href}
               onClick={() => mobile && onClose?.()}
               className={cn(
-                "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
               <item.icon className="mr-3 h-5 w-5" />
@@ -117,11 +114,7 @@ function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () =
   )
 }
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
 
@@ -161,7 +154,7 @@ export default function AdminLayout({
 
             <div className="ml-4 md:ml-0">
               <h2 className="text-lg font-semibold">
-                {navigation.find(item => item.href === pathname)?.name || 'ადმინისტრატორი'}
+                {navigation.find((item) => item.href === pathname)?.name || 'ადმინისტრატორი'}
               </h2>
             </div>
           </div>
@@ -174,9 +167,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
   )

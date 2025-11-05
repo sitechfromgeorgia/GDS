@@ -1,15 +1,15 @@
 // KPI Card Component - Display individual KPI metrics
 // Based on specs/001-analytics-dashboard/plan.md
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { KPICardData } from '@/types/analytics';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { KPICardData } from '@/types/analytics'
 
 interface KPICardProps {
-  data: KPICardData;
+  data: KPICardData
 }
 
 export function KPICard({ data }: KPICardProps) {
-  const { label, value, unit, tooltip, isLoading, error } = data;
+  const { label, value, unit, tooltip, isLoading, error } = data
 
   if (isLoading) {
     return (
@@ -22,7 +22,7 @@ export function KPICard({ data }: KPICardProps) {
           {unit && <div className="h-4 w-16 bg-muted animate-pulse rounded mt-1" />}
         </CardContent>
       </Card>
-    );
+    )
   }
 
   if (error) {
@@ -35,10 +35,10 @@ export function KPICard({ data }: KPICardProps) {
           <div className="text-sm text-destructive">{error}</div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
-  const displayValue = value !== null && value !== undefined ? value : 'N/A';
+  const displayValue = value !== null && value !== undefined ? value : 'N/A'
 
   return (
     <Card title={tooltip}>
@@ -50,5 +50,5 @@ export function KPICard({ data }: KPICardProps) {
         {unit && <p className="text-xs text-muted-foreground mt-1">{unit}</p>}
       </CardContent>
     </Card>
-  );
+  )
 }

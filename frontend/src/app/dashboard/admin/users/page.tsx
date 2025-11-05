@@ -36,7 +36,7 @@ import { Plus, Users, UserCheck, UserX } from 'lucide-react'
 import { User, UserFormData } from '@/types/admin'
 
 import { createBrowserClient } from '@/lib/supabase'
-import { Database, ProfileInsert, ProfileUpdate } from '@/types/database'
+import { Database, ProfileInsert, ProfileUpdate, Profile } from '@/types/database'
 import { useToast } from '@/hooks/use-toast'
 
 // Create Supabase client instance
@@ -46,6 +46,15 @@ const supabase = createBrowserClient()
 // This is a temporary workaround for TypeScript errors where Supabase client
 // returns 'never' types. The database operations work correctly at runtime.
 
+// Valid role types
+const VALID_ROLES = ['admin', 'restaurant', 'driver'] as const
+type ValidRole = (typeof VALID_ROLES)[number]
+
+// Helper to validate and cast role
+function validateRole(role: string): ValidRole {
+  return VALID_ROLES.includes(role as any) ? (role as ValidRole) : 'restaurant'
+}
+
 const userFormSchema = z.object({
   email: z.string().email('არასწორი ელ-ფოსტა'),
   password: z.string().min(6, 'პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო').optional(),
@@ -53,8 +62,12 @@ const userFormSchema = z.object({
   restaurant_name: z.string().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
+  google_maps_link: z.string().url('არასწორი URL').optional().or(z.literal('')),
+  base_salary: z.number().min(0).optional(),
+  per_delivery_rate: z.number().min(0).optional(),
+  bonus_amount: z.number().min(0).optional(),
   role: z.enum(['admin', 'restaurant', 'driver']),
-  is_active: z.boolean()
+  is_active: z.boolean(),
 })
 
 export default function UsersPage() {
@@ -73,9 +86,13 @@ export default function UsersPage() {
       restaurant_name: '',
       phone: '',
       address: '',
+      google_maps_link: '',
+      base_salary: 0,
+      per_delivery_rate: 0,
+      bonus_amount: 0,
       role: 'restaurant',
-      is_active: true
-    }
+      is_active: true,
+    },
   })
 
   const loadUsers = useCallback(async () => {
@@ -87,13 +104,18 @@ export default function UsersPage() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setUsers(data || [])
+      // Validate and cast roles to match User type
+      const validatedUsers = (data || []).map((user) => ({
+        ...user,
+        role: validateRole(user.role),
+      })) as User[]
+      setUsers(validatedUsers)
     } catch (error) {
       logger.error('Error loading users:', error)
       toast({
         title: 'შეცდომა',
         description: 'მომხმარებლების ჩატვირთვა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setLoading(false)
@@ -109,7 +131,7 @@ export default function UsersPage() {
       // First create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
-        password: data.password || 'temp123456' // Temporary password
+        password: data.password || 'temp123456', // Temporary password
       })
 
       if (authError) throw authError
@@ -123,16 +145,16 @@ export default function UsersPage() {
           restaurant_name: data.restaurant_name || null,
           phone: data.phone || null,
           address: data.address || null,
-          is_active: data.is_active
+          is_active: data.is_active,
         }
-         
+
         const { error: profileError } = await (supabase.from('profiles') as any).insert(profileData)
 
         if (profileError) throw profileError
 
         toast({
           title: 'წარმატება',
-          description: 'მომხმარებელი წარმატებით შეიქმნა'
+          description: 'მომხმარებელი წარმატებით შეიქმნა',
         })
 
         setDialogOpen(false)
@@ -144,7 +166,7 @@ export default function UsersPage() {
       toast({
         title: 'შეცდომა',
         description: 'მომხმარებლის შექმნა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -159,16 +181,22 @@ export default function UsersPage() {
         restaurant_name: data.restaurant_name || null,
         phone: data.phone || null,
         address: data.address || null,
-        is_active: data.is_active
+        google_maps_link: data.google_maps_link || null,
+        base_salary: data.base_salary || 0,
+        per_delivery_rate: data.per_delivery_rate || 0,
+        bonus_amount: data.bonus_amount || 0,
+        is_active: data.is_active,
       }
-       
-      const { error } = await (supabase.from('profiles') as any).update(updateData).eq('id', editingUser.id)
+
+      const { error } = await (supabase.from('profiles') as any)
+        .update(updateData)
+        .eq('id', editingUser.id)
 
       if (error) throw error
 
       toast({
         title: 'წარმატება',
-        description: 'მომხმარებელი წარმატებით განახლდა'
+        description: 'მომხმარებელი წარმატებით განახლდა',
       })
 
       setDialogOpen(false)
@@ -180,7 +208,7 @@ export default function UsersPage() {
       toast({
         title: 'შეცდომა',
         description: 'მომხმარებლის განახლება ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -188,10 +216,7 @@ export default function UsersPage() {
   const handleDeleteUser = async (userId: string) => {
     try {
       // Delete profile first
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId)
+      const { error: profileError } = await supabase.from('profiles').delete().eq('id', userId)
 
       if (profileError) throw profileError
 
@@ -200,7 +225,7 @@ export default function UsersPage() {
 
       toast({
         title: 'წარმატება',
-        description: 'მომხმარებელი წარმატებით წაიშალა'
+        description: 'მომხმარებელი წარმატებით წაიშალა',
       })
 
       loadUsers()
@@ -209,21 +234,22 @@ export default function UsersPage() {
       toast({
         title: 'შეცდომა',
         description: 'მომხმარებლის წაშლა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
 
   const handleToggleStatus = async (userId: string, isActive: boolean) => {
     try {
-       
-      const { error } = await (supabase.from('profiles') as any).update({ is_active: isActive }).eq('id', userId)
+      const { error } = await (supabase.from('profiles') as any)
+        .update({ is_active: isActive })
+        .eq('id', userId)
 
       if (error) throw error
 
       toast({
         title: 'წარმატება',
-        description: `მომხმარებელი ${isActive ? 'გააქტიურდა' : 'დეაქტივირდა'}`
+        description: `მომხმარებელი ${isActive ? 'გააქტიურდა' : 'დეაქტივირდა'}`,
       })
 
       loadUsers()
@@ -232,7 +258,7 @@ export default function UsersPage() {
       toast({
         title: 'შეცდომა',
         description: 'სტატუსის შეცვლა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -252,19 +278,20 @@ export default function UsersPage() {
           // Handle export logic
           toast({
             title: 'ინფორმაცია',
-            description: 'ექსპორტის ფუნქცია მალე დაემატება'
+            description: 'ექსპორტის ფუნქცია მალე დაემატება',
           })
           return
       }
 
-       
-      const { error } = await (supabase.from('profiles') as any).update(updateData).in('id', userIds)
+      const { error } = await (supabase.from('profiles') as any)
+        .update(updateData)
+        .in('id', userIds)
 
       if (error) throw error
 
       toast({
         title: 'წარმატება',
-        description: `${userIds.length} მომხმარებელი წარმატებით განახლდა`
+        description: `${userIds.length} მომხმარებელი წარმატებით განახლდა`,
       })
 
       loadUsers()
@@ -273,7 +300,7 @@ export default function UsersPage() {
       toast({
         title: 'შეცდომა',
         description: 'ბულქ მოქმედება ვერ შესრულდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -288,7 +315,7 @@ export default function UsersPage() {
       phone: '',
       address: '',
       role: 'restaurant',
-      is_active: true
+      is_active: true,
     })
     setDialogOpen(true)
   }
@@ -302,8 +329,12 @@ export default function UsersPage() {
       restaurant_name: user.restaurant_name || '',
       phone: user.phone || '',
       address: user.address || '',
+      google_maps_link: user.google_maps_link || '',
+      base_salary: user.base_salary || 0,
+      per_delivery_rate: user.per_delivery_rate || 0,
+      bonus_amount: user.bonus_amount || 0,
       role: user.role,
-      is_active: user.is_active
+      is_active: user.is_active,
     })
     setDialogOpen(true)
   }
@@ -316,17 +347,15 @@ export default function UsersPage() {
     }
   }
 
-  const activeUsers = users.filter(u => u.is_active).length
-  const inactiveUsers = users.filter(u => !u.is_active).length
+  const activeUsers = users.filter((u) => u.is_active).length
+  const inactiveUsers = users.filter((u) => !u.is_active).length
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">მომხმარებლები</h1>
-          <p className="text-muted-foreground">
-            მართეთ მომხმარებლები და მათი უფლებები
-          </p>
+          <p className="text-muted-foreground">მართეთ მომხმარებლები და მათი უფლებები</p>
         </div>
         <Button onClick={openCreateDialog}>
           <Plus className="mr-2 h-4 w-4" />
@@ -376,9 +405,7 @@ export default function UsersPage() {
             <DialogTitle>
               {editingUser ? 'მომხმარებლის რედაქტირება' : 'ახალი მომხმარებელი'}
             </DialogTitle>
-            <DialogDescription>
-              შეავსეთ მომხმარებლის დეტალები
-            </DialogDescription>
+            <DialogDescription>შეავსეთ მომხმარებლის დეტალები</DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
@@ -451,19 +478,105 @@ export default function UsersPage() {
               />
 
               {form.watch('role') === 'restaurant' && (
-                <FormField
-                  control={form.control}
-                  name="restaurant_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>რესტორანის სახელი</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <>
+                  <FormField
+                    control={form.control}
+                    name="restaurant_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>რესტორანის სახელი</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="google_maps_link"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Google Maps ლინკი</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="https://maps.google.com/?q=..." />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          Google Maps-დან დააკოპირეთ მდებარეობის ლინკი
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {form.watch('role') === 'driver' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="base_salary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>საბაზისო ხელფასი (₾)</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          თვიური/საათობრივი საბაზისო ანაზღაურება
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="per_delivery_rate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ტარიფი თითო მიწოდებაზე (₾)</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          გადასახადი ყოველი მიწოდებისთვის
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bonus_amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ბონუსი (₾)</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          შესრულებაზე დაფუძნებული ბონუსი
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
               )}
 
               <FormField
@@ -498,9 +611,7 @@ export default function UsersPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   გაუქმება
                 </Button>
-                <Button type="submit">
-                  {editingUser ? 'განახლება' : 'შექმნა'}
-                </Button>
+                <Button type="submit">{editingUser ? 'განახლება' : 'შექმნა'}</Button>
               </DialogFooter>
             </form>
           </Form>

@@ -65,7 +65,7 @@ export function useInventoryTracking(
     productIds = [],
     autoSubscribe = true,
     trackHistory = false,
-    lowStockThreshold = 10
+    lowStockThreshold = 10,
   } = options
 
   const supabase = createBrowserClient()
@@ -84,37 +84,40 @@ export function useInventoryTracking(
   /**
    * Check for low stock and create alerts
    */
-  const checkStockLevels = useCallback((prod: Product) => {
-    const threshold = prod.low_stock_threshold || lowStockThreshold
+  const checkStockLevels = useCallback(
+    (prod: Product) => {
+      const threshold = (prod as any).low_stock_threshold || lowStockThreshold
 
-    if (prod.stock_quantity === 0) {
-      setAlerts(prev => [
-        ...prev.filter(a => a.productId !== prod.id),
-        {
-          productId: prod.id,
-          productName: prod.name,
-          currentStock: prod.stock_quantity,
-          threshold,
-          type: 'out_of_stock' as const,
-          timestamp: new Date()
-        }
-      ])
-    } else if (prod.stock_quantity <= threshold) {
-      setAlerts(prev => [
-        ...prev.filter(a => a.productId !== prod.id),
-        {
-          productId: prod.id,
-          productName: prod.name,
-          currentStock: prod.stock_quantity,
-          threshold,
-          type: 'low_stock' as const,
-          timestamp: new Date()
-        }
-      ])
-    } else {
-      setAlerts(prev => prev.filter(a => a.productId !== prod.id))
-    }
-  }, [lowStockThreshold])
+      if (prod.stock_quantity === 0) {
+        setAlerts((prev) => [
+          ...prev.filter((a) => a.productId !== prod.id),
+          {
+            productId: prod.id,
+            productName: prod.name,
+            currentStock: prod.stock_quantity,
+            threshold,
+            type: 'out_of_stock' as const,
+            timestamp: new Date(),
+          },
+        ])
+      } else if (prod.stock_quantity <= threshold) {
+        setAlerts((prev) => [
+          ...prev.filter((a) => a.productId !== prod.id),
+          {
+            productId: prod.id,
+            productName: prod.name,
+            currentStock: prod.stock_quantity,
+            threshold,
+            type: 'low_stock' as const,
+            timestamp: new Date(),
+          },
+        ])
+      } else {
+        setAlerts((prev) => prev.filter((a) => a.productId !== prod.id))
+      }
+    },
+    [lowStockThreshold]
+  )
 
   /**
    * Update product stock
@@ -136,7 +139,7 @@ export function useInventoryTracking(
           setProduct(data)
         }
 
-        setProducts(prev => {
+        setProducts((prev) => {
           const newMap = new Map(prev)
           newMap.set(prodId, data)
           return newMap
@@ -175,7 +178,7 @@ export function useInventoryTracking(
 
       // Update state
       if (productId && productsData) {
-        const mainProduct = productsData.find(p => p.id === productId)
+        const mainProduct = productsData.find((p) => p.id === productId)
         if (mainProduct) {
           setProduct(mainProduct)
           checkStockLevels(mainProduct)
@@ -183,7 +186,7 @@ export function useInventoryTracking(
       }
 
       const productsMap = new Map<string, Product>()
-      productsData?.forEach(p => {
+      productsData?.forEach((p) => {
         productsMap.set(p.id, p)
         checkStockLevels(p)
       })
@@ -240,7 +243,7 @@ export function useInventoryTracking(
           event: 'UPDATE',
           schema: 'public',
           table: 'products',
-          filter: `id=in.(${trackingIds.join(',')})`
+          filter: `id=in.(${trackingIds.join(',')})`,
         },
         (payload) => {
           const updatedProduct = payload.new as Product
@@ -249,7 +252,7 @@ export function useInventoryTracking(
             setProduct(updatedProduct)
           }
 
-          setProducts(prev => {
+          setProducts((prev) => {
             const newMap = new Map(prev)
             newMap.set(updatedProduct.id, updatedProduct)
             return newMap
@@ -264,12 +267,12 @@ export function useInventoryTracking(
           event: 'INSERT',
           schema: 'public',
           table: 'inventory_history',
-          filter: `product_id=in.(${trackingIds.join(',')})`
+          filter: `product_id=in.(${trackingIds.join(',')})`,
         },
         (payload) => {
           if (trackHistory) {
             const newHistory = payload.new as InventoryHistory
-            setHistory(prev => [newHistory, ...prev].slice(0, 50))
+            setHistory((prev) => [newHistory, ...prev].slice(0, 50))
           }
         }
       )
@@ -297,13 +300,13 @@ export function useInventoryTracking(
     products,
     history,
     alerts,
-    hasLowStock: alerts.some(a => a.type === 'low_stock'),
-    hasOutOfStock: alerts.some(a => a.type === 'out_of_stock'),
+    hasLowStock: alerts.some((a) => a.type === 'low_stock'),
+    hasOutOfStock: alerts.some((a) => a.type === 'out_of_stock'),
     isConnected,
     isLoading,
     error,
     updateStock,
     refresh,
-    clearAlerts
+    clearAlerts,
   }
 }

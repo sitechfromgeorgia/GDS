@@ -5,9 +5,22 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   Search,
   Download,
@@ -16,7 +29,7 @@ import {
   Clock,
   Star,
   MapPin,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react'
 import { DELIVERY_STATUSES, DriverDelivery } from '@/types/driver'
 import { format } from 'date-fns'
@@ -46,7 +59,7 @@ export default function DriverHistoryPage() {
     averageRating: 0,
     onTimeDeliveries: 0,
     totalTips: 0,
-    averageDeliveryTime: 0
+    averageDeliveryTime: 0,
   })
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -69,7 +82,7 @@ export default function DriverHistoryPage() {
         delivery_coordinates: { latitude: 41.7167, longitude: 44.7833 },
         customer_name: 'გიორგი მ.',
         customer_phone: '+995 555 123 456',
-        delivery_fee: 3.00,
+        delivery_fee: 3.0,
         distance_km: 2.5,
         estimated_duration_minutes: 25,
         actual_duration_minutes: 45,
@@ -77,15 +90,13 @@ export default function DriverHistoryPage() {
         updated_at: '2024-01-15T13:45:00Z',
         rating: 5,
         customer_feedback: 'სწრაფი და პროფესიონალი მომსახურება',
-        tips_earned: 2.00,
+        tips_earned: 2.0,
         order: {
           id: 'ORD-001',
           restaurant_name: 'სამზარეულო #1',
-          total_amount: 25.00,
-          items: [
-            { product_name: 'ხორცი', quantity: 2, unit: 'კგ' }
-          ]
-        }
+          total_amount: 25.0,
+          items: [{ product_name: 'ხორცი', quantity: 2, unit: 'კგ' }],
+        },
       },
       {
         id: '2',
@@ -100,7 +111,7 @@ export default function DriverHistoryPage() {
         delivery_coordinates: { latitude: 41.7267, longitude: 44.7933 },
         customer_name: 'მარიამ კ.',
         customer_phone: '+995 555 987 654',
-        delivery_fee: 3.00,
+        delivery_fee: 3.0,
         distance_km: 3.2,
         estimated_duration_minutes: 30,
         actual_duration_minutes: 30,
@@ -108,15 +119,13 @@ export default function DriverHistoryPage() {
         updated_at: '2024-01-14T14:30:00Z',
         rating: 4,
         customer_feedback: 'კარგი მომსახურება',
-        tips_earned: 1.50,
+        tips_earned: 1.5,
         order: {
           id: 'ORD-002',
           restaurant_name: 'სამზარეულო #2',
-          total_amount: 18.50,
-          items: [
-            { product_name: 'სასმელი', quantity: 6, unit: 'ლ' }
-          ]
-        }
+          total_amount: 18.5,
+          items: [{ product_name: 'სასმელი', quantity: 6, unit: 'ლ' }],
+        },
       },
       {
         id: '3',
@@ -130,7 +139,7 @@ export default function DriverHistoryPage() {
         delivery_coordinates: { latitude: 41.7367, longitude: 44.8033 },
         customer_name: 'ნიკა ჯ.',
         customer_phone: '+995 555 456 789',
-        delivery_fee: 3.00,
+        delivery_fee: 3.0,
         distance_km: 4.1,
         estimated_duration_minutes: 35,
         created_at: '2024-01-13T15:00:00Z',
@@ -141,23 +150,29 @@ export default function DriverHistoryPage() {
         order: {
           id: 'ORD-003',
           restaurant_name: 'სამზარეულო #3',
-          total_amount: 32.00,
-          items: [
-            { product_name: 'ხილი', quantity: 5, unit: 'კგ' }
-          ]
-        }
-      }
+          total_amount: 32.0,
+          items: [{ product_name: 'ხილი', quantity: 5, unit: 'კგ' }],
+        },
+      },
     ]
 
     setDeliveries(mockDeliveries)
 
     // Calculate stats
-    const completedDeliveries = mockDeliveries.filter(d => d.status === 'delivered')
-    const totalEarnings = completedDeliveries.reduce((sum, d) => sum + (d.delivery_fee || 0) + (d.tips_earned || 0), 0)
+    const completedDeliveries = mockDeliveries.filter((d) => d.status === 'delivered')
+    const totalEarnings = completedDeliveries.reduce(
+      (sum, d) => sum + (d.delivery_fee || 0) + (d.tips_earned || 0),
+      0
+    )
     const totalTips = completedDeliveries.reduce((sum, d) => sum + (d.tips_earned || 0), 0)
-    const averageRating = completedDeliveries.reduce((sum, d) => sum + (d.rating || 0), 0) / completedDeliveries.length
-    const onTimeDeliveries = completedDeliveries.filter(d => (d.actual_duration_minutes || 0) <= (d.estimated_duration_minutes || 0)).length
-    const averageDeliveryTime = completedDeliveries.reduce((sum, d) => sum + (d.actual_duration_minutes || 0), 0) / completedDeliveries.length
+    const averageRating =
+      completedDeliveries.reduce((sum, d) => sum + (d.rating || 0), 0) / completedDeliveries.length
+    const onTimeDeliveries = completedDeliveries.filter(
+      (d) => (d.actual_duration_minutes || 0) <= (d.estimated_duration_minutes || 0)
+    ).length
+    const averageDeliveryTime =
+      completedDeliveries.reduce((sum, d) => sum + (d.actual_duration_minutes || 0), 0) /
+      completedDeliveries.length
 
     setStats({
       totalDeliveries: mockDeliveries.length,
@@ -165,7 +180,7 @@ export default function DriverHistoryPage() {
       averageRating: isNaN(averageRating) ? 0 : averageRating,
       onTimeDeliveries,
       totalTips,
-      averageDeliveryTime: isNaN(averageDeliveryTime) ? 0 : averageDeliveryTime
+      averageDeliveryTime: isNaN(averageDeliveryTime) ? 0 : averageDeliveryTime,
     })
   }, [])
 
@@ -174,20 +189,21 @@ export default function DriverHistoryPage() {
     let filtered = deliveries
 
     if (searchTerm) {
-      filtered = filtered.filter(delivery =>
-        delivery.order_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        delivery.delivery_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        delivery.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (delivery) =>
+          delivery.order_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          delivery.delivery_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          delivery.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(delivery => delivery.status === statusFilter)
+      filtered = filtered.filter((delivery) => delivery.status === statusFilter)
     }
 
     if (ratingFilter !== 'all') {
       const rating = parseInt(ratingFilter)
-      filtered = filtered.filter(delivery => delivery.rating === rating)
+      filtered = filtered.filter((delivery) => delivery.rating === rating)
     }
 
     if (dateFilter !== 'all') {
@@ -206,9 +222,7 @@ export default function DriverHistoryPage() {
           break
       }
 
-      filtered = filtered.filter(delivery =>
-        new Date(delivery.created_at) >= filterDate
-      )
+      filtered = filtered.filter((delivery) => new Date(delivery.created_at) >= filterDate)
     }
 
     setFilteredDeliveries(filtered)
@@ -250,9 +264,7 @@ export default function DriverHistoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">ისტორია</h1>
-          <p className="text-muted-foreground">
-            თქვენი მიწოდებების ისტორია და სტატისტიკა
-          </p>
+          <p className="text-muted-foreground">თქვენი მიწოდებების ისტორია და სტატისტიკა</p>
         </div>
         <Button onClick={exportHistory} variant="outline">
           <Download className="h-4 w-4 mr-2" />
@@ -269,9 +281,7 @@ export default function DriverHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalDeliveries}</div>
-            <p className="text-xs text-muted-foreground">
-              სულ
-            </p>
+            <p className="text-xs text-muted-foreground">სულ</p>
           </CardContent>
         </Card>
 
@@ -282,9 +292,7 @@ export default function DriverHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₾{stats.totalEarnings.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">
-              +₾{stats.totalTips.toFixed(2)} ჩაი
-            </p>
+            <p className="text-xs text-muted-foreground">+₾{stats.totalTips.toFixed(2)} ჩაი</p>
           </CardContent>
         </Card>
 
@@ -295,9 +303,7 @@ export default function DriverHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.averageRating.toFixed(1)}</div>
-            <p className="text-xs text-muted-foreground">
-              საშუალო
-            </p>
+            <p className="text-xs text-muted-foreground">საშუალო</p>
           </CardContent>
         </Card>
 
@@ -308,9 +314,7 @@ export default function DriverHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatDuration(stats.averageDeliveryTime)}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.onTimeDeliveries} დროულად
-            </p>
+            <p className="text-xs text-muted-foreground">{stats.onTimeDeliveries} დროულად</p>
           </CardContent>
         </Card>
       </div>
@@ -378,9 +382,7 @@ export default function DriverHistoryPage() {
       <Card>
         <CardHeader>
           <CardTitle>მიწოდებების ისტორია</CardTitle>
-          <CardDescription>
-            {filteredDeliveries.length} მიწოდება ნაპოვნია
-          </CardDescription>
+          <CardDescription>{filteredDeliveries.length} მიწოდება ნაპოვნია</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -401,9 +403,7 @@ export default function DriverHistoryPage() {
                   <TableCell>
                     <div>
                       <div className="font-medium">#{delivery.order_id}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {delivery.customer_name}
-                      </div>
+                      <div className="text-sm text-muted-foreground">{delivery.customer_name}</div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -430,9 +430,7 @@ export default function DriverHistoryPage() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <div className="font-medium">
-                        ₾{(delivery.delivery_fee || 0).toFixed(2)}
-                      </div>
+                      <div className="font-medium">₾{(delivery.delivery_fee || 0).toFixed(2)}</div>
                       {delivery.tips_earned && delivery.tips_earned > 0 && (
                         <div className="text-muted-foreground">
                           +₾{delivery.tips_earned.toFixed(2)} ჩაი

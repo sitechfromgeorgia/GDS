@@ -12,13 +12,13 @@ const createUserSchema = z.object({
   email: z.string().email().min(5).max(254),
   password: z.string().min(8).max(128),
   role: z.enum(['admin', 'restaurant', 'driver', 'demo']).default('admin'),
-  full_name: z.string().min(1).max(100).optional()
+  full_name: z.string().min(1).max(100).optional(),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     // Validate input with zod
     const validation = createUserSchema.safeParse(body)
     if (!validation.success) {
@@ -32,23 +32,27 @@ export async function POST(request: NextRequest) {
 
     // Additional sanitization
     const sanitizedEmail = InputSanitizer.sanitizeString(email).toLowerCase()
-    const sanitizedFullName = full_name ? InputSanitizer.sanitizeString(full_name, 100) : 'Test User'
-    
+    const sanitizedFullName = full_name
+      ? InputSanitizer.sanitizeString(full_name, 100)
+      : 'Test User'
+
     // Security checks
-    if (SQLSecurity.containsSQLInjection(email) ||
-        SQLSecurity.containsSQLInjection(password) ||
-        SQLSecurity.containsSQLInjection(full_name || '')) {
-      return NextResponse.json(
-        { error: 'Potential security threat detected' },
-        { status: 400 }
-      )
+    if (
+      SQLSecurity.containsSQLInjection(email) ||
+      SQLSecurity.containsSQLInjection(password) ||
+      SQLSecurity.containsSQLInjection(full_name || '')
+    ) {
+      return NextResponse.json({ error: 'Potential security threat detected' }, { status: 400 })
     }
 
     // Validate password strength
     const passwordValidation = AuthSecurity.validatePasswordStrength(password)
     if (!passwordValidation.valid) {
       return NextResponse.json(
-        { error: 'Password does not meet security requirements', details: passwordValidation.errors },
+        {
+          error: 'Password does not meet security requirements',
+          details: passwordValidation.errors,
+        },
         { status: 400 }
       )
     }
@@ -60,16 +64,13 @@ export async function POST(request: NextRequest) {
       options: {
         data: {
           full_name: sanitizedFullName,
-          role
-        }
-      }
+          role,
+        },
+      },
     })
 
     if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
     return NextResponse.json({
@@ -78,16 +79,12 @@ export async function POST(request: NextRequest) {
       user: {
         id: data.user?.id,
         email: data.user?.email,
-        role
-      }
+        role,
+      },
     })
-
   } catch (error: any) {
     logger.error('Create test user error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
 

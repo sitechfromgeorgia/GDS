@@ -27,7 +27,7 @@ export type {
   AdminOperationType,
   AdminValidationError,
   AdminValidationResult,
-  AdminBatchOperation
+  AdminBatchOperation,
 } from '@/types/admin'
 
 // Admin client and utilities
@@ -36,7 +36,7 @@ export {
   adminDatabase,
   checkAdminConnection,
   getAdminEnvironmentInfo,
-  adminClient
+  adminClient,
 } from '@/lib/supabase/admin'
 
 export {
@@ -44,7 +44,7 @@ export {
   AdminAuditLogger,
   AdminBatchProcessor,
   AdminDataProcessor,
-  AdminSecurityHelper
+  AdminSecurityHelper,
 } from '@/lib/admin-utils'
 
 // Convenience re-exports from existing modules

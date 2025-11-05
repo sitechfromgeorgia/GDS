@@ -16,7 +16,7 @@ import {
   Package,
   MapPin,
   Clock,
-  MessageSquare
+  MessageSquare,
 } from 'lucide-react'
 import { CartItem, Product } from '@/types/restaurant'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
@@ -34,23 +34,20 @@ export function Cart({
   onUpdateQuantity,
   onRemoveItem,
   onUpdateNotes,
-  onClearCart
+  onClearCart,
 }: CartProps) {
   const [deliveryAddress, setDeliveryAddress] = useState('')
   const [deliveryTime, setDeliveryTime] = useState('')
   const [specialInstructions, setSpecialInstructions] = useState('')
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
-  const totalAmount = items.reduce(
-    (sum, item) => sum + (item.product.price * item.quantity),
-    0
-  )
+  const totalAmount = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       onRemoveItem(productId)
     } else {
-      const product = items.find(item => item.product.id === productId)?.product
+      const product = items.find((item) => item.product.id === productId)?.product
       if (product) {
         const maxQuantity = product.max_order_quantity || 100
         const minQuantity = product.min_order_quantity || 1
@@ -66,7 +63,7 @@ export function Cart({
       items,
       deliveryAddress,
       deliveryTime,
-      specialInstructions
+      specialInstructions,
     })
   }
 
@@ -76,9 +73,7 @@ export function Cart({
         <CardContent className="p-6 text-center">
           <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">კალათი ცარიელია</h3>
-          <p className="text-muted-foreground">
-            დაამატეთ პროდუქტები კატალოგიდან
-          </p>
+          <p className="text-muted-foreground">დაამატეთ პროდუქტები კატალოგიდან</p>
         </CardContent>
       </Card>
     )
@@ -126,7 +121,9 @@ export function Cart({
                 <Input
                   type="number"
                   value={item.quantity}
-                  onChange={(e) => handleQuantityChange(item.product.id, parseInt(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleQuantityChange(item.product.id, parseInt(e.target.value) || 0)
+                  }
                   className="w-20 text-center"
                   min={item.product.min_order_quantity || 1}
                   max={item.product.max_order_quantity || 100}
@@ -166,11 +163,7 @@ export function Cart({
             <span>{RestaurantUtils.formatCurrency(totalAmount)}</span>
           </div>
 
-          <Button
-            variant="outline"
-            onClick={onClearCart}
-            className="w-full"
-          >
+          <Button variant="outline" onClick={onClearCart} className="w-full">
             კალათის გასუფთავება
           </Button>
         </CardContent>
@@ -183,15 +176,11 @@ export function Cart({
             <MapPin className="h-5 w-5" />
             მიწოდების ინფორმაცია
           </CardTitle>
-          <CardDescription>
-            მიუთითეთ მიწოდების დეტალები
-          </CardDescription>
+          <CardDescription>მიუთითეთ მიწოდების დეტალები</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">
-              მიწოდების მისამართი *
-            </label>
+            <label className="text-sm font-medium mb-2 block">მიწოდების მისამართი *</label>
             <Textarea
               placeholder="შეიყვანეთ სრული მისამართი..."
               value={deliveryAddress}

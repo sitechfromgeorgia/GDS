@@ -3,14 +3,8 @@ import { logger } from '@/lib/logger'
 
 import { useState } from 'react'
 import { ServiceStatusBanner } from '@/components/ServiceStatusBanner'
- 
-// @ts-ignore
 import { runVPSDiagnostics } from '@/lib/vps-connection-test'
- 
-// @ts-ignore
 import { testSupabaseConnection, testAuth } from '@/lib/testConnection'
- 
-// @ts-ignore
 import { quickConnectivityTest } from '@/lib/service-health'
 import type { Session } from '@supabase/supabase-js'
 
@@ -65,18 +59,18 @@ export default function EnhancedTestPage() {
 
     // Test 1: Quick connectivity
     const connectivityResult = await quickConnectivityTest()
-    setResults(prev => ({ ...prev, connectivity: connectivityResult }))
+    setResults((prev) => ({ ...prev, connectivity: connectivityResult }))
 
     // Test 2: Basic connection
-     
-    const connectionResult = await testSupabaseConnection() as any
-    setResults(prev => ({ ...prev, connection: connectionResult }))
+
+    const connectionResult = (await testSupabaseConnection()) as any
+    setResults((prev) => ({ ...prev, connection: connectionResult }))
 
     // Test 3: Auth system
-    await new Promise(resolve => setTimeout(resolve, 500))
-     
-    const authResult = await testAuth() as any
-    setResults(prev => ({ ...prev, auth: authResult }))
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    const authResult = (await testAuth()) as any
+    setResults((prev) => ({ ...prev, auth: authResult }))
 
     // Test 4: Comprehensive diagnostics
     try {
@@ -93,12 +87,12 @@ export default function EnhancedTestPage() {
     const tests = [
       results.connectivity?.success,
       results.connection?.success,
-      results.auth?.success
+      results.auth?.success,
     ].filter(Boolean)
-    
+
     const passCount = tests.length
     const totalTests = 3
-    
+
     if (passCount === totalTests) return 'success'
     if (passCount >= totalTests * 0.7) return 'partial'
     return 'failure'
@@ -138,8 +132,8 @@ export default function EnhancedTestPage() {
         {/* Test Controls */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Diagnostic Tests</h2>
-          <button 
-            onClick={runEnhancedTests} 
+          <button
+            onClick={runEnhancedTests}
             disabled={testing}
             className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
@@ -152,19 +146,17 @@ export default function EnhancedTestPage() {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Quick Connectivity Test</h3>
             <div className="flex items-center gap-3">
-              <div className={`w-4 h-4 rounded-full ${results.connectivity.success ? 'bg-green-500' : 'bg-red-500'}`} />
+              <div
+                className={`w-4 h-4 rounded-full ${results.connectivity.success ? 'bg-green-500' : 'bg-red-500'}`}
+              />
               <span className="font-medium">
                 {results.connectivity.success ? 'Connected' : 'Connection Failed'}
               </span>
               {results.connectivity.latency && (
-                <span className="text-sm text-gray-600">
-                  ({results.connectivity.latency}ms)
-                </span>
+                <span className="text-sm text-gray-600">({results.connectivity.latency}ms)</span>
               )}
               {results.connectivity.error && (
-                <span className="text-sm text-red-600">
-                  Error: {results.connectivity.error}
-                </span>
+                <span className="text-sm text-red-600">Error: {results.connectivity.error}</span>
               )}
             </div>
           </div>
@@ -178,15 +170,15 @@ export default function EnhancedTestPage() {
             {results.connection ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full ${results.connection.success ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <div
+                    className={`w-4 h-4 rounded-full ${results.connection.success ? 'bg-green-500' : 'bg-red-500'}`}
+                  />
                   <span className="font-medium">
                     {results.connection.success ? 'Connected' : 'Failed'}
                   </span>
                 </div>
                 {results.connection.error && (
-                  <p className="text-sm text-red-600">
-                    Error: {results.connection.error}
-                  </p>
+                  <p className="text-sm text-red-600">Error: {results.connection.error}</p>
                 )}
               </div>
             ) : (
@@ -200,15 +192,13 @@ export default function EnhancedTestPage() {
             {results.auth ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full ${results.auth.success ? 'bg-green-500' : 'bg-red-500'}`} />
-                  <span className="font-medium">
-                    {results.auth.success ? 'Working' : 'Failed'}
-                  </span>
+                  <div
+                    className={`w-4 h-4 rounded-full ${results.auth.success ? 'bg-green-500' : 'bg-red-500'}`}
+                  />
+                  <span className="font-medium">{results.auth.success ? 'Working' : 'Failed'}</span>
                 </div>
                 {results.auth.error && (
-                  <p className="text-sm text-red-600">
-                    Error: {results.auth.error}
-                  </p>
+                  <p className="text-sm text-red-600">Error: {results.auth.error}</p>
                 )}
               </div>
             ) : (
@@ -221,23 +211,32 @@ export default function EnhancedTestPage() {
         {diagnostics && (
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Comprehensive Diagnostics</h3>
-            
+
             {/* Overall Status */}
             <div className="mb-6 p-4 border rounded-lg">
               <div className="flex items-center gap-3">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white ${
-                  diagnostics.overall === 'success' ? 'bg-green-500' : 
-                  diagnostics.overall === 'partial' ? 'bg-yellow-500' : 'bg-red-500'
-                }`}>
-                  {diagnostics.overall === 'success' ? '✓' : diagnostics.overall === 'partial' ? '!' : '✗'}
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-white ${
+                    diagnostics.overall === 'success'
+                      ? 'bg-green-500'
+                      : diagnostics.overall === 'partial'
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                  }`}
+                >
+                  {diagnostics.overall === 'success'
+                    ? '✓'
+                    : diagnostics.overall === 'partial'
+                      ? '!'
+                      : '✗'}
                 </div>
                 <div>
                   <h4 className="font-semibold text-lg">
                     Overall Status: {diagnostics.overall.toUpperCase()}
                   </h4>
                   <p className="text-sm text-gray-600">
-                    {diagnostics.summary.passedTests} of {diagnostics.summary.totalTests} tests passed 
-                    ({diagnostics.summary.totalDuration}ms total)
+                    {diagnostics.summary.passedTests} of {diagnostics.summary.totalTests} tests
+                    passed ({diagnostics.summary.totalDuration}ms total)
                   </p>
                 </div>
               </div>
@@ -255,9 +254,13 @@ export default function EnhancedTestPage() {
                       <div key={testIndex} className="flex items-center justify-between text-sm">
                         <span>{test.name}</span>
                         <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            test.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span
+                            className={`px-2 py-1 rounded text-xs ${
+                              test.success
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
                             {test.success ? 'PASS' : 'FAIL'}
                           </span>
                           <span className="text-gray-500">{test.duration}ms</span>
@@ -273,22 +276,29 @@ export default function EnhancedTestPage() {
 
         {/* Overall Result Summary */}
         {overallStatus && (
-          <div className={`p-6 rounded-lg border-2 ${
-            overallStatus === 'success' ? 'bg-green-50 border-green-200' :
-            overallStatus === 'partial' ? 'bg-yellow-50 border-yellow-200' :
-            'bg-red-50 border-red-200'
-          }`}>
+          <div
+            className={`p-6 rounded-lg border-2 ${
+              overallStatus === 'success'
+                ? 'bg-green-50 border-green-200'
+                : overallStatus === 'partial'
+                  ? 'bg-yellow-50 border-yellow-200'
+                  : 'bg-red-50 border-red-200'
+            }`}
+          >
             <h3 className="text-xl font-semibold mb-2">
               {overallStatus === 'success' && '✅ All Tests Passed!'}
               {overallStatus === 'partial' && '⚠️ Some Tests Failed'}
               {overallStatus === 'failure' && '❌ Multiple Test Failures'}
             </h3>
             <p className="mb-4">
-              {overallStatus === 'success' && 'Frontend is successfully connected to VPS backend. You can proceed with normal operation.'}
-              {overallStatus === 'partial' && 'Most functionality works, but some issues were detected. Check the details above for specific problems.'}
-              {overallStatus === 'failure' && 'Critical connection issues detected. Check your configuration and VPS backend status.'}
+              {overallStatus === 'success' &&
+                'Frontend is successfully connected to VPS backend. You can proceed with normal operation.'}
+              {overallStatus === 'partial' &&
+                'Most functionality works, but some issues were detected. Check the details above for specific problems.'}
+              {overallStatus === 'failure' &&
+                'Critical connection issues detected. Check your configuration and VPS backend status.'}
             </p>
-            
+
             {overallStatus === 'success' && (
               <div className="space-y-2 text-sm">
                 <p>✅ Database connection established</p>
@@ -297,7 +307,7 @@ export default function EnhancedTestPage() {
                 <p>✅ VPS backend responding</p>
               </div>
             )}
-            
+
             {overallStatus !== 'success' && (
               <div className="space-y-2 text-sm">
                 <p>🔧 Check environment variables in .env.local</p>

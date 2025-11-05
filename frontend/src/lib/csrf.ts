@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server'
  * Provides comprehensive security headers for the application
  */
 export class SecurityHeaders {
-
   /**
    * Get comprehensive security headers
    */
@@ -24,7 +23,7 @@ export class SecurityHeaders {
         "form-action 'self'",
         "object-src 'self' data: blob:",
         "media-src 'self' data: blob:",
-        "child-src 'self'"
+        "child-src 'self'",
       ].join('; '),
 
       // Prevent clickjacking
@@ -53,7 +52,7 @@ export class SecurityHeaders {
         'autoplay=()',
         'encrypted-media=()',
         'fullscreen=(self)',
-        'picture-in-picture=()'
+        'picture-in-picture=()',
       ].join(', '),
 
       // HSTS (HTTP Strict Transport Security)
@@ -61,8 +60,8 @@ export class SecurityHeaders {
 
       // Prevent caching of sensitive content
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
+      Pragma: 'no-cache',
+      Expires: '0',
     }
   }
 
@@ -85,7 +84,6 @@ export class SecurityHeaders {
  * Simple rate limiting for API protection
  */
 export class RateLimiter {
-
   private static readonly WINDOW_MS = 15 * 60 * 1000 // 15 minutes
   private static readonly MAX_REQUESTS = 100 // requests per window
 
@@ -104,7 +102,7 @@ export class RateLimiter {
     return {
       allowed: true,
       remaining: this.MAX_REQUESTS - 1,
-      resetTime: Date.now() + this.WINDOW_MS
+      resetTime: Date.now() + this.WINDOW_MS,
     }
   }
 
@@ -113,16 +111,15 @@ export class RateLimiter {
    */
   static async middleware(request: NextRequest): Promise<NextResponse | null> {
     // Get client IP from headers (set by reverse proxy)
-    const identifier = request.headers.get('x-forwarded-for') ||
-                      request.headers.get('x-real-ip') ||
-                      'anonymous'
+    const identifier =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous'
     const limit = await this.checkLimit(identifier)
 
     if (!limit.allowed) {
       return NextResponse.json(
         {
           error: 'Too many requests',
-          retryAfter: Math.ceil((limit.resetTime - Date.now()) / 1000)
+          retryAfter: Math.ceil((limit.resetTime - Date.now()) / 1000),
         },
         {
           status: 429,
@@ -130,8 +127,8 @@ export class RateLimiter {
             'Retry-After': Math.ceil((limit.resetTime - Date.now()) / 1000).toString(),
             'X-RateLimit-Limit': this.MAX_REQUESTS.toString(),
             'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': limit.resetTime.toString()
-          }
+            'X-RateLimit-Reset': limit.resetTime.toString(),
+          },
         }
       )
     }
@@ -151,7 +148,7 @@ export class RateLimiter {
 export function getCsrfToken(): string {
   const array = new Uint8Array(32)
   crypto.getRandomValues(array)
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
 /**
@@ -161,12 +158,12 @@ export function validateCsrfToken(token: string): boolean {
   if (!token || typeof token !== 'string') {
     return false
   }
-  
+
   // Check if token is 64 characters (32 bytes in hex)
   if (token.length !== 64) {
     return false
   }
-  
+
   // Check if token contains only valid hex characters
   return /^[a-f0-9]{64}$/i.test(token)
 }

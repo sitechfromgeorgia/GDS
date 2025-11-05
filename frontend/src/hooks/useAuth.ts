@@ -22,7 +22,7 @@ export function useAuth() {
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     })
 
     if (error) throw error
@@ -32,7 +32,7 @@ export function useAuth() {
   const signInWithMFA = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     })
 
     if (error) throw error
@@ -53,7 +53,7 @@ export function useAuth() {
   const verifyMFA = async (factorId: string, code: string) => {
     // First challenge the factor
     const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
-      factorId
+      factorId,
     })
 
     if (challengeError) throw challengeError
@@ -62,7 +62,7 @@ export function useAuth() {
     const { data, error } = await supabase.auth.mfa.verify({
       factorId,
       challengeId: challenge.id,
-      code
+      code,
     })
 
     if (error) throw error
@@ -71,7 +71,7 @@ export function useAuth() {
 
   const setupMFA = async () => {
     const { data, error } = await supabase.auth.mfa.enroll({
-      factorType: 'totp'
+      factorType: 'totp',
     })
 
     if (error) throw error
@@ -80,7 +80,7 @@ export function useAuth() {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: `${window.location.origin}/reset-password`,
     })
 
     if (error) throw error
@@ -95,6 +95,11 @@ export function useAuth() {
   const isAdmin = () => {
     const { profile } = useAuthStore.getState()
     return profile?.role === 'admin'
+  }
+
+  const isRestaurant = () => {
+    const { profile } = useAuthStore.getState()
+    return profile?.role === 'restaurant'
   }
 
   const isDriver = () => {
@@ -115,6 +120,6 @@ export function useAuth() {
     isAdmin,
     isRestaurant,
     isDriver,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
   }
 }

@@ -6,8 +6,20 @@ import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   MoreHorizontal,
@@ -17,7 +29,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { createBrowserClient } from '@/lib/supabase'
@@ -47,9 +59,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true)
-      let query = supabase
-        .from('products')
-        .select('*', { count: 'exact' })
+      let query = supabase.from('products').select('*', { count: 'exact' })
 
       // Apply search filter
       if (searchTerm) {
@@ -93,15 +103,15 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
 
   const handleSelectProduct = (productId: string, checked: boolean) => {
     if (checked) {
-      setSelectedProducts(prev => [...prev, productId])
+      setSelectedProducts((prev) => [...prev, productId])
     } else {
-      setSelectedProducts(prev => prev.filter(id => id !== productId))
+      setSelectedProducts((prev) => prev.filter((id) => id !== productId))
     }
   }
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(products.map(p => p.id))
+      setSelectedProducts(products.map((p) => p.id))
     } else {
       setSelectedProducts([])
     }
@@ -110,11 +120,9 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
   const handleBulkActivate = async () => {
     try {
       // Type assertion to bypass Supabase type inference issue
-       
+
       const productsTable = supabase.from('products') as any
-      const { error } = await productsTable
-        .update({ is_active: true })
-        .in('id', selectedProducts)
+      const { error } = await productsTable.update({ is_active: true }).in('id', selectedProducts)
 
       if (error) throw error
 
@@ -138,11 +146,9 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
   const handleBulkDeactivate = async () => {
     try {
       // Type assertion to bypass Supabase type inference issue
-       
+
       const productsTable = supabase.from('products') as any
-      const { error } = await productsTable
-        .update({ is_active: false })
-        .in('id', selectedProducts)
+      const { error } = await productsTable.update({ is_active: false }).in('id', selectedProducts)
 
       if (error) throw error
 
@@ -167,10 +173,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
     if (!confirm('დარწმუნებული ხართ რომ გსურთ პროდუქტის წაშლა?')) return
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId)
+      const { error } = await supabase.from('products').delete().eq('id', productId)
 
       if (error) throw error
 
@@ -223,9 +226,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
       {/* Bulk Actions */}
       {selectedProducts.length > 0 && (
         <div className="flex items-center gap-2 p-4 bg-muted rounded-lg">
-          <span className="text-sm font-medium">
-            არჩეულია {selectedProducts.length} პროდუქტი
-          </span>
+          <span className="text-sm font-medium">არჩეულია {selectedProducts.length} პროდუქტი</span>
           <Button size="sm" onClick={handleBulkActivate}>
             <CheckCircle className="mr-2 h-4 w-4" />
             გააქტიურება
@@ -287,7 +288,9 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
                   <TableCell>
                     <Checkbox
                       checked={selectedProducts.includes(product.id)}
-                      onCheckedChange={(checked: boolean) => handleSelectProduct(product.id, checked)}
+                      onCheckedChange={(checked: boolean) =>
+                        handleSelectProduct(product.id, checked)
+                      }
                     />
                   </TableCell>
                   <TableCell>
@@ -340,7 +343,15 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
                       <Badge variant={product.is_active ? 'default' : 'secondary'}>
                         {product.is_active ? 'აქტიური' : 'არააქტიური'}
                       </Badge>
-                      <Badge variant={stockStatus.color === 'destructive' ? 'destructive' : stockStatus.color === 'warning' ? 'secondary' : 'default'}>
+                      <Badge
+                        variant={
+                          stockStatus.color === 'destructive'
+                            ? 'destructive'
+                            : stockStatus.color === 'warning'
+                              ? 'secondary'
+                              : 'default'
+                        }
+                      >
                         {stockStatus.label}
                       </Badge>
                     </div>
@@ -388,7 +399,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
               წინა
@@ -396,7 +407,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
               შემდეგი

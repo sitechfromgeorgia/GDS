@@ -6,8 +6,24 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus, Search, Filter, Download, Upload, Package, TrendingUp, AlertTriangle } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Plus,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Package,
+  TrendingUp,
+  AlertTriangle,
+} from 'lucide-react'
 import { ProductTable } from '@/components/admin/ProductTable'
 import { ProductForm } from '@/components/admin/ProductForm'
 import { useToast } from '@/hooks/use-toast'
@@ -57,9 +73,7 @@ export default function ProductsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">პროდუქტების მართვა</h1>
-          <p className="text-muted-foreground">
-            მართეთ პროდუქტების კატალოგი, ინვენტარი და ფასები
-          </p>
+          <p className="text-muted-foreground">მართეთ პროდუქტების კატალოგი, ინვენტარი და ფასები</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleImportProducts}>
@@ -99,9 +113,7 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1,156</div>
-            <p className="text-xs text-muted-foreground">
-              94% ყველა პროდუქტიდან
-            </p>
+            <p className="text-xs text-muted-foreground">94% ყველა პროდუქტიდან</p>
           </CardContent>
         </Card>
 
@@ -112,9 +124,7 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">
-              საჭიროა შევსება
-            </p>
+            <p className="text-xs text-muted-foreground">საჭიროა შევსება</p>
           </CardContent>
         </Card>
 
@@ -125,9 +135,7 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">18</div>
-            <p className="text-xs text-muted-foreground">
-              აქტიური კატეგორიები
-            </p>
+            <p className="text-xs text-muted-foreground">აქტიური კატეგორიები</p>
           </CardContent>
         </Card>
       </div>
@@ -152,11 +160,11 @@ export default function ProductsPage() {
             </div>
             <div className="flex gap-2">
               <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 border border-input bg-background rounded-md text-sm"
-                  aria-label="კატეგორიის ფილტრი"
-                >
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 border border-input bg-background rounded-md text-sm"
+                aria-label="კატეგორიის ფილტრი"
+              >
                 <option value="all">ყველა კატეგორია</option>
                 <option value="food">საკვები</option>
                 <option value="beverages">სასმელები</option>
@@ -176,9 +184,7 @@ export default function ProductsPage() {
       <Card>
         <CardHeader>
           <CardTitle>პროდუქტები</CardTitle>
-          <CardDescription>
-            მართეთ პროდუქტების სია, ფასები და ინვენტარი
-          </CardDescription>
+          <CardDescription>მართეთ პროდუქტების სია, ფასები და ინვენტარი</CardDescription>
         </CardHeader>
         <CardContent>
           <ProductTable
@@ -193,17 +199,10 @@ export default function ProductsPage() {
       <Dialog open={showProductForm} onOpenChange={setShowProductForm}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingProduct ? 'პროდუქტის რედაქტირება' : 'ახალი პროდუქტი'}
-            </DialogTitle>
-            <DialogDescription>
-              შეავსეთ პროდუქტის დეტალები
-            </DialogDescription>
+            <DialogTitle>{editingProduct ? 'პროდუქტის რედაქტირება' : 'ახალი პროდუქტი'}</DialogTitle>
+            <DialogDescription>შეავსეთ პროდუქტის დეტალები</DialogDescription>
           </DialogHeader>
-          <ProductForm
-            product={editingProduct}
-            onClose={handleProductFormClose}
-          />
+          <ProductForm product={editingProduct} onClose={handleProductFormClose} />
         </DialogContent>
       </Dialog>
     </div>

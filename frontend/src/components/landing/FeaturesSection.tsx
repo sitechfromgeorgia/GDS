@@ -1,6 +1,16 @@
 'use client'
 
-import { Truck, Users, ChefHat, BarChart3, Shield, Zap, Smartphone, Globe, CheckCircle } from 'lucide-react'
+import {
+  Truck,
+  Users,
+  ChefHat,
+  BarChart3,
+  Shield,
+  Zap,
+  Smartphone,
+  Globe,
+  CheckCircle,
+} from 'lucide-react'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,46 +19,57 @@ const features = [
   {
     icon: Truck,
     title: 'Real-Time Order Tracking',
-    description: 'Track orders from placement to delivery with live GPS updates and automated status notifications.',
-    benefits: ['Live GPS tracking', 'Automated notifications', 'Delivery ETA', 'Order history']
+    description:
+      'Track orders from placement to delivery with live GPS updates and automated status notifications.',
+    benefits: ['Live GPS tracking', 'Automated notifications', 'Delivery ETA', 'Order history'],
   },
   {
     icon: BarChart3,
     title: 'Advanced Analytics',
-    description: 'Comprehensive dashboards with sales analytics, profitability reports, and business insights.',
-    benefits: ['Sales analytics', 'Profitability reports', 'Performance metrics', 'Custom reports']
+    description:
+      'Comprehensive dashboards with sales analytics, profitability reports, and business insights.',
+    benefits: ['Sales analytics', 'Profitability reports', 'Performance metrics', 'Custom reports'],
   },
   {
     icon: Shield,
     title: 'Enterprise Security',
-    description: 'Bank-level security with multi-factor authentication, encrypted data, and compliance standards.',
-    benefits: ['MFA authentication', 'Encrypted data', 'GDPR compliant', 'Secure payments']
+    description:
+      'Bank-level security with multi-factor authentication, encrypted data, and compliance standards.',
+    benefits: ['MFA authentication', 'Encrypted data', 'GDPR compliant', 'Secure payments'],
   },
   {
     icon: Zap,
     title: 'Automated Pricing',
-    description: 'Dynamic pricing algorithms that optimize margins while remaining competitive in the market.',
-    benefits: ['Dynamic pricing', 'Margin optimization', 'Competitive analysis', 'Price automation']
+    description:
+      'Dynamic pricing algorithms that optimize margins while remaining competitive in the market.',
+    benefits: [
+      'Dynamic pricing',
+      'Margin optimization',
+      'Competitive analysis',
+      'Price automation',
+    ],
   },
   {
     icon: Smartphone,
     title: 'Mobile-First Design',
-    description: 'Fully responsive platform optimized for mobile devices with dedicated driver and restaurant apps.',
-    benefits: ['Mobile optimized', 'Driver app', 'Restaurant app', 'Offline capability']
+    description:
+      'Fully responsive platform optimized for mobile devices with dedicated driver and restaurant apps.',
+    benefits: ['Mobile optimized', 'Driver app', 'Restaurant app', 'Offline capability'],
   },
   {
     icon: Users,
     title: 'Multi-Role Management',
-    description: 'Comprehensive user management for administrators, restaurants, distributors, and drivers.',
-    benefits: ['Role-based access', 'User permissions', 'Team management', 'Bulk operations']
-  }
+    description:
+      'Comprehensive user management for administrators, restaurants, distributors, and drivers.',
+    benefits: ['Role-based access', 'User permissions', 'Team management', 'Bulk operations'],
+  },
 ]
 
 const stats = [
   { label: 'Active Restaurants', value: '500+', icon: ChefHat },
   { label: 'Monthly Orders', value: '10,000+', icon: Truck },
   { label: 'Active Drivers', value: '200+', icon: Users },
-  { label: 'Uptime', value: '99.9%', icon: CheckCircle }
+  { label: 'Uptime', value: '99.9%', icon: CheckCircle },
 ]
 
 export function FeaturesSection() {
@@ -64,8 +85,8 @@ export function FeaturesSection() {
             Everything You Need for Modern Food Distribution
           </h2>
           <p className="text-lg text-muted-foreground">
-            Our comprehensive platform provides all the tools necessary for efficient,
-            scalable food distribution operations in Georgia.
+            Our comprehensive platform provides all the tools necessary for efficient, scalable food
+            distribution operations in Georgia.
           </p>
         </div>
 
@@ -98,9 +119,7 @@ export function FeaturesSection() {
                   </div>
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </div>
-                <CardDescription className="text-base">
-                  {feature.description}
-                </CardDescription>
+                <CardDescription className="text-base">{feature.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">

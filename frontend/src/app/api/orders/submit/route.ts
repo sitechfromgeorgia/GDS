@@ -7,13 +7,13 @@ import { createOrderSubmissionService } from '@/services/order-submission.servic
 export async function POST(request: NextRequest) {
   try {
     const body: OrderSubmissionInput = await request.json()
-    
+
     // Validate required fields
     if (!body.restaurantId) {
       return NextResponse.json(
         {
           success: false,
-          message: 'რესტორნის ID აუცილებელია'
+          message: 'რესტორნის ID აუცილებელია',
         },
         { status: 400 }
       )
@@ -21,10 +21,12 @@ export async function POST(request: NextRequest) {
 
     // Create Supabase client
     const supabase = await createServerClient()
-    
+
     // Get user session (optional for demo/guest orders)
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     // Initialize order submission service
     const orderService = createOrderSubmissionService({
       restaurantId: body.restaurantId,
@@ -34,24 +36,23 @@ export async function POST(request: NextRequest) {
       rushDeliveryAvailable: true,
       requireDeliveryAddress: true,
       maxOrderValue: 10000,
-      minOrderValue: 100
+      minOrderValue: 100,
     })
 
     // Submit order
     const result = await orderService.submitOrder(body)
-    
+
     if (!result.success) {
       return NextResponse.json(result, { status: 400 })
     }
 
     return NextResponse.json(result, { status: 200 })
-
   } catch (error) {
     logger.error('Order submission API error:', error)
     return NextResponse.json(
       {
         success: false,
-        message: 'შეკვეთის გაგზავნა ვერ მოხერხდა'
+        message: 'შეკვეთის გაგზავნა ვერ მოხერხდა',
       },
       { status: 500 }
     )
@@ -64,12 +65,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const restaurantId = searchParams.get('restaurantId')
     const userId = searchParams.get('userId')
-    
+
     if (!restaurantId) {
       return NextResponse.json(
         {
           success: false,
-          message: 'რესტორნის ID აუცილებელია'
+          message: 'რესტორნის ID აუცილებელია',
         },
         { status: 400 }
       )
@@ -77,32 +78,36 @@ export async function GET(request: NextRequest) {
 
     // Create Supabase client
     const supabase = await createServerClient()
-    
+
     // Get user session
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     // Initialize order submission service
     const orderService = createOrderSubmissionService({
       restaurantId,
       userId: user?.id || userId || undefined,
       enableNotifications: true,
-      autoConfirm: false
+      autoConfirm: false,
     })
 
     // Get order statistics
     const stats = await orderService.getOrderStats()
-    
-    return NextResponse.json({
-      success: true,
-      data: stats
-    }, { status: 200 })
 
+    return NextResponse.json(
+      {
+        success: true,
+        data: stats,
+      },
+      { status: 200 }
+    )
   } catch (error) {
     logger.error('Order stats API error:', error)
     return NextResponse.json(
       {
         success: false,
-        message: 'სტატისტიკის მიღება ვერ მოხერხდა'
+        message: 'სტატისტიკის მიღება ვერ მოხერხდა',
       },
       { status: 500 }
     )

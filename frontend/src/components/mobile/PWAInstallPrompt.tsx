@@ -1,41 +1,41 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { X, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { usePWA } from '@/hooks/usePWA';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react'
+import { X, Download } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { usePWA } from '@/hooks/usePWA'
+import { cn } from '@/lib/utils'
 
 export function PWAInstallPrompt() {
-  const { isInstalled, canInstall, promptInstall } = usePWA();
-  const [dismissed, setDismissed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const { isInstalled, canInstall, promptInstall } = usePWA()
+  const [dismissed, setDismissed] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
+    setMounted(true)
     // Check if user previously dismissed the prompt
-    const wasDismissed = localStorage.getItem('pwa-install-dismissed');
+    const wasDismissed = localStorage.getItem('pwa-install-dismissed')
     if (wasDismissed) {
-      setDismissed(true);
+      setDismissed(true)
     }
-  }, []);
+  }, [])
 
   const handleInstall = async () => {
-    const success = await promptInstall();
+    const success = await promptInstall()
     if (success) {
-      setDismissed(true);
-      localStorage.setItem('pwa-install-dismissed', 'true');
+      setDismissed(true)
+      localStorage.setItem('pwa-install-dismissed', 'true')
     }
-  };
+  }
 
   const handleDismiss = () => {
-    setDismissed(true);
-    localStorage.setItem('pwa-install-dismissed', 'true');
-  };
+    setDismissed(true)
+    localStorage.setItem('pwa-install-dismissed', 'true')
+  }
 
   // Don't render on server or if already installed/dismissed
   if (!mounted || isInstalled || !canInstall || dismissed) {
-    return null;
+    return null
   }
 
   return (
@@ -62,25 +62,17 @@ export function PWAInstallPrompt() {
         </div>
 
         <div className="flex-1">
-          <h3 className="font-semibold text-sm mb-1">
-            დააინსტალირეთ აპლიკაცია
-          </h3>
+          <h3 className="font-semibold text-sm mb-1">დააინსტალირეთ აპლიკაცია</h3>
           <p className="text-xs text-primary-foreground/90 mb-3">
-            დაამატეთ ჩვენი აპლიკაცია მთავარ ეკრანზე სწრაფი წვდომისთვის და
-            ოფლაინ მუშაობისთვის
+            დაამატეთ ჩვენი აპლიკაცია მთავარ ეკრანზე სწრაფი წვდომისთვის და ოფლაინ მუშაობისთვის
           </p>
 
-          <Button
-            onClick={handleInstall}
-            variant="secondary"
-            size="sm"
-            className="w-full"
-          >
+          <Button onClick={handleInstall} variant="secondary" size="sm" className="w-full">
             <Download className="h-4 w-4 mr-2" />
             დაყენება
           </Button>
         </div>
       </div>
     </div>
-  );
+  )
 }

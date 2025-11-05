@@ -29,12 +29,13 @@ export async function validateServerActionOrigin(): Promise<void> {
 
   // In development, allow localhost
   const isDevelopment = process.env.NODE_ENV === 'development'
-  if (isDevelopment && (
-    origin?.includes('localhost') ||
-    origin?.includes('127.0.0.1') ||
-    host?.includes('localhost') ||
-    host?.includes('127.0.0.1')
-  )) {
+  if (
+    isDevelopment &&
+    (origin?.includes('localhost') ||
+      origin?.includes('127.0.0.1') ||
+      host?.includes('localhost') ||
+      host?.includes('127.0.0.1'))
+  ) {
     return
   }
 
@@ -45,7 +46,7 @@ export async function validateServerActionOrigin(): Promise<void> {
     'https://data.greenland77.ge',
   ]
 
-  if (origin && !allowedOrigins.some(allowed => origin.includes(allowed))) {
+  if (origin && !allowedOrigins.some((allowed) => origin.includes(allowed))) {
     throw new Error('Invalid origin for server action')
   }
 }
@@ -103,9 +104,11 @@ export async function validateServerActionHeaders(): Promise<boolean> {
 
   // Ensure content-type is correct for server actions
   const contentType = headersList.get('content-type')
-  if (!contentType?.includes('multipart/form-data') &&
-      !contentType?.includes('application/x-www-form-urlencoded') &&
-      !contentType?.includes('text/plain')) {
+  if (
+    !contentType?.includes('multipart/form-data') &&
+    !contentType?.includes('application/x-www-form-urlencoded') &&
+    !contentType?.includes('text/plain')
+  ) {
     return false
   }
 

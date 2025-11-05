@@ -9,11 +9,16 @@ const mockUseQuery = {
   data: null,
   isLoading: false,
   error: null,
-  refetch: () => Promise.resolve({ data: null, error: null })
+  refetch: () => Promise.resolve({ data: null, error: null }),
 }
 
 // Georgian Distribution System Test Runner
 export class GDSQueryProviderTestRunner {
+  testResults: any[]
+  errors: any[]
+  warnings: any[]
+  startTime?: number
+
   constructor() {
     this.testResults = []
     this.errors = []
@@ -38,8 +43,8 @@ export class GDSQueryProviderTestRunner {
       console.error('❌ Test suite failed:', error)
       this.errors.push({
         test: 'Test Suite',
-        error: error.message,
-        stack: error.stack
+        error: (error as Error).message,
+        stack: (error as Error).stack,
       })
       return this.generateResults()
     }
@@ -58,7 +63,7 @@ export class GDSQueryProviderTestRunner {
             gcTime: 10 * 60 * 1000, // 10 minutes
             retry: 2,
             refetchOnWindowFocus: false,
-            refetchOnReconnect: true
+            refetchOnReconnect: true,
           },
         },
       })
@@ -74,7 +79,7 @@ export class GDSQueryProviderTestRunner {
 
       console.log('✅ QueryProvider Initialization tests completed')
     } catch (error) {
-      this.addError('QueryProvider Initialization', error.message)
+      this.addError('QueryProvider Initialization', (error as Error).message)
     }
   }
 
@@ -87,7 +92,7 @@ export class GDSQueryProviderTestRunner {
       const hooksTests = [
         'useOrders',
         'useOrder',
-        'useProducts', 
+        'useProducts',
         'useProduct',
         'useUsers',
         'useUser',
@@ -95,17 +100,17 @@ export class GDSQueryProviderTestRunner {
         'useRestaurant',
         'useDrivers',
         'useDriver',
-        'useAnalytics'
+        'useAnalytics',
       ]
 
-      hooksTests.forEach(hookName => {
+      hooksTests.forEach((hookName) => {
         this.testHookExists(hookName)
       })
 
       this.addSuccess('QueryHooks', 'All GDS QueryHooks are available')
       console.log('✅ QueryHooks tests completed')
     } catch (error) {
-      this.addError('QueryHooks', error.message)
+      this.addError('QueryHooks', (error as Error).message)
     }
   }
 
@@ -126,14 +131,14 @@ export class GDSQueryProviderTestRunner {
         getCacheAnalytics: () => ({
           totalQueries: 0,
           cachedQueries: 0,
-          staleQueries: 0
-        })
+          staleQueries: 0,
+        }),
       }
 
       // Test Georgian Distribution System specific cache patterns
       cacheManager.invalidateEntity('order', { id: 'order-1' })
       cacheManager.invalidatePattern('orders.all')
-      
+
       const analytics = cacheManager.getCacheAnalytics()
       if (analytics && typeof analytics === 'object') {
         this.addSuccess('Cache Analytics', 'Cache analytics working correctly')
@@ -142,7 +147,7 @@ export class GDSQueryProviderTestRunner {
       this.addSuccess('Cache Management', 'Cache management system is functional')
       console.log('✅ Cache Management tests completed')
     } catch (error) {
-      this.addError('Cache Management', error.message)
+      this.addError('Cache Management', (error as Error).message)
     }
   }
 
@@ -157,40 +162,46 @@ export class GDSQueryProviderTestRunner {
           name: 'Network Error',
           error: { name: 'NetworkError', message: 'Failed to fetch' },
           expectedCategory: 'network',
-          expectedGeorgian: 'ქსელის შეცდომა'
+          expectedGeorgian: 'ქსელის შეცდომა',
         },
         {
           name: 'Authentication Error',
           error: { status: 401, message: 'Unauthorized' },
           expectedCategory: 'auth',
-          expectedGeorgian: 'ავტორიზაციის შეცდომა'
+          expectedGeorgian: 'ავტორიზაციის შეცდომა',
         },
         {
           name: 'Server Error',
           error: { status: 500, message: 'Internal Server Error' },
           expectedCategory: 'server',
-          expectedGeorgian: 'სერვერის შეცდომა'
+          expectedGeorgian: 'სერვერის შეცდომა',
         },
         {
           name: 'Not Found Error',
           error: { code: 'PGRST116', message: 'No rows found' },
           expectedCategory: 'not_found',
-          expectedGeorgian: 'მონაცემები ვერ მოიძებნა'
-        }
+          expectedGeorgian: 'მონაცემები ვერ მოიძებნა',
+        },
       ]
 
-      errorTests.forEach(test => {
+      errorTests.forEach((test) => {
         const classified = this.mockClassifyError(test.error)
         if (classified.category === test.expectedCategory) {
-          this.addSuccess(`Error Classification (${test.name})`, `Correctly classified as ${test.expectedCategory}`)
+          this.addSuccess(
+            `Error Classification (${test.name})`,
+            `Correctly classified as ${test.expectedCategory}`
+          )
         } else {
-          this.addError(`Error Classification (${test.name})`, `Expected ${test.expectedCategory}, got ${classified.category}`)
+          this.addError(
+            `Error Classification (${test.name})`,
+            `Expected ${test.expectedCategory}, got ${classified.category}`
+          )
         }
       })
 
       console.log('✅ Error Handling tests completed')
     } catch (error) {
-      this.addError('Error Handling', error.message)
+      this.addError('Error Handling', (error as Error).message)
     }
   }
 
@@ -201,17 +212,20 @@ export class GDSQueryProviderTestRunner {
     try {
       // Test Georgian Distribution System loading state types
       const loadingStates = ['spinner', 'skeleton', 'dots', 'inline']
-      
-      loadingStates.forEach(stateType => {
+
+      loadingStates.forEach((stateType) => {
         const loadingComponent = this.mockCreateLoadingState(stateType, 'იტვირთება...')
         if (loadingComponent) {
-          this.addSuccess(`Loading State (${stateType})`, `${stateType} loading state created successfully`)
+          this.addSuccess(
+            `Loading State (${stateType})`,
+            `${stateType} loading state created successfully`
+          )
         }
       })
 
       console.log('✅ Loading States tests completed')
     } catch (error) {
-      this.addError('Loading States', error.message)
+      this.addError('Loading States', (error as Error).message)
     }
   }
 
@@ -231,7 +245,7 @@ export class GDSQueryProviderTestRunner {
         'product.deleted',
         'user.connected',
         'user.disconnected',
-        'delivery.status_changed'
+        'delivery.status_changed',
       ]
 
       // Mock real-time manager
@@ -243,8 +257,8 @@ export class GDSQueryProviderTestRunner {
         getStatus: () => ({
           connected: true,
           channelsCount: 4,
-          eventHandlersCount: realtimeEvents.length
-        })
+          eventHandlersCount: realtimeEvents.length,
+        }),
       }
 
       const connected = await realtimeManager.connect()
@@ -259,7 +273,7 @@ export class GDSQueryProviderTestRunner {
 
       console.log('✅ Real-time Integration tests completed')
     } catch (error) {
-      this.addError('Real-time Integration', error.message)
+      this.addError('Real-time Integration', (error as Error).message)
     }
   }
 
@@ -270,8 +284,8 @@ export class GDSQueryProviderTestRunner {
     try {
       // Test Georgian Distribution System provider structure
       const providers = ['QueryProvider', 'AuthProvider', 'ThemeProvider', 'Toaster']
-      
-      providers.forEach(providerName => {
+
+      providers.forEach((providerName) => {
         this.testProviderExists(providerName)
       })
 
@@ -280,17 +294,17 @@ export class GDSQueryProviderTestRunner {
         query: {
           enablePersistence: true,
           enableDevtools: true,
-          networkMode: 'good'
+          networkMode: 'good',
         },
         auth: {
           enableAutoRefresh: true,
-          sessionTimeout: 30
+          sessionTimeout: 30,
         },
         error: {
           enableBoundary: true,
           enableLogging: true,
-          enableNotifications: true
-        }
+          enableNotifications: true,
+        },
       }
 
       this.validateProviderConfig(providerConfig)
@@ -298,18 +312,22 @@ export class GDSQueryProviderTestRunner {
 
       console.log('✅ Provider Integration tests completed')
     } catch (error) {
-      this.addError('Provider Integration', error.message)
+      this.addError('Provider Integration', (error as Error).message)
     }
   }
 
   // Helper methods
   validateQueryClientConfig(queryClient: QueryClient): void {
     const config = queryClient.getDefaultOptions()
-    
-    if (config.queries?.staleTime && config.queries.staleTime > 0) {
+
+    if (
+      config.queries?.staleTime &&
+      typeof config.queries.staleTime === 'number' &&
+      config.queries.staleTime > 0
+    ) {
       this.addSuccess('QueryClient Config', 'Stale time is properly configured')
     }
-    
+
     if (config.queries?.gcTime && config.queries.gcTime > 0) {
       this.addSuccess('QueryClient Config', 'Garbage collection time is properly configured')
     }
@@ -349,7 +367,7 @@ export class GDSQueryProviderTestRunner {
     return {
       type,
       text: georgianText,
-      animated: true
+      animated: true,
     }
   }
 
@@ -372,7 +390,7 @@ export class GDSQueryProviderTestRunner {
       test,
       status: 'success',
       message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
     console.log(`  ✅ ${test}: ${message}`)
   }
@@ -381,7 +399,7 @@ export class GDSQueryProviderTestRunner {
     this.errors.push({
       test,
       error,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
     console.log(`  ❌ ${test}: ${error}`)
   }
@@ -390,7 +408,7 @@ export class GDSQueryProviderTestRunner {
     this.warnings.push({
       test,
       warning,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
     console.log(`  ⚠️  ${test}: ${warning}`)
   }
@@ -410,8 +428,8 @@ export class GDSQueryProviderTestRunner {
       warnings: this.warnings,
       summary: {
         completed: new Date().toISOString(),
-        duration: `${Date.now() - this.startTime}ms`
-      }
+        duration: `${Date.now() - (this.startTime || Date.now())}ms`,
+      },
     }
   }
 }
@@ -444,9 +462,9 @@ interface TestResults {
 export async function runGDSQueryProviderTests(): Promise<TestResults> {
   const runner = new GDSQueryProviderTestRunner()
   runner.startTime = Date.now()
-  
+
   const results = await runner.runAllTests()
-  
+
   console.log('\n' + '='.repeat(60))
   console.log('🎯 Georgian Distribution System QueryProvider Test Results')
   console.log('='.repeat(60))
@@ -455,30 +473,30 @@ export async function runGDSQueryProviderTests(): Promise<TestResults> {
   console.log(`❌ Failed: ${results.failedTests}`)
   console.log(`📈 Success Rate: ${results.successRate.toFixed(1)}%`)
   console.log(`⏱️  Duration: ${results.summary.duration}`)
-  
+
   if (results.errors.length > 0) {
     console.log('\n❌ Errors:')
-    results.errors.forEach(error => {
+    results.errors.forEach((error) => {
       console.log(`  - ${error.test}: ${error.error}`)
     })
   }
-  
+
   if (results.warnings.length > 0) {
     console.log('\n⚠️  Warnings:')
-    results.warnings.forEach(warning => {
+    results.warnings.forEach((warning) => {
       console.log(`  - ${warning.test}: ${warning.warning}`)
     })
   }
-  
+
   console.log('\n🎉 Georgian Distribution System QueryProvider testing completed!')
-  
+
   return results
 }
 
 // Export for external use
 export default {
   GDSQueryProviderTestRunner,
-  runGDSQueryProviderTests
+  runGDSQueryProviderTests,
 }
 
 // Auto-run if executed directly

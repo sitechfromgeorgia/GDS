@@ -36,7 +36,6 @@ function NotificationItem({ notification, onMarkRead, onDismiss }: NotificationI
   }
 
   const getPriorityColor = () => {
-     
     const priority = (notification.data as any)?.priority as string | undefined
     switch (priority) {
       case 'urgent':
@@ -52,24 +51,22 @@ function NotificationItem({ notification, onMarkRead, onDismiss }: NotificationI
 
   return (
     <div className="flex items-start space-x-3 p-3 border-b last:border-b-0">
-      <div className={`p-2 rounded-full ${notification.data?.priority === 'urgent' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
+      <div
+        className={`p-2 rounded-full ${notification.data?.priority === 'urgent' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}
+      >
         {getIcon()}
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {notification.message}
-          </p>
+          <p className="text-sm font-medium text-gray-900 truncate">{notification.message}</p>
           <Badge variant={getPriorityColor()} className="ml-2 text-xs">
-            {String(((notification.data as any)?.priority) ?? 'low')}
+            {String((notification.data as any)?.priority ?? 'low')}
           </Badge>
         </div>
 
         <div className="flex items-center justify-between mt-1">
-          <p className="text-xs text-gray-500">
-            Order #{notification.order_id.slice(-8)}
-          </p>
+          <p className="text-xs text-gray-500">Order #{notification.order_id.slice(-8)}</p>
           <p className="text-xs text-gray-400">
             {formatDistanceToNow(new Date(), { addSuffix: true })}
           </p>
@@ -116,8 +113,8 @@ export function NotificationCenter() {
     if (!user?.id) return
 
     const unsubscribeFromNotifications = subscribe((notification) => {
-      setNotifications(prev => [notification, ...prev])
-      setUnreadCount(prev => prev + 1)
+      setNotifications((prev) => [notification, ...prev])
+      setUnreadCount((prev) => prev + 1)
     })
 
     return () => {
@@ -126,27 +123,23 @@ export function NotificationCenter() {
   }, [user?.id, subscribe])
 
   const markAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.order_id === notificationId
-          ? { ...notification, read: true }
-          : notification
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.order_id === notificationId ? { ...notification, read: true } : notification
       )
     )
-    setUnreadCount(prev => Math.max(0, prev - 1))
+    setUnreadCount((prev) => Math.max(0, prev - 1))
   }
 
   const dismissNotification = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.filter(notification => notification.order_id !== notificationId)
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.order_id !== notificationId)
     )
-    setUnreadCount(prev => Math.max(0, prev - 1))
+    setUnreadCount((prev) => Math.max(0, prev - 1))
   }
 
   const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
-    )
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
     setUnreadCount(0)
   }
 
@@ -159,12 +152,7 @@ export function NotificationCenter() {
 
   return (
     <div className="relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative"
-      >
+      <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} className="relative">
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <Badge
@@ -183,22 +171,12 @@ export function NotificationCenter() {
               <CardTitle className="text-lg">Notifications</CardTitle>
               <div className="flex space-x-2">
                 {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={markAllAsRead}
-                    className="text-xs"
-                  >
+                  <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs">
                     Mark all read
                   </Button>
                 )}
                 {notifications.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearAll}
-                    className="text-xs"
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearAll} className="text-xs">
                     Clear all
                   </Button>
                 )}

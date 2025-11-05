@@ -16,7 +16,8 @@ export function Footer() {
               <span className="text-lg font-bold">Georgian Distribution</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Modern food distribution platform connecting restaurants, distributors, and drivers across Georgia.
+              Modern food distribution platform connecting restaurants, distributors, and drivers
+              across Georgia.
             </p>
             <div className="flex space-x-4">
               <Button variant="ghost" size="icon" asChild>
@@ -46,19 +47,34 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-sm font-semibold">Quick Links</h3>
             <nav className="flex flex-col space-y-2">
-              <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#features"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Features
               </Link>
-              <Link href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#pricing"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Pricing
               </Link>
-              <Link href="#testimonials" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#testimonials"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Testimonials
               </Link>
-              <Link href="#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#contact"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Contact
               </Link>
-              <Link href="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/demo"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Try Demo
               </Link>
             </nav>
@@ -68,19 +84,34 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-sm font-semibold">Support</h3>
             <nav className="flex flex-col space-y-2">
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Help Center
               </Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Documentation
               </Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 API Reference
               </Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Status Page
               </Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Privacy Policy
               </Link>
             </nav>
@@ -93,11 +124,7 @@ export function Footer() {
               Subscribe to our newsletter for the latest updates and features.
             </p>
             <div className="flex space-x-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1"
-              />
+              <Input type="email" placeholder="Enter your email" className="flex-1" />
               <Button size="sm">Subscribe</Button>
             </div>
 

@@ -16,7 +16,7 @@ export function AnimatedCounter({
   duration = 2000,
   className,
   suffix = '',
-  prefix = ''
+  prefix = '',
 }: AnimatedCounterProps) {
   const [count, setCount] = useState(0)
 
@@ -48,7 +48,9 @@ export function AnimatedCounter({
 
   return (
     <span className={cn('font-mono', className)}>
-      {prefix}{count.toLocaleString()}{suffix}
+      {prefix}
+      {count.toLocaleString()}
+      {suffix}
     </span>
   )
 }

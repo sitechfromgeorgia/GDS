@@ -1,59 +1,59 @@
-import type { Metadata, Viewport } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
-import { Providers } from './providers';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { PWAInstallPrompt } from '@/components/mobile/PWAInstallPrompt';
-import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
-import './globals.css';
+import type { Metadata, Viewport } from 'next'
+import { Inter, Roboto_Mono } from 'next/font/google'
+import { Providers } from './providers'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { PWAInstallPrompt } from '@/components/mobile/PWAInstallPrompt'
+import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
+import './globals.css'
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+  variable: '--font-inter',
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+  variable: '--font-roboto-mono',
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "Georgian Distribution System",
-  description: "B2B Food Distribution Management Platform",
-  manifest: "/manifest.json",
+  title: 'Georgian Distribution System',
+  description: 'B2B Food Distribution Management Platform',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
-    title: "Georgian Distribution",
+    statusBarStyle: 'default',
+    title: 'Georgian Distribution',
   },
   formatDetection: {
     telephone: false,
   },
   icons: {
     icon: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: "/icons/icon-152x152.png", sizes: "152x152", type: "image/png" },
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
     ],
   },
-};
+}
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
-  width: "device-width",
+  themeColor: '#000000',
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="ka">
@@ -68,9 +68,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
       </head>
-      <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${robotoMono.variable} antialiased`}>
         <ErrorBoundary>
           <Providers>
             {children}
@@ -80,5 +78,5 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
       </body>
     </html>
-  );
+  )
 }

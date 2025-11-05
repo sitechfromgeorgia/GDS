@@ -29,27 +29,43 @@ interface OrderCardProps {
 export function OrderCard({ order, onViewDetails, onEdit, onDelete }: OrderCardProps) {
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'pending': return 'secondary'
-      case 'confirmed': return 'default'
-      case 'preparing': return 'default'
-      case 'ready': return 'default'
-      case 'in_delivery': return 'default'
-      case 'delivered': return 'default'
-      case 'cancelled': return 'destructive'
-      default: return 'secondary'
+      case 'pending':
+        return 'secondary'
+      case 'confirmed':
+        return 'default'
+      case 'preparing':
+        return 'default'
+      case 'ready':
+        return 'default'
+      case 'in_delivery':
+        return 'default'
+      case 'delivered':
+        return 'default'
+      case 'cancelled':
+        return 'destructive'
+      default:
+        return 'secondary'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />
-      case 'confirmed': return <CheckCircle className="h-4 w-4" />
-      case 'preparing': return <Package className="h-4 w-4" />
-      case 'ready': return <Package className="h-4 w-4" />
-      case 'in_delivery': return <Truck className="h-4 w-4" />
-      case 'delivered': return <CheckCircle className="h-4 w-4" />
-      case 'cancelled': return <AlertCircle className="h-4 w-4" />
-      default: return <Clock className="h-4 w-4" />
+      case 'pending':
+        return <Clock className="h-4 w-4" />
+      case 'confirmed':
+        return <CheckCircle className="h-4 w-4" />
+      case 'preparing':
+        return <Package className="h-4 w-4" />
+      case 'ready':
+        return <Package className="h-4 w-4" />
+      case 'in_delivery':
+        return <Truck className="h-4 w-4" />
+      case 'delivered':
+        return <CheckCircle className="h-4 w-4" />
+      case 'cancelled':
+        return <AlertCircle className="h-4 w-4" />
+      default:
+        return <Clock className="h-4 w-4" />
     }
   }
 
@@ -101,9 +117,11 @@ export function OrderCard({ order, onViewDetails, onEdit, onDelete }: OrderCardP
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-600">Total</p>
-              <p className="text-xl font-bold">₾{(order.total_price || order.total_amount || 0).toFixed(2)}</p>
+              <p className="text-xl font-bold">
+                ₾{(order.total_price || order.total_amount || 0).toFixed(2)}
+              </p>
             </div>
-            
+
             <div className="flex gap-2">
               {onViewDetails && (
                 <Button variant="outline" size="sm" onClick={onViewDetails}>

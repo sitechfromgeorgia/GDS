@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,43 +18,42 @@ interface ProductCardProps {
   variant?: 'default' | 'compact' | 'minimal'
 }
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCard({
   product,
   onAddToCart,
   onProductClick,
   formatPrice,
   className,
   showAddToCart = true,
-  variant = 'default'
+  variant = 'default',
 }: ProductCardProps) {
-  
   const formatPriceText = formatPrice || ((price: number) => `${price.toLocaleString()} ₾`)
-  
+
   // Determine stock status
   const getStockStatus = () => {
     if (product.stock_quantity <= 0) {
-      return { 
-        status: 'out_of_stock', 
-        label: 'მარაგი არ არის', 
+      return {
+        status: 'out_of_stock',
+        label: 'მარაგი არ არის',
         color: 'bg-red-100 text-red-800 border-red-200',
-        icon: AlertTriangle 
-      }
-    }
-    
-    if (product.stock_quantity <= product.min_stock_level) {
-      return { 
-        status: 'low_stock', 
-        label: 'ცოტა მარაგი', 
-        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        icon: Package
+        icon: AlertTriangle,
       }
     }
 
-    return { 
-      status: 'in_stock', 
-      label: 'მარაგშია', 
+    if (product.stock_quantity <= product.min_stock_level) {
+      return {
+        status: 'low_stock',
+        label: 'ცოტა მარაგი',
+        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        icon: Package,
+      }
+    }
+
+    return {
+      status: 'in_stock',
+      label: 'მარაგშია',
       color: 'bg-green-100 text-green-800 border-green-200',
-      icon: Package
+      icon: Package,
     }
   }
 
@@ -104,7 +103,7 @@ export function ProductCard({
 
   if (variant === 'compact') {
     return (
-      <Card 
+      <Card
         className={cn(
           'cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1',
           className
@@ -126,11 +125,11 @@ export function ProductCard({
                 <Package className="w-6 h-6 text-gray-400" />
               </div>
             )}
-            
+
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-sm line-clamp-2 mb-1">{product.name}</h3>
               <p className="text-xs text-gray-500 mb-2 line-clamp-1">{product.description}</p>
-              
+
               <div className="flex items-center justify-between">
                 <div className="text-lg font-bold">{formatPriceText(product.price)}</div>
                 <Badge className={cn('text-xs', stockInfo.color)}>
@@ -141,10 +140,10 @@ export function ProductCard({
             </div>
           </div>
         </CardContent>
-        
+
         {showAddToCart && (
           <CardFooter className="p-4 pt-0">
-            <Button 
+            <Button
               onClick={(e) => {
                 e.stopPropagation()
                 handleAddToCart()
@@ -164,7 +163,7 @@ export function ProductCard({
 
   // Default variant
   return (
-    <Card 
+    <Card
       className={cn(
         'cursor-pointer hover:shadow-xl transition-all duration-200 hover:-translate-y-2 overflow-hidden',
         className
@@ -181,7 +180,7 @@ export function ProductCard({
           />
         </div>
       )}
-      
+
       <CardContent className="p-4">
         <div className="space-y-3">
           <div>
@@ -194,17 +193,15 @@ export function ProductCard({
               <span className="text-xs text-gray-500">{product.unit}</span>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-blue-600">
-              {formatPriceText(product.price)}
-            </div>
+            <div className="text-2xl font-bold text-blue-600">{formatPriceText(product.price)}</div>
             <Badge className={cn('text-xs', stockInfo.color)}>
               <StockIcon className="w-3 h-3 mr-1" />
               {stockInfo.label}
             </Badge>
           </div>
-          
+
           {product.stock_quantity <= product.min_stock_level && product.stock_quantity > 0 && (
             <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
               მხოლოდ {product.stock_quantity} ერთეული დარჩა
@@ -212,10 +209,10 @@ export function ProductCard({
           )}
         </div>
       </CardContent>
-      
+
       {showAddToCart && (
         <CardFooter className="p-4 pt-0">
-          <Button 
+          <Button
             onClick={(e) => {
               e.stopPropagation()
               handleAddToCart()
@@ -230,6 +227,6 @@ export function ProductCard({
       )}
     </Card>
   )
-}
+})
 
 export default ProductCard

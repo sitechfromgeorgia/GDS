@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import { DemoUtils } from '@/lib/demo-utils';
-import { DEMO_SAMPLE_DATA, DEMO_TOUR_STEPS, DEMO_ANALYTICS_DATA } from '@/lib/demo-data';
-import { type DemoSession, type DemoRole, type DemoTourStep } from '@/types/demo';
+import { useState, useEffect, useCallback } from 'react'
+import { DemoUtils } from '@/lib/demo-utils'
+import { DEMO_SAMPLE_DATA, DEMO_TOUR_STEPS, DEMO_ANALYTICS_DATA } from '@/lib/demo-data'
+import { type DemoSession, type DemoRole, type DemoTourStep } from '@/types/demo'
 
 export function useDemo() {
-  const [session, setSession] = useState<DemoSession | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isActive, setIsActive] = useState(false);
+  const [session, setSession] = useState<DemoSession | null>(null)
+  const [currentStep, setCurrentStep] = useState(0)
+  const [isActive, setIsActive] = useState(false)
 
   const startDemo = useCallback((role: DemoRole) => {
     const newSession: DemoSession = {
@@ -16,65 +16,65 @@ export function useDemo() {
       role,
       data: DEMO_SAMPLE_DATA[role],
       startedAt: new Date().toISOString(),
-      tourSteps: DEMO_TOUR_STEPS[role]
-    };
-    setSession(newSession);
-    setIsActive(true);
-    setCurrentStep(0);
-    return newSession;
-  }, []);
+      tourSteps: DEMO_TOUR_STEPS[role],
+    }
+    setSession(newSession)
+    setIsActive(true)
+    setCurrentStep(0)
+    return newSession
+  }, [])
 
   const endDemo = useCallback(() => {
-    setSession(null);
-    setIsActive(false);
-    setCurrentStep(0);
-  }, []);
+    setSession(null)
+    setIsActive(false)
+    setCurrentStep(0)
+  }, [])
 
   const nextStep = useCallback(() => {
     if (session && currentStep < session.tourSteps.length - 1) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1)
     }
-  }, [session, currentStep]);
+  }, [session, currentStep])
 
   const previousStep = useCallback(() => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep((prev) => prev - 1)
     }
-  }, [currentStep]);
+  }, [currentStep])
 
   const getCurrentStepData = useCallback(() => {
-    if (!session) return null;
-    return session.tourSteps[currentStep];
-  }, [session, currentStep]);
+    if (!session) return null
+    return session.tourSteps[currentStep]
+  }, [session, currentStep])
 
   const simulateDataChange = useCallback(() => {
     // Simulate real-time data updates during demo
     if (session?.role === 'admin') {
       // Simulate new orders
-      return DemoUtils.generateRandomOrder();
+      return DemoUtils.generateRandomOrder()
     }
-    return null;
-  }, [session]);
+    return null
+  }, [session])
 
   const resetDemo = useCallback(() => {
     if (session) {
-      const role = session.role;
-      endDemo();
-      startDemo(role);
+      const role = session.role
+      endDemo()
+      startDemo(role)
     }
-  }, [session, startDemo, endDemo]);
+  }, [session, startDemo, endDemo])
 
   // Auto-advance demo steps
   useEffect(() => {
     if (!isActive || !session?.tourSteps[currentStep]?.autoAdvance) {
-      return;
+      return
     }
 
     const timer = setTimeout(() => {
-      nextStep();
-    }, session.tourSteps[currentStep].autoAdvance);
-    return () => clearTimeout(timer);
-  }, [isActive, currentStep, session, nextStep]);
+      nextStep()
+    }, session.tourSteps[currentStep].autoAdvance)
+    return () => clearTimeout(timer)
+  }, [isActive, currentStep, session, nextStep])
 
   return {
     session,
@@ -104,6 +104,6 @@ export function useDemo() {
     tourStep: 0,
     nextTourStep: () => {},
     previousTourStep: () => {},
-    skipTour: () => {}
-  };
+    skipTour: () => {},
+  }
 }

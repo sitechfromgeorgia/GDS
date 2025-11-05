@@ -2,28 +2,28 @@ import { logger } from '@/lib/logger'
 
 /**
  * Performance Monitoring Service
- * 
+ *
  * This service integrates performance monitoring with Sentry for error tracking
  * and performance insights in the Georgian Distribution System.
  */
 
 // Placeholder for Sentry types since we're not installing it yet
 interface SentryTransaction {
-  finish: () => void;
-  startChild: (options: { op: string; description: string }) => SentrySpan;
-  setStatus: (status: string) => void;
+  finish: () => void
+  startChild: (options: { op: string; description: string }) => SentrySpan
+  setStatus: (status: string) => void
 }
 
 interface SentrySpan {
-  finish: () => void;
-  setStatus: (status: string) => void;
+  finish: () => void
+  setStatus: (status: string) => void
 }
 
 class PerformanceMonitoringService {
-  private isEnabled: boolean = false;
+  private isEnabled: boolean = false
 
   constructor() {
-    this.initializeSentry();
+    this.initializeSentry()
   }
 
   /**
@@ -32,7 +32,7 @@ class PerformanceMonitoringService {
   private initializeSentry(): void {
     // Sentry initialization would go here when we implement it
     // For now, we'll keep it disabled
-    this.isEnabled = false;
+    this.isEnabled = false
   }
 
   /**
@@ -42,7 +42,7 @@ class PerformanceMonitoringService {
    * @returns Transaction object
    */
   public startTransaction(name: string, op: string): SentryTransaction | null {
-    if (!this.isEnabled) return null;
+    if (!this.isEnabled) return null
 
     // Placeholder implementation
     return {
@@ -50,11 +50,11 @@ class PerformanceMonitoringService {
       startChild: (options: { op: string; description: string }) => {
         return {
           finish: () => {},
-          setStatus: (status: string) => {}
-        };
+          setStatus: (status: string) => {},
+        }
       },
-      setStatus: (status: string) => {}
-    };
+      setStatus: (status: string) => {},
+    }
   }
 
   /**
@@ -64,13 +64,17 @@ class PerformanceMonitoringService {
    * @param description Span description
    * @returns Span object
    */
-  public startSpan(transaction: SentryTransaction | null, op: string, description: string): SentrySpan | null {
-    if (!this.isEnabled || !transaction) return null;
+  public startSpan(
+    transaction: SentryTransaction | null,
+    op: string,
+    description: string
+  ): SentrySpan | null {
+    if (!this.isEnabled || !transaction) return null
 
     return transaction.startChild({
       op,
       description,
-    });
+    })
   }
 
   /**
@@ -80,11 +84,16 @@ class PerformanceMonitoringService {
    * @param unit Unit of measurement
    * @param tags Optional tags
    */
-  public recordMetric(name: string, value: number, unit: string = '', tags?: Record<string, string>): void {
-    if (!this.isEnabled) return;
+  public recordMetric(
+    name: string,
+    value: number,
+    unit: string = '',
+    tags?: Record<string, string>
+  ): void {
+    if (!this.isEnabled) return
 
     // Placeholder for metric recording
-    logger.info(`Recording metric: ${name} = ${value}${unit}`, tags);
+    logger.info(`Recording metric: ${name} = ${value}${unit}`, tags)
   }
 
   /**
@@ -94,10 +103,10 @@ class PerformanceMonitoringService {
    * @param unit Unit of measurement
    */
   public captureMeasurement(measurementName: string, value: number, unit: string): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
     // Placeholder for measurement capturing
-    logger.info(`Capturing measurement: ${measurementName} = ${value}${unit}`);
+    logger.info(`Capturing measurement: ${measurementName} = ${value}${unit}`)
   }
 
   /**
@@ -108,47 +117,47 @@ class PerformanceMonitoringService {
    */
   public async fetchWithMonitoring(url: string, options?: RequestInit): Promise<Response> {
     if (!this.isEnabled) {
-      return fetch(url, options);
+      return fetch(url, options)
     }
 
-    const transaction = this.startTransaction('api_request', 'http.client');
-    const span = this.startSpan(transaction, 'http.client', url);
+    const transaction = this.startTransaction('api_request', 'http.client')
+    const span = this.startSpan(transaction, 'http.client', url)
 
     try {
-      const startTime = performance.now();
-      const response = await fetch(url, options);
-      const endTime = performance.now();
-      const duration = endTime - startTime;
+      const startTime = performance.now()
+      const response = await fetch(url, options)
+      const endTime = performance.now()
+      const duration = endTime - startTime
 
       // Record the API call duration
-      this.captureMeasurement(`api.${url.replace(/\//g, '_')}`, duration, 'millisecond');
-      this.recordMetric('api_call_count', 1);
+      this.captureMeasurement(`api.${url.replace(/\//g, '_')}`, duration, 'millisecond')
+      this.recordMetric('api_call_count', 1)
 
       // Add status to span
       if (span) {
-        span.setStatus(response.ok ? 'ok' : 'internal_error');
-        span.finish();
+        span.setStatus(response.ok ? 'ok' : 'internal_error')
+        span.finish()
       }
 
       // Finish transaction
       if (transaction) {
-        transaction.finish();
+        transaction.finish()
       }
 
-      return response;
+      return response
     } catch (error) {
       // Add error to span
       if (span) {
-        span.setStatus('internal_error');
-        span.finish();
+        span.setStatus('internal_error')
+        span.finish()
       }
 
       // Finish transaction
       if (transaction) {
-        transaction.finish();
+        transaction.finish()
       }
 
-      throw error;
+      throw error
     }
   }
 
@@ -158,10 +167,10 @@ class PerformanceMonitoringService {
    * @param renderTime Render time in milliseconds
    */
   public monitorComponentRender(componentName: string, renderTime: number): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
-    this.captureMeasurement(`component.${componentName}`, renderTime, 'millisecond');
-    this.recordMetric(`component_render_${componentName}`, 1);
+    this.captureMeasurement(`component.${componentName}`, renderTime, 'millisecond')
+    this.recordMetric(`component_render_${componentName}`, 1)
   }
 
   /**
@@ -171,13 +180,13 @@ class PerformanceMonitoringService {
    * @param tableName Table name (optional)
    */
   public monitorDatabaseQuery(queryName: string, duration: number, tableName?: string): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
-    this.captureMeasurement(`db.query.${queryName}`, duration, 'millisecond');
+    this.captureMeasurement(`db.query.${queryName}`, duration, 'millisecond')
     this.recordMetric('database_query_count', 1, '', {
       query: queryName,
       table: tableName || 'unknown',
-    });
+    })
   }
 
   /**
@@ -186,20 +195,20 @@ class PerformanceMonitoringService {
    * @param duration Duration in milliseconds
    */
   public monitorUserInteraction(interactionName: string, duration: number): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
-    this.captureMeasurement(`ui.interaction.${interactionName}`, duration, 'millisecond');
-    this.recordMetric(`ui_interaction_${interactionName}`, 1);
+    this.captureMeasurement(`ui.interaction.${interactionName}`, duration, 'millisecond')
+    this.recordMetric(`ui_interaction_${interactionName}`, 1)
   }
 
   /**
    * Send performance data
    */
   public sendPerformanceData(): void {
-    if (!this.isEnabled) return;
+    if (!this.isEnabled) return
 
     // Placeholder for sending performance data
-    logger.info('Sending performance data to monitoring service');
+    logger.info('Sending performance data to monitoring service')
   }
 
   /**
@@ -207,16 +216,12 @@ class PerformanceMonitoringService {
    * @returns Boolean indicating if monitoring is enabled
    */
   public isEnabledMonitoring(): boolean {
-    return this.isEnabled;
+    return this.isEnabled
   }
 }
 
 // Export singleton instance
-export const performanceMonitoringService = new PerformanceMonitoringService();
+export const performanceMonitoringService = new PerformanceMonitoringService()
 
 // Export types
-export type {
-  PerformanceMonitoringService,
-  SentryTransaction,
-  SentrySpan
-};
+export type { PerformanceMonitoringService, SentryTransaction, SentrySpan }

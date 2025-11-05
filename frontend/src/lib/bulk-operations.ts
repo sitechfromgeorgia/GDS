@@ -6,7 +6,7 @@ import { OrderNotificationManager } from './order-notifications'
 import { createServerClient } from '@/lib/supabase/server'
 
 type Order = Database['public']['Tables']['orders']['Row']
-type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
+type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES]
 
 /**
  * Bulk operation result
@@ -41,7 +41,6 @@ export interface BulkOperationOptions {
  * Handles bulk operations on orders with proper validation, error handling, and progress tracking
  */
 export class BulkOperationsManager {
-
   /**
    * Bulk status update for multiple orders
    */
@@ -59,14 +58,14 @@ export class BulkOperationsManager {
       successful: 0,
       failed: 0,
       errors: [],
-      warnings: []
+      warnings: [],
     }
 
     const {
       continueOnError = true,
       maxConcurrent = 5,
       dryRun = false,
-      notifyOnCompletion = true
+      notifyOnCompletion = true,
     } = options
 
     // Validate user permissions for bulk operations
@@ -74,7 +73,7 @@ export class BulkOperationsManager {
       return {
         ...result,
         success: false,
-        errors: [{ orderId: 'all', error: 'Only administrators can perform bulk operations' }]
+        errors: [{ orderId: 'all', error: 'Only administrators can perform bulk operations' }],
       }
     }
 
@@ -89,12 +88,17 @@ export class BulkOperationsManager {
       return {
         ...result,
         success: false,
-        errors: [{ orderId: 'all', error: 'Failed to fetch orders for validation' }]
+        errors: [{ orderId: 'all', error: 'Failed to fetch orders for validation' }],
       }
     }
 
     // Validate all transitions first
-    const typedOrders = (orders || []) as Array<{ id: string; status: string; restaurant_id: string; driver_id: string | null }>
+    const typedOrders = (orders || []) as Array<{
+      id: string
+      status: string
+      restaurant_id: string
+      driver_id: string | null
+    }>
     const validationResults = await Promise.all(
       typedOrders.map(async (order) => {
         const validation = await OrderWorkflowEngine.validateTransition(
@@ -109,12 +113,12 @@ export class BulkOperationsManager {
     )
 
     // Check for validation failures
-    const failedValidations = validationResults.filter(r => !r.validation.valid)
+    const failedValidations = validationResults.filter((r) => !r.validation.valid)
     if (failedValidations.length > 0) {
       result.success = false
-      result.errors = failedValidations.map(r => ({
+      result.errors = failedValidations.map((r) => ({
         orderId: r.order.id,
-        error: r.validation.reason || 'Validation failed'
+        error: r.validation.reason || 'Validation failed',
       }))
       return result
     }
@@ -124,7 +128,7 @@ export class BulkOperationsManager {
       return {
         ...result,
         successful: orderIds.length,
-        warnings: [{ orderId: 'all', warning: 'Dry run - no changes made' }]
+        warnings: [{ orderId: 'all', warning: 'Dry run - no changes made' }],
       }
     }
 
@@ -148,14 +152,14 @@ export class BulkOperationsManager {
             result.failed++
             result.errors.push({
               orderId,
-              error: statusResult.error || 'Unknown error'
+              error: statusResult.error || 'Unknown error',
             })
           }
         } catch (error) {
           result.failed++
           result.errors.push({
             orderId,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           })
         }
       })
@@ -170,12 +174,7 @@ export class BulkOperationsManager {
 
     // Send completion notification
     if (notifyOnCompletion && result.successful > 0) {
-      await this.sendBulkOperationNotification(
-        'status_update',
-        result,
-        userId,
-        newStatus
-      )
+      await this.sendBulkOperationNotification('status_update', result, userId, newStatus)
     }
 
     return result
@@ -197,14 +196,14 @@ export class BulkOperationsManager {
       successful: 0,
       failed: 0,
       errors: [],
-      warnings: []
+      warnings: [],
     }
 
     if (userRole !== USER_ROLES.ADMIN) {
       return {
         ...result,
         success: false,
-        errors: [{ orderId: 'all', error: 'Only administrators can perform bulk assignments' }]
+        errors: [{ orderId: 'all', error: 'Only administrators can perform bulk assignments' }],
       }
     }
 
@@ -221,7 +220,7 @@ export class BulkOperationsManager {
       return {
         ...result,
         success: false,
-        errors: [{ orderId: 'all', error: 'Invalid driver selected' }]
+        errors: [{ orderId: 'all', error: 'Invalid driver selected' }],
       }
     }
 
@@ -243,14 +242,14 @@ export class BulkOperationsManager {
           result.failed++
           result.errors.push({
             orderId,
-            error: statusResult.error || 'Assignment failed'
+            error: statusResult.error || 'Assignment failed',
           })
         }
       } catch (error) {
         result.failed++
         result.errors.push({
           orderId,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         })
       }
     }
@@ -337,11 +336,16 @@ export class BulkOperationsManager {
       return {
         valid: false,
         preview: [],
-        summary: { total: 0, valid: 0, invalid: 0 }
+        summary: { total: 0, valid: 0, invalid: 0 },
       }
     }
 
-    const typedOrders2 = (orders || []) as Array<{ id: string; status: string; restaurant_id: string; driver_id: string | null }>
+    const typedOrders2 = (orders || []) as Array<{
+      id: string
+      status: string
+      restaurant_id: string
+      driver_id: string | null
+    }>
     const preview = await Promise.all(
       typedOrders2.map(async (order) => {
         let targetStatus = newStatus
@@ -376,21 +380,21 @@ export class BulkOperationsManager {
           currentStatus: order.status as OrderStatus,
           newStatus: targetStatus!,
           valid: validation.valid,
-          reason: validation.reason
+          reason: validation.reason,
         }
       })
     )
 
     const summary = {
       total: preview.length,
-      valid: preview.filter(p => p.valid).length,
-      invalid: preview.filter(p => !p.valid).length
+      valid: preview.filter((p) => p.valid).length,
+      invalid: preview.filter((p) => !p.valid).length,
     }
 
     return {
       valid: summary.invalid === 0,
       preview,
-      summary
+      summary,
     }
   }
 
@@ -415,7 +419,7 @@ export class BulkOperationsManager {
       successfulOperations: 0,
       failedOperations: 0,
       operationsByType: {},
-      averageProcessingTime: 0
+      averageProcessingTime: 0,
     }
   }
 
@@ -431,18 +435,20 @@ export class BulkOperationsManager {
     try {
       const message = `Bulk ${operationType} completed: ${result.successful}/${result.total} orders ${newStatus ? `set to ${newStatus}` : 'processed'}`
 
-      await OrderNotificationManager.sendBulkNotifications([{
-        order_id: 'bulk-operation',
-        type: 'status_change',
-        message,
-        recipient_id: userId,
-        recipient_role: 'admin',
-        data: {
-          operation_type: operationType,
-          result,
-          new_status: newStatus
-        }
-      }])
+      await OrderNotificationManager.sendBulkNotifications([
+        {
+          order_id: 'bulk-operation',
+          type: 'status_change',
+          message,
+          recipient_id: userId,
+          recipient_role: 'admin',
+          data: {
+            operation_type: operationType,
+            result,
+            new_status: newStatus,
+          },
+        },
+      ])
     } catch (error) {
       logger.error('Failed to send bulk operation notification:', error)
     }

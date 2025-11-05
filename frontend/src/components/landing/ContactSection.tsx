@@ -6,7 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
@@ -22,11 +28,11 @@ export function ContactSection() {
     company: '',
     role: '',
     inquiryType: '',
-    message: ''
+    message: '',
   })
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,7 +51,7 @@ export function ContactSection() {
       if (response.ok) {
         setIsSubmitted(true)
         toast({
-          title: "Message sent successfully!",
+          title: 'Message sent successfully!',
           description: "We'll get back to you within 24 hours.",
         })
         setFormData({
@@ -54,16 +60,16 @@ export function ContactSection() {
           company: '',
           role: '',
           inquiryType: '',
-          message: ''
+          message: '',
         })
       } else {
         throw new Error('Failed to send message')
       }
     } catch (error) {
       toast({
-        title: "Failed to send message",
-        description: "Please try again or contact us directly.",
-        variant: "destructive",
+        title: 'Failed to send message',
+        description: 'Please try again or contact us directly.',
+        variant: 'destructive',
       })
     } finally {
       setIsSubmitting(false)
@@ -82,11 +88,10 @@ export function ContactSection() {
             </div>
             <h2 className="text-3xl font-bold mb-4">Thank You!</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Your message has been sent successfully. Our team will get back to you within 24 hours.
+              Your message has been sent successfully. Our team will get back to you within 24
+              hours.
             </p>
-            <Button onClick={() => setIsSubmitted(false)}>
-              Send Another Message
-            </Button>
+            <Button onClick={() => setIsSubmitted(false)}>Send Another Message</Button>
           </div>
         </div>
       </section>
@@ -105,8 +110,8 @@ export function ContactSection() {
             Ready to Transform Your Business?
           </h2>
           <p className="text-lg text-muted-foreground">
-            Have questions about our platform? Need a custom solution?
-            Our team is here to help you get started.
+            Have questions about our platform? Need a custom solution? Our team is here to help you
+            get started.
           </p>
         </div>
 
@@ -154,7 +159,10 @@ export function ContactSection() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="role">Your Role</Label>
-                    <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value) => handleInputChange('role', value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select your role" />
                       </SelectTrigger>
@@ -171,7 +179,11 @@ export function ContactSection() {
 
                 <div className="space-y-2">
                   <Label htmlFor="inquiryType">Inquiry Type *</Label>
-                  <Select value={formData.inquiryType} onValueChange={(value) => handleInputChange('inquiryType', value)} required>
+                  <Select
+                    value={formData.inquiryType}
+                    onValueChange={(value) => handleInputChange('inquiryType', value)}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="What can we help you with?" />
                     </SelectTrigger>
@@ -190,7 +202,9 @@ export function ContactSection() {
                   <Textarea
                     id="message"
                     value={formData.message}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('message', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      handleInputChange('message', e.target.value)
+                    }
                     placeholder="Tell us about your needs..."
                     rows={4}
                     required

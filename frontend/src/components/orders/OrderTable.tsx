@@ -86,7 +86,7 @@ export function OrderTable({
       newSelectedOrders.add(order.id)
     }
     setSelectedOrders(newSelectedOrders)
-    
+
     if (onOrderSelect) {
       onOrderSelect(order)
     }
@@ -99,7 +99,8 @@ export function OrderTable({
   }
 
   const getStatusBadge = (status: string) => {
-    const colorClass = statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'
+    const colorClass =
+      statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'
     const label = statusLabels[status as keyof typeof statusLabels] || status
 
     return (
@@ -140,8 +141,8 @@ export function OrderTable({
   const getAvailableStatuses = (order: OrderWithDetails) => {
     switch (userRole) {
       case USER_ROLES.ADMIN:
-        return Object.entries(ORDER_STATUSES).filter(([key]) => 
-          key !== 'pending' && key !== 'confirmed'
+        return Object.entries(ORDER_STATUSES).filter(
+          ([key]) => key !== 'pending' && key !== 'confirmed'
         )
       case USER_ROLES.RESTAURANT:
         if (order.status === 'delivered') {
@@ -207,51 +208,42 @@ export function OrderTable({
                 }`}
                 onClick={() => handleOrderSelect(order)}
               >
-                <TableCell className="font-medium">
-                  #{order.id.slice(-8)}
-                </TableCell>
+                <TableCell className="font-medium">#{order.id.slice(-8)}</TableCell>
+                <TableCell>{order.restaurant?.restaurant_name || '-'}</TableCell>
+                <TableCell>{order.driver?.full_name || '-'}</TableCell>
+                <TableCell>{getStatusBadge(order.status)}</TableCell>
+                <TableCell>{formatCurrency(order.total_amount)}</TableCell>
+                <TableCell>{formatDate(order.created_at)}</TableCell>
                 <TableCell>
-                  {order.restaurant?.restaurant_name || '-'}
-                </TableCell>
-                <TableCell>
-                  {order.driver?.full_name || '-'}
-                </TableCell>
-                <TableCell>
-                  {getStatusBadge(order.status)}
-                </TableCell>
-                <TableCell>
-                  {formatCurrency(order.total_amount)}
-                </TableCell>
-                <TableCell>
-                  {formatDate(order.created_at)}
-                </TableCell>
-                <TableCell>
-                  {order.updated_at !== order.created_at && 
-                    formatDate(order.updated_at)
-                  }
+                  {order.updated_at !== order.created_at && formatDate(order.updated_at)}
                 </TableCell>
                 <TableCell>
                   {order.notes ? (
                     <div className="max-w-xs truncate" title={order.notes}>
                       {order.notes}
                     </div>
-                  ) : '-'}
+                  ) : (
+                    '-'
+                  )}
                 </TableCell>
                 {showActions && (
                   <TableCell>
                     {canUpdateStatus(order) && (
                       <div className="flex gap-2">
-                        {getAvailableStatuses(order).map(([statusKey, statusValue]) => statusValue && (
-                          <Button
-                            key={statusKey}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleStatusUpdate(order.id, statusValue)}
-                            disabled={userRole === 'demo'}
-                          >
-                            {statusLabels[statusKey as keyof typeof statusLabels]}
-                          </Button>
-                        ))}
+                        {getAvailableStatuses(order).map(
+                          ([statusKey, statusValue]) =>
+                            statusValue && (
+                              <Button
+                                key={statusKey}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleStatusUpdate(order.id, statusValue)}
+                                disabled={userRole === 'demo'}
+                              >
+                                {statusLabels[statusKey as keyof typeof statusLabels]}
+                              </Button>
+                            )
+                        )}
                       </div>
                     )}
                   </TableCell>

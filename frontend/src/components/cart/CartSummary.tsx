@@ -17,22 +17,15 @@ interface CartSummaryProps {
   showClearButton?: boolean
 }
 
-export function CartSummary({ 
-  className, 
+export function CartSummary({
+  className,
   compact = false,
   showActions = true,
   onCheckout,
-  showClearButton = true
+  showClearButton = true,
 }: CartSummaryProps) {
-  const { 
-    cart, 
-    itemCount, 
-    totalPrice, 
-    formatTotal,
-    clearCart,
-    isClearing,
-    isEmpty 
-  } = useCartContext()
+  const { cart, itemCount, totalPrice, formatTotal, clearCart, isClearing, isEmpty } =
+    useCartContext()
 
   if (isEmpty) {
     return (
@@ -54,9 +47,7 @@ export function CartSummary({
               <Package className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="font-medium">{itemCount} ერთეული</p>
-                <p className="text-sm text-muted-foreground">
-                  {cart?.items.length || 0} პროდუქტი
-                </p>
+                <p className="text-sm text-muted-foreground">{cart?.items.length || 0} პროდუქტი</p>
               </div>
             </div>
             <div className="text-right">
@@ -85,7 +76,7 @@ export function CartSummary({
               <Badge variant="secondary">{cart?.items.length || 0}</Badge>
             </div>
           </div>
-          
+
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">ერთეულების რაოდენობა:</span>
             <span className="font-medium">{itemCount}</span>
@@ -127,17 +118,13 @@ export function CartSummary({
         {/* Actions */}
         {showActions && (
           <div className="space-y-2">
-            <Button 
-              onClick={onCheckout}
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={onCheckout} className="w-full" size="lg">
               <CreditCard className="mr-2 h-4 w-4" />
               შეკვეთის დადასტურება
             </Button>
-            
+
             {showClearButton && (
-              <Button 
+              <Button
                 onClick={clearCart}
                 variant="outline"
                 className="w-full"
@@ -177,9 +164,7 @@ export function SimpleCartSummary({ className }: { className?: string }) {
       <Badge variant="secondary" className="text-xs">
         {itemCount}
       </Badge>
-      <span className="text-sm font-medium">
-        {formatTotal(totalPrice)}
-      </span>
+      <span className="text-sm font-medium">{formatTotal(totalPrice)}</span>
     </div>
   )
 }

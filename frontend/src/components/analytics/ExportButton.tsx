@@ -1,18 +1,22 @@
 // Export Button Component
 // Based on specs/001-analytics-dashboard/plan.md
 
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { DownloadIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { DownloadIcon } from 'lucide-react'
 
 interface ExportButtonProps {
-  onClick: () => void;
-  isExporting?: boolean;
-  disabled?: boolean;
+  onClick: () => void
+  isExporting?: boolean
+  disabled?: boolean
 }
 
-export function ExportButton({ onClick, isExporting = false, disabled = false }: ExportButtonProps) {
+export function ExportButton({
+  onClick,
+  isExporting = false,
+  disabled = false,
+}: ExportButtonProps) {
   return (
     <Button
       onClick={onClick}
@@ -24,5 +28,5 @@ export function ExportButton({ onClick, isExporting = false, disabled = false }:
       <DownloadIcon className="h-4 w-4" />
       {isExporting ? 'Exporting...' : 'Export CSV'}
     </Button>
-  );
+  )
 }

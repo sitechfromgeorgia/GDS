@@ -6,13 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import {
-  Search,
-  Download,
-  Eye,
-  Filter
-} from 'lucide-react'
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Search, Download, Eye, Filter } from 'lucide-react'
 import { RestaurantOrder, OrderFilters } from '@/types/restaurant'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
 import { useToast } from '@/hooks/use-toast'
@@ -25,7 +27,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
   const [orders, setOrders] = useState<RestaurantOrder[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<OrderFilters>({
-    status: []
+    status: [],
   })
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -39,7 +41,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
       setLoading(true)
       const data = await RestaurantUtils.getOrders({
         ...filters,
-        search: searchQuery || undefined
+        search: searchQuery || undefined,
       })
 
       // Simple pagination (in a real app, this would be done on the backend)
@@ -54,7 +56,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
       toast({
         title: 'შეცდომა',
         description: 'შეკვეთების ჩატვირთვა ვერ მოხერხდა',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setLoading(false)
@@ -72,34 +74,34 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
 
   const handleStatusFilter = (status: string) => {
     const newStatus = filters.status?.includes(status)
-      ? filters.status.filter(s => s !== status)
+      ? filters.status.filter((s) => s !== status)
       : [...(filters.status || []), status]
 
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      status: newStatus.length > 0 ? newStatus : undefined
+      status: newStatus.length > 0 ? newStatus : undefined,
     }))
     setCurrentPage(1)
   }
 
   const handleExportOrders = () => {
     // Simple CSV export
-    const csvData = orders.map(order => ({
+    const csvData = orders.map((order) => ({
       'შეკვეთის ID': order.id,
-      'სტატუსი': order.status,
-      'თანხა': order.total_amount,
-      'მისამართი': order.delivery_address,
+      სტატუსი: order.status,
+      თანხა: order.total_amount,
+      მისამართი: order.delivery_address,
       'შექმნის დრო': RestaurantUtils.formatDate(order.created_at),
-      'განახლების დრო': RestaurantUtils.formatDate(order.updated_at)
+      'განახლების დრო': RestaurantUtils.formatDate(order.updated_at),
     }))
 
     if (csvData.length === 0) {
-      return;
+      return
     }
 
     const csvString = [
       Object.keys(csvData[0]!).join(','),
-      ...csvData.map(row => Object.values(row).join(','))
+      ...csvData.map((row) => Object.values(row).join(',')),
     ].join('\n')
 
     const blob = new Blob([csvString], { type: 'text/csv' })
@@ -148,9 +150,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
             <Filter className="h-5 w-5" />
             ფილტრები და ძიება
           </CardTitle>
-          <CardDescription>
-            გაფილტრეთ და მოძებნეთ შეკვეთები
-          </CardDescription>
+          <CardDescription>გაფილტრეთ და მოძებნეთ შეკვეთები</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -172,7 +172,16 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {['pending', 'confirmed', 'priced', 'assigned', 'out_for_delivery', 'delivered', 'completed', 'cancelled'].map((status) => (
+            {[
+              'pending',
+              'confirmed',
+              'priced',
+              'assigned',
+              'out_for_delivery',
+              'delivered',
+              'completed',
+              'cancelled',
+            ].map((status) => (
               <Button
                 key={status}
                 variant={filters.status?.includes(status) ? 'default' : 'outline'}
@@ -190,9 +199,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
       <Card>
         <CardHeader>
           <CardTitle>შეკვეთების ისტორია</CardTitle>
-          <CardDescription>
-            ყველა შეკვეთის დეტალური სია
-          </CardDescription>
+          <CardDescription>ყველა შეკვეთის დეტალური სია</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -202,9 +209,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
               ))}
             </div>
           ) : orders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              შეკვეთები არ მოიძებნა
-            </div>
+            <div className="text-center py-8 text-muted-foreground">შეკვეთები არ მოიძებნა</div>
           ) : (
             <>
               <Table>
@@ -221,29 +226,17 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
                 <TableBody>
                   {orders.map((order) => (
                     <TableRow key={order.id}>
-                      <TableCell className="font-medium">
-                        #{order.id.slice(-8)}
-                      </TableCell>
+                      <TableCell className="font-medium">#{order.id.slice(-8)}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusBadgeVariant(order.status)}>
-                          {order.status}
-                        </Badge>
+                        <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                       </TableCell>
                       <TableCell>
                         {RestaurantUtils.formatCurrency(order.total_amount ?? 0)}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {order.delivery_address}
-                      </TableCell>
+                      <TableCell className="max-w-xs truncate">{order.delivery_address}</TableCell>
+                      <TableCell>{RestaurantUtils.formatDate(order.created_at)}</TableCell>
                       <TableCell>
-                        {RestaurantUtils.formatDate(order.created_at)}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewOrder?.(order)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => onViewOrder?.(order)}>
                           <Eye className="h-4 w-4 mr-2" />
                           ნახვა
                         </Button>
@@ -263,7 +256,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
                     >
                       წინა
@@ -271,7 +264,7 @@ export function OrderHistoryTable({ onViewOrder }: OrderHistoryTableProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
                     >
                       შემდეგი

@@ -40,7 +40,11 @@ describe('Global Error Boundary', () => {
   it('should display error message in development', () => {
     // Arrange
     const originalEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'development',
+      writable: true,
+      configurable: true,
+    })
 
     // Act
     render(<GlobalError error={mockError} reset={mockReset} />)
@@ -49,13 +53,21 @@ describe('Global Error Boundary', () => {
     expect(screen.getByText('Critical error')).toBeInTheDocument()
 
     // Cleanup
-    process.env.NODE_ENV = originalEnv
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: originalEnv,
+      writable: true,
+      configurable: true,
+    })
   })
 
   it('should not display error details in production', () => {
     // Arrange
     const originalEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'production'
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'production',
+      writable: true,
+      configurable: true,
+    })
 
     // Act
     render(<GlobalError error={mockError} reset={mockReset} />)
@@ -64,13 +76,21 @@ describe('Global Error Boundary', () => {
     expect(screen.queryByText('Critical error')).not.toBeInTheDocument()
 
     // Cleanup
-    process.env.NODE_ENV = originalEnv
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: originalEnv,
+      writable: true,
+      configurable: true,
+    })
   })
 
   it('should display error digest in development', () => {
     // Arrange
     const originalEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'development',
+      writable: true,
+      configurable: true,
+    })
     const errorWithDigest = Object.assign(new Error('Test'), { digest: 'xyz789' })
 
     // Act
@@ -80,7 +100,11 @@ describe('Global Error Boundary', () => {
     expect(screen.getByText(/Error ID: xyz789/)).toBeInTheDocument()
 
     // Cleanup
-    process.env.NODE_ENV = originalEnv
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: originalEnv,
+      writable: true,
+      configurable: true,
+    })
   })
 
   it('should call reset when "სცადე თავიდან" button is clicked', () => {
@@ -119,7 +143,9 @@ describe('Global Error Boundary', () => {
     render(<GlobalError error={mockError} reset={mockReset} />)
 
     // Assert
-    expect(screen.getByText('ბოდიში, მოხდა სერიოზული შეცდომა. გთხოვთ, გადატვირთოთ გვერდი.')).toBeInTheDocument()
+    expect(
+      screen.getByText('ბოდიში, მოხდა სერიოზული შეცდომა. გთხოვთ, გადატვირთოთ გვერდი.')
+    ).toBeInTheDocument()
   })
 
   it('should use inline styles', () => {

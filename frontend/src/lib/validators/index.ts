@@ -1,13 +1,13 @@
 // Auth validators
-export { 
-  signInSchema, 
-  signUpSchema, 
-  passwordResetSchema, 
+export {
+  signInSchema,
+  signUpSchema,
+  passwordResetSchema,
   updateProfileSchema,
   type SignInInput,
   type SignUpInput,
   type PasswordResetInput,
-  type UpdateProfileInput
+  type UpdateProfileInput,
 } from './auth/auth'
 
 // Order validators
@@ -19,7 +19,7 @@ export {
   type OrderItem,
   type OrderCreateInput,
   type OrderUpdateInput,
-  type OrderPricingInput
+  type OrderPricingInput,
 } from './orders/orders'
 
 // Product validators
@@ -29,5 +29,5 @@ export {
   productFilterSchema,
   type ProductCreateInput,
   type ProductUpdateInput,
-  type ProductFilterInput
+  type ProductFilterInput,
 } from './products/products'

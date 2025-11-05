@@ -6,8 +6,20 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon, Download, Filter, Search, Clock, CheckCircle, Truck } from 'lucide-react'
@@ -41,7 +53,7 @@ interface OrderPricingItem {
 }
 
 // Use the database Order type extended with additional fields for display
-type Order = Database['public']['Tables']['orders']['Row'] & {
+type OrderWithDetails = Database['public']['Tables']['orders']['Row'] & {
   restaurants?: { name: string } | null
   drivers?: { full_name: string } | null
   restaurant_name?: string
@@ -60,9 +72,9 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    to: new Date()
+    to: new Date(),
   })
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null)
   const [showPricingModal, setShowPricingModal] = useState(false)
   const { toast } = useToast()
 
@@ -73,11 +85,11 @@ export default function OrdersPage() {
     })
   }
 
-  const handleViewOrder = (order: Order) => {
+  const handleViewOrder = (order: OrderWithDetails) => {
     setSelectedOrder(order)
   }
 
-  const handleEditPricing = (order: Order) => {
+  const handleEditPricing = (order: OrderWithDetails) => {
     setSelectedOrder(order)
     setShowPricingModal(true)
   }
@@ -93,9 +105,7 @@ export default function OrdersPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">შეკვეთების მართვა</h1>
-          <p className="text-muted-foreground">
-            მართეთ შეკვეთები, სტატუსები და მიწოდება
-          </p>
+          <p className="text-muted-foreground">მართეთ შეკვეთები, სტატუსები და მიწოდება</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportOrders}>
@@ -127,9 +137,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">
-              დამუშავების მოლოდინში
-            </p>
+            <p className="text-xs text-muted-foreground">დამუშავების მოლოდინში</p>
           </CardContent>
         </Card>
 
@@ -140,9 +148,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">
-              რესტორნებში მზადდება
-            </p>
+            <p className="text-xs text-muted-foreground">რესტორნებში მზადდება</p>
           </CardContent>
         </Card>
 
@@ -153,9 +159,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              გზაშია
-            </p>
+            <p className="text-xs text-muted-foreground">გზაშია</p>
           </CardContent>
         </Card>
 
@@ -166,9 +170,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1,167</div>
-            <p className="text-xs text-muted-foreground">
-              წარმატებით დასრულებული
-            </p>
+            <p className="text-xs text-muted-foreground">წარმატებით დასრულებული</p>
           </CardContent>
         </Card>
       </div>
@@ -216,14 +218,14 @@ export default function OrdersPage() {
                     {dateRange && dateRange.from ? (
                       dateRange.to ? (
                         <>
-                          {format(dateRange.from, "LLL dd", { locale: ka })} -{" "}
-                          {format(dateRange.to, "LLL dd", { locale: ka })}
+                          {format(dateRange.from, 'LLL dd', { locale: ka })} -{' '}
+                          {format(dateRange.to, 'LLL dd', { locale: ka })}
                         </>
                       ) : (
-                        format(dateRange.from, "LLL dd, y", { locale: ka })
+                        format(dateRange.from, 'LLL dd, y', { locale: ka })
                       )
                     ) : (
-                      "თარიღის შერჩევა"
+                      'თარიღის შერჩევა'
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -252,29 +254,28 @@ export default function OrdersPage() {
       <Card>
         <CardHeader>
           <CardTitle>შეკვეთები</CardTitle>
-          <CardDescription>
-            მართეთ შეკვეთების სია, სტატუსები და დეტალები
-          </CardDescription>
+          <CardDescription>მართეთ შეკვეთების სია, სტატუსები და დეტალები</CardDescription>
         </CardHeader>
         <CardContent>
           <OrderManagementTable
             searchTerm={searchTerm}
             statusFilter={statusFilter}
             dateRange={dateRange || {}}
-            onViewOrder={handleViewOrder}
-            onEditPricing={handleEditPricing}
+            onViewOrder={handleViewOrder as any}
+            onEditPricing={handleEditPricing as any}
           />
         </CardContent>
       </Card>
 
       {/* Order Details Dialog */}
-      <Dialog open={!!selectedOrder && !showPricingModal} onOpenChange={() => setSelectedOrder(null)}>
+      <Dialog
+        open={!!selectedOrder && !showPricingModal}
+        onOpenChange={() => setSelectedOrder(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>შეკვეთის დეტალები #{selectedOrder?.id}</DialogTitle>
-            <DialogDescription>
-              შეკვეთის სრული ინფორმაცია და ისტორია
-            </DialogDescription>
+            <DialogDescription>შეკვეთის სრული ინფორმაცია და ისტორია</DialogDescription>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-6">
@@ -312,10 +313,15 @@ export default function OrdersPage() {
                 <CardContent>
                   <div className="space-y-2">
                     {(selectedOrder.items as OrderItem[])?.map((item: OrderItem, index: number) => (
-                      <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                      <div
+                        key={index}
+                        className="flex justify-between items-center py-2 border-b last:border-b-0"
+                      >
                         <div>
                           <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">რაოდენობა: {item.quantity}</p>
+                          <p className="text-sm text-muted-foreground">
+                            რაოდენობა: {item.quantity}
+                          </p>
                         </div>
                         <p className="font-medium">{item.price * item.quantity}₾</p>
                       </div>
@@ -339,11 +345,9 @@ export default function OrdersPage() {
                       <div key={index} className="flex items-center gap-3">
                         <Badge variant="outline">{status.status}</Badge>
                         <span className="text-sm text-muted-foreground">
-                          {format(new Date(status.timestamp), "PPP p", { locale: ka })}
+                          {format(new Date(status.timestamp), 'PPP p', { locale: ka })}
                         </span>
-                        {status.note && (
-                          <span className="text-sm">{status.note}</span>
-                        )}
+                        {status.note && <span className="text-sm">{status.note}</span>}
                       </div>
                     ))}
                   </div>
@@ -356,8 +360,7 @@ export default function OrdersPage() {
 
       {/* Pricing Modal */}
       <OrderPricingModal
-        order={ 
-        selectedOrder as unknown as any}
+        order={selectedOrder as unknown as any}
         open={showPricingModal}
         onClose={handlePricingModalClose}
       />

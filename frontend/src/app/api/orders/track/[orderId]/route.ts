@@ -11,17 +11,17 @@ interface RouteContext {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     // Await params promise (Next.js 15 requirement)
-    const { orderId } = await context.params;
+    const { orderId } = await context.params
 
     // Validate route parameter
     const validationResult = validateOrderTracking({ orderId })
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           message: 'შეკვეთის ID არასწორია',
-          errors: validationResult.errors
+          errors: validationResult.errors,
         },
         { status: 400 }
       )
@@ -29,10 +29,12 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     // Create Supabase client
     const supabase = await createServerClient()
-    
+
     // Get user session
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     // Get restaurant ID from order
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
@@ -41,26 +43,23 @@ export async function GET(request: NextRequest, context: RouteContext) {
       .single()
 
     if (orderError || !orderData) {
-      return NextResponse.json(
-        { success: false, message: 'შეკვეთა არ მოიძებნა' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, message: 'შეკვეთა არ მოიძებნა' }, { status: 404 })
     }
 
     // TypeScript workaround: type assertion after null check
-    const restaurantId = (orderData as {restaurant_id: string}).restaurant_id
+    const restaurantId = (orderData as { restaurant_id: string }).restaurant_id
 
     // Initialize order submission service
     const orderService = createOrderSubmissionService({
       restaurantId,
       userId: user?.id,
       enableNotifications: true,
-      autoConfirm: false
+      autoConfirm: false,
     })
 
     // Track order
     const order = await orderService.trackOrder(orderId)
-    
+
     if (!order) {
       return NextResponse.json(
         { success: false, message: 'შეკვეთის ნახვა ვერ მოხერხდა' },
@@ -68,17 +67,19 @@ export async function GET(request: NextRequest, context: RouteContext) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      data: order
-    }, { status: 200 })
-
+    return NextResponse.json(
+      {
+        success: true,
+        data: order,
+      },
+      { status: 200 }
+    )
   } catch (error) {
     logger.error('Order tracking API error:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        message: 'შეკვეთის თვალყურის დევნება ვერ მოხერხდა' 
+      {
+        success: false,
+        message: 'შეკვეთის თვალყურის დევნება ვერ მოხერხდა',
       },
       { status: 500 }
     )
@@ -88,11 +89,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
     // Await params promise (Next.js 15 requirement)
-    const { orderId } = await context.params;
+    const { orderId } = await context.params
 
     // Get user session
     const supabase = await createServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     // Get request body for cancellation reason
     const body = await request.json().catch(() => ({}))
@@ -100,13 +103,13 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     // Validate route parameter
     const validationResult = validateOrderTracking({ orderId })
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           message: 'შეკვეთის ID არასწორია',
-          errors: validationResult.errors
+          errors: validationResult.errors,
         },
         { status: 400 }
       )
@@ -120,35 +123,31 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       .single()
 
     if (orderError || !orderData) {
-      return NextResponse.json(
-        { success: false, message: 'შეკვეთა არ მოიძებნა' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, message: 'შეკვეთა არ მოიძებნა' }, { status: 404 })
     }
 
     // TypeScript workaround: type assertion after null check
-    const restaurantId = (orderData as {restaurant_id: string}).restaurant_id
+    const restaurantId = (orderData as { restaurant_id: string }).restaurant_id
 
     // Initialize order submission service
     const orderService = createOrderSubmissionService({
       restaurantId,
       userId: user?.id,
-      enableNotifications: true
+      enableNotifications: true,
     })
 
     // Cancel order
     const result = await orderService.cancelOrder(orderId, reason)
-    
-    return NextResponse.json(result, { 
-      status: result.success ? 200 : 400 
-    })
 
+    return NextResponse.json(result, {
+      status: result.success ? 200 : 400,
+    })
   } catch (error) {
     logger.error('Order cancellation API error:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        message: 'შეკვეთის გაუქმება ვერ მოხერხდა' 
+      {
+        success: false,
+        message: 'შეკვეთის გაუქმება ვერ მოხერხდა',
       },
       { status: 500 }
     )

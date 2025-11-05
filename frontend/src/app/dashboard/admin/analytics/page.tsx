@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -16,7 +22,7 @@ import {
   Users,
   CalendarIcon,
   BarChart3,
-  Activity
+  Activity,
 } from 'lucide-react'
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard'
 import { useToast } from '@/hooks/use-toast'
@@ -27,7 +33,7 @@ import type { DateRange } from 'react-day-picker'
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
-    to: new Date()
+    to: new Date(),
   })
   const [timeRange, setTimeRange] = useState('30d')
   const { toast } = useToast()
@@ -47,25 +53,25 @@ export default function AnalyticsPage() {
       case '7d':
         setDateRange({
           from: new Date(now.setDate(now.getDate() - 7)),
-          to: new Date()
+          to: new Date(),
         })
         break
       case '30d':
         setDateRange({
           from: new Date(now.setDate(now.getDate() - 30)),
-          to: new Date()
+          to: new Date(),
         })
         break
       case '90d':
         setDateRange({
           from: new Date(now.setDate(now.getDate() - 90)),
-          to: new Date()
+          to: new Date(),
         })
         break
       case '1y':
         setDateRange({
           from: new Date(now.setFullYear(now.getFullYear() - 1)),
-          to: new Date()
+          to: new Date(),
         })
         break
     }
@@ -77,9 +83,7 @@ export default function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">ანალიტიკა</h1>
-          <p className="text-muted-foreground">
-            სისტემის მუშაობის სტატისტიკა და ანგარიშები
-          </p>
+          <p className="text-muted-foreground">სისტემის მუშაობის სტატისტიკა და ანგარიშები</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportAnalytics}>
@@ -187,14 +191,14 @@ export default function AnalyticsPage() {
                     {dateRange?.from ? (
                       dateRange?.to ? (
                         <>
-                          {format(dateRange.from, "dd/MM/yyyy", { locale: ka })} -{" "}
-                          {format(dateRange.to, "dd/MM/yyyy", { locale: ka })}
+                          {format(dateRange.from, 'dd/MM/yyyy', { locale: ka })} -{' '}
+                          {format(dateRange.to, 'dd/MM/yyyy', { locale: ka })}
                         </>
                       ) : (
-                        format(dateRange.from, "dd/MM/yyyy", { locale: ka })
+                        format(dateRange.from, 'dd/MM/yyyy', { locale: ka })
                       )
                     ) : (
-                      "თარიღის შერჩევა"
+                      'თარიღის შერჩევა'
                     )}
                   </Button>
                 </PopoverTrigger>

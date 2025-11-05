@@ -13,7 +13,7 @@ export const STORAGE_BUCKETS = {
   DOCUMENTS: 'documents',
   RESTAURANT_LOGOS: 'restaurant-logos',
   DELIVERY_PROOFS: 'delivery-proofs',
-  TEMP_UPLOADS: 'temp-uploads'
+  TEMP_UPLOADS: 'temp-uploads',
 } as const
 
 // File type configurations
@@ -24,8 +24,8 @@ export const FILE_TYPES = {
       avatar: 5 * 1024 * 1024, // 5MB
       product: 10 * 1024 * 1024, // 10MB
       logo: 5 * 1024 * 1024, // 5MB
-      delivery: 15 * 1024 * 1024 // 15MB
-    }
+      delivery: 15 * 1024 * 1024, // 15MB
+    },
   },
   DOCUMENTS: {
     allowed: [
@@ -34,10 +34,10 @@ export const FILE_TYPES = {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain',
       'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ] as const,
-    maxSize: 25 * 1024 * 1024 // 25MB
-  }
+    maxSize: 25 * 1024 * 1024, // 25MB
+  },
 } as const
 
 // File validation utilities
@@ -46,16 +46,18 @@ export class FileValidator {
     if (!FILE_TYPES.IMAGES.allowed.includes(file.type as any)) {
       return {
         valid: false,
-        error: `Invalid file type. Allowed types: ${FILE_TYPES.IMAGES.allowed.join(', ')}`
+        error: `Invalid file type. Allowed types: ${FILE_TYPES.IMAGES.allowed.join(', ')}`,
       }
     }
 
-    const maxSize = FILE_TYPES.IMAGES.maxSize[bucket as keyof typeof FILE_TYPES.IMAGES.maxSize] || FILE_TYPES.IMAGES.maxSize.product
-    
+    const maxSize =
+      FILE_TYPES.IMAGES.maxSize[bucket as keyof typeof FILE_TYPES.IMAGES.maxSize] ||
+      FILE_TYPES.IMAGES.maxSize.product
+
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: `File size too large. Maximum size: ${maxSize / (1024 * 1024)}MB`
+        error: `File size too large. Maximum size: ${maxSize / (1024 * 1024)}MB`,
       }
     }
 
@@ -66,14 +68,14 @@ export class FileValidator {
     if (!FILE_TYPES.DOCUMENTS.allowed.includes(file.type as any)) {
       return {
         valid: false,
-        error: `Invalid file type. Allowed types: ${FILE_TYPES.DOCUMENTS.allowed.join(', ')}`
+        error: `Invalid file type. Allowed types: ${FILE_TYPES.DOCUMENTS.allowed.join(', ')}`,
       }
     }
 
     if (file.size > FILE_TYPES.DOCUMENTS.maxSize) {
       return {
         valid: false,
-        error: `File size too large. Maximum size: ${FILE_TYPES.DOCUMENTS.maxSize / (1024 * 1024)}MB`
+        error: `File size too large. Maximum size: ${FILE_TYPES.DOCUMENTS.maxSize / (1024 * 1024)}MB`,
       }
     }
 
@@ -103,20 +105,18 @@ export class StorageManager {
         return { error: new Error(validation.error) }
       }
 
-      const { data, error } = await this.supabase.storage
-        .from(bucket)
-        .upload(path, file, {
-          cacheControl: options?.cacheControl || '3600',
-          upsert: options?.upsert || false,
-          contentType: options?.contentType || file.type
-        })
+      const { data, error } = await this.supabase.storage.from(bucket).upload(path, file, {
+        cacheControl: options?.cacheControl || '3600',
+        upsert: options?.upsert || false,
+        contentType: options?.contentType || file.type,
+      })
 
       if (error) throw error
 
       // Get public URL if bucket is public
-      const { data: { publicUrl } } = this.supabase.storage
-        .from(bucket)
-        .getPublicUrl(path)
+      const {
+        data: { publicUrl },
+      } = this.supabase.storage.from(bucket).getPublicUrl(path)
 
       return { data: { ...data, publicUrl } }
     } catch (error) {
@@ -138,8 +138,8 @@ export class StorageManager {
       })
 
       const results = await Promise.all(uploadPromises)
-      const successfulUploads = results.filter(r => !r.error).map(r => r.data)
-      const errors = results.filter(r => r.error).map(r => r.error)
+      const successfulUploads = results.filter((r) => !r.error).map((r) => r.data)
+      const errors = results.filter((r) => r.error).map((r) => r.error)
 
       if (errors.length > 0) {
         logger.warn('Some uploads failed:', errors)
@@ -155,9 +155,7 @@ export class StorageManager {
   // Delete file
   async deleteFile(bucket: string, path: string): Promise<{ error?: any }> {
     try {
-      const { error } = await this.supabase.storage
-        .from(bucket)
-        .remove([path])
+      const { error } = await this.supabase.storage.from(bucket).remove([path])
 
       if (error) throw error
 
@@ -170,10 +168,10 @@ export class StorageManager {
 
   // Get file URL
   getFileUrl(bucket: string, path: string): string {
-    const { data: { publicUrl } } = this.supabase.storage
-      .from(bucket)
-      .getPublicUrl(path)
-    
+    const {
+      data: { publicUrl },
+    } = this.supabase.storage.from(bucket).getPublicUrl(path)
+
     return publicUrl
   }
 
@@ -188,13 +186,11 @@ export class StorageManager {
     }
   ): Promise<{ data?: any[]; error?: any }> {
     try {
-      const { data, error } = await this.supabase.storage
-        .from(bucket)
-        .list(path || '', {
-          limit: options?.limit || 100,
-          offset: options?.offset || 0,
-          sortBy: options?.sortBy || { column: 'name', order: 'asc' }
-        })
+      const { data, error } = await this.supabase.storage.from(bucket).list(path || '', {
+        limit: options?.limit || 100,
+        offset: options?.offset || 0,
+        sortBy: options?.sortBy || { column: 'name', order: 'asc' },
+      })
 
       if (error) throw error
 
@@ -208,11 +204,9 @@ export class StorageManager {
   // Get file metadata
   async getFileMetadata(bucket: string, path: string): Promise<{ data?: any; error?: any }> {
     try {
-      const { data, error } = await this.supabase.storage
-        .from(bucket)
-        .list('', {
-          search: path
-        })
+      const { data, error } = await this.supabase.storage.from(bucket).list('', {
+        search: path,
+      })
 
       if (error) throw error
 
@@ -225,10 +219,20 @@ export class StorageManager {
 
   // Private helper: validate file for bucket
   private validateFileForBucket(file: File, bucket: string): { valid: boolean; error?: string } {
-    if ([STORAGE_BUCKETS.AVATARS, STORAGE_BUCKETS.PRODUCT_IMAGES, STORAGE_BUCKETS.RESTAURANT_LOGOS, STORAGE_BUCKETS.DELIVERY_PROOFS].includes(bucket as any)) {
-      return FileValidator.validateImage(file, bucket.replace('-', '') as keyof typeof FILE_TYPES.IMAGES.maxSize)
+    if (
+      [
+        STORAGE_BUCKETS.AVATARS,
+        STORAGE_BUCKETS.PRODUCT_IMAGES,
+        STORAGE_BUCKETS.RESTAURANT_LOGOS,
+        STORAGE_BUCKETS.DELIVERY_PROOFS,
+      ].includes(bucket as any)
+    ) {
+      return FileValidator.validateImage(
+        file,
+        bucket.replace('-', '') as keyof typeof FILE_TYPES.IMAGES.maxSize
+      )
     }
-    
+
     if (bucket === STORAGE_BUCKETS.DOCUMENTS) {
       return FileValidator.validateDocument(file)
     }
@@ -244,7 +248,7 @@ export class GeorgianDistributionStorage extends StorageManager {
     const path = `${userId}/avatar.${file.name.split('.').pop()}`
     return this.uploadFile(STORAGE_BUCKETS.AVATARS, file, path, {
       cacheControl: '31536000', // 1 year cache
-      upsert: true
+      upsert: true,
     })
   }
 
@@ -253,16 +257,19 @@ export class GeorgianDistributionStorage extends StorageManager {
     const path = `${productId}/image.${file.name.split('.').pop()}`
     return this.uploadFile(STORAGE_BUCKETS.PRODUCT_IMAGES, file, path, {
       cacheControl: '31536000', // 1 year cache
-      upsert: true
+      upsert: true,
     })
   }
 
   // Upload restaurant logo
-  async uploadRestaurantLogo(restaurantId: string, file: File): Promise<{ data?: any; error?: any }> {
+  async uploadRestaurantLogo(
+    restaurantId: string,
+    file: File
+  ): Promise<{ data?: any; error?: any }> {
     const path = `${restaurantId}/logo.${file.name.split('.').pop()}`
     return this.uploadFile(STORAGE_BUCKETS.RESTAURANT_LOGOS, file, path, {
       cacheControl: '31536000', // 1 year cache
-      upsert: true
+      upsert: true,
     })
   }
 
@@ -271,7 +278,7 @@ export class GeorgianDistributionStorage extends StorageManager {
     const timestamp = Date.now()
     const path = `${orderId}/proof-${timestamp}.${file.name.split('.').pop()}`
     return this.uploadFile(STORAGE_BUCKETS.DELIVERY_PROOFS, file, path, {
-      cacheControl: '2592000' // 30 days cache
+      cacheControl: '2592000', // 30 days cache
     })
   }
 
@@ -280,7 +287,7 @@ export class GeorgianDistributionStorage extends StorageManager {
     const timestamp = Date.now()
     const path = `${userId}/documents/${timestamp}-${file.name}`
     return this.uploadFile(STORAGE_BUCKETS.DOCUMENTS, file, path, {
-      cacheControl: '86400' // 1 day cache
+      cacheControl: '86400', // 1 day cache
     })
   }
 
@@ -295,7 +302,7 @@ export class GeorgianDistributionStorage extends StorageManager {
   async getBucketStatistics(): Promise<{ data?: any; error?: any }> {
     try {
       const { data, error } = await (this.supabase as any).rpc('storage.get_bucket_stats')
-      
+
       if (error) throw error
       return { data }
     } catch (error) {
@@ -308,7 +315,7 @@ export class GeorgianDistributionStorage extends StorageManager {
   async cleanupTemporaryFiles(): Promise<{ error?: any }> {
     try {
       const { error } = await (this.supabase as any).rpc('storage.cleanup_temp_files')
-      
+
       if (error) throw error
       return {}
     } catch (error) {

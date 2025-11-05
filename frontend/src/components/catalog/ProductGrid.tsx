@@ -48,26 +48,35 @@ export function ProductGrid({
   columns = 3,
   showAddToCart = true,
   emptyState,
-  pagination
+  pagination,
 }: ProductGridProps) {
-  
   const getGridColumns = () => {
     switch (columns) {
-      case 1: return 'grid-cols-1'
-      case 2: return 'grid-cols-1 sm:grid-cols-2'
-      case 3: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-      case 4: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-      case 5: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
-      case 6: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
-      default: return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      case 1:
+        return 'grid-cols-1'
+      case 2:
+        return 'grid-cols-1 sm:grid-cols-2'
+      case 3:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      case 4:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+      case 5:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
+      case 6:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
+      default:
+        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
     }
   }
 
   const getCardSpacing = () => {
     switch (variant) {
-      case 'compact': return 'gap-3'
-      case 'minimal': return 'gap-2'
-      default: return 'gap-4'
+      case 'compact':
+        return 'gap-3'
+      case 'minimal':
+        return 'gap-2'
+      default:
+        return 'gap-4'
     }
   }
 
@@ -89,19 +98,16 @@ export function ProductGrid({
   if (!isLoading && products.length === 0) {
     const defaultEmptyState = {
       title: 'პროდუქტები არ მოიძებნა',
-      description: filters.search || filters.category 
-        ? 'ცდებით ძიების პირობები ან არჩეულია კატეგორია. სცადეთ სხვა პარამეტრები.'
-        : 'ამჟამად პროდუქტები არ არის ხელმისაწვდომი.',
+      description:
+        filters.search || filters.category
+          ? 'ცდებით ძიების პირობები ან არჩეულია კატეგორია. სცადეთ სხვა პარამეტრები.'
+          : 'ამჟამად პროდუქტები არ არის ხელმისაწვდომი.',
       action: (
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.reload()}
-          className="mt-2"
-        >
+        <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
           <Search className="w-4 h-4 mr-2" />
           გადახადეთ
         </Button>
-      )
+      ),
     }
 
     const { title, description, action } = { ...defaultEmptyState, ...emptyState }
@@ -156,10 +162,8 @@ export function ProductGrid({
       {/* Pagination */}
       {pagination && (pagination.hasNextPage || pagination.hasPreviousPage) && (
         <div className="flex items-center justify-between border-t pt-6">
-          <div className="text-sm text-gray-500">
-            პროდუქტების რაოდენობა: {products.length}
-          </div>
-          
+          <div className="text-sm text-gray-500">პროდუქტების რაოდენობა: {products.length}</div>
+
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -169,7 +173,7 @@ export function ProductGrid({
             >
               წინა
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"

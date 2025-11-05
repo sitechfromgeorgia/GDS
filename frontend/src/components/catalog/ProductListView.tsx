@@ -6,16 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Package, 
-  Loader2, 
-  Search, 
-  List,
-  Grid,
-  Filter,
-  SortAsc,
-  SortDesc
-} from 'lucide-react'
+import { Package, Loader2, Search, List, Grid, Filter, SortAsc, SortDesc } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ProductListViewProps {
@@ -72,9 +63,8 @@ export function ProductListView({
   currentSort,
   onSortChange,
   emptyState,
-  pagination
+  pagination,
 }: ProductListViewProps) {
-  
   // Error state
   if (isError) {
     return (
@@ -93,19 +83,16 @@ export function ProductListView({
   if (!isLoading && products.length === 0) {
     const defaultEmptyState = {
       title: 'პროდუქტები არ მოიძებნა',
-      description: filters.search || filters.category 
-        ? 'ცდებით ძიების პირობები ან არჩეულია კატეგორია. სცადეთ სხვა პარამეტრები.'
-        : 'ამჟამად პროდუქტები არ არის ხელმისაწვდომი.',
+      description:
+        filters.search || filters.category
+          ? 'ცდებით ძიების პირობები ან არჩეულია კატეგორია. სცადეთ სხვა პარამეტრები.'
+          : 'ამჟამად პროდუქტები არ არის ხელმისაწვდომი.',
       action: (
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.reload()}
-          className="mt-2"
-        >
+        <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
           <Search className="w-4 h-4 mr-2" />
           გადახადეთ
         </Button>
-      )
+      ),
     }
 
     const { title, description, action } = { ...defaultEmptyState, ...emptyState }
@@ -129,28 +116,28 @@ export function ProductListView({
   return (
     <div className={cn('space-y-4', className)}>
       {/* Header with Sort Options */}
-      {(showSort && sortOptions.length > 0) && (
+      {showSort && sortOptions.length > 0 && (
         <div className="flex items-center justify-between border-b pb-4">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <List className="w-4 h-4" />
             <span>სიის ხედი ({products.length} პროდუქტი)</span>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">დახარისხება:</span>
             <div className="flex gap-1">
               {sortOptions.map((option) => {
                 const isActive = currentSort?.field === option.value
                 const isDesc = currentSort?.direction === 'desc'
-                
+
                 return (
                   <Button
                     key={option.value}
-                    variant={isActive ? "default" : "outline"}
+                    variant={isActive ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => {
                       if (!onSortChange) return
-                      
+
                       if (isActive) {
                         // Toggle direction if same field
                         onSortChange(option.value, isDesc ? 'asc' : 'desc')
@@ -162,9 +149,8 @@ export function ProductListView({
                     className="flex items-center gap-1 text-xs"
                   >
                     {option.label}
-                    {isActive && (
-                      isDesc ? <SortDesc className="w-3 h-3" /> : <SortAsc className="w-3 h-3" />
-                    )}
+                    {isActive &&
+                      (isDesc ? <SortDesc className="w-3 h-3" /> : <SortAsc className="w-3 h-3" />)}
                   </Button>
                 )
               })}
@@ -176,8 +162,8 @@ export function ProductListView({
       {/* Products List */}
       <div className="space-y-3">
         {products.map((product, index) => (
-          <Card 
-            key={product.id} 
+          <Card
+            key={product.id}
             className={cn(
               'transition-all duration-200 hover:shadow-md',
               !isLoading && 'animate-in fade-in-0 slide-in-from-left-4'
@@ -212,10 +198,8 @@ export function ProductListView({
       {/* Pagination */}
       {pagination && (pagination.hasNextPage || pagination.hasPreviousPage) && (
         <div className="flex items-center justify-between border-t pt-4">
-          <div className="text-sm text-gray-500">
-            პროდუქტების რაოდენობა: {products.length}
-          </div>
-          
+          <div className="text-sm text-gray-500">პროდუქტების რაოდენობა: {products.length}</div>
+
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -225,7 +209,7 @@ export function ProductListView({
             >
               წინა
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -243,7 +227,10 @@ export function ProductListView({
         <div className="text-center py-4 text-sm text-gray-500 border-t">
           <div className="flex items-center justify-center gap-2">
             <Grid className="w-4 h-4" />
-            <span>ნაჩვენებია {products.length} პროდუქტი {filters.search && `ძიების მიხედვით: "${filters.search}"`}</span>
+            <span>
+              ნაჩვენებია {products.length} პროდუქტი{' '}
+              {filters.search && `ძიების მიხედვით: "${filters.search}"`}
+            </span>
             {(filters.category || filters.min_price || filters.max_price) && (
               <Badge variant="secondary" className="ml-2">
                 <Filter className="w-3 h-3 mr-1" />

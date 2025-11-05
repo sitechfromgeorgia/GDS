@@ -8,7 +8,7 @@ export const productCreateSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   unit: z.string().min(1, 'Unit is required'),
   price: z.number().min(0, 'Price must be non-negative'),
-  image_url: z.string().url().optional()
+  image_url: z.string().url().optional(),
 })
 
 export const productUpdateSchema = z.object({
@@ -20,7 +20,7 @@ export const productUpdateSchema = z.object({
   unit: z.string().min(1, 'Unit is required').optional(),
   price: z.number().min(0, 'Price must be non-negative').optional(),
   image_url: z.string().url().optional(),
-  active: z.boolean().optional()
+  active: z.boolean().optional(),
 })
 
 export const productFilterSchema = z.object({
@@ -28,7 +28,7 @@ export const productFilterSchema = z.object({
   active: z.boolean().optional(),
   search: z.string().optional(),
   min_price: z.number().min(0).optional(),
-  max_price: z.number().min(0).optional()
+  max_price: z.number().min(0).optional(),
 })
 
 export type ProductCreateInput = z.infer<typeof productCreateSchema>
