@@ -155,7 +155,6 @@ database/backups/
 *.dump
 
 # Docker
-.dockerignore
 docker-compose.override.yml
 
 # MCP tools and configurations
