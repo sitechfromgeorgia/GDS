@@ -14,7 +14,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
-import { RealtimeChannel } from '@supabase/supabase-js'
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { ChatMessage, ChatMessageInsert } from '@/types/database'
 
 interface UseChatMessagesOptions {
@@ -101,7 +101,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
         setOffset(reset ? MESSAGES_PER_PAGE : currentOffset + MESSAGES_PER_PAGE)
 
         // Calculate unread count
-        const unread = data?.filter((m) => !m.is_read && m.sender_id !== userId).length || 0
+        const unread = data?.filter((m: ChatMessage) => !m.is_read && m.sender_id !== userId).length || 0
         setUnreadCount(unread)
 
         setError(null)
@@ -314,7 +314,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
           table: 'chat_messages',
           filter: `order_id=eq.${orderId}`,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<ChatMessage>) => {
           const newMessage = payload.new as ChatMessage
 
           setMessages((prev) => [...prev, newMessage])
@@ -338,12 +338,12 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
           table: 'chat_messages',
           filter: `order_id=eq.${orderId}`,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<ChatMessage>) => {
           const updatedMessage = payload.new as ChatMessage
           setMessages((prev) => prev.map((m) => (m.id === updatedMessage.id ? updatedMessage : m)))
         }
       )
-      .on('broadcast', { event: 'typing' }, (payload) => {
+      .on('broadcast', { event: 'typing' }, (payload: any) => {
         const { userId: typingUserId, isTyping } = payload.payload
         if (typingUserId !== userId) {
           setIsOtherUserTyping(isTyping)
@@ -354,7 +354,7 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
           }
         }
       })
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsConnected(status === 'SUBSCRIBED')
       })
 

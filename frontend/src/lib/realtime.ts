@@ -170,7 +170,7 @@ export class OrderRealtimeManager {
         },
         (payload: any) => this.handleThrottledCallback(userId, callback, payload)
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         this.connectionStates.set(userId, status === 'SUBSCRIBED' ? 'connected' : 'disconnected')
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           this.scheduleReconnect(userId, () => this.subscribeToOrderUpdates(userId, callback))
@@ -211,14 +211,14 @@ export class OrderRealtimeManager {
           schema: 'public',
           table: 'orders',
         },
-        (payload) =>
+        (payload: any) =>
           this.handleThrottledCallback(
             'all',
             callback,
             payload as unknown as SupabasePostgresChangePayload<Order>
           )
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         this.connectionStates.set('all', status === 'SUBSCRIBED' ? 'connected' : 'disconnected')
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           this.scheduleReconnect('all', () => this.subscribeToAllOrders(callback))
@@ -251,7 +251,7 @@ export class OrderRealtimeManager {
 
     const channel = supabase
       .channel(channelName)
-      .on('broadcast', { event: 'location-update' }, (payload) => {
+      .on('broadcast', { event: 'location-update' }, (payload: any) => {
         callback(payload.payload as DriverLocation)
       })
       .subscribe()
@@ -284,7 +284,7 @@ export class OrderRealtimeManager {
 
     const channel = supabase
       .channel(channelName)
-      .on('broadcast', { event: 'notification' }, (payload) => {
+      .on('broadcast', { event: 'notification' }, (payload: any) => {
         callback(payload.payload as OrderNotification)
       })
       .subscribe()
@@ -326,7 +326,7 @@ export class OrderRealtimeManager {
         Object.keys(state).forEach((key) => {
           const presences = state[key]
           if (presences) {
-            transformedState[key] = presences.map((p) => ({
+            transformedState[key] = presences.map((p: any) => ({
               id: (p as any).id || key,
               status: (p as any).status || 'available',
               timestamp: (p as any).timestamp || new Date().toISOString(),
@@ -336,7 +336,7 @@ export class OrderRealtimeManager {
         })
         callback(transformedState)
       })
-      .on('presence', { event: 'join' }, (payload) => {
+      .on('presence', { event: 'join' }, (payload: any) => {
         const transformedState: PresenceState = {}
         const newPresences = payload.newPresences as unknown as Record<string, any[]>
         Object.keys(newPresences).forEach((key) => {
@@ -352,7 +352,7 @@ export class OrderRealtimeManager {
         })
         callback(transformedState)
       })
-      .on('presence', { event: 'leave' }, (payload) => {
+      .on('presence', { event: 'leave' }, (payload: any) => {
         const transformedState: PresenceState = {}
         const leftPresences = payload.leftPresences as unknown as Record<string, any[]>
         Object.keys(leftPresences).forEach((key) => {
@@ -368,7 +368,7 @@ export class OrderRealtimeManager {
         })
         callback(transformedState)
       })
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         this.connectionStates.set(
           'presence',
           status === 'SUBSCRIBED' ? 'connected' : 'disconnected'
@@ -976,7 +976,7 @@ export async function setupOrderStatusChangeListener(
         table: 'orders',
         filter: `id=eq.${orderId}`,
       },
-      (payload) => {
+      (payload: any) => {
         const oldStatus = payload.old.status
         const newStatus = payload.new.status
         if (oldStatus !== newStatus) {

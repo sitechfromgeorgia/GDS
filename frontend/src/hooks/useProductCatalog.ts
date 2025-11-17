@@ -55,7 +55,7 @@ export function useProductCatalog(params: UseProductCatalogParams = {}): UseProd
       )
 
       // Get categories separately
-      const categories = await productService.getCategories()
+      const categories = (await productService.getCategories()) as string[]
 
       return {
         products: result.products,

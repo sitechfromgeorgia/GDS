@@ -1,22 +1,24 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Roboto_Mono } from 'next/font/google'
+// Temporarily disabled Google Fonts to avoid network issues during build
+// import { Inter, Roboto_Mono } from 'next/font/google'
 import { Providers } from './providers'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { PWAInstallPrompt } from '@/components/mobile/PWAInstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
 import './globals.css'
 
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-  display: 'swap',
-})
+// Using system fonts instead of Google Fonts to avoid network dependencies during build
+// const inter = Inter({
+//   variable: '--font-inter',
+//   subsets: ['latin'],
+//   display: 'swap',
+// })
 
-const robotoMono = Roboto_Mono({
-  variable: '--font-roboto-mono',
-  subsets: ['latin'],
-  display: 'swap',
-})
+// const robotoMono = Roboto_Mono({
+//   variable: '--font-roboto-mono',
+//   subsets: ['latin'],
+//   display: 'swap',
+// })
 
 export const metadata: Metadata = {
   title: 'Georgian Distribution System',
@@ -68,7 +70,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${inter.variable} ${robotoMono.variable} antialiased`}>
+      <body className="antialiased">
         <ErrorBoundary>
           <Providers>
             {children}

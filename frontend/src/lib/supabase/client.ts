@@ -46,7 +46,14 @@ export const clientOptions = {
  * This is the recommended approach for Next.js App Router
  */
 export function createBrowserClient() {
+  // During build time, return a mock client to avoid errors
+  // This happens when Next.js analyzes API routes during the build phase
   if (!supabaseUrl || !supabaseAnonKey) {
+    if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+      // Build time - return a mock client
+      logger.warn('Building without Supabase credentials - using mock client')
+      return null as any
+    }
     throw new Error('Missing required Supabase environment variables')
   }
 
@@ -117,6 +124,11 @@ export function createBrowserClient() {
  */
 export function createLegacyClient(): SupabaseClient<Database> {
   if (!supabaseUrl || !supabaseAnonKey) {
+    if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+      // Build time - return a mock client
+      logger.warn('Building without Supabase credentials - using mock legacy client')
+      return null as any
+    }
     throw new Error('Missing required Supabase environment variables')
   }
 

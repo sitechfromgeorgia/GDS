@@ -94,7 +94,7 @@ export default function ProductCatalogPage() {
   const data = searchQuery ? searchData : catalogData
   const products = data?.products || []
   const pagination = data?.pagination
-  const categories = data?.categories || []
+  const categories = (data?.categories || []) as string[]
 
   // Debounced search
   const handleSearchChange = useCallback((value: string) => {

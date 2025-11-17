@@ -105,7 +105,7 @@ export default function UsersPage() {
 
       if (error) throw error
       // Validate and cast roles to match User type
-      const validatedUsers = (data || []).map((user) => ({
+      const validatedUsers = (data || []).map((user: Profile) => ({
         ...user,
         role: validateRole(user.role),
       })) as User[]

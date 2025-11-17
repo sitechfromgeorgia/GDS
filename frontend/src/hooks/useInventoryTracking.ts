@@ -13,7 +13,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
-import { RealtimeChannel } from '@supabase/supabase-js'
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { Product, InventoryHistory } from '@/types/database'
 
 interface UseInventoryTrackingOptions {
@@ -178,7 +178,7 @@ export function useInventoryTracking(
 
       // Update state
       if (productId && productsData) {
-        const mainProduct = productsData.find((p) => p.id === productId)
+        const mainProduct = productsData.find((p: Product) => p.id === productId)
         if (mainProduct) {
           setProduct(mainProduct)
           checkStockLevels(mainProduct)
@@ -186,7 +186,7 @@ export function useInventoryTracking(
       }
 
       const productsMap = new Map<string, Product>()
-      productsData?.forEach((p) => {
+      productsData?.forEach((p: Product) => {
         productsMap.set(p.id, p)
         checkStockLevels(p)
       })
@@ -245,7 +245,7 @@ export function useInventoryTracking(
           table: 'products',
           filter: `id=in.(${trackingIds.join(',')})`,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<Product>) => {
           const updatedProduct = payload.new as Product
 
           if (productId && updatedProduct.id === productId) {
@@ -269,14 +269,14 @@ export function useInventoryTracking(
           table: 'inventory_history',
           filter: `product_id=in.(${trackingIds.join(',')})`,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<InventoryHistory>) => {
           if (trackHistory) {
             const newHistory = payload.new as InventoryHistory
             setHistory((prev) => [newHistory, ...prev].slice(0, 50))
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsConnected(status === 'SUBSCRIBED')
       })
 

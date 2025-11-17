@@ -24,7 +24,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
-import { RealtimeChannel } from '@supabase/supabase-js'
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { DeliveryLocation, DeliveryLocationInsert } from '@/types/database'
 
 interface GPSCoordinates {
@@ -240,7 +240,7 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
           table: 'delivery_locations',
           filter: `delivery_id=eq.${deliveryId}`,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<DeliveryLocation>) => {
           const newLocation = payload.new as DeliveryLocation
           setCurrentLocation(newLocation)
 
@@ -252,7 +252,7 @@ export function useGPSTracking(options: UseGPSTrackingOptions = {}): UseGPSTrack
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsConnected(status === 'SUBSCRIBED')
       })
 

@@ -13,7 +13,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
-import { RealtimeChannel } from '@supabase/supabase-js'
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { UserPresence, UserPresenceInsert, UserPresenceUpdate } from '@/types/database'
 
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'
@@ -180,7 +180,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
           table: 'user_presence',
           filter: trackingIds.length > 0 ? `user_id=in.(${trackingIds.join(',')})` : undefined,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<UserPresence>) => {
           const updatedPresence = payload.new as UserPresence
 
           // Update single user presence
@@ -196,7 +196,7 @@ export function useUserPresence(options: UseUserPresenceOptions = {}): UseUserPr
           })
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsConnected(status === 'SUBSCRIBED')
       })
 
