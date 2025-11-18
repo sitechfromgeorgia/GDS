@@ -501,7 +501,7 @@ class QueryOptimizer {
       activeDrivers: drivers?.length || 0,
       totalProducts: products?.length || 0,
       totalRevenue:
-        orders?.reduce((sum, order) => sum + ((order as any).total_amount || 0), 0) || 0,
+        orders?.reduce((sum: number, order) => sum + ((order as any).total_amount || 0), 0) || 0,
     }
   }
 
