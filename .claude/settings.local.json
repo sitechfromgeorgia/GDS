@@ -209,7 +209,8 @@
       "Bash(cmd /c:*)",
       "Bash(docker-compose:*)",
       "Bash(restart-docker.bat)",
-      "Bash(.gitignore)"
+      "Bash(.gitignore)",
+      "Bash(find:*)"
     ],
     "deny": [
       "Bash(rm:*)",
