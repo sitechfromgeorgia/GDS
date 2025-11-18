@@ -114,7 +114,7 @@ export async function checkServiceHealth(): Promise<ServiceStatus> {
           reject(new Error('Realtime connection timeout'))
         }, 5000)
 
-        channel.subscribe((status) => {
+        channel.subscribe((status: string) => {
           if (status === 'SUBSCRIBED') {
             clearTimeout(timeout)
             realtimeSuccess = true
