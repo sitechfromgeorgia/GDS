@@ -1,6 +1,7 @@
 import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
 import { recordPerformance } from '../monitoring/performance'
+import type { Order } from '@/types/database'
 
 /**
  * Query Optimization Utility for Georgian Distribution System
@@ -501,7 +502,7 @@ class QueryOptimizer {
       activeDrivers: drivers?.length || 0,
       totalProducts: products?.length || 0,
       totalRevenue:
-        orders?.reduce((sum: number, order) => sum + ((order as any).total_amount || 0), 0) || 0,
+        orders?.reduce((sum: number, order: Order) => sum + ((order as any).total_amount || 0), 0) || 0,
     }
   }
 
