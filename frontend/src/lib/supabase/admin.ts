@@ -5,7 +5,8 @@ import type { Database } from './client'
 
 // Environment variables
 const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL')
-const serviceRoleKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY')
+// Service role key is retrieved but validated separately in validateAdminConfig()
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Admin client configuration options
 const adminClientOptions = {

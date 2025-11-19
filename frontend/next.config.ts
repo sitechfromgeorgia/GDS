@@ -9,27 +9,13 @@ const nextConfig: NextConfig = {
   // Points to the correct root directory for file tracing
   outputFileTracingRoot: path.join(__dirname, '../'),
 
-  // Allow images from both development and production Supabase storage
+  // Allow images from self-hosted Supabase storage
   images: {
     remotePatterns: [
-      // Development Supabase
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
-      // Production Supabase (data.greenland77.ge)
+      // Self-hosted Supabase (data.greenland77.ge)
       {
         protocol: 'https',
         hostname: 'data.greenland77.ge',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
-      // Additional common Supabase domains
-      {
-        protocol: 'https',
-        hostname: '*.supabase.in',
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
@@ -125,9 +111,9 @@ const nextConfig: NextConfig = {
         'localhost:3000',
         'localhost:3001',
         '127.0.0.1:3000',
-        '*.supabase.co',
         'data.greenland77.ge',
-        'greenland77.ge'
+        'greenland77.ge',
+        'www.greenland77.ge'
       ],
     },
 

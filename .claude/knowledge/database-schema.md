@@ -7,10 +7,15 @@
 ## 📊 Schema Overview
 
 **Database:** PostgreSQL 15+
-**Tables:** 6 main tables
-**RLS Policies:** 25+ comprehensive policies
-**Indexes:** 12 strategic indexes
+**Tables:** 7 main tables
+**RLS Policies:** 33+ comprehensive policies (Updated 2025-11-19)
+**Indexes:** 12 strategic indexes (Fixed 2025-11-19)
 **Triggers:** 3 automated triggers
+
+**Recent Updates:**
+- ✅ 2025-11-19: Added delivery_locations RLS policies (8 policies)
+- ✅ 2025-11-19: Fixed performance indexes (removed non-existent deleted_at column)
+- ✅ 2025-11-19: Security hardening complete
 
 ---
 
@@ -229,7 +234,99 @@ CREATE POLICY "users_own_notifications" ON notifications
 
 ---
 
-## 6. demo_sessions
+## 6. delivery_locations
+
+GPS tracking for order deliveries
+
+```sql
+CREATE TABLE delivery_locations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  latitude DECIMAL(10, 8) NOT NULL,
+  longitude DECIMAL(11, 8) NOT NULL,
+  accuracy DECIMAL(10, 2),
+  timestamp TIMESTAMPTZ DEFAULT NOW(),
+  metadata JSONB DEFAULT '{}'
+);
+
+-- Indexes (Updated 2025-11-19)
+CREATE INDEX idx_delivery_locations_order_id
+  ON delivery_locations(order_id, timestamp DESC);
+
+-- RLS Policies (Added 2025-11-19)
+ALTER TABLE delivery_locations ENABLE ROW LEVEL SECURITY;
+
+-- Admin: Full access to all delivery locations
+CREATE POLICY "admin_select_all_delivery_locations" ON delivery_locations
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+CREATE POLICY "admin_insert_delivery_locations" ON delivery_locations
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+CREATE POLICY "admin_update_delivery_locations" ON delivery_locations
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+CREATE POLICY "admin_delete_delivery_locations" ON delivery_locations
+  FOR DELETE USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- Driver: Can view and insert locations for assigned orders
+CREATE POLICY "driver_select_assigned_delivery_locations" ON delivery_locations
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM orders
+      WHERE orders.id = delivery_locations.order_id
+      AND orders.driver_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "driver_insert_assigned_delivery_locations" ON delivery_locations
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM orders
+      WHERE orders.id = delivery_locations.order_id
+      AND orders.driver_id = auth.uid()
+      AND orders.status IN ('in_transit', 'confirmed')
+    )
+  );
+
+-- Restaurant: Can view locations for their own orders
+CREATE POLICY "restaurant_select_own_delivery_locations" ON delivery_locations
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM orders
+      WHERE orders.id = delivery_locations.order_id
+      AND orders.restaurant_id = auth.uid()
+    )
+  );
+
+-- Demo: Read-only access to recent locations (last 7 days)
+CREATE POLICY "demo_select_recent_delivery_locations" ON delivery_locations
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'demo'
+    )
+    AND timestamp >= NOW() - INTERVAL '7 days'
+  );
+```
+
+**Usage:**
+- Driver mobile app sends GPS coordinates during delivery
+- Restaurant dashboard displays real-time delivery tracking
+- Admin analytics for delivery route optimization
+
+---
+
+## 7. demo_sessions
 
 Demo user session management
 
