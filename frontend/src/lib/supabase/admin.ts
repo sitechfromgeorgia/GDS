@@ -29,8 +29,8 @@ const adminClientOptions = {
   },
 }
 
-// Validate admin configuration
-function validateAdminConfig() {
+// Validate admin configuration and return validated service role key
+function validateAdminConfig(): string {
   if (!supabaseUrl) {
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable for admin client')
   }
@@ -45,14 +45,16 @@ function validateAdminConfig() {
   logger.info('Admin client configured', {
     environment: supabaseUrl.includes('localhost') ? 'local development' : 'production',
   })
+
+  return serviceRoleKey
 }
 
 // Create admin client (server-side only)
 export function createAdminClient(): SupabaseClient {
   try {
-    validateAdminConfig()
+    const validatedServiceRoleKey = validateAdminConfig()
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey, adminClientOptions)
+    const adminClient = createClient(supabaseUrl, validatedServiceRoleKey, adminClientOptions)
 
     // Add admin-specific error handling
     adminClient.auth.onAuthStateChange((event, session) => {

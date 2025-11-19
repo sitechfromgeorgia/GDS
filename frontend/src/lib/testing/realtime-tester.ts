@@ -229,7 +229,7 @@ class RealtimeTester {
         }, this.config.timeout!)
 
         // Subscribe with timeout
-        channel.subscribe((status) => {
+        channel.subscribe((status: string) => {
           logger.info(`   📡 ${table} subscription status: ${status}`)
 
           if (status === 'SUBSCRIBED') {
@@ -306,7 +306,7 @@ class RealtimeTester {
               logger.info('   📦 Order status update received:', payload.new?.status)
             }
           )
-          .subscribe((status) => {
+          .subscribe((status: string) => {
             if (status === 'SUBSCRIBED') {
               resolve()
             } else if (status === 'CHANNEL_ERROR') {
@@ -371,7 +371,7 @@ class RealtimeTester {
               logger.info('   🔔 New notification received:', payload.new?.title)
             }
           )
-          .subscribe((status) => {
+          .subscribe((status: string) => {
             if (status === 'SUBSCRIBED') {
               resolve()
             } else if (status === 'CHANNEL_ERROR') {
@@ -425,7 +425,7 @@ class RealtimeTester {
           .on('broadcast', { event: 'test-broadcast' }, (payload: any) => {
             logger.info('   📢 Broadcast message received:', payload.payload)
           })
-          .subscribe((status) => {
+          .subscribe((status: string) => {
             if (status === 'SUBSCRIBED') {
               resolve()
             } else if (status === 'CHANNEL_ERROR') {
@@ -499,7 +499,7 @@ class RealtimeTester {
               resolve()
             }
           })
-          .subscribe((status) => {
+          .subscribe((status: string) => {
             if (status === 'SUBSCRIBED') {
               // Start sending messages rapidly
               this.sendPerformanceMessages(channel, messageCountTarget)
@@ -563,7 +563,7 @@ class RealtimeTester {
       })
 
       await new Promise<void>((resolve, reject) => {
-        channel.subscribe((status) => {
+        channel.subscribe((status: string) => {
           if (status === 'SUBSCRIBED') {
             resolve()
           } else if (status === 'CHANNEL_ERROR') {
@@ -579,7 +579,7 @@ class RealtimeTester {
       // Recreate channel to test reconnection
       const reconnectedChannel = supabase.channel('resilience-test-reconnected')
       await new Promise<void>((resolve, reject) => {
-        reconnectedChannel.subscribe((status) => {
+        reconnectedChannel.subscribe((status: string) => {
           if (status === 'SUBSCRIBED') {
             resolve()
           } else if (status === 'CHANNEL_ERROR') {
@@ -626,7 +626,7 @@ class RealtimeTester {
       const channel = supabase.channel('basic-test')
 
       await new Promise<void>((resolve, reject) => {
-        channel.subscribe((status) => {
+        channel.subscribe((status: string) => {
           if (status === 'SUBSCRIBED') {
             resolve()
           } else if (status === 'CHANNEL_ERROR') {

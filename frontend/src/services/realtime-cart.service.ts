@@ -393,7 +393,7 @@ export class RealtimeCartService {
     this.channel = supabase.channel(`cart:${this.sessionId}`)
 
     // Subscribe to cart_items changes
-    this.channel
+    this.channel!
       .on(
         'postgres_changes',
         {
@@ -415,7 +415,7 @@ export class RealtimeCartService {
       .subscribe()
 
     // Subscribe to cart_activities changes
-    this.channel
+    this.channel!
       .on(
         'postgres_changes',
         {

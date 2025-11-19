@@ -92,6 +92,10 @@ export function createAdminClient() {
   // Use env validation layer for secure access to service role key
   const serviceRoleKey = getEnvVar('SUPABASE_SERVICE_ROLE_KEY')
 
+  if (!serviceRoleKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for admin client')
+  }
+
   return createSupabaseClient<Database>(getEnvVar('NEXT_PUBLIC_SUPABASE_URL'), serviceRoleKey, {
     auth: {
       autoRefreshToken: false,

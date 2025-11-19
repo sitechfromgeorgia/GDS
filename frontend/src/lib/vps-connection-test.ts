@@ -501,7 +501,7 @@ async function testStorageServices(): Promise<TestSuite> {
       category: 'storage',
       details: {
         bucketCount: data?.length || 0,
-        buckets: data?.map((b) => b.name) || [],
+        buckets: data?.map((b: any) => b.name) || [],
       },
       error: error?.message,
     })
@@ -548,7 +548,7 @@ async function testRealtimeFeatures(): Promise<TestSuite> {
         reject(new Error('Connection timeout'))
       }, 5000)
 
-      channel.subscribe((status) => {
+      channel.subscribe((status: string) => {
         if (status === 'SUBSCRIBED') {
           clearTimeout(timeout)
           connected = true

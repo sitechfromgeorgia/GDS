@@ -64,7 +64,7 @@ export class AdminService {
     const activeDrivers = drivers?.length || 0
     const totalProducts = products?.length || 0
     const totalRevenue =
-      orders?.reduce((sum, order) => sum + ((order as any).total_amount || 0), 0) || 0
+      orders?.reduce((sum: number, order: any) => sum + ((order as any).total_amount || 0), 0) || 0
 
     return {
       totalOrders,
@@ -365,7 +365,7 @@ export class AdminService {
     const totalOrders = orders?.length || 0
     const completedOrders =
       orders?.filter(
-        (order) => (order as any).status === 'delivered' || (order as any).status === 'completed'
+        (order: any) => (order as any).status === 'delivered' || (order as any).status === 'completed'
       ) || []
     const avgCompletionTime = this.calculateAverageCompletionTime(completedOrders)
 
@@ -387,7 +387,7 @@ export class AdminService {
   private calculateRevenueByDay(orders: any[]) {
     const revenueByDay: { [key: string]: number } = {}
 
-    orders.forEach((order) => {
+    orders.forEach((order: any) => {
       const date = new Date(order.created_at).toISOString().split('T')[0]
       if (date) {
         revenueByDay[date] = (revenueByDay[date] || 0) + (order.total_amount || 0)
@@ -416,7 +416,7 @@ export class AdminService {
 
     return last7Days.reverse().map((date) => ({
       date,
-      orders: orders.filter((order) => order.created_at.startsWith(date)).length,
+      orders: orders.filter((order: any) => order.created_at.startsWith(date)).length,
     }))
   }
 
@@ -424,8 +424,8 @@ export class AdminService {
     if (completedOrders.length === 0) return 0
 
     const completionTimes = completedOrders
-      .filter((order) => order.updated_at)
-      .map((order) => {
+      .filter((order: any) => order.updated_at)
+      .map((order: any) => {
         const created = new Date(order.created_at)
         const completed = new Date(order.updated_at)
         return (completed.getTime() - created.getTime()) / (1000 * 60) // minutes
