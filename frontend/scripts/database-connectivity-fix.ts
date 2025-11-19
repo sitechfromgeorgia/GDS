@@ -24,8 +24,8 @@ interface DiagnosticResult {
 class DatabaseConnectivityDiagnostic {
   private results: DiagnosticResult[] = [];
   private config = {
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co',
-    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFreG1hY2ZzbHR6aGJudW5vZXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUzNjM2MTMsImV4cCI6MjAzMDkzOTYxM30.JjABqZY7A-0wOuTWkFhAzbFJQF8dJ9oSWzjCzR5nQXA',
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://data.greenland77.ge',
+    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
   };
 
   /**
@@ -61,8 +61,10 @@ class DatabaseConnectivityDiagnostic {
           issues.push('API key has expired');
         }
         
-        if (payload.iss !== 'https://akxmacfsltzhbnunoepb.supabase.co') {
-          issues.push('API key issued for wrong project');
+        // Validate issuer matches configured Supabase URL
+        const expectedIssuer = this.config.supabaseUrl;
+        if (payload.iss && payload.iss !== expectedIssuer) {
+          issues.push(`API key issued for different project: ${payload.iss} (expected: ${expectedIssuer})`);
         }
         
         if (payload.role !== 'anon') {

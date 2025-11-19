@@ -84,10 +84,10 @@ export class TestConfig {
       development: {
         name: 'development',
         supabaseUrl:
-          process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co',
+          process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://data.greenland77.ge',
         supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
         supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-        description: 'Official Supabase development environment',
+        description: 'Self-hosted Supabase development environment',
         isProduction: false,
       },
       production: {

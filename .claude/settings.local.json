@@ -210,7 +210,8 @@
       "Bash(docker-compose:*)",
       "Bash(restart-docker.bat)",
       "Bash(.gitignore)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(.env.example.production)"
     ],
     "deny": [
       "Bash(rm:*)",

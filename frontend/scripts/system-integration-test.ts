@@ -13,10 +13,10 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../src/types/database';
 
-// Configuration with fallback values
+// Configuration with fallback values (self-hosted Supabase)
 const config = {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co',
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFreG1hY2ZzbHR6aGJudW5vZXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTUzNjM2MTMsImV4cCI6MjAzMDkzOTYxM30.JjABqZY7A-0wOuTWkFhAzbFJQF8dJ9oSWzjCzR5nQXA',
+  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://data.greenland77.ge',
+  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
 };
 
 // Initialize Supabase client

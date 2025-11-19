@@ -217,7 +217,7 @@ export async function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://data.greenland77.ge wss://*.supabase.co wss://*.supabase.in",
+    "connect-src 'self' https://data.greenland77.ge wss://data.greenland77.ge",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -255,7 +255,6 @@ export async function middleware(request: NextRequest) {
     if (!session) {
       logger.warn('No session found - redirecting to login', {
         path: pathname,
-        hasAuthCookie: request.cookies.has('sb-akxmacfsltzhbnunoepb-auth-token'),
         cookies: request.cookies
           .getAll()
           .map((c) => c.name)
