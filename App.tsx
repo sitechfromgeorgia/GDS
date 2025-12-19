@@ -20,6 +20,8 @@ interface AppContextType {
   orders: Order[];
   units: string[];
   categories: string[];
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
   login: (email: string, password?: string, rememberMe?: boolean) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshData: () => void;
@@ -56,12 +58,33 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [isDemo, setIsDemo] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('gds_theme');
+    return (saved as 'light' | 'dark') || 'light';
+  });
   const [users, setUsers] = useState<User[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [units, setUnits] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('gds_theme', next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
 
   const refreshData = useCallback(async () => {
     const allUsers = db.getUsers();
@@ -253,16 +276,16 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 flex-col space-y-4">
+      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 flex-col space-y-4">
         <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-        <p className="text-slate-500 text-sm font-medium">{t('common.loading')}</p>
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{t('common.loading')}</p>
       </div>
     );
   }
 
   return (
     <AppContext.Provider value={{ 
-      user, users, products, orders, units, categories, isDemo,
+      user, users, products, orders, units, categories, isDemo, theme, toggleTheme,
       login, logout, refreshData, 
       addProduct, updateProduct, deleteProduct, toggleProductStatus, toggleProductPromo, bulkProductAction, addUnit, updateUnit, deleteUnit,
       addCategory, updateCategory, deleteCategory,

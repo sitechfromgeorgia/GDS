@@ -1,9 +1,69 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../App';
 import { Button, LanguageSwitcher, Modal, Input } from './ui/Shared';
-import { Truck, Utensils, LogIn, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowLeft, CheckCircle2, UserCheck, ShieldCheck, User } from 'lucide-react';
+import { Truck, Utensils, LogIn, Lock, Mail, Eye, EyeOff, AlertCircle, ArrowLeft, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+const Background3D = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#020617]">
+      {/* 3D Perspective Grid */}
+      <div 
+        className="absolute inset-0 opacity-[0.15]"
+        style={{
+          perspective: '1200px',
+          perspectiveOrigin: '50% 50%',
+        }}
+      >
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, #334155 1px, transparent 1px),
+              linear-gradient(to bottom, #334155 1px, transparent 1px)
+            `,
+            backgroundSize: 'clamp(40px, 5vw, 80px) clamp(40px, 5vw, 80px)',
+            transform: 'rotateX(65deg) translateY(-10%) translateZ(0)',
+            maskImage: 'linear-gradient(to top, black, transparent 80%)',
+            height: '150%',
+            top: '-25%',
+            animation: 'grid-travel 30s linear infinite',
+          }}
+        />
+      </div>
+      
+      {/* Floating Dynamic Blobs */}
+      <div className="absolute top-[-10%] left-[-5%] w-[60vw] h-[60vw] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse mix-blend-screen" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[140px] animate-blob animation-delay-2000 mix-blend-screen" />
+      <div className="absolute top-[30%] right-[10%] w-[35vw] h-[35vw] bg-indigo-600/10 rounded-full blur-[100px] animate-blob animation-delay-4000 mix-blend-screen" />
+      
+      {/* Scanline & Grain Texture */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] contrast-150 brightness-100" />
+      
+      {/* Global Vignette for depth */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,transparent_0%,#020617_95%)]" />
+
+      <style>{`
+        @keyframes grid-travel {
+          0% { background-position: 0 0; }
+          100% { background-position: 0 100%; }
+        }
+        @keyframes blob {
+          0% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(3%, -5%) scale(1.1); }
+          66% { transform: translate(-2%, 3%) scale(0.95); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 20s infinite alternate ease-in-out;
+        }
+        .animation-delay-2000 { animation-delay: 3s; }
+        .animation-delay-4000 { animation-delay: 6s; }
+      `}</style>
+    </div>
+  );
+};
 
 export const LandingPage = () => {
   const { login } = useApp();
@@ -39,12 +99,9 @@ export const LandingPage = () => {
     
     setError(null);
     setIsSubmitting(true);
-    
-    // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 600));
     
     const success = await login(email, password, rememberMe);
-    
     setIsSubmitting(false);
     
     if (success) {
@@ -57,9 +114,7 @@ export const LandingPage = () => {
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
     setIsSubmitting(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1200));
     setIsSubmitting(false);
     setResetSent(true);
@@ -76,27 +131,28 @@ export const LandingPage = () => {
   const isGeo = i18n.language === 'ka';
 
   return (
-    <div className={`min-h-screen bg-[#0f172a] text-white font-sans selection:bg-emerald-500 selection:text-white ${isGeo ? 'font-georgian' : ''}`}>
-      
+    <div className={`min-h-screen bg-[#020617] text-white font-sans selection:bg-emerald-500 selection:text-white overflow-x-hidden ${isGeo ? 'font-georgian' : ''}`}>
+      <Background3D />
+
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-[#0f172a]/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-          <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-            <div className="bg-gradient-to-br from-blue-500 to-emerald-500 p-1.5 rounded-lg">
-              <Truck className="h-5 w-5 text-white" />
+      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#020617]/40 backdrop-blur-2xl">
+        <div className="max-w-[90rem] mx-auto px-6 h-20 flex justify-between items-center">
+          <div className="flex items-center gap-3 font-black text-2xl tracking-tighter group cursor-pointer">
+            <div className="bg-gradient-to-br from-blue-500 to-emerald-500 p-2 rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-500">
+              <Truck className="h-6 w-6 text-white" />
             </div>
-            <span>GDS</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">GDS</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 sm:gap-6">
             <LanguageSwitcher />
             <Button 
               onClick={() => {
                 resetModalState();
                 setIsLoginModalOpen(true);
               }}
-              className="bg-transparent border border-white/20 text-white hover:bg-emerald-500 hover:border-emerald-500 transition-all duration-300"
+              className="bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 sm:px-6 h-11 text-sm font-bold"
             >
-              <LogIn className="h-4 w-4 mr-2" />
+              <LogIn className="h-4 w-4 mr-2 text-emerald-400" />
               {t('common.signin')}
             </Button>
           </div>
@@ -104,36 +160,31 @@ export const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px]"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center space-x-2 border border-blue-500/30 bg-blue-500/10 rounded-full px-3 py-1 mb-8 backdrop-blur-sm">
-              <Truck className="h-3.5 w-3.5 text-blue-400" />
-              <span className="text-xs font-medium text-blue-300 tracking-wide uppercase">Distribution V2.0</span>
+      <section className="relative z-10 flex flex-col justify-center min-h-[100vh] px-6">
+        <div className="max-w-[90rem] mx-auto w-full">
+          <div className="max-w-[65rem]">
+            <div className="inline-flex items-center space-x-2 border border-emerald-500/20 bg-emerald-500/10 rounded-full px-4 py-1.5 mb-8 backdrop-blur-md">
+              <Zap className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="text-[9px] font-black text-emerald-400 tracking-[0.3em] uppercase">Distribution V2.0</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-8">
-              {t('landing.hero_title_pre')} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-green-400">
+            <h1 className="text-[clamp(2rem,6.5vw,4.5rem)] font-extrabold leading-[1.1] tracking-[-0.03em] mb-10">
+              <span className="text-white opacity-90">{t('landing.hero_title_pre')}</span> <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-emerald-200 drop-shadow-[0_0_30px_rgba(52,211,153,0.2)]">
                 {t('landing.hero_title_highlight')}
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-400 mb-10 max-w-xl leading-relaxed">
+            <p className="text-[clamp(1rem,2vw,1.25rem)] text-slate-400 mb-12 max-w-[38rem] leading-[1.6] font-medium opacity-80">
               {t('landing.hero_desc')}
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-5">
               <Button 
                 onClick={() => handleDemoLogin('DEMO')} 
-                className="h-14 px-8 bg-blue-600 hover:bg-blue-700 text-white border-0 font-medium text-base rounded-lg transition-all flex items-center justify-center gap-2"
+                className="h-14 px-8 bg-emerald-600 hover:bg-emerald-500 text-white border-0 font-bold text-base rounded-2xl transition-all duration-300 shadow-[0_0_40px_rgba(16,185,129,0.2)] flex items-center justify-center gap-3 group active:scale-95"
               >
-                <Utensils className="h-5 w-5" />
+                <Utensils className="h-5 w-5 group-hover:rotate-12 transition-transform" />
                 {t('landing.demo_restaurant')}
               </Button>
               <Button 
@@ -141,9 +192,9 @@ export const LandingPage = () => {
                   resetModalState();
                   setIsLoginModalOpen(true);
                 }}
-                className="h-14 px-8 bg-slate-800/80 border border-slate-700 text-white hover:bg-slate-700 font-medium text-base rounded-lg backdrop-blur-sm transition-all"
+                className="h-14 px-8 bg-slate-800/40 border border-slate-700/50 text-white hover:bg-slate-700/60 font-bold text-base rounded-2xl backdrop-blur-md transition-all duration-300 active:scale-95"
               >
-                <LogIn className="h-4 w-4 mr-2" />
+                <LogIn className="h-5 w-5 mr-3 text-blue-400" />
                 {t('common.signin')}
               </Button>
             </div>
@@ -155,24 +206,24 @@ export const LandingPage = () => {
       <Modal 
         isOpen={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)} 
-        title={isResetView ? (i18n.language === 'ka' ? 'პაროლის აღდგენა' : 'Reset Password') : t('landing.login_title')}
+        title={isResetView ? (i18n.language === 'ka' ? 'აღდგენა' : 'Reset') : t('landing.login_title')}
       >
         {!isResetView ? (
           <form onSubmit={handleLoginSubmit} className="space-y-6 py-2">
-            <div className="text-center mb-4">
-              <p className="text-sm text-slate-500">{t('landing.login_subtitle')}</p>
+            <div className="text-center mb-6">
+              <p className="text-sm text-slate-500 font-medium">{t('landing.login_subtitle')}</p>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-lg flex items-center gap-3 animate-in fade-in zoom-in-95">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95">
                 <AlertCircle className="h-5 w-5 shrink-0" />
-                <p className="text-sm font-medium">{error}</p>
+                <p className="text-sm font-bold">{error}</p>
               </div>
             )}
             
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.email')}</label>
+                <label className="block text-[11px] font-black text-slate-400 mb-2 uppercase tracking-[0.15em]">{t('common.email')}</label>
                 <div className="relative">
                   <Input 
                     type="email" 
@@ -180,21 +231,21 @@ export const LandingPage = () => {
                     placeholder="admin@gds.ge"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 bg-slate-50 border-slate-100 h-12 text-sm font-medium"
                   />
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 </div>
               </div>
               
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-sm font-medium text-slate-700">{t('common.password')}</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">{t('common.password')}</label>
                   <button 
                     type="button" 
                     onClick={() => setIsResetView(true)}
-                    className="text-[11px] font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                    className="text-[10px] font-black text-blue-600 hover:text-blue-500 uppercase tracking-tighter transition-colors"
                   >
-                    {i18n.language === 'ka' ? 'დაგავიწყდათ პაროლი?' : 'Forgot Password?'}
+                    {i18n.language === 'ka' ? 'დაგავიწყდათ?' : 'Forgot?'}
                   </button>
                 </div>
                 <div className="relative">
@@ -204,13 +255,13 @@ export const LandingPage = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
+                    className="pl-12 pr-12 bg-slate-50 border-slate-100 h-12 text-sm font-medium"
                   />
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -223,9 +274,9 @@ export const LandingPage = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded cursor-pointer"
+                  className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-slate-200 rounded-lg cursor-pointer"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm font-semibold text-slate-600 cursor-pointer select-none">
+                <label htmlFor="remember-me" className="ml-3 block text-sm font-bold text-slate-600 cursor-pointer select-none">
                   {i18n.language === 'ka' ? 'დამიმახსოვრე' : 'Remember Me'}
                 </label>
               </div>
@@ -233,51 +284,42 @@ export const LandingPage = () => {
 
             <Button 
               type="submit" 
-              className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-200"
+              className="w-full h-14 bg-slate-950 hover:bg-slate-900 text-white shadow-2xl shadow-slate-200 rounded-2xl font-black text-lg"
               disabled={isSubmitting}
             >
               {isSubmitting ? t('common.loading') : t('landing.login_btn')}
             </Button>
             
-            {/* Quick Fill Section - Temporary */}
-            <div className="pt-4 border-t border-slate-100">
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-3">
+            <div className="pt-6 border-t border-slate-100">
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center mb-4">
                   {t('landing.quick_fill')}
                </p>
-               <div className="grid grid-cols-3 gap-2">
+               <div className="grid grid-cols-3 gap-3">
                  <button 
                    type="button" 
                    onClick={() => quickFill('admin')}
-                   className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all text-slate-600 group"
+                   className="flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-slate-50 hover:border-blue-500/20 hover:bg-blue-50 transition-all text-slate-600 group"
                  >
-                   <ShieldCheck className="h-5 w-5 mb-1 group-hover:text-blue-600" />
-                   <span className="text-[9px] font-bold">ADMIN</span>
+                   <ShieldCheck className="h-6 w-6 mb-1.5 group-hover:text-blue-600 transition-colors" />
+                   <span className="text-[10px] font-black tracking-tighter">ADMIN</span>
                  </button>
                  <button 
                    type="button" 
                    onClick={() => quickFill('rest')}
-                   className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all text-slate-600 group"
+                   className="flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-slate-50 hover:border-emerald-500/20 hover:bg-emerald-50 transition-all text-slate-600 group"
                  >
-                   <Utensils className="h-5 w-5 mb-1 group-hover:text-emerald-600" />
-                   <span className="text-[9px] font-bold">OBJECT</span>
+                   <Utensils className="h-6 w-6 mb-1.5 group-hover:text-emerald-600 transition-colors" />
+                   <span className="text-[10px] font-black tracking-tighter">OBJECT</span>
                  </button>
                  <button 
                    type="button" 
                    onClick={() => quickFill('driver')}
-                   className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all text-slate-600 group"
+                   className="flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-slate-50 hover:border-indigo-500/20 hover:bg-indigo-50 transition-all text-slate-600 group"
                  >
-                   <Truck className="h-5 w-5 mb-1 group-hover:text-indigo-600" />
-                   <span className="text-[9px] font-bold">DRIVER</span>
+                   <Truck className="h-6 w-6 mb-1.5 group-hover:text-indigo-600 transition-colors" />
+                   <span className="text-[10px] font-black tracking-tighter">DRIVER</span>
                  </button>
                </div>
-            </div>
-
-            <div className="pt-2 bg-slate-50 p-4 rounded-lg border border-slate-100">
-              <p className="text-[10px] text-slate-500 text-center leading-relaxed">
-                <span className="font-bold text-slate-700 uppercase tracking-tight">Credentials Info:</span><br />
-                Email: <b>admin@gds.ge</b> / <b>khinkali@rest.ge</b><br />
-                Password: <span className="text-blue-600 font-bold">gds2025</span>
-              </p>
             </div>
           </form>
         ) : (
@@ -285,15 +327,15 @@ export const LandingPage = () => {
             {!resetSent ? (
               <form onSubmit={handleResetSubmit} className="space-y-6">
                 <div className="text-center">
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
                     {i18n.language === 'ka' 
-                      ? 'შეიყვანეთ თქვენი ელ-ფოსტა პაროლის აღსადგენად' 
-                      : 'Enter your email address to receive a password reset link.'}
+                      ? 'შეიყვანეთ ელ-ფოსტა პაროლის აღსადგენად' 
+                      : 'Enter email to receive reset link.'}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('common.email')}</label>
+                  <label className="block text-[11px] font-black text-slate-400 mb-2 uppercase tracking-[0.15em]">{t('common.email')}</label>
                   <div className="relative">
                     <Input 
                       type="email" 
@@ -301,15 +343,15 @@ export const LandingPage = () => {
                       placeholder="user@gds.ge"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className="pl-12 bg-slate-50 border-slate-100 h-12 font-medium"
                     />
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   </div>
                 </div>
 
                 <Button 
                   type="submit" 
-                  className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-200"
+                  className="w-full h-14 bg-slate-950 hover:bg-slate-900 text-white rounded-2xl font-black"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? t('common.loading') : (i18n.language === 'ka' ? 'ბმულის გაგზავნა' : 'Send Reset Link')}
@@ -318,33 +360,33 @@ export const LandingPage = () => {
                 <button 
                   type="button" 
                   onClick={() => setIsResetView(false)}
-                  className="w-full flex items-center justify-center text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors py-2"
+                  className="w-full flex items-center justify-center text-[10px] font-black text-slate-400 hover:text-slate-900 transition-colors py-2 uppercase tracking-[0.2em]"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  {i18n.language === 'ka' ? 'ავტორიზაციაზე დაბრუნება' : 'Back to Login'}
+                  {i18n.language === 'ka' ? 'უკან' : 'Back'}
                 </button>
               </form>
             ) : (
               <div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
-                <div className="h-16 w-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="h-20 w-20 bg-emerald-100 rounded-3xl flex items-center justify-center mx-auto mb-4 rotate-3">
                   <CheckCircle2 className="h-10 w-10 text-emerald-600" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">
-                    {i18n.language === 'ka' ? 'ბმული გაგზავნილია' : 'Link Sent Successfully'}
+                  <h4 className="text-xl font-black text-slate-950 mb-2">
+                    {i18n.language === 'ka' ? 'ბმული გაიგზავნა' : 'Link Sent'}
                   </h4>
-                  <p className="text-sm text-slate-500 leading-relaxed px-4">
+                  <p className="text-sm text-slate-500 leading-relaxed font-medium">
                     {i18n.language === 'ka' 
-                      ? `აღდგენის ინსტრუქცია გაიგზავნა ელ-ფოსტაზე: ${email}` 
-                      : `Instructions to reset your password have been sent to: ${email}`}
+                      ? `ინსტრუქცია გაიგზავნა: ${email}` 
+                      : `Instructions sent to: ${email}`}
                   </p>
                 </div>
                 <Button 
                   variant="outline" 
-                  className="w-full h-12 border-slate-200"
+                  className="w-full h-14 border-2 border-slate-100 rounded-2xl font-black"
                   onClick={resetModalState}
                 >
-                  {i18n.language === 'ka' ? 'დასრულება' : 'Back to Login'}
+                  {i18n.language === 'ka' ? 'დასრულება' : 'Done'}
                 </Button>
               </div>
             )}

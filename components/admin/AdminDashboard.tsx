@@ -42,8 +42,8 @@ const DashboardHome = () => {
     <Card className="p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <h3 className="text-3xl font-bold text-slate-900 mt-2">{value}</h3>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+          <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{value}</h3>
         </div>
         <div className={`p-3 rounded-full ${color}`}>
           <Icon className="h-6 w-6 text-white" />
@@ -66,8 +66,8 @@ const DashboardHome = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold text-slate-900">{t('admin.overview')}</h2>
-        <p className="text-slate-500 mt-1">{t('admin.welcome')}</p>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('admin.overview')}</h2>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">{t('admin.welcome')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -80,26 +80,26 @@ const DashboardHome = () => {
       {/* Top Sold Products Section */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-emerald-500" />
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
             {i18n.language === 'ka' ? 'ყველაზე გაყიდვადი პროდუქტები' : 'Top Sold Products'}
           </h3>
           <Badge variant="outline">{i18n.language === 'ka' ? 'ბოლო 30 დღე' : 'Last 30 Days'}</Badge>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {topSoldProducts.length > 0 ? topSoldProducts.map((item, idx) => (
-            <div key={idx} className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center text-center group hover:bg-white hover:shadow-md hover:border-emerald-200 transition-all">
-              <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
-                <Package className="h-5 w-5 text-slate-400 group-hover:text-emerald-500" />
+            <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center group hover:bg-white dark:hover:bg-slate-800 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-900 transition-all">
+              <div className="h-10 w-10 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mb-3 shadow-sm border border-slate-100 dark:border-slate-800 group-hover:scale-110 transition-transform">
+                <Package className="h-5 w-5 text-slate-400 dark:text-slate-600 group-hover:text-emerald-500 dark:group-hover:text-emerald-400" />
               </div>
-              <p className="text-sm font-bold text-slate-900 line-clamp-1 mb-1">{item.name}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-1 mb-1">{item.name}</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-black text-emerald-600">{item.quantity}</span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">{item.unit}</span>
+                <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{item.quantity}</span>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">{item.unit}</span>
               </div>
             </div>
           )) : (
-            <div className="col-span-full py-6 text-center text-slate-400 italic text-sm">
+            <div className="col-span-full py-6 text-center text-slate-400 dark:text-slate-600 italic text-sm">
               {i18n.language === 'ka' ? 'მონაცემები არ არის' : 'No sales data available'}
             </div>
           )}
@@ -108,18 +108,18 @@ const DashboardHome = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-6">
-          <h3 className="text-lg font-bold mb-4">{t('admin.recent_activity')}</h3>
+          <h3 className="text-lg font-bold mb-4 dark:text-slate-100">{t('admin.recent_activity')}</h3>
           <div className="space-y-4">
             {orders.slice(0, 5).map(order => (
-              <div key={order.id} className="flex items-center justify-between border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+              <div key={order.id} className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 last:border-0 last:pb-0">
                 <div>
-                  <p className="font-medium text-slate-900">{order.restaurantName}</p>
-                  <p className="text-xs text-slate-500">ID: {order.id} • {new Date(order.createdAt).toLocaleDateString()}</p>
+                  <p className="font-medium text-slate-900 dark:text-slate-100">{order.restaurantName}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-500">ID: {order.id} • {new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider
-                  ${order.status === OrderStatus.PENDING ? 'bg-amber-100 text-amber-800' : 
-                    order.status === OrderStatus.COMPLETED ? 'bg-green-100 text-green-800' : 
-                    'bg-blue-100 text-blue-800'}`}>
+                  ${order.status === OrderStatus.PENDING ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' : 
+                    order.status === OrderStatus.COMPLETED ? 'bg-green-100 text-green-800 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'}`}>
                   {getStatusLabel(order.status)}
                 </span>
               </div>
@@ -127,28 +127,28 @@ const DashboardHome = () => {
           </div>
         </Card>
         
-        <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-0 shadow-xl">
+        <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-100 dark:to-slate-300 text-white dark:text-slate-900 border-0 shadow-xl transition-colors">
           <h3 className="text-lg font-bold mb-4 flex items-center">
             {t('admin.quick_actions')}
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <button 
               onClick={() => navigate('/admin/products')}
-              className="bg-white/10 hover:bg-white/20 p-4 rounded-xl text-left transition-all group border border-white/5"
+              className="bg-white/10 dark:bg-slate-900/10 hover:bg-white/20 dark:hover:bg-slate-900/20 p-4 rounded-xl text-left transition-all group border border-white/5 dark:border-slate-900/5"
             >
-              <p className="font-bold text-sm group-hover:text-emerald-400">{t('admin.add_new_product')}</p>
-              <p className="text-[10px] text-slate-300 mt-1 uppercase font-medium">{t('admin.update_catalog')}</p>
+              <p className="font-bold text-sm group-hover:text-emerald-400 dark:group-hover:text-emerald-600">{t('admin.add_new_product')}</p>
+              <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1 uppercase font-medium">{t('admin.update_catalog')}</p>
             </button>
             <button 
               onClick={() => navigate('/admin/users')}
-              className="bg-white/10 hover:bg-white/20 p-4 rounded-xl text-left transition-all group border border-white/5"
+              className="bg-white/10 dark:bg-slate-900/10 hover:bg-white/20 dark:hover:bg-slate-900/20 p-4 rounded-xl text-left transition-all group border border-white/5 dark:border-slate-900/5"
             >
-              <p className="font-bold text-sm group-hover:text-blue-400">{t('admin.manage_drivers')}</p>
-              <p className="text-[10px] text-slate-300 mt-1 uppercase font-medium">{t('admin.assign_shifts')}</p>
+              <p className="font-bold text-sm group-hover:text-blue-400 dark:group-hover:text-blue-600">{t('admin.manage_drivers')}</p>
+              <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1 uppercase font-medium">{t('admin.assign_shifts')}</p>
             </button>
-            <button className="bg-white/10 hover:bg-white/20 p-4 rounded-xl text-left transition-all group border border-white/5">
-              <p className="font-bold text-sm group-hover:text-amber-400">{t('admin.export_reports')}</p>
-              <p className="text-[10px] text-slate-300 mt-1 uppercase font-medium">{t('admin.download_csv')}</p>
+            <button className="bg-white/10 dark:bg-slate-900/10 hover:bg-white/20 dark:hover:bg-slate-900/20 p-4 rounded-xl text-left transition-all group border border-white/5 dark:border-slate-900/5">
+              <p className="font-bold text-sm group-hover:text-amber-400 dark:group-hover:text-amber-600">{t('admin.export_reports')}</p>
+              <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-1 uppercase font-medium">{t('admin.download_csv')}</p>
             </button>
           </div>
         </Card>

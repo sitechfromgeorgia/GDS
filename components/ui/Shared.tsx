@@ -1,17 +1,18 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, ChevronDown } from 'lucide-react';
+import { Globe, Sun, Moon } from 'lucide-react';
+import { useApp } from '../../App';
 
 // Button
 export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger', size?: 'sm' | 'md' | 'lg' }>(
   ({ className = '', variant = 'primary', size = 'md', ...props }, ref) => {
     const baseStyles = "inline-flex items-center justify-center rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-30 disabled:pointer-events-none active:scale-[0.98]";
     const variants = {
-      primary: "bg-slate-950 text-white hover:bg-slate-800 focus:ring-slate-950 shadow-sm",
-      secondary: "bg-white text-slate-900 hover:bg-slate-50 border border-slate-200 shadow-sm",
-      outline: "border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-900 hover:border-slate-300",
-      ghost: "hover:bg-slate-100 text-slate-700 hover:text-slate-900",
+      primary: "bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-white focus:ring-slate-950 dark:focus:ring-slate-100 shadow-sm",
+      secondary: "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm",
+      outline: "border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-transparent hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700",
+      ghost: "hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100",
       danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm",
     };
     const sizes = {
@@ -27,7 +28,7 @@ export const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttrib
 
 // Card
 export const Card: React.FC<{ className?: string; children?: React.ReactNode }> = ({ className = '', children }) => (
-  <div className={`bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 ${className}`}>
+  <div className={`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200 ${className}`}>
     {children}
   </div>
 );
@@ -35,11 +36,11 @@ export const Card: React.FC<{ className?: string; children?: React.ReactNode }> 
 // Badge
 export const Badge = ({ children, variant = 'default', className = '' }: { children?: React.ReactNode, variant?: 'default' | 'success' | 'warning' | 'destructive' | 'outline', className?: string }) => {
   const variants = {
-    default: "bg-slate-100 text-slate-900 border-slate-200 font-bold",
-    success: "bg-emerald-100 text-emerald-900 border-emerald-200 font-bold",
-    warning: "bg-amber-100 text-amber-900 border-amber-200 font-bold",
-    destructive: "bg-red-100 text-red-900 border-red-200 font-bold",
-    outline: "text-slate-900 border-2 border-slate-100 font-bold"
+    default: "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-700 font-bold",
+    success: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50 font-bold",
+    warning: "bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-400 border-amber-200 dark:border-amber-900/50 font-bold",
+    destructive: "bg-red-100 dark:bg-red-900/30 text-red-900 dark:text-red-400 border-red-200 dark:border-red-900/50 font-bold",
+    outline: "text-slate-900 dark:text-slate-100 border-2 border-slate-100 dark:border-slate-800 font-bold"
   };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider border ${variants[variant]} ${className}`}>
@@ -54,7 +55,7 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
     return (
       <input
         ref={ref}
-        className={`flex h-11 w-full rounded-lg border-2 border-slate-100 bg-white px-4 py-2 text-sm text-slate-950 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-sm ${className}`}
+        className={`flex h-11 w-full rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm text-slate-950 dark:text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-sm ${className}`}
         {...props}
       />
     );
@@ -65,11 +66,11 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
 export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: React.ReactNode }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col scale-100 animate-in zoom-in-95 duration-200 border border-white/20">
-        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100">
-          <h3 className="text-xl font-bold text-slate-950 tracking-tight">{title}</h3>
-          <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col scale-100 animate-in zoom-in-95 duration-200 border border-white/20 dark:border-slate-800">
+        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-800">
+          <h3 className="text-xl font-bold text-slate-950 dark:text-slate-100 tracking-tight">{title}</h3>
+          <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
@@ -93,10 +94,24 @@ export const LanguageSwitcher = () => {
   return (
     <button 
       onClick={toggleLanguage}
-      className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-950 transition-all border border-transparent hover:border-slate-200"
+      className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-slate-100 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
     >
       <Globe className="h-4 w-4" />
       <span>{i18n.language === 'ka' ? 'ENG' : 'GEO'}</span>
+    </button>
+  );
+};
+
+// Theme Toggle
+export const ThemeToggle = () => {
+  const { theme, toggleTheme } = useApp();
+  
+  return (
+    <button 
+      onClick={toggleTheme}
+      className="flex items-center justify-center p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+    >
+      {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
     </button>
   );
 };
