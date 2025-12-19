@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         console.error('Order creation failed:', error)
 
         if (error instanceof z.ZodError) {
-            return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 })
+            return NextResponse.json({ error: 'Validation error', details: error.issues }, { status: 400 })
         }
 
         if (error instanceof Error) {

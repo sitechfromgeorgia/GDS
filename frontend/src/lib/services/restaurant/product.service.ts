@@ -45,7 +45,7 @@ export class ProductService {
         return data as Product[]
     }
 
-    static async getCategories() {
+    static async getCategories(): Promise<string[]> {
         let supabase;
         if (typeof window === 'undefined') {
             supabase = await createServerClient()
@@ -63,7 +63,7 @@ export class ProductService {
         }
 
         // Extract unique categories
-        const categories = Array.from(new Set(data.map(p => p.category)))
+        const categories: string[] = Array.from(new Set(data.map((p: { category: string }) => p.category)))
         return categories.sort()
     }
 }

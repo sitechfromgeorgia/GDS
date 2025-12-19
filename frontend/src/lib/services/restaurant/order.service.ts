@@ -44,6 +44,7 @@ export class OrderService {
             product_id: item.product_id,
             quantity: item.quantity,
             unit_price: 0, // Will be set by admin
+            subtotal: 0, // Will be calculated by admin
             total_price: 0, // Will be set by admin
         }))
 

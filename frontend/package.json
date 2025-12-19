@@ -124,6 +124,8 @@
     "dotenv": "^16.4.5",
     "eslint": "^9",
     "eslint-config-next": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "happy-dom": "^20.0.10",
     "puppeteer": "^24.27.0",
     "tailwindcss": "^4",
