@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { User, Product, Order, UserRole, OrderStatus, Toast as ToastType } from './types';
@@ -76,12 +75,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
   useEffect(() => {
-    // Fixed: Cast import.meta to any to resolve 'Property env does not exist on type ImportMeta'
-    // Also follow guidelines to not manage AI API key in config; it is accessed via process.env.API_KEY directly.
-    const meta = import.meta as any;
-    const envUrl = meta.env?.VITE_SUPABASE_URL;
-    const envKey = meta.env?.VITE_SUPABASE_ANON_KEY;
-    const envCompany = meta.env?.VITE_COMPANY_NAME;
+    // Access environment variables via process.env as per project guidelines and to resolve TS errors
+    const envUrl = process.env.VITE_SUPABASE_URL;
+    const envKey = process.env.VITE_SUPABASE_ANON_KEY;
+    const envCompany = process.env.VITE_COMPANY_NAME;
 
     if (envUrl && envKey) {
       const envConfig: AppConfig = {
