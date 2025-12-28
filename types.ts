@@ -18,7 +18,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password?: string; // Added password field
+  password?: string;
   role: UserRole;
   avatar?: string;
   isActive?: boolean; 
@@ -30,12 +30,12 @@ export interface Product {
   id: string;
   name: string;
   category: string;
-  unit: string; // kg, piece, pack
+  unit: string;
   image: string;
   isActive: boolean;
-  isPromo?: boolean; // Added promo flag
-  price?: number; // Promo/Special price visible to all
-  viewCount?: number; // Added for analytics
+  isPromo?: boolean;
+  price?: number;
+  viewCount?: number;
 }
 
 export interface OrderItem {
@@ -43,8 +43,8 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   unit: string;
-  costPrice?: number; // Set by admin
-  sellPrice?: number; // Set by admin
+  costPrice?: number;
+  sellPrice?: number;
 }
 
 export interface Order {
@@ -54,10 +54,10 @@ export interface Order {
   driverId?: string;
   status: OrderStatus;
   items: OrderItem[];
-  createdAt: string; // ISO date
+  createdAt: string;
   notes?: string;
-  totalCost?: number; // Calculated sum of sellPrice * quantity
-  totalProfit?: number; // Calculated sum of (sellPrice - costPrice) * quantity
+  totalCost?: number;
+  totalProfit?: number;
 }
 
 export interface AnalyticsData {
@@ -66,4 +66,10 @@ export interface AnalyticsData {
   totalProfit: number;
   topProducts: { name: string; value: number }[];
   salesTrend: { date: string; amount: number }[];
+}
+
+export interface Toast {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'info' | 'warning';
 }

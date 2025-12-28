@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useApp } from '../../App';
 import { Card, Button, Badge, Input, Modal } from '../ui/Shared';
@@ -9,12 +9,17 @@ import { useTranslation } from 'react-i18next';
 
 const Catalog = () => {
   const { t, i18n } = useTranslation();
-  const { products, createOrder, user, orders } = useApp();
+  const { products, createOrder, user, orders, refreshData } = useApp();
   const [cart, setCart] = useState<{ product: Product, quantity: number }[]>([]);
   const [search, setSearch] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  // Refresh data on mount to ensure catalog is populated
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
 
   const activeOrder = orders.find(o => o.restaurantId === user?.id && o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.DELIVERED);
 
@@ -54,12 +59,16 @@ const Catalog = () => {
   };
 
   const filteredProducts = useMemo(() => 
-    products.filter(p => p.isActive && p.name.toLowerCase().includes(search.toLowerCase())),
+    products.filter(p => 
+      // Ensure product is active and matches search
+      p.isActive !== false && 
+      p.name.toLowerCase().includes(search.toLowerCase())
+    ),
     [products, search]
   );
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-100px)]">
+    <div className="flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-120px)]">
       <div className="flex-1 overflow-y-auto pr-2 pb-10">
         
         {/* Active Order Banner */}
@@ -80,7 +89,7 @@ const Catalog = () => {
            </div>
         )}
 
-        <div className="mb-6 sticky top-0 bg-slate-50 dark:bg-slate-950 pt-2 pb-4 z-10 transition-colors">
+        <div className="mb-6 sticky top-0 bg-slate-50 dark:bg-slate-950 pt-2 pb-4 z-10 transition-colors border-b border-slate-100 dark:border-slate-800">
           <h2 className="text-2xl font-bold mb-4 dark:text-slate-100">{t('nav.products')}</h2>
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" />
@@ -108,22 +117,23 @@ const Catalog = () => {
               </Button>
             </Card>
           )) : (
-            <div className="col-span-full py-10 text-center text-slate-400 dark:text-slate-500 italic">
-               {t('orders.no_orders_found')}
+            <div className="col-span-full py-16 text-center text-slate-400 dark:text-slate-500 italic flex flex-col items-center">
+               <Package className="h-12 w-12 mb-3 opacity-20" />
+               <p>{i18n.language === 'ka' ? 'პროდუქცია არ მოიძებნა' : 'No products found in catalog'}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Cart Sidebar */}
-      <div className="w-full lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full overflow-hidden transition-colors">
+      <div className="w-full lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full lg:sticky lg:top-4 overflow-hidden transition-colors">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
           <h3 className="font-bold text-lg flex items-center text-slate-900 dark:text-slate-100">
             <ShoppingCart className="mr-3 h-5 w-5 text-emerald-600 dark:text-emerald-400" /> {t('restaurant.cart_title')}
           </h3>
         </div>
         
-        <div className="flex-1 p-6 overflow-y-auto space-y-5">
+        <div className="flex-1 p-6 overflow-y-auto space-y-5 max-h-[400px] lg:max-h-none">
           {cart.length === 0 ? (
             <div className="text-center py-12 flex flex-col items-center justify-center">
               <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-full mb-4">
@@ -184,14 +194,47 @@ const Catalog = () => {
            </Button>
         </div>
       </div>
+
+      <Modal 
+        isOpen={isConfirmModalOpen} 
+        onClose={() => setIsConfirmModalOpen(false)} 
+        title={t('restaurant.confirm_title')}
+      >
+        <div className="space-y-6">
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t('restaurant.confirm_desc')}</p>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl space-y-2 border border-slate-100 dark:border-slate-800">
+             {cart.map((item, idx) => (
+               <div key={idx} className="flex justify-between text-sm">
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{item.product.name}</span>
+                  <span className="font-black text-slate-900 dark:text-slate-100">x{item.quantity} {item.product.unit}</span>
+               </div>
+             ))}
+          </div>
+          <div className="flex gap-3">
+             <Button variant="outline" className="flex-1" onClick={() => setIsConfirmModalOpen(false)}>{t('common.cancel')}</Button>
+             <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white border-none" onClick={handleSubmit}>{t('common.submit')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {submitted && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5">
+           <CheckCircle2 className="h-6 w-6" />
+           <span className="font-bold">{i18n.language === 'ka' ? 'შეკვეთა წარმატებით გაიგზავნა!' : 'Order submitted successfully!'}</span>
+        </div>
+      )}
     </div>
   );
 };
 
 const History = () => {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrderStatus, user } = useApp();
+  const { orders, updateOrderStatus, user, refreshData } = useApp();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
 
   const myOrders = orders.filter(o => o.restaurantId === user?.id).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 

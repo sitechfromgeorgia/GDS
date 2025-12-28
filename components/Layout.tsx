@@ -5,6 +5,7 @@ import { UserRole } from '../types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher, ThemeToggle } from './ui/Shared';
+import { AdminAIChat } from './admin/AdminAIChat';
 import { 
   LayoutDashboard, 
   Package, 
@@ -12,14 +13,14 @@ import {
   Truck, 
   LogOut, 
   Menu,
-  User,
   TrendingUp,
   Users,
-  Settings
+  Settings,
+  ShieldAlert
 } from 'lucide-react';
 
 export const Layout = ({ children }: { children?: React.ReactNode }) => {
-  const { user, logout } = useApp();
+  const { user, logout, config } = useApp();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -57,17 +58,16 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-300">
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 font-georgian transition-colors duration-300">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-screen sticky top-0 z-10 transition-colors">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center space-x-2">
-            <div className="bg-slate-900 dark:bg-slate-100 p-2 rounded-lg">
-               <Truck className="h-5 w-5 text-white dark:text-slate-900" />
+            <div className="bg-slate-950 dark:bg-white p-2 rounded-lg">
+               <Truck className="h-5 w-5 text-white dark:text-slate-950" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">GDS</span>
+            <span className="text-lg font-black tracking-tighter text-slate-950 dark:text-white">{config?.companyName || 'GDS'}</span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">Georgian Distribution System</p>
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -77,14 +77,14 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-2.5 rounded-md transition-all duration-200 text-sm ${
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                   isActive 
-                    ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm' 
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+                    ? 'bg-slate-950 dark:bg-white text-white dark:text-slate-950 shadow-lg' 
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <item.icon className="h-4 w-4" />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-bold">{item.label}</span>
               </Link>
             );
           })}
@@ -95,22 +95,9 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
              <LanguageSwitcher />
              <ThemeToggle />
           </div>
-          <div className="flex items-center space-x-3 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="User" className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 object-cover" />
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-400">
-                {user?.name?.charAt(0)}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate text-slate-900 dark:text-white">{user?.name}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate capitalize">{user?.role?.toLowerCase()}</p>
-            </div>
-          </div>
           <button 
             onClick={handleLogout}
-            className="flex w-full items-center space-x-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors text-sm"
+            className="flex w-full items-center space-x-3 px-4 py-3 text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors text-sm font-bold"
           >
             <LogOut className="h-4 w-4" />
             <span>{t('nav.logout')}</span>
@@ -119,12 +106,14 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow-sm transition-colors">
+      <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
         <div className="flex items-center space-x-2">
-          <Truck className="h-6 w-6 text-slate-900 dark:text-white" />
-          <span className="font-bold text-slate-900 dark:text-white">GDS</span>
+          <div className="bg-slate-950 dark:bg-white p-1.5 rounded-lg">
+            <Truck className="h-5 w-5 text-white dark:text-slate-950" />
+          </div>
+          <span className="font-black text-slate-900 dark:text-white uppercase tracking-tighter">{config?.companyName || 'GDS'}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ThemeToggle />
           <LanguageSwitcher />
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-600 dark:text-slate-400">
@@ -135,36 +124,45 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-slate-900 absolute top-16 w-full z-40 border-b border-slate-200 dark:border-slate-800 shadow-lg animate-in slide-in-from-top-2">
-          <nav className="flex flex-col p-4 space-y-2">
-            {getNavItems().map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-            <button 
-              onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 dark:text-red-400"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>{t('nav.logout')}</span>
-            </button>
-          </nav>
+        <div className="md:hidden fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
+           <div className="bg-white dark:bg-slate-900 w-64 h-full shadow-2xl animate-in slide-in-from-left duration-300" onClick={e => e.stopPropagation()}>
+              <nav className="flex flex-col p-6 space-y-2">
+                <div className="pb-6 mb-4 border-b border-slate-100 dark:border-slate-800">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">მომხმარებელი</p>
+                  <p className="font-bold text-slate-900 dark:text-white truncate">{user?.name}</p>
+                </div>
+                {getNavItems().map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold"
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 px-4 py-4 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 text-red-600 font-bold mt-4"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>{t('nav.logout')}</span>
+                </button>
+              </nav>
+           </div>
         </div>
       )}
 
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
-        <div className="max-w-7xl mx-auto animate-in fade-in duration-500 slide-in-from-bottom-4">
+        <div className="max-w-7xl mx-auto">
           {children}
         </div>
       </main>
+
+      {/* Admin AI Assistant */}
+      <AdminAIChat />
     </div>
   );
 };

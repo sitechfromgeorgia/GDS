@@ -1,18 +1,17 @@
 
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../App';
-import { Card, Button, Badge } from '../ui/Shared';
+// Added Button to imports from Shared components
+import { Card, Badge, Button } from '../ui/Shared';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, 
-  AreaChart, Area, PieChart, Pie, Sector
+  AreaChart, Area, PieChart, Pie, Sector, LineChart, Line, Legend
 } from 'recharts';
 import { 
-  Sparkles, Loader2, BarChart3, TrendingUp, Users, ShoppingBag, 
+  BarChart3, TrendingUp, ShoppingBag, 
   DollarSign, Target, PieChart as PieIcon, ArrowUpRight, ArrowDownRight, 
-  Store, Package, Zap 
+  Store, Package,Percent, Calendar, Download
 } from 'lucide-react';
-import { generateAIInsights } from '../../services/geminiService';
-import { AnalyticsData, OrderStatus } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 // Custom render for Pie Chart active shape
@@ -65,8 +64,6 @@ const renderActiveShape = (props: any) => {
 export const Analytics = () => {
   const { t, i18n } = useTranslation();
   const { orders, products, users, theme } = useApp();
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
-  const [loadingAi, setLoadingAi] = useState(false);
   const [activePieIndex, setActivePieIndex] = useState(0);
 
   const isGeo = i18n.language === 'ka';
@@ -79,17 +76,23 @@ export const Analytics = () => {
     const totalProfit = orders.reduce((acc, o) => acc + (o.totalProfit || 0), 0);
     const avgOrder = orders.length ? totalSales / orders.length : 0;
     const activeRest = users.filter(u => u.role === 'RESTAURANT').length;
+    const margin = totalSales > 0 ? (totalProfit / totalSales) * 100 : 0;
     
-    return { totalSales, totalProfit, avgOrder, activeRest };
+    return { totalSales, totalProfit, avgOrder, activeRest, margin };
   }, [orders, users]);
 
   const salesTrend = useMemo(() => {
     const days = isGeo ? ['ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ', 'კვი'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days.map((day, idx) => ({
-      name: day,
-      revenue: 400 + (Math.random() * 800),
-      profit: 150 + (Math.random() * 300)
-    }));
+    return days.map((day, idx) => {
+      const revenue = 400 + (Math.random() * 800);
+      const profit = 150 + (Math.random() * 300);
+      return {
+        name: day,
+        revenue: Math.round(revenue),
+        profit: Math.round(profit),
+        margin: Math.round((profit / revenue) * 100)
+      };
+    });
   }, [isGeo]);
 
   const categoryDistribution = useMemo(() => {
@@ -123,20 +126,6 @@ export const Analytics = () => {
       .slice(0, 6)
   , [products]);
 
-  const handleGenerateInsights = async () => {
-    setLoadingAi(true);
-    const analyticsPayload: AnalyticsData = {
-      totalSales: metrics.totalSales,
-      totalOrders: orders.length,
-      totalProfit: metrics.totalProfit,
-      topProducts: products.map(p => ({ name: p.name, value: p.viewCount || 0 })),
-      salesTrend: []
-    };
-    const result = await generateAIInsights(analyticsPayload);
-    setAiInsight(result);
-    setLoadingAi(false);
-  };
-
   const COLORS = ['#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6'];
 
   return (
@@ -152,75 +141,50 @@ export const Analytics = () => {
             {isGeo ? 'ბაზრის დინამიკა და სტრატეგიული ანალიზი რეალურ დროში' : 'Real-time market dynamics and strategic analysis'}
           </p>
         </div>
-        <Button 
-          onClick={handleGenerateInsights} 
-          disabled={loadingAi} 
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white dark:text-white h-12 px-8 shadow-xl shadow-indigo-100 dark:shadow-none border-none relative overflow-hidden group"
-        >
-          <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-          {loadingAi ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Sparkles className="h-5 w-5 mr-2" />}
-          <span className="font-black uppercase tracking-wider text-xs">{t('admin.ask_ai')}</span>
-        </Button>
+        <div className="flex gap-2">
+           <Button variant="outline" size="sm" className="h-10">
+             <Calendar className="h-4 w-4 mr-2" />
+             {isGeo ? 'ბოლო 30 დღე' : 'Last 30 Days'}
+           </Button>
+           <Button variant="outline" size="sm" className="h-10">
+             <Download className="h-4 w-4 mr-2" />
+             {isGeo ? 'ექსპორტი' : 'Export'}
+           </Button>
+        </div>
       </div>
 
-      {/* AI Report Section */}
-      {aiInsight && (
-        <Card className="p-8 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/20 dark:to-slate-900 border-indigo-100 dark:border-indigo-900/50 shadow-xl shadow-indigo-50/50 dark:shadow-none animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden relative">
-           <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Zap className="h-32 w-32 text-indigo-600 dark:text-indigo-400" />
-           </div>
-           <h3 className="text-xl font-black text-indigo-950 dark:text-indigo-100 mb-6 flex items-center gap-3">
-             <div className="bg-indigo-600 p-2 rounded-lg">
-               <Sparkles className="h-5 w-5 text-white" />
-             </div>
-             {t('admin.ai_report')}
-             <Badge variant="outline" className="ml-2 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-950">GEN-3 PRO</Badge>
-           </h3>
-           <div className="prose prose-indigo dark:prose-invert max-w-none text-indigo-900/80 dark:text-indigo-300 font-medium leading-relaxed bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm p-6 rounded-2xl border border-white/60 dark:border-slate-800">
-             <div className="whitespace-pre-line text-sm md:text-base">
-               {aiInsight}
-             </div>
-           </div>
-        </Card>
-      )}
-
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { label: t('admin.total_revenue'), val: `$${metrics.totalSales.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: 'blue' },
-          { label: t('admin.net_profit'), val: `$${metrics.totalProfit.toLocaleString()}`, icon: Target, trend: '+8%', color: 'emerald' },
-          { label: t('admin.avg_order'), val: `$${metrics.avgOrder.toFixed(0)}`, icon: ShoppingBag, trend: '-2%', color: 'indigo' },
-          { label: isGeo ? 'აქტიური პარტნიორი' : 'Active Partners', val: metrics.activeRest, icon: Store, trend: '+5%', color: 'amber' },
+          { label: t('admin.total_revenue'), val: `$${metrics.totalSales.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: '#3b82f6' },
+          { label: t('admin.net_profit'), val: `$${metrics.totalProfit.toLocaleString()}`, icon: Target, trend: '+8%', color: '#10b981' },
+          { label: isGeo ? 'მარჟა' : 'Avg Margin', val: `${metrics.margin.toFixed(1)}%`, icon: Percent, trend: '+1.4%', color: '#ec4899' },
+          { label: t('admin.avg_order'), val: `$${metrics.avgOrder.toFixed(0)}`, icon: ShoppingBag, trend: '-2%', color: '#6366f1' },
+          { label: isGeo ? 'ობიექტები' : 'Partners', val: metrics.activeRest, icon: Store, trend: '+5%', color: '#f59e0b' },
         ].map((m, i) => (
-          <Card key={i} className="p-6 relative overflow-hidden group hover:scale-[1.02] transition-transform">
-            <div className={`absolute top-0 right-0 w-24 h-24 translate-x-8 translate-y-[-20%] rounded-full opacity-5 dark:opacity-10 transition-transform duration-700`} style={{ backgroundColor: m.color }} />
+          <Card key={i} className="p-5 relative overflow-hidden group hover:scale-[1.02] transition-transform">
+            <div className={`absolute top-0 right-0 w-20 h-20 translate-x-8 translate-y-[-20%] rounded-full opacity-5 dark:opacity-10 transition-transform duration-700`} style={{ backgroundColor: m.color }} />
             <div className="flex justify-between items-start">
-              <div>
+              <div className="z-10">
                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{m.label}</p>
-                <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-2 tracking-tight">{m.val}</h4>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-1 tracking-tight">{m.val}</h4>
               </div>
-              <div className={`p-2.5 rounded-xl ${
-                m.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' :
-                m.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' :
-                m.color === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' :
-                'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
-              }`}>
-                <m.icon className="h-5 w-5" />
+              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800" style={{ color: m.color }}>
+                <m.icon className="h-4 w-4" />
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-2">
-              <span className={`flex items-center text-[10px] font-bold ${m.trend.startsWith('+') ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' : 'text-rose-600 bg-rose-50 dark:bg-rose-900/30'} px-2 py-0.5 rounded-full`}>
-                {m.trend.startsWith('+') ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
+            <div className="mt-3 flex items-center gap-1.5">
+              <span className={`flex items-center text-[9px] font-bold ${m.trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {m.trend.startsWith('+') ? <ArrowUpRight className="h-2.5 w-2.5 mr-0.5" /> : <ArrowDownRight className="h-2.5 w-2.5 mr-0.5" />}
                 {m.trend}
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium uppercase">{isGeo ? 'ბოლო 7 დღე' : 'Last 7 Days'}</span>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Charts Main Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Charts Main Row: Sales & Profit Area + Category Share */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Sales Dynamic Area Chart */}
         <Card className="lg:col-span-2 p-6 flex flex-col">
@@ -234,17 +198,17 @@ export const Analytics = () => {
             </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">{isGeo ? 'შემოსავალი' : 'Revenue'}</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <span className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400">{isGeo ? 'შემოსავალი' : 'Revenue'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">{isGeo ? 'მოგება' : 'Profit'}</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400">{isGeo ? 'მოგება' : 'Profit'}</span>
               </div>
             </div>
           </div>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full h-[320px] min-w-0">
+            <ResponsiveContainer width="100%" height={320}>
               <AreaChart data={salesTrend}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
@@ -270,8 +234,8 @@ export const Analytics = () => {
                   itemStyle={{fontWeight: 900, fontSize: '12px', color: isDark ? '#cbd5e1' : '#1e293b'}}
                   labelStyle={{fontWeight: 900, marginBottom: '4px', color: isDark ? '#94a3b8' : '#64748b'}}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
-                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorProf)" />
+                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorProf)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -284,10 +248,10 @@ export const Analytics = () => {
               <PieIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               {isGeo ? 'კატეგორიები' : 'Categories'}
             </h3>
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight mt-1">{isGeo ? 'განაწილება მოცულობის მიხედვით' : 'Distribution by Volume'}</p>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight mt-1">{isGeo ? 'ბრუნვის წილი' : 'Turnover Share'}</p>
           </div>
-          <div className="h-80 w-full mt-4">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full h-[320px] min-w-0 mt-4">
+            <ResponsiveContainer width="100%" height={320}>
               <PieChart>
                 <Pie 
                   activeIndex={activePieIndex}
@@ -295,8 +259,8 @@ export const Analytics = () => {
                   data={categoryDistribution} 
                   cx="50%" 
                   cy="50%" 
-                  innerRadius={60} 
-                  outerRadius={85} 
+                  innerRadius={65} 
+                  outerRadius={90} 
                   dataKey="value"
                   onMouseEnter={(_, index) => setActivePieIndex(index)}
                 >
@@ -310,11 +274,82 @@ export const Analytics = () => {
         </Card>
       </div>
 
-      {/* Bottom Insights Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* New Row: Profit Margin Trend & Category Volume Bar Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Profit Margin Trend Line Chart */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Percent className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                {isGeo ? 'მოგების მარჟის ტრენდი' : 'Profit Margin Trend'}
+              </h3>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight mt-1">{isGeo ? 'პროცენტული მაჩვენებელი' : 'Percentage performance'}</p>
+            </div>
+          </div>
+          <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={salesTrend}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#1e293b" : "#f1f5f9"} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10, fontWeight: 700}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: isDark ? '#64748b' : '#94a3b8', fontSize: 10, fontWeight: 700}} unit="%" />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: isDark ? '#0f172a' : '#fff',
+                    borderRadius: '12px', 
+                    border: 'none', 
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                  }}
+                />
+                <Line type="monotone" dataKey="margin" stroke="#ec4899" strokeWidth={4} dot={{ r: 6, fill: "#ec4899", strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Category Sales Volume Bar Chart */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+                {isGeo ? 'გაყიდვები კატეგორიებით' : 'Sales by Category'}
+              </h3>
+              <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight mt-1">{isGeo ? 'მოცულობა დოლარებში' : 'Volume in USD'}</p>
+            </div>
+          </div>
+          <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={categoryDistribution} margin={{ top: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "#1e293b" : "#f1f5f9"} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: isDark ? '#cbd5e1' : '#1e293b', fontSize: 10, fontWeight: 700}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: isDark ? '#cbd5e1' : '#1e293b', fontSize: 10, fontWeight: 700}} />
+                <Tooltip 
+                   cursor={{fill: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'}}
+                   contentStyle={{
+                     backgroundColor: isDark ? '#0f172a' : '#fff',
+                     borderRadius: '12px',
+                     border: 'none'
+                   }}
+                />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={40}>
+                  {categoryDistribution.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+      </div>
+
+      {/* Bottom Insights Row: Popular Products & Top Restaurants */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Top Product Views Bar Chart */}
-        <Card className="p-6">
+        <Card className="p-6 flex flex-col">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -325,8 +360,8 @@ export const Analytics = () => {
             </div>
             <Badge variant="outline" className="h-6">TOP 6</Badge>
           </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topProductViews} layout="vertical" margin={{ left: 20 }}>
                 <XAxis type="number" hide />
                 <YAxis 
@@ -386,7 +421,7 @@ export const Analytics = () => {
                 <div className="text-right">
                   <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">${rest.total.toLocaleString()}</p>
                   <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-500 uppercase mt-0.5">
-                    <ArrowUpRight className="h-2 w-2" />
+                    <ArrowUpRight className="h-2.5 w-2.5" />
                     +4.2%
                   </div>
                 </div>

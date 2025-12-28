@@ -7,12 +7,12 @@ import { UserManagement } from './UserManagement';
 import { Analytics } from './Analytics';
 import { useApp } from '../../App';
 import { Card, Badge } from '../ui/Shared';
-import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package } from 'lucide-react';
+import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package, Database, Zap } from 'lucide-react';
 import { OrderStatus } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 const DashboardHome = () => {
-  const { orders, products, users } = useApp();
+  const { orders, products, users, isDemo } = useApp();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   
@@ -20,7 +20,6 @@ const DashboardHome = () => {
   const totalSales = orders.reduce((acc, o) => acc + (o.totalCost || 0), 0);
   const activeUsers = users.filter(u => u.role === 'RESTAURANT').length;
 
-  // Calculate top 5 sold products
   const topSoldProducts = useMemo(() => {
     const salesMap: Record<string, { name: string; quantity: number; unit: string }> = {};
     
@@ -65,9 +64,25 @@ const DashboardHome = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('admin.overview')}</h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">{t('admin.welcome')}</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('admin.overview')}</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">{t('admin.welcome')}</p>
+        </div>
+        
+        {/* Connection Status Indicator */}
+        <div className={`flex items-center gap-3 px-4 py-2 rounded-2xl border ${isDemo ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/50' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/50'}`}>
+           <div className="relative">
+             <Database className={`h-5 w-5 ${isDemo ? 'text-amber-500' : 'text-emerald-500'}`} />
+             <div className={`absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-slate-900 animate-pulse ${isDemo ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+           </div>
+           <div>
+             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">System Status</p>
+             <p className={`text-xs font-bold ${isDemo ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                {isDemo ? 'DEMO MODE (Local DB)' : 'LIVE (Supabase Connected)'}
+             </p>
+           </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -77,7 +92,6 @@ const DashboardHome = () => {
         <StatCard title={t('admin.active_products')} value={products.filter(p => p.isActive).length} icon={Activity} color="bg-indigo-500" />
       </div>
 
-      {/* Top Sold Products Section */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">

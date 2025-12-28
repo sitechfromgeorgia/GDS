@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Sun, Moon } from 'lucide-react';
+import { Globe, Sun, Moon, CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 import { useApp } from '../../App';
 
 // Button
@@ -71,13 +71,45 @@ export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; o
         <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-800">
           <h3 className="text-xl font-bold text-slate-950 dark:text-slate-100 tracking-tight">{title}</h3>
           <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <X className="h-5 w-5" />
           </button>
         </div>
         <div className="p-6 overflow-y-auto">
           {children}
         </div>
       </div>
+    </div>
+  );
+};
+
+// Toast
+export const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 'error' | 'info' | 'warning', onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const icons = {
+    success: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
+    error: <AlertCircle className="h-5 w-5 text-rose-500" />,
+    info: <Info className="h-5 w-5 text-blue-500" />,
+    warning: <AlertTriangle className="h-5 w-5 text-amber-500" />
+  };
+
+  const colors = {
+    success: "border-emerald-100 dark:border-emerald-900/50 bg-white/90 dark:bg-slate-900/90 shadow-emerald-500/10",
+    error: "border-rose-100 dark:border-rose-900/50 bg-white/90 dark:bg-slate-900/90 shadow-rose-500/10",
+    info: "border-blue-100 dark:border-blue-900/50 bg-white/90 dark:bg-slate-900/90 shadow-blue-500/10",
+    warning: "border-amber-100 dark:border-amber-900/50 bg-white/90 dark:bg-slate-900/90 shadow-amber-500/10"
+  };
+
+  return (
+    <div className={`flex items-center gap-3 p-4 pr-12 rounded-2xl border-2 backdrop-blur-xl shadow-2xl animate-in slide-in-from-right-10 fade-in duration-300 relative ${colors[type]}`}>
+      <div className="shrink-0">{icons[type]}</div>
+      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{message}</p>
+      <button onClick={onClose} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-400">
+        <X className="h-4 w-4" />
+      </button>
     </div>
   );
 };
