@@ -19,7 +19,6 @@ interface AppConfig {
   supabaseUrl: string;
   supabaseKey: string;
   companyName: string;
-  aiApiKey?: string;
   setupComplete: boolean;
 }
 
@@ -62,7 +61,7 @@ export const useApp = () => {
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [isDemo, setIsDemo] = useState(true);
   const [config, setConfig] = useState<AppConfig | null>(null);
@@ -77,11 +76,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
   useEffect(() => {
-    const savedConfig = localStorage.getItem('gds_system_config');
-    if (savedConfig) {
-      const parsed = JSON.parse(savedConfig);
-      setConfig(parsed);
-      initSupabase(parsed.supabaseUrl, parsed.supabaseKey);
+    // Fixed: Cast import.meta to any to resolve 'Property env does not exist on type ImportMeta'
+    // Also follow guidelines to not manage AI API key in config; it is accessed via process.env.API_KEY directly.
+    const meta = import.meta as any;
+    const envUrl = meta.env?.VITE_SUPABASE_URL;
+    const envKey = meta.env?.VITE_SUPABASE_ANON_KEY;
+    const envCompany = meta.env?.VITE_COMPANY_NAME;
+
+    if (envUrl && envKey) {
+      const envConfig: AppConfig = {
+        supabaseUrl: envUrl,
+        supabaseKey: envKey,
+        companyName: envCompany || 'GDS Greenland',
+        setupComplete: true
+      };
+      setConfig(envConfig);
+      initSupabase(envConfig.supabaseUrl, envConfig.supabaseKey);
+    } else {
+      const savedConfig = localStorage.getItem('gds_system_config');
+      if (savedConfig) {
+        const parsed = JSON.parse(savedConfig);
+        setConfig(parsed);
+        initSupabase(parsed.supabaseUrl, parsed.supabaseKey);
+      }
     }
     setLoading(false);
   }, []);
@@ -90,7 +107,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('gds_system_config', JSON.stringify(cfg));
     setConfig(cfg);
     initSupabase(cfg.supabaseUrl, cfg.supabaseKey);
-    window.location.reload(); // Reload to re-init everything
+    window.location.reload();
   };
 
   const toggleTheme = () => {
@@ -176,7 +193,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (supabase) await supabase.auth.signOut();
   };
 
-  // Basic CRUD shells (Real logic uses refreshData)
   const addProduct = async (p: Product) => { if (isDemo) db.addProduct(p); else await getSupabase()?.from('products').insert(p); refreshData(); };
   const updateProduct = async (p: Product) => { if (isDemo) db.updateProduct(p); else await getSupabase()?.from('products').update(p).eq('id', p.id); refreshData(); };
   const deleteProduct = async (id: string) => { if (isDemo) db.deleteProduct(id); else await getSupabase()?.from('products').delete().eq('id', id); refreshData(); };
@@ -241,7 +257,6 @@ const AppLoader = () => {
   );
 };
 
-// Fix: Making children optional to resolve TypeScript error where the compiler thinks 'children' is missing when used inside a prop expression.
 const PrivateRoute = ({ children, roles }: { children?: React.ReactNode, roles: UserRole[] }) => {
   const { user } = useApp();
   if (!user) return <Navigate to="/" replace />;

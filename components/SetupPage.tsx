@@ -11,8 +11,7 @@ export const SetupPage = () => {
   const [form, setForm] = useState({
     supabaseUrl: '',
     supabaseKey: '',
-    companyName: '',
-    aiApiKey: ''
+    companyName: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -65,12 +64,7 @@ export const SetupPage = () => {
               </div>
 
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <label className="block text-[11px] font-black text-amber-500 uppercase tracking-widest mb-2">Gemini AI API Key (Optional)</label>
-                <div className="relative">
-                  <Input value={form.aiApiKey} onChange={e => setForm({...form, aiApiKey: e.target.value})} placeholder="AI ფუნქციებისთვის..." className="pl-12 border-amber-100 dark:border-amber-900/30" />
-                  <Cpu className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500" />
-                </div>
-                <p className="text-[10px] text-slate-400 mt-2 italic">გასაღების გარეშე AI ანალიტიკა არ იქნება ხელმისაწვდომი.</p>
+                <p className="text-[10px] text-slate-400 mt-2 italic">Gemini AI ანალიტიკისთვის გამოიყენება სისტემური process.env.API_KEY.</p>
               </div>
             </div>
 
