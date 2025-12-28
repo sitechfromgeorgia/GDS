@@ -1,319 +1,258 @@
 {
   "feature": "User Management Hooks Completion",
-  "workflow_type": "feature",
-  "workflow_rationale": "This is feature development completing an incomplete hook implementation. The hook exists with a basic skeleton and TODO markers but requires full CRUD operations, state management, and real-time capabilities. Not a refactor (not changing existing working code) or bugfix (not fixing broken functionality), but implementing unfinished features marked with TODOs.",
-  "phases": [
+  "workflow_type": "simple",
+  "workflow_rationale": "Single-service task with one primary file to modify (useUsers.ts). All service layer methods, types, and UI components already exist. No cross-service coordination, infrastructure changes, or complex dependencies. This is a straightforward implementation following an existing pattern (useProducts.ts). The spec explicitly states this is completing TODO markers in an existing hook, not building a full-featured system.",
+  "subtasks": [
     {
-      "id": "phase-1-infrastructure",
-      "name": "Core Infrastructure Setup",
-      "type": "implementation",
-      "description": "Set up TanStack Query infrastructure, query keys, types, and basic user fetching with pagination",
-      "depends_on": [],
-      "parallel_safe": true,
-      "subtasks": [
-        {
-          "id": "subtask-1-1",
-          "description": "Define query keys hierarchy and TypeScript types for useUsers hook",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["src/hooks/useProducts.ts"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run type-check",
-            "expected": "No TypeScript errors"
-          },
-          "status": "pending",
-          "notes": "Follow useProducts.ts pattern: export const userQueryKeys = { all, lists(), list(filters), detail(id) }. Import Database types from @/types/database."
-        },
-        {
-          "id": "subtask-1-2",
-          "description": "Implement basic user fetching with useQuery and pagination support",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["src/hooks/useProducts.ts", "src/lib/supabase/client.ts"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:hooks -- useUsers.test",
-            "expected": "Basic fetching tests pass"
-          },
-          "status": "pending",
-          "notes": "Use createBrowserClient() from @/lib/supabase/client. Implement useUsers() hook with useQuery for basic fetching. Filter out soft-deleted users (deleted_at IS NULL)."
-        },
-        {
-          "id": "subtask-1-3",
-          "description": "Add filtering capabilities by role and status using query key variations",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["src/hooks/useProducts.ts"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test",
-            "expected": "Filter tests pass (filterByRole, filterByStatus)"
-          },
-          "status": "pending",
-          "notes": "Implement filterByRole() and filterByStatus() methods. Use TanStack Query with different query keys for each filter combination. Return filteredUsers state."
-        }
-      ]
+      "id": "subtask-1",
+      "description": "Create query keys object for user cache management",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Export const userQueryKeys object with hierarchical cache keys: all, lists(), list(filters), infinite(filters), details(), detail(id)",
+        "pattern_reference": "Follow exact structure from productQueryKeys in useProducts.ts lines 7-17",
+        "acceptance": "Query keys object exported and properly typed with 'as const' assertions"
+      }
     },
     {
-      "id": "phase-2-crud-mutations",
-      "name": "CRUD Operations with Mutations",
-      "type": "implementation",
-      "description": "Implement create, update, and delete operations using useMutation with proper cache invalidation",
-      "depends_on": ["phase-1-infrastructure"],
-      "parallel_safe": false,
-      "subtasks": [
-        {
-          "id": "subtask-2-1",
-          "description": "Implement user creation with validation, duplicate checking, and welcome email queueing",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'Complete User Creation Flow'",
-            "expected": "User creation tests pass (validation, duplicate check, email queue)"
-          },
-          "status": "pending",
-          "notes": "Implement createUser() with useMutation. Validate email format, check for duplicates in profiles table, create auth user with auth.admin.createUser(), create profile, queue welcome email in email_queue table. Return { success, data, error }."
-        },
-        {
-          "id": "subtask-2-2",
-          "description": "Implement user profile updates with validation and cache invalidation",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["src/hooks/useProducts.ts"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'User Profile Update Flow'",
-            "expected": "Profile update tests pass (update, validation, cache refresh)"
-          },
-          "status": "pending",
-          "notes": "Implement updateUserProfile(userId, data) with useMutation. Validate phone format. Update profiles table. Use queryClient.invalidateQueries() in onSuccess to refresh UI."
-        },
-        {
-          "id": "subtask-2-3",
-          "description": "Implement soft delete with safety checks (prevent admin deletion, check active orders)",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'User Deletion Flow'",
-            "expected": "Soft delete tests pass (admin protection, active orders check)"
-          },
-          "status": "pending",
-          "notes": "Implement softDeleteUser(userId). Check if user is admin (prevent deletion), check for active orders in orders table (status IN ['pending', 'confirmed', 'in_transit']). Set deleted_at timestamp if safe. Return error with reason if blocked."
-        }
-      ]
+      "id": "subtask-2",
+      "description": "Implement useUsers() hook for filtered user fetching",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Replace useState/useEffect with useQuery hook that calls userService.getUsers(filters). Accept FilterParams (search, role, status). Set staleTime: 5min, gcTime: 10min.",
+        "pattern_reference": "Copy useProducts() structure from useProducts.ts lines 20-27",
+        "acceptance": "Returns { data, isLoading, error, isError, refetch } from React Query"
+      }
     },
     {
-      "id": "phase-3-role-status-management",
-      "name": "Role and Status Management",
-      "type": "implementation",
-      "description": "Implement role management with permission checks and audit logging, plus status management (activate, deactivate, suspend)",
-      "depends_on": ["phase-2-crud-mutations"],
-      "parallel_safe": false,
-      "subtasks": [
-        {
-          "id": "subtask-3-1",
-          "description": "Implement role management with permission checks and audit logging",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'Role Management Flow'",
-            "expected": "Role management tests pass (permission checks, validation, audit logging)"
-          },
-          "status": "pending",
-          "notes": "Implement updateUserRole(userId, newRole, requestingUserId). Check requesting user is admin, validate role is valid (admin, restaurant, driver). Update profiles.role. Log to audit_logs table with action='role_change'. Invalidate queries on success."
-        },
-        {
-          "id": "subtask-3-2",
-          "description": "Implement user status management (activate, deactivate, suspend with reason and duration)",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'User Status Management Flow'",
-            "expected": "Status management tests pass (activate, deactivate, suspend with reason)"
-          },
-          "status": "pending",
-          "notes": "Implement deactivateUser(userId), activateUser(userId), suspendUser(userId, reason, days). For suspension, require reason and set suspension_until timestamp. Update both profiles table and auth.users (using auth.admin.updateUserById with banned flag). Return updated user data."
-        }
-      ]
+      "id": "subtask-3",
+      "description": "Implement useInfiniteUsers() hook for paginated user fetching",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Create useInfiniteQuery hook for pagination. Accept filters and limit (default 50). Use pageParam for page tracking, implement getNextPageParam.",
+        "pattern_reference": "Copy useInfiniteProducts() from useProducts.ts lines 30-41",
+        "acceptance": "Returns { data, fetchNextPage, hasNextPage, isFetchingNextPage }",
+        "note": "userService.getUsers() doesn't currently support pagination - may need to add pagination logic to service OR skip this if not needed for MVP"
+      }
     },
     {
-      "id": "phase-4-search-password-stats",
-      "name": "Search, Password Reset, and Statistics",
-      "type": "implementation",
-      "description": "Implement user search by name/email, password reset flows, and user statistics calculation",
-      "depends_on": ["phase-3-role-status-management"],
-      "parallel_safe": false,
-      "subtasks": [
-        {
-          "id": "subtask-4-1",
-          "description": "Implement user search by name or email with case-insensitive matching",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'User Search and Filter Flow'",
-            "expected": "Search tests pass (search by name, search by email)"
-          },
-          "status": "pending",
-          "notes": "Implement searchUsers(query). Use Supabase .or() query to search full_name and email fields (case-insensitive with ilike). Update searchResults state. Filter out soft-deleted users."
-        },
-        {
-          "id": "subtask-4-2",
-          "description": "Implement password reset flows (initiate reset email, set temporary password)",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'Password Reset Flow'",
-            "expected": "Password reset tests pass (initiate reset, set temp password)"
-          },
-          "status": "pending",
-          "notes": "Implement initiatePasswordReset(userId) - trigger password reset email using auth.admin.updateUserById. Implement setTemporaryPassword(userId, tempPassword) - update password and set user_metadata.password_reset_required flag. Both use useMutation."
-        },
-        {
-          "id": "subtask-4-3",
-          "description": "Implement user statistics calculation (total users, by role, active/inactive counts)",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'User Statistics Flow'",
-            "expected": "Statistics tests pass (total, byRole, active/inactive counts match)"
-          },
-          "status": "pending",
-          "notes": "Implement fetchUserStatistics() using useQuery. Query all users (filter out soft-deleted), calculate: { total, byRole: { admin, restaurant, driver }, active, inactive }. Update statistics state."
-        }
-      ]
+      "id": "subtask-4",
+      "description": "Implement useUser(userId) hook for single user details",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Create useQuery hook that calls userService.getUserById(userId). Use enabled option to only fetch when userId is truthy.",
+        "pattern_reference": "Copy useProduct() from useProducts.ts lines 65-73",
+        "acceptance": "Fetches single user by ID, only when userId provided"
+      }
     },
     {
-      "id": "phase-5-realtime-subscriptions",
-      "name": "Real-time Subscriptions",
-      "type": "implementation",
-      "description": "Set up real-time subscriptions for user profile updates using Supabase channels",
-      "depends_on": ["phase-4-search-password-stats"],
-      "parallel_safe": false,
-      "subtasks": [
-        {
-          "id": "subtask-5-1",
-          "description": "Implement real-time subscription to profiles table changes with proper cache updates",
-          "service": "frontend",
-          "files_to_modify": ["src/hooks/useUsers.ts"],
-          "files_to_create": [],
-          "patterns_from": ["src/hooks/useProducts.ts", "__tests__/integration/user-management-flow.test.tsx"],
-          "verification": {
-            "type": "command",
-            "command": "cd frontend && npm run test:integration -- user-management-flow.test -t 'Real-time User Updates'",
-            "expected": "Real-time tests pass (UPDATE events, INSERT events, cache updates)"
-          },
-          "status": "pending",
-          "notes": "Use useEffect to subscribe to 'users-changes' channel with postgres_changes on profiles table. Use useCallback for handleUpdate. On UPDATE: queryClient.setQueryData for detail, invalidateQueries for lists. On INSERT: add to users array or invalidate. On DELETE: remove or invalidate. Clean up subscription in useEffect return to prevent memory leaks."
-        }
-      ]
+      "id": "subtask-5",
+      "description": "Implement useUpdateUser() mutation hook",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Create useMutation hook that calls userService.updateUser(id, data). Add onSuccess callback to invalidate userQueryKeys.all. Return mutate, mutateAsync, isPending, error.",
+        "pattern_reference": "Follow useProductAvailability() pattern from useProducts.ts lines 76-87",
+        "acceptance": "Updates user and invalidates cache to trigger refetch"
+      }
     },
     {
-      "id": "phase-6-integration-verification",
-      "name": "Integration Testing and Verification",
-      "type": "integration",
-      "description": "Run all integration tests to verify complete user management flow and ensure no regressions",
-      "depends_on": ["phase-5-realtime-subscriptions"],
-      "parallel_safe": false,
-      "subtasks": [
-        {
-          "id": "subtask-6-1",
-          "description": "Run all integration tests and verify complete user management functionality",
-          "service": "frontend",
-          "all_services": false,
-          "files_to_modify": [],
-          "files_to_create": [],
-          "patterns_from": [],
-          "verification": {
-            "type": "e2e",
-            "steps": [
-              "Run: cd frontend && npm run test:integration -- user-management-flow.test",
-              "Verify: All 18+ test cases pass (creation, update, role management, status, search, deletion, password, stats, realtime)",
-              "Run: cd frontend && npm run type-check",
-              "Verify: No TypeScript errors",
-              "Run: cd frontend && npm run test:hooks",
-              "Verify: All hook tests pass, no regressions"
-            ]
-          },
-          "status": "pending",
-          "notes": "This is the final verification step. All TODO markers should be removed from useUsers.ts. Hook should expose all required methods matching the integration test API surface. Loading and error states properly managed through TanStack Query."
-        }
-      ]
+      "id": "subtask-6",
+      "description": "Implement useToggleUserStatus() mutation hook",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Create useMutation hook that calls userService.toggleUserStatus(id, isActive). Invalidate cache on success.",
+        "pattern_reference": "Follow mutation pattern from useProducts.ts lines 76-87",
+        "acceptance": "Toggles user active status and refreshes UI"
+      }
+    },
+    {
+      "id": "subtask-7",
+      "description": "Implement useDeleteUser() mutation hook",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Create useMutation hook that calls userService.deleteUser(id). Invalidate cache on success to remove deleted user from UI. Note: This is HARD delete, not soft delete (per spec).",
+        "pattern_reference": "Follow mutation pattern from useProducts.ts lines 76-87",
+        "acceptance": "Deletes user and removes from cache immediately"
+      }
+    },
+    {
+      "id": "subtask-8",
+      "description": "Add proper TypeScript imports and exports",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [
+        "frontend/src/hooks/useProducts.ts"
+      ],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check",
+        "expected": "No TypeScript errors"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Import useQuery, useInfiniteQuery, useMutation, useQueryClient from @tanstack/react-query. Import userService from @/lib/services/admin/user.service. Import types (User, UserFormData, FilterParams) from @/types/admin. Export all hooks and userQueryKeys.",
+        "pattern_reference": "Check imports from useProducts.ts lines 1-4",
+        "acceptance": "All imports correct, no linting errors, all hooks exported"
+      }
+    },
+    {
+      "id": "subtask-9",
+      "description": "Remove old useState/useEffect implementation and TODO markers",
+      "service": "frontend",
+      "files_to_modify": [
+        "frontend/src/hooks/useUsers.ts"
+      ],
+      "files_to_create": [],
+      "patterns_from": [],
+      "verification": {
+        "type": "command",
+        "command": "cd frontend && npm run type-check && grep -c TODO frontend/src/hooks/useUsers.ts",
+        "expected": "No TypeScript errors and 0 TODO markers"
+      },
+      "status": "pending",
+      "details": {
+        "what_to_build": "Delete the old useUsers() implementation with useState and useEffect (lines 12-37). Remove all TODO comments. Clean up unused imports (useState, useEffect if no longer needed).",
+        "acceptance": "No TODO markers remain, clean React Query implementation only, file compiles without errors"
+      }
     }
   ],
   "summary": {
-    "total_phases": 6,
-    "total_subtasks": 12,
-    "services_involved": ["frontend"],
+    "total_subtasks": 9,
+    "services_involved": [
+      "frontend"
+    ],
     "parallelism": {
       "max_parallel_phases": 1,
       "parallel_groups": [],
       "recommended_workers": 1,
-      "speedup_estimate": "Sequential execution required due to dependency chain",
-      "reasoning": "Single file implementation with strict dependencies. Each phase builds on the previous: infrastructure -> CRUD -> advanced features -> real-time -> verification. No parallelism opportunities."
+      "speedup_estimate": "N/A - Sequential subtasks",
+      "reasoning": "Simple workflow with sequential subtasks in a single file. All subtasks modify the same file (useUsers.ts) so must be done sequentially."
     },
+    "estimated_completion_time": "30-45 minutes",
+    "key_files": [
+      "frontend/src/hooks/useUsers.ts"
+    ],
+    "pattern_files": [
+      "frontend/src/hooks/useProducts.ts",
+      "frontend/src/lib/services/admin/user.service.ts",
+      "frontend/src/types/admin.ts"
+    ],
     "startup_command": "source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 004 --parallel 1"
   },
   "verification_strategy": {
     "risk_level": "medium",
     "skip_validation": false,
     "test_creation_phase": "post_implementation",
-    "test_types_required": ["unit", "integration"],
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
     "security_scanning_required": true,
     "staging_deployment_required": false,
     "acceptance_criteria": [
-      "All TODO markers removed from frontend/src/hooks/useUsers.ts",
-      "All integration tests in user-management-flow.test.tsx pass (18+ test cases)",
-      "TypeScript compilation succeeds with no errors",
-      "No console errors during hook usage",
-      "Hook follows the same patterns as useProducts.ts for consistency",
-      "Real-time subscriptions properly cleaned up (no memory leaks)",
-      "Permission checks in place for admin operations",
-      "Audit logging working for role changes",
-      "Soft delete safety checks prevent admin deletion and active order conflicts"
+      "All TODO markers removed from useUsers.ts",
+      "Type checking passes (npm run type-check)",
+      "UserTable component works without modification",
+      "All hooks return proper React Query responses",
+      "Cache invalidation works after mutations",
+      "No console errors in browser",
+      "Loading and error states properly exposed",
+      "Security scan passes (no secrets, proper RLS enforcement)"
     ],
     "verification_steps": [
-      {
-        "name": "Unit Tests - Hook Specific",
-        "command": "cd frontend && npm run test:hooks -- useUsers.test",
-        "expected_outcome": "All hook unit tests pass",
-        "type": "test",
-        "required": true,
-        "blocking": true
-      },
-      {
-        "name": "Integration Tests - User Management Flow",
-        "command": "cd frontend && npm run test:integration -- user-management-flow.test",
-        "expected_outcome": "All 18+ integration test cases pass",
-        "type": "test",
-        "required": true,
-        "blocking": true
-      },
       {
         "name": "TypeScript Type Check",
         "command": "cd frontend && npm run type-check",
@@ -323,59 +262,98 @@
         "blocking": true
       },
       {
+        "name": "Unit Tests - Hooks",
+        "command": "cd frontend && npm run test:hooks",
+        "expected_outcome": "All hook tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Integration Tests",
+        "command": "cd frontend && npm run test:integration",
+        "expected_outcome": "Hook + service integration tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
         "name": "Secrets Scan",
-        "command": "python auto-claude/scan_secrets.py --all-files --json",
-        "expected_outcome": "No secrets detected in modified files",
+        "command": "python auto-claude/scan_secrets.py --files frontend/src/hooks/useUsers.ts --json",
+        "expected_outcome": "No secrets detected",
         "type": "security",
         "required": true,
         "blocking": true
       },
       {
-        "name": "Hook Regression Tests",
-        "command": "cd frontend && npm run test:hooks",
-        "expected_outcome": "All hook tests pass, no regressions in other hooks",
+        "name": "Linting",
+        "command": "cd frontend && npm run lint",
+        "expected_outcome": "No linting errors",
         "type": "test",
         "required": true,
         "blocking": false
       }
     ],
-    "reasoning": "Medium risk due to user management operations affecting authorization (role changes) and destructive operations (deletion). Requires comprehensive testing with unit tests for hook logic and integration tests for Supabase interactions. Security scan required because role updates affect access control."
+    "reasoning": "Medium risk due to user role changes affecting authorization. Requires unit tests for hook logic (filtering, pagination, cache), integration tests for service calls, and security scan to ensure no credentials exposed and RLS properly enforced."
   },
   "qa_acceptance": {
     "unit_tests": {
       "required": true,
-      "commands": ["cd frontend && npm run test:hooks -- useUsers.test"],
-      "minimum_coverage": null
+      "commands": [
+        "cd frontend && npm run test:hooks"
+      ],
+      "minimum_coverage": null,
+      "test_files": [
+        "frontend/__tests__/hooks/useUsers.test.tsx"
+      ],
+      "critical_tests": [
+        "useUsers hook returns users data",
+        "useUsers applies role filter correctly",
+        "useUsers applies status filter correctly",
+        "useUser fetches single user by ID",
+        "useUpdateUser mutation updates user and invalidates cache",
+        "useToggleUserStatus mutation updates status",
+        "useDeleteUser mutation removes user from cache",
+        "Error handling for failed API calls"
+      ]
     },
     "integration_tests": {
       "required": true,
-      "commands": ["cd frontend && npm run test:integration -- user-management-flow.test"],
-      "services_to_test": ["frontend"],
-      "test_count_expected": 18
+      "commands": [
+        "cd frontend && npm run test:integration"
+      ],
+      "services_to_test": [
+        "frontend"
+      ],
+      "critical_flows": [
+        "Hook calls userService.getUsers with correct filters",
+        "Mutations trigger cache invalidation",
+        "Filter parameters translate to correct Supabase queries"
+      ]
     },
     "e2e_tests": {
       "required": false,
       "commands": [],
-      "flows": []
+      "flows": [],
+      "notes": "E2E tests not strictly required for this hook-only change. Manual browser verification sufficient."
     },
     "browser_verification": {
       "required": true,
       "pages": [
         {
-          "url": "http://localhost:3000/admin/users",
+          "url": "http://localhost:3000/dashboard/admin/users",
           "checks": [
-            "Users load correctly",
-            "Filters work (role, status)",
-            "Updates reflect immediately after mutations",
-            "No console errors"
-          ]
-        },
-        {
-          "url": "http://localhost:3000/admin/users/new",
-          "checks": [
-            "Validation prevents invalid data",
-            "Duplicate emails blocked",
-            "Success message shown after creation"
+            "UserTable displays users without errors",
+            "Role filter dropdown works",
+            "Status filter works",
+            "Search filter works",
+            "Edit user modal opens and saves",
+            "Toggle status updates badge",
+            "Delete confirmation dialog appears",
+            "Deleting user removes from table without refresh",
+            "Loading skeleton shows while fetching",
+            "Error message displays if fetch fails",
+            "No console errors or warnings"
           ]
         }
       ]
@@ -383,12 +361,35 @@
     "database_verification": {
       "required": true,
       "checks": [
-        "Soft delete sets deleted_at timestamp (not hard delete)",
-        "Audit log created for role changes in audit_logs table",
-        "Welcome email queued in email_queue table after user creation",
-        "User statistics calculations match manual counts"
+        "Users fetched from Supabase profiles table",
+        "Role filter applies `.eq('role', ...)` query",
+        "Status filter applies `.eq('is_active', ...)` query",
+        "Update mutation persists to database",
+        "Delete mutation removes row from profiles table (hard delete, not soft)",
+        "RLS policies enforced (admin-only access)"
+      ]
+    },
+    "security_checks": {
+      "required": true,
+      "checks": [
+        "No credentials or secrets in code",
+        "Supabase RLS policies prevent unauthorized access",
+        "Role changes validated server-side via RLS",
+        "Delete operations confirmed by user in UI"
       ]
     }
   },
-  "qa_signoff": null
+  "qa_signoff": null,
+  "notes": [
+    "This is a SIMPLE workflow - single file, single service, no dependencies",
+    "All service methods already exist in userService - just need React Query wrapper",
+    "All types already defined in @/types/admin",
+    "UserTable component already expects the new hook interface",
+    "Follow useProducts.ts pattern exactly for consistency",
+    "IMPORTANT: Spec explicitly excludes: user creation, soft delete, audit logging, email functionality, bulk operations",
+    "Service uses HARD delete, not soft delete",
+    "subtask-3 (useInfiniteUsers) may be optional if service doesn't support pagination yet",
+    "Security is critical: role changes affect authorization, deletions are destructive"
+  ],
+  "phases": []
 }

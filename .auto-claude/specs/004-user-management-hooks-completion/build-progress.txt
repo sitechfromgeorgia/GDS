@@ -1,99 +1,73 @@
 === AUTO-BUILD PROGRESS ===
 
-Project: Distribution Management System - User Management Hooks Completion
-Workspace: Managed by Python orchestrator
-Spec Number: 004
+Project: User Management Hooks Completion
+Workspace: .auto-claude/specs/004-user-management-hooks-completion
 Started: 2025-12-28
 
-Workflow Type: feature
-Rationale: Completing incomplete hook implementation with TODO markers. Implementing full CRUD operations, state management, and real-time capabilities for user management using TanStack Query and Supabase patterns.
+Workflow Type: simple
+Rationale: Single-service task with one primary file to modify (useUsers.ts). All service layer methods, types, and UI components already exist. No cross-service coordination, infrastructure changes, or complex dependencies. This is completing TODO markers in an existing hook by wrapping userService calls in React Query.
 
 Session 1 (Planner):
-- Completed deep codebase investigation
-- Read pattern files: useProducts.ts, supabase/client.ts, user-management-flow.test.tsx
-- Created/updated project_index.json with frontend service configuration
-- Created/updated context.json with patterns and required operations
-- Created implementation_plan.json with 6 phases and 12 subtasks
-- Created init.sh for development environment setup
+- Read existing spec.md and context files
+- Investigated codebase patterns (useProducts.ts, userService, types)
+- Created implementation_plan.json with 9 sequential subtasks
+- Verified init.sh exists
+- Updated build-progress.txt
 
-Phase Summary:
-Phase 1 - Core Infrastructure Setup: 3 subtasks
-  - Query keys hierarchy and TypeScript types
-  - Basic user fetching with useQuery and pagination
-  - Filtering by role and status
+Subtask Summary:
+- Total subtasks: 9
+- All modify: frontend/src/hooks/useUsers.ts
+- Pattern source: frontend/src/hooks/useProducts.ts
 
-Phase 2 - CRUD Operations with Mutations: 3 subtasks
-  - User creation with validation and email queueing
-  - Profile updates with cache invalidation
-  - Soft delete with safety checks
-
-Phase 3 - Role and Status Management: 2 subtasks
-  - Role management with permission checks and audit logging
-  - User status management (activate, deactivate, suspend)
-
-Phase 4 - Search, Password Reset, and Statistics: 3 subtasks
-  - User search by name or email
-  - Password reset flows
-  - User statistics calculation
-
-Phase 5 - Real-time Subscriptions: 1 subtask
-  - Real-time subscription to profiles table changes
-
-Phase 6 - Integration Testing and Verification: 1 subtask
-  - Run all integration tests and verify functionality
+Subtasks:
+1. Create query keys object (userQueryKeys)
+2. Implement useUsers() hook for filtered fetching
+3. Implement useInfiniteUsers() hook for pagination
+4. Implement useUser(userId) hook for single user
+5. Implement useUpdateUser() mutation
+6. Implement useToggleUserStatus() mutation
+7. Implement useDeleteUser() mutation
+8. Add proper TypeScript imports/exports
+9. Remove old useState/useEffect implementation and TODOs
 
 Services Involved:
-- frontend: Next.js 15.5.0, React 19.2.0, TanStack Query 5.90.5, Supabase
+- frontend: Next.js 15.5.0, React 19, TypeScript 5.9.3, React Query 5.90.5
 
 Parallelism Analysis:
-- Max parallel phases: 1
+- Max parallel phases: 1 (N/A for simple workflow)
 - Recommended workers: 1
-- Parallel groups: None
-- Reasoning: Sequential execution required due to strict dependency chain. Each phase builds on the previous one (infrastructure -> CRUD -> advanced features -> real-time -> verification).
+- All subtasks modify the same file sequentially
 
-Target File:
-- frontend/src/hooks/useUsers.ts (currently has TODO markers)
+Key Findings from Investigation:
+1. useProducts.ts provides perfect pattern to copy
+2. userService already has all CRUD methods (getUsers, getUserById, updateUser, toggleUserStatus, deleteUser)
+3. All types defined in @/types/admin (User, UserFormData, FilterParams)
+4. UserTable component already expects the new hook interface
+5. Current useUsers.ts is basic with useState/useEffect - needs complete React Query rewrite
+6. Service uses HARD delete, not soft delete (per spec)
+7. Risk level: MEDIUM (role changes affect authorization)
 
-Pattern Files (Reference):
-- frontend/src/hooks/useProducts.ts (TanStack Query patterns)
-- frontend/src/lib/supabase/client.ts (Supabase client usage)
-- frontend/__tests__/integration/user-management-flow.test.tsx (Required API surface)
-
-Required Operations:
-1. User fetching with pagination
-2. Filter by role and status
-3. User creation with validation
-4. Profile updates
-5. Role management with permissions
-6. Status management (activate/deactivate/suspend)
-7. Soft delete with safety checks
-8. Search by name/email
-9. Password reset flows
-10. User statistics calculation
-11. Real-time subscriptions
-12. Comprehensive error handling
+Out of Scope (per spec.md):
+- User creation (not in userService)
+- Soft delete (service uses hard delete)
+- Audit logging (not in current implementation)
+- Email functionality (not in scope)
+- Bulk operations (handled by UserTable separately)
 
 Verification Strategy:
-- Risk Level: medium
-- Security Scanning: Required (role changes affect authorization)
-- Test Types: unit, integration
-- Total Test Cases: 18+ integration tests expected
-
-QA Acceptance Criteria:
-- All TODO markers removed from useUsers.ts
-- All integration tests pass (18+ test cases)
-- TypeScript compilation succeeds
-- No console errors during usage
-- Follows useProducts.ts patterns
-- Real-time subscriptions properly cleaned up
-- Permission checks for admin operations
-- Audit logging for role changes
-- Soft delete safety checks working
+- Unit tests: cd frontend && npm run test:hooks
+- Integration tests: cd frontend && npm run test:integration
+- Type check: cd frontend && npm run type-check
+- Security scan: Required (role changes affect auth)
+- Browser verification: http://localhost:3000/dashboard/admin/users
 
 === STARTUP COMMAND ===
 
 To continue building this spec, run:
 
+  source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 004 --parallel 1
+
+Example:
   source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 004 --parallel 1
 
 Or directly start the development environment:
