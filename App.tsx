@@ -81,10 +81,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
   useEffect(() => {
-    // Access environment variables via process.env as per project guidelines and to resolve TS errors
-    const envUrl = process.env.VITE_SUPABASE_URL;
-    const envKey = process.env.VITE_SUPABASE_ANON_KEY;
-    const envCompany = process.env.VITE_COMPANY_NAME;
+    // Access environment variables via process.env or window.env (runtime injection)
+    const getEnv = (key: string) => (window as any).env?.[key] || process.env[key];
+
+    const envUrl = getEnv('VITE_SUPABASE_URL');
+    const envKey = getEnv('VITE_SUPABASE_ANON_KEY');
+    const envCompany = getEnv('VITE_COMPANY_NAME');
 
     if (envUrl && envKey) {
       const envConfig: AppConfig = {
@@ -110,7 +112,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('gds_system_config', JSON.stringify(cfg));
     setConfig(cfg);
     initSupabase(cfg.supabaseUrl, cfg.supabaseKey);
-    window.location.reload();
+    // Remove reload to prevent loop, state update will trigger navigation
   };
 
   const toggleTheme = () => {
