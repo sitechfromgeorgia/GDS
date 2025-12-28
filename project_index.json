@@ -1,0 +1,25 @@
+{
+  "project_type": "single",
+  "services": {
+    "frontend": {
+      "path": "./frontend",
+      "tech_stack": ["typescript", "next.js", "react"],
+      "port": 3000,
+      "dev_command": "npm run dev",
+      "test_command": "npm run test",
+      "type_check_command": "npm run type-check",
+      "build_command": "npm run build"
+    }
+  },
+  "infrastructure": {
+    "docker": true,
+    "database": "supabase",
+    "supabase_cli": true
+  },
+  "conventions": {
+    "linter": "eslint",
+    "formatter": "prettier",
+    "testing": "vitest",
+    "strict_typescript": true
+  }
+}

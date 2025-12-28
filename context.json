@@ -1,0 +1,36 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "src/lib/supabase/admin.ts",
+      "package.json",
+      "src/types/database.ts"
+    ]
+  },
+  "files_to_reference": [
+    "src/lib/supabase/client.ts",
+    "src/lib/supabase/server.ts",
+    "supabase/TYPES_SAFETY.md"
+  ],
+  "patterns": {
+    "type_import_pattern": "All Supabase client files import Database type from '@/types/database'",
+    "client_typing_pattern": "All clients use generic type parameter: createClient<Database>()",
+    "type_generation_pattern": "Types generated using: supabase gen types typescript --local",
+    "documentation_pattern": "Type safety documentation in supabase/TYPES_SAFETY.md"
+  },
+  "existing_implementations": {
+    "description": "Database types already exist at frontend/src/types/database.ts (1103 lines). Client and server implementations correctly typed. Admin client has incorrect import path.",
+    "relevant_files": [
+      "frontend/src/types/database.ts",
+      "frontend/src/lib/supabase/client.ts",
+      "frontend/src/lib/supabase/server.ts",
+      "frontend/src/lib/supabase/admin.ts",
+      "supabase/config.toml",
+      "supabase/TYPES_SAFETY.md"
+    ],
+    "issues_found": {
+      "admin_import": "admin.ts imports Database from './client' instead of '@/types/database'",
+      "missing_script": "No npm script for type regeneration in package.json",
+      "doc_mismatch": "TYPES_SAFETY.md references 'database.types.ts' but actual file is 'database.ts'"
+    }
+  }
+}
