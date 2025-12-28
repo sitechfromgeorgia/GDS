@@ -1,0 +1,44 @@
+{
+  "project_root": "C:\\Users\\SITECH\\Desktop\\DEV\\Distribution-Managment",
+  "project_type": "single",
+  "services": {
+    "frontend": {
+      "path": "./frontend",
+      "tech_stack": ["TypeScript 5.9.3", "Next.js 15.5.0", "React 19.2.0", "TanStack Query 5.90.5", "Supabase SSR 0.7.0", "Zustand 5.0.8"],
+      "port": 3000,
+      "dev_command": "npm run dev",
+      "test_command": "npm run test",
+      "test_hooks_command": "npm run test:hooks",
+      "test_integration_command": "npm run test:integration",
+      "key_directories": {
+        "hooks": "src/hooks/",
+        "lib": "src/lib/",
+        "types": "src/types/",
+        "tests": "__tests__/"
+      }
+    }
+  },
+  "infrastructure": {
+    "docker_compose": "docker-compose.yml",
+    "docker_services": ["frontend"],
+    "ci": "GitHub Actions",
+    "ci_workflows": [
+      "cd-production.yml",
+      "ci.yml",
+      "cron-cleanup.yml",
+      "deploy-preview.yml",
+      "deploy-production.yml",
+      "rollback.yml"
+    ],
+    "database": "Supabase (PostgreSQL)",
+    "realtime": "Supabase Realtime"
+  },
+  "conventions": {
+    "linter": "ESLint 9",
+    "formatter": "Prettier",
+    "testing": "Vitest 4.0.14",
+    "e2e_testing": "Playwright",
+    "state_management": "TanStack Query + Zustand",
+    "styling": "Tailwind CSS 4"
+  }
+}

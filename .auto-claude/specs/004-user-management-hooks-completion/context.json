@@ -1,0 +1,56 @@
+{
+  "task_description": "Complete the useUsers hook with full CRUD functionality for user management. Implement fetching, filtering, updating, and deleting users with proper error handling using TanStack Query and Supabase patterns.",
+  "files_to_modify": {
+    "frontend": ["src/hooks/useUsers.ts"]
+  },
+  "files_to_reference": [
+    "frontend/src/hooks/useProducts.ts",
+    "frontend/src/lib/supabase/client.ts",
+    "frontend/__tests__/integration/user-management-flow.test.tsx"
+  ],
+  "patterns": {
+    "tanstack_query_pattern": "Hierarchical query keys, useQuery for fetching, useMutation for updates with cache invalidation. Pattern: { all, lists(), list(filters), detail(id) }. Always invalidate queries in onSuccess callbacks.",
+    "supabase_pattern": "Use createBrowserClient() from @/lib/supabase/client. Always destructure { data, error } and throw errors. Let TanStack Query handle error states.",
+    "realtime_pattern": "Use channels for subscriptions with postgres_changes events. Update cache with setQueryData for specific items, invalidateQueries for lists. Clean up subscriptions in useEffect return.",
+    "validation_pattern": "Validate inputs before API calls. Return consistent format: { success: boolean, data?: T, error?: string }",
+    "permission_pattern": "Check permissions before privileged operations (role changes, deletions). Validate on both client and server."
+  },
+  "existing_implementations": {
+    "description": "useProducts.ts provides complete TanStack Query implementation with query keys, useQuery, useMutation, useInfiniteQuery for pagination, and real-time updates. Supabase client uses createBrowserClient() with proper error handling.",
+    "relevant_files": [
+      "frontend/src/hooks/useProducts.ts",
+      "frontend/src/lib/supabase/client.ts"
+    ],
+    "query_keys_pattern": "Export const with hierarchical keys using 'as const' for type safety",
+    "mutation_pattern": "useMutation with mutationFn and onSuccess for cache invalidation",
+    "real_time_pattern": "useCallback for handleUpdate, queryClient.setQueryData + invalidateQueries"
+  },
+  "required_operations": [
+    "User fetching with pagination (useQuery)",
+    "Filter by role and status (query key variations)",
+    "User creation (useMutation with validation)",
+    "Profile updates (useMutation with validation)",
+    "Role management (useMutation with permission checks + audit logging)",
+    "Status management (activate/deactivate/suspend)",
+    "Soft delete (useMutation with safety checks)",
+    "Search by name/email",
+    "Password reset flows",
+    "User statistics calculation",
+    "Real-time subscriptions (channel with postgres_changes)",
+    "Comprehensive error handling"
+  ],
+  "validation_requirements": {
+    "user_creation": ["email format", "duplicate email check", "password strength", "valid role"],
+    "profile_update": ["phone format validation"],
+    "role_change": ["admin-only permission", "valid role types", "audit logging"],
+    "soft_delete": ["prevent admin deletion", "check active orders"],
+    "suspension": ["require reason", "set suspension_until timestamp"]
+  },
+  "database_tables": {
+    "profiles": "Main user profile table",
+    "audit_logs": "Audit trail for role changes and sensitive operations",
+    "email_queue": "Queue for welcome emails and password resets",
+    "orders": "Check for active orders before deletion"
+  },
+  "created_at": "2025-12-28T04:27:07.042785"
+}
