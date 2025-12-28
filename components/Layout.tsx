@@ -5,7 +5,6 @@ import { UserRole } from '../types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher, ThemeToggle } from './ui/Shared';
-import { AdminAIChat } from './admin/AdminAIChat';
 import { 
   LayoutDashboard, 
   Package, 
@@ -15,8 +14,7 @@ import {
   Menu,
   TrendingUp,
   Users,
-  Settings,
-  ShieldAlert
+  Settings
 } from 'lucide-react';
 
 export const Layout = ({ children }: { children?: React.ReactNode }) => {
@@ -160,9 +158,6 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
           {children}
         </div>
       </main>
-
-      {/* Admin AI Assistant */}
-      <AdminAIChat />
     </div>
   );
 };

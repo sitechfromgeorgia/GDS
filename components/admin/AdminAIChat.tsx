@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../App';
 import { Button, Card, Input } from '../ui/Shared';
@@ -17,7 +16,6 @@ export const AdminAIChat = () => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  // Use process.env.API_KEY as the exclusive source for the API key.
   if (user?.role !== 'ADMIN') return null;
 
   const handleSend = async () => {
@@ -29,8 +27,8 @@ export const AdminAIChat = () => {
     setLoading(true);
 
     try {
-      // Create a new GoogleGenAI instance right before making an API call to ensure it uses the correct key.
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // Fix: Strictly follow initialization guidelines by using process.env.API_KEY directly as a string.
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       
       const systemInstruction = `
         You are GDS AI Assistant for the administrator of "${config?.companyName || 'GDS'}".
@@ -45,7 +43,7 @@ export const AdminAIChat = () => {
         Be concise and professional. Use Georgian if the user asks in Georgian.
       `;
 
-      // Use ai.models.generateContent directly with model name and prompt.
+      // Fix: Using gemini-3-pro-preview for complex reasoning and business analysis tasks.
       const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: userMsg,
@@ -54,12 +52,12 @@ export const AdminAIChat = () => {
         }
       });
 
-      // Extract generated text content by accessing the .text property (not a method).
+      // Fix: Directly access the .text property from the response object instead of calling it as a method.
       const text = response.text || "ბოდიში, პასუხის გენერირება ვერ მოხერხდა.";
       setMessages(prev => [...prev, { role: 'ai', text }]);
     } catch (e) {
       console.error("Gemini AI Error:", e);
-      setMessages(prev => [...prev, { role: 'ai', text: "ბოდიში, კავშირის პრობლემაა." }]);
+      setMessages(prev => [...prev, { role: 'ai', text: "ბოდიში, კავშირის პრობლემაა. შეამოწმეთ API გასაღები." }]);
     } finally {
       setLoading(false);
     }

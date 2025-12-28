@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../App';
 import { Button, Input, Card } from './ui/Shared';
-import { Database, ShieldCheck, Zap, Globe, Cpu, Loader2, ArrowRight } from 'lucide-react';
+import { Database, ShieldCheck, Zap, Globe, Loader2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const SetupPage = () => {
-  const { saveConfig, config } = useApp();
+  const { saveConfig } = useApp();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     supabaseUrl: '',
@@ -29,10 +29,10 @@ export const SetupPage = () => {
       <div className="max-w-xl w-full space-y-8">
         <div className="text-center space-y-4">
           <div className="bg-slate-950 dark:bg-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-xl">
-             <Zap className="text-white dark:text-slate-900 h-8 w-8" />
+             <Zap className="text-white dark:text-slate-950 h-8 w-8" />
           </div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">სისტემის ინსტალაცია</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">შეიყვანეთ მონაცემები თქვენი Self-hosted გარემოდან</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">შეიყვანეთ მონაცემები თქვენი სერვერიდან სისტემის ასამუშავებლად</p>
         </div>
 
         <Card className="p-8 shadow-2xl dark:shadow-none border-slate-200 dark:border-slate-800">
@@ -61,10 +61,6 @@ export const SetupPage = () => {
                       <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     </div>
                  </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <p className="text-[10px] text-slate-400 mt-2 italic">Gemini AI ანალიტიკისთვის გამოიყენება სისტემური process.env.API_KEY.</p>
               </div>
             </div>
 

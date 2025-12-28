@@ -7,7 +7,7 @@ import { UserManagement } from './UserManagement';
 import { Analytics } from './Analytics';
 import { useApp } from '../../App';
 import { Card, Badge } from '../ui/Shared';
-import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package, Database, Zap } from 'lucide-react';
+import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package, Database } from 'lucide-react';
 import { OrderStatus } from '../../types';
 import { useTranslation } from 'react-i18next';
 
@@ -70,7 +70,6 @@ const DashboardHome = () => {
           <p className="text-slate-500 dark:text-slate-400 mt-1">{t('admin.welcome')}</p>
         </div>
         
-        {/* Connection Status Indicator */}
         <div className={`flex items-center gap-3 px-4 py-2 rounded-2xl border ${isDemo ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/50' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/50'}`}>
            <div className="relative">
              <Database className={`h-5 w-5 ${isDemo ? 'text-amber-500' : 'text-emerald-500'}`} />
