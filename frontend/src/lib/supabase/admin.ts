@@ -385,7 +385,7 @@ export async function checkAdminConnection(): Promise<boolean> {
 export function getAdminEnvironmentInfo() {
   return {
     url: supabaseUrl,
-    hasServiceRoleKey: !!serviceRoleKey,
+    hasServiceRoleKey: Boolean(serviceRoleKey),
     isLocal: supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1'),
     clientInfo: 'georgian-distribution-system-admin@1.0.0',
   }

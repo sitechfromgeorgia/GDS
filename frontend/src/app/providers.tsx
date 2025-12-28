@@ -9,28 +9,36 @@ import { Toaster } from '@/components/ui/toaster'
 import { GDSNetworkStatus, GDSErrorBoundary } from '@/lib/query/error-handling'
 import { ThemeProvider } from 'next-themes'
 
+import type { User } from '@supabase/supabase-js'
+
+import { LanguageProvider } from '@/lib/i18n/LanguageContext'
+
 // Georgian Distribution System Providers wrapper
 export function Providers({
   children,
   enableNetworkStatus = true,
   enableErrorBoundary = true,
+  initialUser,
 }: {
   children: React.ReactNode
   enableNetworkStatus?: boolean
   enableErrorBoundary?: boolean
+  initialUser?: User | null
 }) {
   const providers = (
     <QueryProvider>
-      <AuthProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+      <AuthProvider initialUser={initialUser}>
+        <LanguageProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </LanguageProvider>
       </AuthProvider>
     </QueryProvider>
   )

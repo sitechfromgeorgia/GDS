@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -99,110 +99,108 @@ export function ConversionPrompt() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-700">
-            Impressed with the demo? Join thousands of restaurants already using our platform.
-          </p>
+          <CardDescription>
+            Ready to streamline your distribution business? Contact us to get started.
+          </CardDescription>
 
-          <div className="space-y-2">
-            <Button onClick={handleSignup} className="w-full bg-blue-600 hover:bg-blue-700">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Start Free Trial
+          <div className="flex flex-col gap-3">
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              onClick={() => setShowContactForm(true)}
+            >
+              Contact Sales
             </Button>
+            <Button variant="outline" className="w-full">
+              Schedule Demo
+            </Button>
+          </div>
 
-            <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Contact Sales
-                </Button>
-              </DialogTrigger>
+          <Dialog open={showContactForm} onOpenChange={setShowContactForm}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Contact Our Sales Team</DialogTitle>
+              </DialogHeader>
 
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Contact Our Sales Team</DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Name *</Label>
-                      <Input
-                        id="name"
-                        value={contactForm.name}
-                        onChange={(e) =>
-                          setContactForm((prev) => ({ ...prev, name: e.target.value }))
-                        }
-                        placeholder="Your name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={contactForm.email}
-                        onChange={(e) =>
-                          setContactForm((prev) => ({ ...prev, email: e.target.value }))
-                        }
-                        placeholder="your@email.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={contactForm.phone}
-                        onChange={(e) =>
-                          setContactForm((prev) => ({ ...prev, phone: e.target.value }))
-                        }
-                        placeholder="+995 XX XXX XXX"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="company">Company</Label>
-                      <Input
-                        id="company"
-                        value={contactForm.company}
-                        onChange={(e) =>
-                          setContactForm((prev) => ({ ...prev, company: e.target.value }))
-                        }
-                        placeholder="Restaurant name"
-                      />
-                    </div>
-                  </div>
-
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      value={contactForm.message}
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                      id="name"
+                      value={contactForm.name}
                       onChange={(e) =>
-                        setContactForm((prev) => ({ ...prev, message: e.target.value }))
+                        setContactForm((prev) => ({ ...prev, name: e.target.value }))
                       }
-                      placeholder="Tell us about your needs..."
-                      rows={3}
+                      placeholder="Your name"
                     />
                   </div>
-
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowContactForm(false)}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                    <Button onClick={handleContact} disabled={isSubmitting} className="flex-1">
-                      {isSubmitting ? 'Sending...' : 'Send Message'}
-                    </Button>
+                  <div>
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={contactForm.email}
+                      onChange={(e) =>
+                        setContactForm((prev) => ({ ...prev, email: e.target.value }))
+                      }
+                      placeholder="your@email.com"
+                    />
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={contactForm.phone}
+                      onChange={(e) =>
+                        setContactForm((prev) => ({ ...prev, phone: e.target.value }))
+                      }
+                      placeholder="+995 XX XXX XXX"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="company">Company</Label>
+                    <Input
+                      id="company"
+                      value={contactForm.company}
+                      onChange={(e) =>
+                        setContactForm((prev) => ({ ...prev, company: e.target.value }))
+                      }
+                      placeholder="Restaurant name"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    value={contactForm.message}
+                    onChange={(e) =>
+                      setContactForm((prev) => ({ ...prev, message: e.target.value }))
+                    }
+                    placeholder="Tell us about your needs..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowContactForm(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleContact} disabled={isSubmitting} className="flex-1">
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <div className="pt-2 border-t">
             <div className="flex items-center justify-center gap-4 text-xs text-gray-600">

@@ -1,10 +1,22 @@
 'use client'
 import { logger } from '@/lib/logger'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { OrderHistoryTable } from '@/components/restaurant/OrderHistoryTable'
+import { OrderHistoryTableSkeleton } from '@/components/restaurant/OrderHistoryTableSkeleton'
 import { OrderDetailModal } from '@/components/orders/OrderDetailModal'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load OrderHistoryTable
+// Why: Component uses date formatting utilities (~3-4 KB)
+// Expected impact: 3-5% bundle reduction for restaurant history page
+const OrderHistoryTable = lazy(() =>
+  import('@/components/restaurant/OrderHistoryTable').then((m) => ({
+    default: m.OrderHistoryTable,
+  }))
+)
 import { RestaurantUtils } from '@/lib/restaurant-utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { createBrowserClient } from '@/lib/supabase'
-import { RestaurantOrder } from '@/types/restaurant'
+import type { RestaurantOrder } from '@/types/restaurant'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
@@ -244,7 +256,9 @@ export default function RestaurantOrderHistory() {
       </div>
 
       {/* Orders Table */}
-      <OrderHistoryTable onViewOrder={handleViewOrder} />
+      <Suspense fallback={<OrderHistoryTableSkeleton />}>
+        <OrderHistoryTable orders={orders} onViewOrder={handleViewOrder} />
+      </Suspense>
 
       {/* Order Detail Modal */}
       {selectedOrder && (

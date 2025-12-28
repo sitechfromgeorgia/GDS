@@ -266,7 +266,7 @@ class AuthTester {
           email: testEmail,
           userId: data.user?.id,
           emailConfirmed: data.user?.email_confirmed_at !== null,
-          confirmationSent: !!data.user?.confirmation_sent_at,
+          confirmationSent: Boolean(data.user?.confirmation_sent_at),
         },
       })
 
@@ -334,7 +334,7 @@ class AuthTester {
           email: data.user?.email,
           role: data.user?.user_metadata?.role,
           loginSuccessful: true,
-          sessionActive: !!data.session,
+          sessionActive: Boolean(data.session),
         },
       })
 
@@ -376,7 +376,7 @@ class AuthTester {
         return
       }
 
-      const hasActiveSession = !!session
+      const hasActiveSession = Boolean(session)
 
       this.addResult({
         test: 'Session Management',
@@ -386,7 +386,7 @@ class AuthTester {
           hasActiveSession,
           sessionExpiry: session?.expires_at,
           userId: session?.user?.id,
-          tokenPresent: !!session?.access_token,
+          tokenPresent: Boolean(session?.access_token),
         },
       })
 

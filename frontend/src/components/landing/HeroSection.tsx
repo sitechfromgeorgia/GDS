@@ -46,13 +46,13 @@ export function HeroSection() {
             ) : (
               <>
                 <Button size="lg" asChild className="px-8">
-                  <Link href="/demo">
-                    Try Free Demo
-                    <Play className="ml-2 h-4 w-4" />
-                  </Link>
+                  <Link href="#contact">Contact Sales</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="px-8">
-                  <Link href="#pricing">View Pricing</Link>
+                  <Link href="/demo">
+                    <Play className="mr-2 h-4 w-4" />
+                    Live Demo
+                  </Link>
                 </Button>
               </>
             )}

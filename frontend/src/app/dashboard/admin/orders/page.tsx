@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense, lazy } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,13 +23,25 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon, Download, Filter, Search, Clock, CheckCircle, Truck } from 'lucide-react'
-import { OrderManagementTable } from '@/components/admin/OrderManagementTable'
+import { OrderManagementTableSkeleton } from '@/components/admin/OrderManagementTableSkeleton'
 import { OrderPricingModal } from '@/components/admin/OrderPricingModal'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { ka } from 'date-fns/locale'
-import { DateRange } from 'react-day-picker'
-import { Database } from '@/types/database'
+import type { DateRange } from 'react-day-picker'
+import type { Database } from '@/types/database'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load OrderManagementTable
+// Why: Large table component with date-fns dependency (~3-5 KB) + complex data handling (~12 KB total)
+// Expected impact: 10-15% bundle reduction for admin orders page
+const OrderManagementTable = lazy(() =>
+  import('@/components/admin/OrderManagementTable').then((m) => ({
+    default: m.OrderManagementTable,
+  }))
+)
 
 // TypeScript interfaces
 interface OrderItem {
@@ -215,7 +227,7 @@ export default function OrdersPage() {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-40 justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange && dateRange.from ? (
+                    {dateRange?.from ? (
                       dateRange.to ? (
                         <>
                           {format(dateRange.from, 'LLL dd', { locale: ka })} -{' '}
@@ -257,19 +269,21 @@ export default function OrdersPage() {
           <CardDescription>მართეთ შეკვეთების სია, სტატუსები და დეტალები</CardDescription>
         </CardHeader>
         <CardContent>
-          <OrderManagementTable
-            searchTerm={searchTerm}
-            statusFilter={statusFilter}
-            dateRange={dateRange || {}}
-            onViewOrder={handleViewOrder as any}
-            onEditPricing={handleEditPricing as any}
-          />
+          <Suspense fallback={<OrderManagementTableSkeleton />}>
+            <OrderManagementTable
+              searchTerm={searchTerm}
+              statusFilter={statusFilter}
+              dateRange={dateRange || {}}
+              onViewOrder={handleViewOrder as any}
+              onEditPricing={handleEditPricing as any}
+            />
+          </Suspense>
         </CardContent>
       </Card>
 
       {/* Order Details Dialog */}
       <Dialog
-        open={!!selectedOrder && !showPricingModal}
+        open={Boolean(selectedOrder) && !showPricingModal}
         onOpenChange={() => setSelectedOrder(null)}
       >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

@@ -1,69 +1,70 @@
-import { createServerClient } from '@/lib/supabase/server'
-import { createClient } from '@/lib/supabase/client'
+import { createBrowserClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/logger'
+import { Database } from '@/types/restaurant-temp'
 
 export interface Product {
-    id: string
-    name: string
-    category: string
-    unit: string
-    is_active: boolean
-    image_url?: string
-    description?: string
+  id: string
+  name: string
+  category: string
+  unit: string
+  cost_price: number
+  markup_percentage: number
+  is_active: boolean
+  image_url: string | null
 }
 
 export class ProductService {
-    static async getActiveProducts() {
-        // Use client-side client for components, server-side for server components
-        // This service might be used in both contexts, so we need to handle it.
-        // For now, let's assume this is primarily used in Server Components or API routes.
-        // If used in Client Components, we should pass the data or use a separate client-side service.
+  private supabase = createBrowserClient()
 
-        // However, for simplicity in this phase, let's assume we are fetching data in a Server Component
-        // and passing it to the Client Component, OR using a client-side fetch.
+  async getProducts(category?: string): Promise<Product[]> {
+    let query = this.supabase.from('products').select('*').eq('is_active', true).order('name')
 
-        // Let's create a client-side compatible method using the browser client if window is defined,
-        // otherwise use server client.
-
-        let supabase;
-        if (typeof window === 'undefined') {
-            supabase = await createServerClient()
-        } else {
-            supabase = createClient()
-        }
-
-        const { data, error } = await supabase
-            .from('products')
-            .select('id, name, category, unit, is_active, image_url, description')
-            .eq('is_active', true)
-            .order('category', { ascending: true })
-            .order('name', { ascending: true })
-
-        if (error) {
-            throw new Error(`Failed to fetch products: ${error.message}`)
-        }
-
-        return data as Product[]
+    if (category && category !== 'all') {
+      query = query.eq('category', category)
     }
 
-    static async getCategories(): Promise<string[]> {
-        let supabase;
-        if (typeof window === 'undefined') {
-            supabase = await createServerClient()
-        } else {
-            supabase = createClient()
-        }
+    const { data, error } = await query
 
-        const { data, error } = await supabase
-            .from('products')
-            .select('category')
-            .eq('is_active', true)
-
-        if (error) {
-            throw new Error(`Failed to fetch categories: ${error.message}`)
-        }
-
-        // Extract unique categories
-        const categories: string[] = Array.from(new Set(data.map((p: { category: string }) => p.category)))
-        return categories.sort()
+    if (error) {
+      logger.error('Error fetching products:', error)
+      throw error
     }
+
+    return data || []
+  }
+
+  async searchProducts(searchTerm: string): Promise<Product[]> {
+    const { data, error } = await this.supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .ilike('name', `%${searchTerm}%`)
+      .order('name')
+
+    if (error) {
+      logger.error('Error searching products:', error)
+      throw error
+    }
+
+    return data || []
+  }
+
+  subscribeToCatalogChanges(callback: () => void) {
+    return this.supabase
+      .channel('product-catalog-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'products',
+        },
+        () => {
+          callback()
+        }
+      )
+      .subscribe()
+  }
 }
+
+export const productService = new ProductService()

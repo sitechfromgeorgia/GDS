@@ -1,7 +1,8 @@
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 
 type OrderStatus = Database['public']['Enums']['order_status']
 import { z } from 'zod'

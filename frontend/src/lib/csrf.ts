@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 /**
  * Security Headers Utilities
@@ -17,7 +18,9 @@ export class SecurityHeaders {
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: https: blob:",
         "font-src 'self' data:",
-        "connect-src 'self' https://akxmacfsltzhbnunoepb.supabase.co wss://akxmacfsltzhbnunoepb.supabase.co",
+        process.env.NEXT_PUBLIC_SUPABASE_URL
+          ? `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} ${process.env.NEXT_PUBLIC_SUPABASE_URL.replace('https', 'wss')}`
+          : "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",

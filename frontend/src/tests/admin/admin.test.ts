@@ -24,7 +24,7 @@ const { mockEnv } = vi.hoisted(() => {
       SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
       NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
       NEXT_PUBLIC_ENVIRONMENT: 'development',
-    }
+    },
   }
 })
 
@@ -33,7 +33,9 @@ vi.mock('@/lib/env', () => {
   return {
     getEnv: vi.fn(() => mockEnv),
     getEnvVar: vi.fn((key: string) => mockEnv[key as keyof typeof mockEnv]),
-    getEnvVarWithDefault: vi.fn((key: string, defaultValue: any) => mockEnv[key as keyof typeof mockEnv] || defaultValue),
+    getEnvVarWithDefault: vi.fn(
+      (key: string, defaultValue: any) => mockEnv[key as keyof typeof mockEnv] || defaultValue
+    ),
     getClientSafeEnv: vi.fn(() => ({
       supabaseUrl: mockEnv.NEXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: 'test-anon-key',

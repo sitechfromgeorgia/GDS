@@ -1,4 +1,4 @@
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 
 type Order = Database['public']['Tables']['orders']['Row']
 type OrderItem = Database['public']['Tables']['order_items']['Row']

@@ -10,7 +10,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +34,7 @@ const categories = [
   'საცხობი',
   'ხილი და ბოსტნეული',
   'სანელებლები',
-  'სხვა'
+  'სხვა',
 ]
 
 export function ProductForm({ product, onClose }: ProductFormProps) {
@@ -46,7 +52,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
     min_stock_level: 10,
     image_url: null,
     tags: null,
-    is_active: true
+    is_active: true,
   })
   const [loading, setLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -66,7 +72,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
         min_stock_level: product.min_stock_level,
         image_url: product.image_url,
         tags: product.tags,
-        is_active: product.is_active
+        is_active: product.is_active,
       })
       if (product.image_url) {
         setImagePreview(product.image_url)
@@ -75,7 +81,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
   }, [product])
 
   const handleInputChange = (field: keyof Product, value: string | number | boolean | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,23 +99,23 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
   const removeImage = () => {
     setImageFile(null)
     setImagePreview('')
-    setFormData(prev => ({ ...prev, image_url: undefined }))
+    setFormData((prev) => ({ ...prev, image_url: undefined }))
   }
 
   const addTag = () => {
     if (newTag.trim() && !formData.tags?.includes(newTag.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...(prev.tags || []), newTag.trim()]
+        tags: [...(prev.tags || []), newTag.trim()],
       }))
       setNewTag('')
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags?.filter(tag => tag !== tagToRemove) || []
+      tags: prev.tags?.filter((tag) => tag !== tagToRemove) || [],
     }))
   }
 
@@ -128,9 +134,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
       throw uploadError
     }
 
-    const { data } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath)
+    const { data } = supabase.storage.from('product-images').getPublicUrl(filePath)
 
     return data.publicUrl
   }
@@ -165,7 +169,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
       const productData = {
         ...formData,
         image_url: imageUrl,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
       if (product?.id) {
@@ -183,11 +187,11 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
           min_stock_level: productData.min_stock_level || 0,
           image_url: imageUrl,
           tags: productData.tags,
-          is_active: productData.is_active
+          is_active: productData.is_active,
         }
 
         // @ts-ignore Supabase client type issue
-         
+
         const { error } = await (supabase as any)
           .from('products')
           .update(updatePayload)
@@ -213,14 +217,12 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
           image_url: imageUrl,
           tags: productData.tags,
           is_active: productData.is_active || true,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         } as ProductInsert
 
         // Type assertion to bypass Supabase type inference issue
-         
-        const { error } = await (supabase as any)
-          .from('products')
-          .insert([insertData])
+
+        const { error } = await (supabase as any).from('products').insert([insertData])
 
         if (error) throw error
 
@@ -267,7 +269,10 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
 
             <div className="space-y-2">
               <Label htmlFor="category">კატეგორია *</Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => handleInputChange('category', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="აირჩიეთ კატეგორია" />
                 </SelectTrigger>
@@ -334,9 +339,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
                         aria-label="ატვირთეთ პროდუქტის სურათი"
                       />
                     </Label>
-                    <p className="text-xs text-muted-foreground">
-                      PNG, JPG, JPEG (მაქს. 5MB)
-                    </p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, JPEG (მაქს. 5MB)</p>
                   </div>
                 </div>
               )}
@@ -359,7 +362,12 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               {formData.tags?.map((tag) => (
-                <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => removeTag(tag)}>
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="cursor-pointer"
+                  onClick={() => removeTag(tag)}
+                >
                   {tag} <X className="ml-1 h-3 w-3" />
                 </Badge>
               ))}
@@ -419,7 +427,11 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
                   <div>
                     <span className="text-muted-foreground">მოგების პროცენტი:</span>
                     <span className="font-medium ml-2">
-                      {(((formData.price - formData.cost_price) / formData.cost_price) * 100).toFixed(1)}%
+                      {(
+                        ((formData.price - formData.cost_price) / formData.cost_price) *
+                        100
+                      ).toFixed(1)}
+                      %
                     </span>
                   </div>
                 </div>
@@ -449,7 +461,9 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
                 type="number"
                 min="0"
                 value={formData.min_stock_level}
-                onChange={(e) => handleInputChange('min_stock_level', parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  handleInputChange('min_stock_level', parseInt(e.target.value) || 0)
+                }
                 placeholder="10"
               />
             </div>
@@ -458,22 +472,23 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
           <Card>
             <CardContent className="pt-4">
               <div className="text-sm">
-              <span className="text-muted-foreground">სტატუსი:</span>
-              <span className={`font-medium ml-2 ${
-                (formData.stock_quantity || 0) <= 0
-                  ? 'text-red-600'
-                  : (formData.stock_quantity || 0) <= (formData.min_stock_level || 0)
-                  ? 'text-yellow-600'
-                  : 'text-green-600'
-              }`}>
-                {(formData.stock_quantity || 0) <= 0
-                  ? 'არ არის მარაგში'
-                  : (formData.stock_quantity || 0) <= (formData.min_stock_level || 0)
-                  ? 'დაბალი მარაგი'
-                  : 'ხელმისაწვდომია'
-                }
-              </span>
-            </div>
+                <span className="text-muted-foreground">სტატუსი:</span>
+                <span
+                  className={`font-medium ml-2 ${
+                    (formData.stock_quantity || 0) <= 0
+                      ? 'text-red-600'
+                      : (formData.stock_quantity || 0) <= (formData.min_stock_level || 0)
+                        ? 'text-yellow-600'
+                        : 'text-green-600'
+                  }`}
+                >
+                  {(formData.stock_quantity || 0) <= 0
+                    ? 'არ არის მარაგში'
+                    : (formData.stock_quantity || 0) <= (formData.min_stock_level || 0)
+                      ? 'დაბალი მარაგი'
+                      : 'ხელმისაწვდომია'}
+                </span>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

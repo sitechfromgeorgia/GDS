@@ -2,54 +2,83 @@
   "mcpServers": {
     "perplexity": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@perplexity-ai/mcp-server"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@perplexity-ai/mcp-server"
+      ],
       "env": {
         "PERPLEXITY_API_KEY": "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"
-      },
-      "autoApprove": ["*"]
+      }
     },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem@2025.8.21", "c:\\Users\\SITECH\\Desktop\\DEV\\Distribution-Managment"],
-      "autoApprove": ["*"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@2025.8.21",
+        "c:\\Users\\SITECH\\Desktop\\DEV\\Distribution-Managment"
+      ]
     },
     "github": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github@2025.4.8"],
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github@2025.4.8"
+      ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "Bearer ghp_X7eexSb6Y1PlLG9T8BW9NjT3CZ9rMf4Qi7Ry"
-      },
-      "autoApprove": ["*"]
+      }
     },
     "sentry": {
       "command": "npx",
-      "args": ["-y", "@sentry/mcp-server@latest", "--access-token", "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"],
-      "autoApprove": ["*"]
-    },
-    "supabase": {
-      "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase@0.5.9", "--access-token", "sbp_49291a51bcf0fd985f3c698be91b768dc6b1d024"],
-      "autoApprove": ["*"]
+      "args": [
+        "-y",
+        "@sentry/mcp-server@latest",
+        "--access-token",
+        "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"
+      ]
     },
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "autoApprove": ["*"]
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
     },
     "sequentialthinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@2025.7.1"],
-      "autoApprove": ["*"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@2025.7.1"
+      ]
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@0.9.0"],
-      "autoApprove": ["list_*", "take_snapshot", "take_screenshot", "get_*"]
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@0.9.0"
+      ]
     },
     "shadcn": {
       "command": "npx",
-      "args": ["-y", "shadcn-mcp@1.0.0"],
-      "autoApprove": ["*"]
+      "args": [
+        "-y",
+        "shadcn-mcp@1.0.0"
+      ]
+    },
+    "supabase": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@0.5.9",
+        "--access-token",
+        "sbp_e5043b9e80d4bd9d8a08c23798099cef576abfff"
+      ],
+      "env": {}
     }
   }
 }

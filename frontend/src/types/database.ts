@@ -147,6 +147,42 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_snapshots: {
+        Row: {
+          restaurant_id: string
+          product_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          restaurant_id: string
+          product_id: string
+          quantity: number
+          updated_at?: string
+        }
+        Update: {
+          restaurant_id?: string
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'cart_snapshots_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'cart_snapshots_restaurant_id_fkey'
+            columns: ['restaurant_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       orders: {
         Row: {
           id: string

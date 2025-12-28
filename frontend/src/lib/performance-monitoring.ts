@@ -194,9 +194,7 @@ class PerformanceMonitor {
   }
 
   private monitorUserInteractions(): void {
-    if (typeof window === 'undefined') return
-
-    // Track user interactions
+    if (typeof window === 'undefined') return // Track user interactions
     ;['click', 'scroll', 'keypress', 'touchstart', 'touchend'].forEach((eventType) => {
       document.addEventListener(
         eventType,

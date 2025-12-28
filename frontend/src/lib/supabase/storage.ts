@@ -105,20 +105,33 @@ export class StorageManager {
         return { error: new Error(validation.error) }
       }
 
-      const { data, error } = await this.supabase.storage.from(bucket).upload(path, file, {
+      // Check if supabase client is properly initialized
+      if (!this.supabase?.storage) {
+        return { error: new Error('Storage client not initialized') }
+      }
+
+      const storageClient = this.supabase.storage.from(bucket)
+      if (!storageClient) {
+        return { error: new Error('Storage bucket not available') }
+      }
+
+      const uploadResult = await storageClient.upload(path, file, {
         cacheControl: options?.cacheControl || '3600',
         upsert: options?.upsert || false,
         contentType: options?.contentType || file.type,
       })
 
-      if (error) throw error
+      if (!uploadResult) {
+        return { error: new Error('Upload returned no result') }
+      }
+
+      if (uploadResult.error) throw uploadResult.error
 
       // Get public URL if bucket is public
-      const {
-        data: { publicUrl },
-      } = this.supabase.storage.from(bucket).getPublicUrl(path)
+      const urlResult = storageClient.getPublicUrl(path)
+      const publicUrl = urlResult?.data?.publicUrl
 
-      return { data: { ...data, publicUrl } }
+      return { data: { ...(uploadResult.data || {}), publicUrl } }
     } catch (error) {
       logger.error('Storage upload error:', error)
       return { error }

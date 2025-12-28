@@ -9,11 +9,8 @@ import { Progress } from '@/components/ui/progress'
 import { Play, Pause, RotateCcw, CheckCircle, XCircle, Clock, Zap, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import {
-  runComprehensivePerformanceTests,
-  PerformanceTester,
-  PerformanceTestResult,
-} from '@/utils/performance-testing'
+import type { PerformanceTestResult } from '@/utils/performance-testing'
+import { runComprehensivePerformanceTests, PerformanceTester } from '@/utils/performance-testing'
 import { useToast } from '@/hooks/use-toast'
 
 const PerformanceTestingPage = () => {

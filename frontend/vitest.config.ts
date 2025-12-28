@@ -1,9 +1,12 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'process.env.NODE_ENV': '"test"',
+  },
   test: {
     environment: 'happy-dom',
     globals: true,
@@ -44,6 +47,7 @@ export default defineConfig({
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'src/**/__tests__/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     exclude: [
       'node_modules/',
@@ -52,15 +56,19 @@ export default defineConfig({
       '.next/',
       'coverage/',
       '**/*.d.ts',
+      'tests/e2e/**',
     ],
     testTimeout: 10000,
     hookTimeout: 10000,
     reporters: ['default', 'junit'],
     onConsoleLog: (log: string, type: string) => {
-      if (log.includes('Warning: ReactDOM.render') || log.includes('ReactDOM.render is no longer supported')) {
-        return false;
+      if (
+        log.includes('Warning: ReactDOM.render') ||
+        log.includes('ReactDOM.render is no longer supported')
+      ) {
+        return false
       }
-      return true;
+      return true
     },
     environmentOptions: {
       'happy-dom': {
@@ -92,4 +100,4 @@ export default defineConfig({
     port: 51204,
     host: true,
   },
-});
+})

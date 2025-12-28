@@ -13,7 +13,8 @@
 // 1. For password reset: Use supabase.auth.resetPasswordForEmail(email, { redirectTo })
 // 2. For password update: Use supabase.auth.updateUser({ password: newPassword })
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   return NextResponse.json(

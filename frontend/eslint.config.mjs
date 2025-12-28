@@ -187,6 +187,9 @@ export default [
       // Dependencies
       'node_modules/**',
 
+      // Scripts folder (standalone scripts not in tsconfig)
+      'scripts/**',
+
       // TypeScript generated files
       'next-env.d.ts',
       '*.tsbuildinfo',
@@ -216,6 +219,9 @@ export default [
 
       // Generated types
       'src/types/supabase.ts',
+      '**/*.md',
+      'playwright.config.ts',
+      '__tests__/**',
     ],
   },
 ]

@@ -1,7 +1,8 @@
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { OrderSubmissionInput } from '@/types/order-submission'
+import type { OrderSubmissionInput } from '@/types/order-submission'
 import { createOrderSubmissionService } from '@/services/order-submission.service'
 
 export async function POST(request: NextRequest) {

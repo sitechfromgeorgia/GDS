@@ -1,18 +1,28 @@
 'use client'
 import { logger } from '@/lib/logger'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense, lazy } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ShoppingCart, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
-import CheckoutForm, { CheckoutFormData } from '@/components/checkout/CheckoutForm'
-import CheckoutSummary from '@/components/checkout/CheckoutSummary'
+import type { CheckoutFormData } from '@/components/checkout/CheckoutForm'
+import { CheckoutFormSkeleton } from '@/components/checkout/CheckoutFormSkeleton'
+import { CheckoutSummarySkeleton } from '@/components/checkout/CheckoutSummarySkeleton'
 import { useCart } from '@/hooks/useCart'
 import { useOrderSubmission } from '@/hooks/useOrderSubmission'
 import { ORDER_SUBMISSION_GEORGIAN } from '@/types/order-submission'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load checkout components (15.24 KB combined)
+// Why: Multi-step checkout flow with complex form validation
+// Expected impact: 10-15% initial bundle reduction
+const CheckoutForm = lazy(() => import('@/components/checkout/CheckoutForm'))
+const CheckoutSummary = lazy(() => import('@/components/checkout/CheckoutSummary'))
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -241,11 +251,13 @@ export default function CheckoutPage() {
                     <h2 className="font-semibold">კონტაქტისა და მიწოდების ინფორმაცია</h2>
                   </div>
 
-                  <CheckoutForm
-                    onSubmit={handleFormSubmit}
-                    isLoading={isLoading}
-                    validationErrors={validationErrors}
-                  />
+                  <Suspense fallback={<CheckoutFormSkeleton />}>
+                    <CheckoutForm
+                      onSubmit={handleFormSubmit}
+                      isLoading={isLoading}
+                      validationErrors={validationErrors}
+                    />
+                  </Suspense>
                 </>
               )}
 
@@ -258,18 +270,20 @@ export default function CheckoutPage() {
                     <h2 className="font-semibold">შეკვეთის დასტურება</h2>
                   </div>
 
-                  <CheckoutSummary
-                    cart={cart!}
-                    restaurantName="თქვენი რესტორანი"
-                    specialInstructions={checkoutData.specialInstructions}
-                    contactPhone={checkoutData.contactPhone}
-                    deliveryAddress={checkoutData.deliveryAddress}
-                    priority={checkoutData.priority}
-                    estimatedDeliveryTime={checkoutData.preferredDeliveryDate}
-                    onEditOrder={handleEditOrder}
-                    onSubmit={() => handleFormSubmit(checkoutData)}
-                    isLoading={isLoading}
-                  />
+                  <Suspense fallback={<CheckoutSummarySkeleton />}>
+                    <CheckoutSummary
+                      cart={cart!}
+                      restaurantName="თქვენი რესტორანი"
+                      specialInstructions={checkoutData.specialInstructions}
+                      contactPhone={checkoutData.contactPhone}
+                      deliveryAddress={checkoutData.deliveryAddress}
+                      priority={checkoutData.priority}
+                      estimatedDeliveryTime={checkoutData.preferredDeliveryDate}
+                      onEditOrder={handleEditOrder}
+                      onSubmit={() => handleFormSubmit(checkoutData)}
+                      isLoading={isLoading}
+                    />
+                  </Suspense>
                 </>
               )}
             </div>

@@ -121,9 +121,9 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
   // Test 1.1: Environment variables presence
   try {
     const start = Date.now()
-    const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
-    const hasAnonKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    const hasUrl = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL)
+    const hasAnonKey = Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+    const hasServiceKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
 
     tests.push({
       name: 'Environment Variables',
@@ -154,8 +154,8 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     // Basic JWT structure validation
-    const isValidAnon = anonKey && anonKey.split('.').length === 3
-    const isValidService = serviceKey && serviceKey.split('.').length === 3
+    const isValidAnon = anonKey?.split('.').length === 3
+    const isValidService = serviceKey?.split('.').length === 3
     const keysMatch = anonKey === serviceKey // Critical security issue
 
     tests.push({
@@ -202,7 +202,29 @@ async function testEnvironmentConfiguration(): Promise<TestSuite> {
 async function testBackendAccessibility(): Promise<TestSuite> {
   const tests: TestResult[] = []
   const startTime = Date.now()
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co'
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+  if (!baseUrl) {
+    return {
+      name: 'Backend Accessibility',
+      category: 'connection',
+      tests: [
+        {
+          name: 'Environment Check',
+          success: false,
+          duration: 0,
+          category: 'connection',
+          error: 'NEXT_PUBLIC_SUPABASE_URL is not defined',
+        },
+      ],
+      summary: {
+        total: 1,
+        passed: 0,
+        failed: 1,
+        duration: 0,
+      },
+    }
+  }
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   // Test 2.1: REST API accessibility
@@ -336,8 +358,8 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
       duration,
       category: 'authentication',
       details: {
-        hasSession: !!data.session,
-        sessionValid: data.session?.access_token ? true : false,
+        hasSession: Boolean(data.session),
+        sessionValid: Boolean(data.session?.access_token),
       },
       error: error?.message,
     })
@@ -359,7 +381,7 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
     } = await supabase.auth.getSession()
     const duration = Math.round(performance.now() - start)
 
-    const hasValidToken = session?.access_token && session.access_token.split('.').length === 3
+    const hasValidToken = session?.access_token?.split('.').length === 3
 
     tests.push({
       name: 'JWT Token Structure',
@@ -367,7 +389,7 @@ async function testAuthenticationSystem(): Promise<TestSuite> {
       duration,
       category: 'authentication',
       details: {
-        hasAccessToken: !!session?.access_token,
+        hasAccessToken: Boolean(session?.access_token),
         tokenLength: session?.access_token?.length || 0,
         tokenStructureValid: Boolean(hasValidToken),
       },
@@ -418,7 +440,7 @@ async function testDatabaseOperations(): Promise<TestSuite> {
       duration,
       category: 'database',
       details: {
-        hasData: !!data,
+        hasData: Boolean(data),
         recordCount: count,
         queryDuration: duration,
       },
@@ -496,7 +518,7 @@ async function testStorageServices(): Promise<TestSuite> {
 
     tests.push({
       name: 'Storage Buckets Access',
-      success: !error && !!data,
+      success: !error && Boolean(data),
       duration,
       category: 'storage',
       details: {
@@ -605,7 +627,29 @@ async function testRealtimeFeatures(): Promise<TestSuite> {
 async function testCORSConfiguration(): Promise<TestSuite> {
   const tests: TestResult[] = []
   const startTime = Date.now()
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co'
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+  if (!baseUrl) {
+    return {
+      name: 'CORS Configuration',
+      category: 'cors',
+      tests: [
+        {
+          name: 'Environment Check',
+          success: false,
+          duration: 0,
+          category: 'cors',
+          error: 'NEXT_PUBLIC_SUPABASE_URL is not defined',
+        },
+      ],
+      summary: {
+        total: 1,
+        passed: 0,
+        failed: 1,
+        duration: 0,
+      },
+    }
+  }
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   // Test 7.1: CORS preflight handling

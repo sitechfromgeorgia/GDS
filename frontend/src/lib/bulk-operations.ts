@@ -1,5 +1,5 @@
 import { logger } from '@/lib/logger'
-import { Database, OrderStatus } from '@/types/database'
+import type { Database, OrderStatus } from '@/types/database'
 import { ORDER_STATUSES, USER_ROLES } from '@/constants'
 import { OrderWorkflowEngine } from './order-workflow'
 import { OrderNotificationManager } from './order-notifications'

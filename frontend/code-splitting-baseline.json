@@ -1,0 +1,2283 @@
+{
+  "timestamp": "2025-11-27T10:54:03.039Z",
+  "summary": {
+    "totalComponents": 428,
+    "largeComponents": 242,
+    "heavyDependencyImports": 62,
+    "dynamicImportsFound": 25,
+    "suspenseBoundariesFound": 23,
+    "lazyComponentsFound": 22
+  },
+  "largeComponents": [
+    {
+      "file": "app\\(dashboard)\\admin\\drivers\\page.tsx",
+      "lines": 133,
+      "sizeKB": "4.64",
+      "reason": "133 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\users\\page.tsx",
+      "lines": 135,
+      "sizeKB": "4.82",
+      "reason": "135 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\_components\\AdminNavigation.tsx",
+      "lines": 164,
+      "sizeKB": "5.29",
+      "reason": "164 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\_components\\AdminSidebar.tsx",
+      "lines": 117,
+      "sizeKB": "3.87",
+      "reason": "117 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\analytics\\page.tsx",
+      "lines": 138,
+      "sizeKB": "4.58",
+      "reason": "138 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\checkout\\page.tsx",
+      "lines": 370,
+      "sizeKB": "16.04",
+      "reason": "370 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\[id]\\page.tsx",
+      "lines": 131,
+      "sizeKB": "4.46",
+      "reason": "131 lines"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboard.tsx",
+      "lines": 307,
+      "sizeKB": "14.65",
+      "reason": "307 lines"
+    },
+    {
+      "file": "app\\api\\analytics\\export\\route.ts",
+      "lines": 186,
+      "sizeKB": "5.23",
+      "reason": "186 lines"
+    },
+    {
+      "file": "app\\api\\analytics\\kpis\\route.ts",
+      "lines": 109,
+      "sizeKB": "3.09",
+      "reason": "109 lines"
+    },
+    {
+      "file": "app\\api\\auth\\create-test-user\\route.ts",
+      "lines": 144,
+      "sizeKB": "4.29",
+      "reason": "144 lines"
+    },
+    {
+      "file": "app\\api\\csrf\\route.ts",
+      "lines": 125,
+      "sizeKB": "3.31",
+      "reason": "125 lines"
+    },
+    {
+      "file": "app\\api\\driver\\deliveries\\route.ts",
+      "lines": 108,
+      "sizeKB": "2.90",
+      "reason": "108 lines"
+    },
+    {
+      "file": "app\\api\\health\\route.ts",
+      "lines": 190,
+      "sizeKB": "5.06",
+      "reason": "190 lines"
+    },
+    {
+      "file": "app\\api\\orders\\analytics\\route.ts",
+      "lines": 292,
+      "sizeKB": "8.83",
+      "reason": "292 lines"
+    },
+    {
+      "file": "app\\api\\orders\\export\\route.ts",
+      "lines": 108,
+      "sizeKB": "2.88",
+      "reason": "108 lines"
+    },
+    {
+      "file": "app\\api\\orders\\submit\\route.ts",
+      "lines": 117,
+      "sizeKB": "3.09",
+      "reason": "117 lines"
+    },
+    {
+      "file": "app\\api\\orders\\track\\[orderId]\\route.ts",
+      "lines": 162,
+      "sizeKB": "4.88",
+      "reason": "162 lines"
+    },
+    {
+      "file": "app\\catalog\\page.tsx",
+      "lines": 416,
+      "sizeKB": "15.94",
+      "reason": "416 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\analytics\\page.tsx",
+      "lines": 247,
+      "sizeKB": "8.95",
+      "reason": "247 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\layout-client.tsx",
+      "lines": 175,
+      "sizeKB": "5.89",
+      "reason": "175 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\orders\\page.tsx",
+      "lines": 380,
+      "sizeKB": "15.23",
+      "reason": "380 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\performance\\testing\\page.tsx",
+      "lines": 240,
+      "sizeKB": "7.92",
+      "reason": "240 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\products\\page.tsx",
+      "lines": 228,
+      "sizeKB": "9.21",
+      "reason": "228 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\settings\\page.tsx",
+      "lines": 687,
+      "sizeKB": "28.94",
+      "reason": "687 lines"
+    },
+    {
+      "file": "app\\dashboard\\admin\\users\\page.tsx",
+      "lines": 634,
+      "sizeKB": "21.80",
+      "reason": "634 lines"
+    },
+    {
+      "file": "app\\dashboard\\driver\\analytics\\page.tsx",
+      "lines": 385,
+      "sizeKB": "17.78",
+      "reason": "385 lines"
+    },
+    {
+      "file": "app\\dashboard\\driver\\deliveries\\page.tsx",
+      "lines": 229,
+      "sizeKB": "9.05",
+      "reason": "229 lines"
+    },
+    {
+      "file": "app\\dashboard\\driver\\history\\page.tsx",
+      "lines": 473,
+      "sizeKB": "17.69",
+      "reason": "473 lines"
+    },
+    {
+      "file": "app\\dashboard\\driver\\layout-client.tsx",
+      "lines": 202,
+      "sizeKB": "7.04",
+      "reason": "202 lines"
+    },
+    {
+      "file": "app\\dashboard\\driver\\map\\page.tsx",
+      "lines": 198,
+      "sizeKB": "8.28",
+      "reason": "198 lines"
+    },
+    {
+      "file": "app\\dashboard\\driver\\settings\\page.tsx",
+      "lines": 406,
+      "sizeKB": "15.82",
+      "reason": "406 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\analytics\\page.tsx",
+      "lines": 418,
+      "sizeKB": "19.68",
+      "reason": "418 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\history\\page.tsx",
+      "lines": 270,
+      "sizeKB": "8.61",
+      "reason": "270 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\kitchen\\page.tsx",
+      "lines": 358,
+      "sizeKB": "14.83",
+      "reason": "358 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\layout-client.tsx",
+      "lines": 207,
+      "sizeKB": "7.01",
+      "reason": "207 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\order\\page.tsx",
+      "lines": 203,
+      "sizeKB": "6.58",
+      "reason": "203 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\settings\\page.tsx",
+      "lines": 448,
+      "sizeKB": "18.23",
+      "reason": "448 lines"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\tracking\\page.tsx",
+      "lines": 241,
+      "sizeKB": "10.15",
+      "reason": "241 lines"
+    },
+    {
+      "file": "app\\diagnostic\\page.tsx",
+      "lines": 124,
+      "sizeKB": "3.65",
+      "reason": "124 lines"
+    },
+    {
+      "file": "app\\global-error.test.tsx",
+      "lines": 149,
+      "sizeKB": "4.11",
+      "reason": "149 lines"
+    },
+    {
+      "file": "app\\global-error.tsx",
+      "lines": 111,
+      "sizeKB": "3.41",
+      "reason": "111 lines"
+    },
+    {
+      "file": "app\\orders\\actions.ts",
+      "lines": 585,
+      "sizeKB": "15.57",
+      "reason": "585 lines"
+    },
+    {
+      "file": "app\\page.tsx",
+      "lines": 177,
+      "sizeKB": "7.62",
+      "reason": "177 lines"
+    },
+    {
+      "file": "app\\providers.tsx",
+      "lines": 127,
+      "sizeKB": "3.29",
+      "reason": "127 lines"
+    },
+    {
+      "file": "app\\reset-password\\page.tsx",
+      "lines": 163,
+      "sizeKB": "5.42",
+      "reason": "163 lines"
+    },
+    {
+      "file": "app\\test\\enhanced\\page.tsx",
+      "lines": 325,
+      "sizeKB": "11.92",
+      "reason": "325 lines"
+    },
+    {
+      "file": "app\\test\\page.tsx",
+      "lines": 145,
+      "sizeKB": "5.83",
+      "reason": "145 lines"
+    },
+    {
+      "file": "app\\welcome\\welcome-client.tsx",
+      "lines": 312,
+      "sizeKB": "10.20",
+      "reason": "312 lines"
+    },
+    {
+      "file": "components\\admin\\AnalyticsDashboard.tsx",
+      "lines": 566,
+      "sizeKB": "24.12",
+      "reason": "566 lines"
+    },
+    {
+      "file": "components\\admin\\LiveOrderFeed.tsx",
+      "lines": 149,
+      "sizeKB": "4.90",
+      "reason": "149 lines"
+    },
+    {
+      "file": "components\\admin\\OrderDetails.tsx",
+      "lines": 370,
+      "sizeKB": "12.77",
+      "reason": "370 lines"
+    },
+    {
+      "file": "components\\admin\\OrderManagementTable.tsx",
+      "lines": 455,
+      "sizeKB": "16.08",
+      "reason": "455 lines"
+    },
+    {
+      "file": "components\\admin\\OrderPricingModal.tsx",
+      "lines": 331,
+      "sizeKB": "11.29",
+      "reason": "331 lines"
+    },
+    {
+      "file": "components\\admin\\ProductForm.tsx",
+      "lines": 508,
+      "sizeKB": "17.33",
+      "reason": "508 lines"
+    },
+    {
+      "file": "components\\admin\\ProductTable.tsx",
+      "lines": 421,
+      "sizeKB": "14.35",
+      "reason": "421 lines"
+    },
+    {
+      "file": "components\\admin\\UserModal.tsx",
+      "lines": 318,
+      "sizeKB": "11.04",
+      "reason": "318 lines"
+    },
+    {
+      "file": "components\\admin\\UserTable.tsx",
+      "lines": 353,
+      "sizeKB": "12.44",
+      "reason": "353 lines"
+    },
+    {
+      "file": "components\\auth\\AuthProvider.tsx",
+      "lines": 139,
+      "sizeKB": "4.02",
+      "reason": "139 lines"
+    },
+    {
+      "file": "components\\auth\\LoginForm.tsx",
+      "lines": 276,
+      "sizeKB": "9.43",
+      "reason": "276 lines"
+    },
+    {
+      "file": "components\\auth\\MFASetup.tsx",
+      "lines": 192,
+      "sizeKB": "5.95",
+      "reason": "192 lines"
+    },
+    {
+      "file": "components\\auth\\MFAVerification.tsx",
+      "lines": 124,
+      "sizeKB": "3.81",
+      "reason": "124 lines"
+    },
+    {
+      "file": "components\\auth\\PasswordResetForm.tsx",
+      "lines": 111,
+      "sizeKB": "3.56",
+      "reason": "111 lines"
+    },
+    {
+      "file": "components\\auth\\RoleGuard.tsx",
+      "lines": 115,
+      "sizeKB": "2.17",
+      "reason": "115 lines"
+    },
+    {
+      "file": "components\\auth\\SessionTimeoutModal.tsx",
+      "lines": 110,
+      "sizeKB": "2.89",
+      "reason": "110 lines"
+    },
+    {
+      "file": "components\\cart\\CartIcon.tsx",
+      "lines": 136,
+      "sizeKB": "3.79",
+      "reason": "136 lines"
+    },
+    {
+      "file": "components\\cart\\CartItem.tsx",
+      "lines": 278,
+      "sizeKB": "9.50",
+      "reason": "278 lines"
+    },
+    {
+      "file": "components\\cart\\CartPanel.tsx",
+      "lines": 223,
+      "sizeKB": "7.16",
+      "reason": "223 lines"
+    },
+    {
+      "file": "components\\cart\\CartSummary.tsx",
+      "lines": 171,
+      "sizeKB": "6.05",
+      "reason": "171 lines"
+    },
+    {
+      "file": "components\\catalog\\ProductCard.tsx",
+      "lines": 237,
+      "sizeKB": "7.62",
+      "reason": "237 lines"
+    },
+    {
+      "file": "components\\catalog\\ProductFilters.tsx",
+      "lines": 293,
+      "sizeKB": "9.44",
+      "reason": "293 lines"
+    },
+    {
+      "file": "components\\catalog\\ProductGrid.tsx",
+      "lines": 201,
+      "sizeKB": "6.27",
+      "reason": "201 lines"
+    },
+    {
+      "file": "components\\catalog\\ProductListView.tsx",
+      "lines": 248,
+      "sizeKB": "8.38",
+      "reason": "248 lines"
+    },
+    {
+      "file": "components\\checkout\\CheckoutForm.tsx",
+      "lines": 417,
+      "sizeKB": "15.81",
+      "reason": "417 lines"
+    },
+    {
+      "file": "components\\checkout\\CheckoutFormSkeleton.tsx",
+      "lines": 109,
+      "sizeKB": "3.25",
+      "reason": "109 lines"
+    },
+    {
+      "file": "components\\checkout\\CheckoutSummary.tsx",
+      "lines": 236,
+      "sizeKB": "7.92",
+      "reason": "236 lines"
+    },
+    {
+      "file": "components\\checkout\\CheckoutSummarySkeleton.tsx",
+      "lines": 102,
+      "sizeKB": "3.13",
+      "reason": "102 lines"
+    },
+    {
+      "file": "components\\dashboard\\AdminDashboardContent.tsx",
+      "lines": 232,
+      "sizeKB": "8.87",
+      "reason": "232 lines"
+    },
+    {
+      "file": "components\\dashboard\\DriverDashboardContent.tsx",
+      "lines": 299,
+      "sizeKB": "11.67",
+      "reason": "299 lines"
+    },
+    {
+      "file": "components\\dashboard\\RestaurantDashboardContent.tsx",
+      "lines": 377,
+      "sizeKB": "14.23",
+      "reason": "377 lines"
+    },
+    {
+      "file": "components\\demo\\ConversionPrompt.tsx",
+      "lines": 222,
+      "sizeKB": "7.06",
+      "reason": "222 lines"
+    },
+    {
+      "file": "components\\demo\\DemoLayout.tsx",
+      "lines": 143,
+      "sizeKB": "4.62",
+      "reason": "143 lines"
+    },
+    {
+      "file": "components\\demo\\DemoLimitations.tsx",
+      "lines": 119,
+      "sizeKB": "3.89",
+      "reason": "119 lines"
+    },
+    {
+      "file": "components\\demo\\DemoOnboarding.tsx",
+      "lines": 179,
+      "sizeKB": "6.68",
+      "reason": "179 lines"
+    },
+    {
+      "file": "components\\demo\\FeedbackForm.tsx",
+      "lines": 162,
+      "sizeKB": "4.86",
+      "reason": "162 lines"
+    },
+    {
+      "file": "components\\demo\\GuidedTour.tsx",
+      "lines": 128,
+      "sizeKB": "4.46",
+      "reason": "128 lines"
+    },
+    {
+      "file": "components\\ErrorBoundary.tsx",
+      "lines": 142,
+      "sizeKB": "4.49",
+      "reason": "142 lines"
+    },
+    {
+      "file": "components\\health\\HealthCheckDashboard.tsx",
+      "lines": 610,
+      "sizeKB": "22.19",
+      "reason": "610 lines"
+    },
+    {
+      "file": "components\\health\\PerformanceWidget.tsx",
+      "lines": 301,
+      "sizeKB": "10.69",
+      "reason": "301 lines"
+    },
+    {
+      "file": "components\\landing\\ContactSection.tsx",
+      "lines": 293,
+      "sizeKB": "10.75",
+      "reason": "293 lines"
+    },
+    {
+      "file": "components\\landing\\DemoCTA.tsx",
+      "lines": 142,
+      "sizeKB": "5.99",
+      "reason": "142 lines"
+    },
+    {
+      "file": "components\\landing\\FAQSection.tsx",
+      "lines": 187,
+      "sizeKB": "8.34",
+      "reason": "187 lines"
+    },
+    {
+      "file": "components\\landing\\FeaturesSection.tsx",
+      "lines": 149,
+      "sizeKB": "5.32",
+      "reason": "149 lines"
+    },
+    {
+      "file": "components\\landing\\Footer.tsx",
+      "lines": 170,
+      "sizeKB": "6.33",
+      "reason": "170 lines"
+    },
+    {
+      "file": "components\\landing\\Header.tsx",
+      "lines": 124,
+      "sizeKB": "4.27",
+      "reason": "124 lines"
+    },
+    {
+      "file": "components\\landing\\HeroSection.tsx",
+      "lines": 119,
+      "sizeKB": "5.05",
+      "reason": "119 lines"
+    },
+    {
+      "file": "components\\landing\\PricingSection.tsx",
+      "lines": 250,
+      "sizeKB": "8.16",
+      "reason": "250 lines"
+    },
+    {
+      "file": "components\\landing\\TestimonialsSection.tsx",
+      "lines": 140,
+      "sizeKB": "5.00",
+      "reason": "140 lines"
+    },
+    {
+      "file": "components\\mobile\\MobileBottomNav.tsx",
+      "lines": 164,
+      "sizeKB": "4.62",
+      "reason": "164 lines"
+    },
+    {
+      "file": "components\\notifications\\NotificationCenter.tsx",
+      "lines": 211,
+      "sizeKB": "6.72",
+      "reason": "211 lines"
+    },
+    {
+      "file": "components\\notifications\\NotificationsDropdown.tsx",
+      "lines": 350,
+      "sizeKB": "12.80",
+      "reason": "350 lines"
+    },
+    {
+      "file": "components\\orders\\OrderCard.tsx",
+      "lines": 148,
+      "sizeKB": "4.49",
+      "reason": "148 lines"
+    },
+    {
+      "file": "components\\orders\\OrderDetailModal.tsx",
+      "lines": 246,
+      "sizeKB": "8.58",
+      "reason": "246 lines"
+    },
+    {
+      "file": "components\\orders\\OrderManagementClient.tsx",
+      "lines": 479,
+      "sizeKB": "16.04",
+      "reason": "479 lines"
+    },
+    {
+      "file": "components\\orders\\OrderTable.tsx",
+      "lines": 259,
+      "sizeKB": "8.73",
+      "reason": "259 lines"
+    },
+    {
+      "file": "components\\performance\\PerformanceAlertsDashboard.tsx",
+      "lines": 257,
+      "sizeKB": "9.09",
+      "reason": "257 lines"
+    },
+    {
+      "file": "components\\performance\\PerformanceDashboard.tsx",
+      "lines": 678,
+      "sizeKB": "25.06",
+      "reason": "678 lines"
+    },
+    {
+      "file": "components\\providers\\QueryProvider.tsx",
+      "lines": 140,
+      "sizeKB": "4.33",
+      "reason": "140 lines"
+    },
+    {
+      "file": "components\\realtime\\LiveChat.tsx",
+      "lines": 337,
+      "sizeKB": "10.22",
+      "reason": "337 lines"
+    },
+    {
+      "file": "components\\restaurant\\Cart.tsx",
+      "lines": 256,
+      "sizeKB": "9.27",
+      "reason": "256 lines"
+    },
+    {
+      "file": "components\\restaurant\\OrderForm.tsx",
+      "lines": 134,
+      "sizeKB": "4.15",
+      "reason": "134 lines"
+    },
+    {
+      "file": "components\\restaurant\\OrderHistoryFilters.tsx",
+      "lines": 143,
+      "sizeKB": "4.41",
+      "reason": "143 lines"
+    },
+    {
+      "file": "components\\restaurant\\ProductCatalog.tsx",
+      "lines": 412,
+      "sizeKB": "15.53",
+      "reason": "412 lines"
+    },
+    {
+      "file": "components\\restaurant\\ProductGrid.tsx",
+      "lines": 131,
+      "sizeKB": "3.88",
+      "reason": "131 lines"
+    },
+    {
+      "file": "components\\restaurant\\ShoppingCart.tsx",
+      "lines": 102,
+      "sizeKB": "3.50",
+      "reason": "102 lines"
+    },
+    {
+      "file": "components\\ui\\dialog.tsx",
+      "lines": 123,
+      "sizeKB": "4.33",
+      "reason": "123 lines"
+    },
+    {
+      "file": "components\\ui\\drawer.tsx",
+      "lines": 125,
+      "sizeKB": "4.14",
+      "reason": "125 lines"
+    },
+    {
+      "file": "components\\ui\\dropdown-menu.tsx",
+      "lines": 229,
+      "sizeKB": "8.10",
+      "reason": "229 lines"
+    },
+    {
+      "file": "components\\ui\\form.tsx",
+      "lines": 153,
+      "sizeKB": "3.61",
+      "reason": "153 lines"
+    },
+    {
+      "file": "components\\ui\\GeometricBackground.tsx",
+      "lines": 102,
+      "sizeKB": "2.53",
+      "reason": "102 lines"
+    },
+    {
+      "file": "components\\ui\\responsive-table.tsx",
+      "lines": 113,
+      "sizeKB": "3.27",
+      "reason": "113 lines"
+    },
+    {
+      "file": "components\\ui\\select.tsx",
+      "lines": 154,
+      "sizeKB": "5.46",
+      "reason": "154 lines"
+    },
+    {
+      "file": "components\\ui\\sheet.tsx",
+      "lines": 131,
+      "sizeKB": "4.25",
+      "reason": "131 lines"
+    },
+    {
+      "file": "components\\ui\\toast.tsx",
+      "lines": 138,
+      "sizeKB": "5.09",
+      "reason": "138 lines"
+    },
+    {
+      "file": "components\\upload\\ImageUpload.tsx",
+      "lines": 367,
+      "sizeKB": "10.61",
+      "reason": "367 lines"
+    },
+    {
+      "file": "constants\\index.ts",
+      "lines": 181,
+      "sizeKB": "5.13",
+      "reason": "181 lines"
+    },
+    {
+      "file": "contexts\\CartContext.tsx",
+      "lines": 237,
+      "sizeKB": "6.57",
+      "reason": "237 lines"
+    },
+    {
+      "file": "contexts\\RealtimeCartContext.tsx",
+      "lines": 394,
+      "sizeKB": "11.38",
+      "reason": "394 lines"
+    },
+    {
+      "file": "hooks\\use-toast.ts",
+      "lines": 187,
+      "sizeKB": "3.79",
+      "reason": "187 lines"
+    },
+    {
+      "file": "hooks\\useAnalytics.ts",
+      "lines": 134,
+      "sizeKB": "3.73",
+      "reason": "134 lines"
+    },
+    {
+      "file": "hooks\\useAuth.ts",
+      "lines": 126,
+      "sizeKB": "2.97",
+      "reason": "126 lines"
+    },
+    {
+      "file": "hooks\\useCart.ts",
+      "lines": 182,
+      "sizeKB": "4.45",
+      "reason": "182 lines"
+    },
+    {
+      "file": "hooks\\useChatMessages.ts",
+      "lines": 399,
+      "sizeKB": "10.10",
+      "reason": "399 lines"
+    },
+    {
+      "file": "hooks\\useDemo.ts",
+      "lines": 110,
+      "sizeKB": "2.90",
+      "reason": "110 lines"
+    },
+    {
+      "file": "hooks\\useDriverDeliveries.ts",
+      "lines": 231,
+      "sizeKB": "6.62",
+      "reason": "231 lines"
+    },
+    {
+      "file": "hooks\\useEnhancedPerformanceMonitoring.ts",
+      "lines": 348,
+      "sizeKB": "10.72",
+      "reason": "348 lines"
+    },
+    {
+      "file": "hooks\\useGPSTracking.ts",
+      "lines": 290,
+      "sizeKB": "7.66",
+      "reason": "290 lines"
+    },
+    {
+      "file": "hooks\\useInventoryTracking.ts",
+      "lines": 313,
+      "sizeKB": "7.81",
+      "reason": "313 lines"
+    },
+    {
+      "file": "hooks\\useOrderSubmission.ts",
+      "lines": 245,
+      "sizeKB": "6.71",
+      "reason": "245 lines"
+    },
+    {
+      "file": "hooks\\usePerformanceAlerts.ts",
+      "lines": 141,
+      "sizeKB": "3.50",
+      "reason": "141 lines"
+    },
+    {
+      "file": "hooks\\usePerformanceMonitoring.ts",
+      "lines": 150,
+      "sizeKB": "4.36",
+      "reason": "150 lines"
+    },
+    {
+      "file": "hooks\\useProducts.ts",
+      "lines": 194,
+      "sizeKB": "6.15",
+      "reason": "194 lines"
+    },
+    {
+      "file": "hooks\\useQueries.ts",
+      "lines": 517,
+      "sizeKB": "14.35",
+      "reason": "517 lines"
+    },
+    {
+      "file": "hooks\\useRealtimeCart.ts",
+      "lines": 153,
+      "sizeKB": "3.76",
+      "reason": "153 lines"
+    },
+    {
+      "file": "hooks\\useRealtimeOrders.ts",
+      "lines": 259,
+      "sizeKB": "7.06",
+      "reason": "259 lines"
+    },
+    {
+      "file": "hooks\\useSwipeGesture.ts",
+      "lines": 125,
+      "sizeKB": "3.45",
+      "reason": "125 lines"
+    },
+    {
+      "file": "hooks\\useUserPresence.ts",
+      "lines": 262,
+      "sizeKB": "6.81",
+      "reason": "262 lines"
+    },
+    {
+      "file": "lib\\admin-utils.ts",
+      "lines": 504,
+      "sizeKB": "13.11",
+      "reason": "504 lines"
+    },
+    {
+      "file": "lib\\auth\\server-auth.ts",
+      "lines": 123,
+      "sizeKB": "3.49",
+      "reason": "123 lines"
+    },
+    {
+      "file": "lib\\auth-init.ts",
+      "lines": 172,
+      "sizeKB": "5.01",
+      "reason": "172 lines"
+    },
+    {
+      "file": "lib\\bulk-operations.ts",
+      "lines": 487,
+      "sizeKB": "12.16",
+      "reason": "487 lines"
+    },
+    {
+      "file": "lib\\business-logic.ts",
+      "lines": 333,
+      "sizeKB": "8.97",
+      "reason": "333 lines"
+    },
+    {
+      "file": "lib\\cache\\api-cache.ts",
+      "lines": 613,
+      "sizeKB": "17.06",
+      "reason": "613 lines"
+    },
+    {
+      "file": "lib\\cache\\browser-cache.ts",
+      "lines": 572,
+      "sizeKB": "16.12",
+      "reason": "572 lines"
+    },
+    {
+      "file": "lib\\cache\\redis-cache.ts",
+      "lines": 474,
+      "sizeKB": "13.60",
+      "reason": "474 lines"
+    },
+    {
+      "file": "lib\\csrf-cookie.ts",
+      "lines": 152,
+      "sizeKB": "3.96",
+      "reason": "152 lines"
+    },
+    {
+      "file": "lib\\csrf-origin-validation.ts",
+      "lines": 266,
+      "sizeKB": "6.27",
+      "reason": "266 lines"
+    },
+    {
+      "file": "lib\\csrf-utils.ts",
+      "lines": 180,
+      "sizeKB": "4.66",
+      "reason": "180 lines"
+    },
+    {
+      "file": "lib\\csrf.ts",
+      "lines": 171,
+      "sizeKB": "4.53",
+      "reason": "171 lines"
+    },
+    {
+      "file": "lib\\demo-data.ts",
+      "lines": 183,
+      "sizeKB": "4.15",
+      "reason": "183 lines"
+    },
+    {
+      "file": "lib\\env-validator.ts",
+      "lines": 238,
+      "sizeKB": "6.71",
+      "reason": "238 lines"
+    },
+    {
+      "file": "lib\\env.ts",
+      "lines": 226,
+      "sizeKB": "7.43",
+      "reason": "226 lines"
+    },
+    {
+      "file": "lib\\error-handler.ts",
+      "lines": 222,
+      "sizeKB": "5.47",
+      "reason": "222 lines"
+    },
+    {
+      "file": "lib\\errors\\service-errors.ts",
+      "lines": 135,
+      "sizeKB": "3.09",
+      "reason": "135 lines"
+    },
+    {
+      "file": "lib\\logger.test.ts",
+      "lines": 236,
+      "sizeKB": "6.65",
+      "reason": "236 lines"
+    },
+    {
+      "file": "lib\\logger.ts",
+      "lines": 245,
+      "sizeKB": "5.99",
+      "reason": "245 lines"
+    },
+    {
+      "file": "lib\\monitoring\\api-instrumentation.ts",
+      "lines": 297,
+      "sizeKB": "7.75",
+      "reason": "297 lines"
+    },
+    {
+      "file": "lib\\monitoring\\performance.ts",
+      "lines": 496,
+      "sizeKB": "13.83",
+      "reason": "496 lines"
+    },
+    {
+      "file": "lib\\monitoring\\sentry-config.ts",
+      "lines": 419,
+      "sizeKB": "10.01",
+      "reason": "419 lines"
+    },
+    {
+      "file": "lib\\monitoring\\sla-tracker.ts",
+      "lines": 725,
+      "sizeKB": "20.68",
+      "reason": "725 lines"
+    },
+    {
+      "file": "lib\\monitoring\\web-vitals.ts",
+      "lines": 445,
+      "sizeKB": "13.91",
+      "reason": "445 lines"
+    },
+    {
+      "file": "lib\\optimization\\bundle-analyzer.ts",
+      "lines": 630,
+      "sizeKB": "19.29",
+      "reason": "630 lines"
+    },
+    {
+      "file": "lib\\optimization\\georgian-optimizations.ts",
+      "lines": 451,
+      "sizeKB": "13.81",
+      "reason": "451 lines"
+    },
+    {
+      "file": "lib\\order-history.ts",
+      "lines": 427,
+      "sizeKB": "11.08",
+      "reason": "427 lines"
+    },
+    {
+      "file": "lib\\order-notifications.ts",
+      "lines": 659,
+      "sizeKB": "20.08",
+      "reason": "659 lines"
+    },
+    {
+      "file": "lib\\order-workflow.ts",
+      "lines": 792,
+      "sizeKB": "21.29",
+      "reason": "792 lines"
+    },
+    {
+      "file": "lib\\performance-monitoring.ts",
+      "lines": 621,
+      "sizeKB": "17.38",
+      "reason": "621 lines"
+    },
+    {
+      "file": "lib\\pwa.ts",
+      "lines": 286,
+      "sizeKB": "7.74",
+      "reason": "286 lines"
+    },
+    {
+      "file": "lib\\query\\cache.ts",
+      "lines": 412,
+      "sizeKB": "11.97",
+      "reason": "412 lines"
+    },
+    {
+      "file": "lib\\query\\client.ts",
+      "lines": 274,
+      "sizeKB": "8.53",
+      "reason": "274 lines"
+    },
+    {
+      "file": "lib\\query\\error-handling.tsx",
+      "lines": 501,
+      "sizeKB": "14.27",
+      "reason": "501 lines"
+    },
+    {
+      "file": "lib\\query\\realtime.ts",
+      "lines": 459,
+      "sizeKB": "12.85",
+      "reason": "459 lines"
+    },
+    {
+      "file": "lib\\query-client.ts",
+      "lines": 106,
+      "sizeKB": "2.90",
+      "reason": "106 lines"
+    },
+    {
+      "file": "lib\\realtime\\connection-manager.ts",
+      "lines": 507,
+      "sizeKB": "13.02",
+      "reason": "507 lines"
+    },
+    {
+      "file": "lib\\realtime\\latency-tracker.ts",
+      "lines": 279,
+      "sizeKB": "6.60",
+      "reason": "279 lines"
+    },
+    {
+      "file": "lib\\realtime.ts",
+      "lines": 991,
+      "sizeKB": "27.65",
+      "reason": "991 lines"
+    },
+    {
+      "file": "lib\\restaurant-utils.ts",
+      "lines": 316,
+      "sizeKB": "8.27",
+      "reason": "316 lines"
+    },
+    {
+      "file": "lib\\retry-handler.ts",
+      "lines": 115,
+      "sizeKB": "2.98",
+      "reason": "115 lines"
+    },
+    {
+      "file": "lib\\security.ts",
+      "lines": 194,
+      "sizeKB": "4.68",
+      "reason": "194 lines"
+    },
+    {
+      "file": "lib\\server-action-security.ts",
+      "lines": 143,
+      "sizeKB": "4.03",
+      "reason": "143 lines"
+    },
+    {
+      "file": "lib\\service-health.ts",
+      "lines": 286,
+      "sizeKB": "8.04",
+      "reason": "286 lines"
+    },
+    {
+      "file": "lib\\services\\restaurant\\order.service.ts",
+      "lines": 135,
+      "sizeKB": "3.24",
+      "reason": "135 lines"
+    },
+    {
+      "file": "lib\\store\\cart.store.test.ts",
+      "lines": 102,
+      "sizeKB": "2.31",
+      "reason": "102 lines"
+    },
+    {
+      "file": "lib\\supabase\\admin.ts",
+      "lines": 396,
+      "sizeKB": "10.45",
+      "reason": "396 lines"
+    },
+    {
+      "file": "lib\\supabase\\analytics.service.ts",
+      "lines": 310,
+      "sizeKB": "9.84",
+      "reason": "310 lines"
+    },
+    {
+      "file": "lib\\supabase\\client.ts",
+      "lines": 118,
+      "sizeKB": "3.68",
+      "reason": "118 lines"
+    },
+    {
+      "file": "lib\\supabase\\health-check.ts",
+      "lines": 466,
+      "sizeKB": "14.09",
+      "reason": "466 lines"
+    },
+    {
+      "file": "lib\\supabase\\realtime.service.ts",
+      "lines": 226,
+      "sizeKB": "5.48",
+      "reason": "226 lines"
+    },
+    {
+      "file": "lib\\supabase\\server.ts",
+      "lines": 199,
+      "sizeKB": "5.34",
+      "reason": "199 lines"
+    },
+    {
+      "file": "lib\\supabase\\storage.ts",
+      "lines": 335,
+      "sizeKB": "9.67",
+      "reason": "335 lines"
+    },
+    {
+      "file": "lib\\testing\\api-tester.ts",
+      "lines": 741,
+      "sizeKB": "20.50",
+      "reason": "741 lines"
+    },
+    {
+      "file": "lib\\testing\\auth-tester.ts",
+      "lines": 922,
+      "sizeKB": "25.74",
+      "reason": "922 lines"
+    },
+    {
+      "file": "lib\\testing\\business-logic-validator.ts",
+      "lines": 917,
+      "sizeKB": "28.05",
+      "reason": "917 lines"
+    },
+    {
+      "file": "lib\\testing\\comprehensive-test-orchestrator.ts",
+      "lines": 812,
+      "sizeKB": "24.28",
+      "reason": "812 lines"
+    },
+    {
+      "file": "lib\\testing\\connection-pool.ts",
+      "lines": 551,
+      "sizeKB": "17.07",
+      "reason": "551 lines"
+    },
+    {
+      "file": "lib\\testing\\query-optimizer.ts",
+      "lines": 536,
+      "sizeKB": "15.54",
+      "reason": "536 lines"
+    },
+    {
+      "file": "lib\\testing\\realtime-tester.ts",
+      "lines": 745,
+      "sizeKB": "21.75",
+      "reason": "745 lines"
+    },
+    {
+      "file": "lib\\testing\\rls-performance-tester.ts",
+      "lines": 327,
+      "sizeKB": "11.58",
+      "reason": "327 lines"
+    },
+    {
+      "file": "lib\\testing\\rls-tester.ts",
+      "lines": 470,
+      "sizeKB": "14.24",
+      "reason": "470 lines"
+    },
+    {
+      "file": "lib\\testing\\role-based-tests.ts",
+      "lines": 736,
+      "sizeKB": "21.86",
+      "reason": "736 lines"
+    },
+    {
+      "file": "lib\\testing\\run-comprehensive-tests.ts",
+      "lines": 353,
+      "sizeKB": "9.40",
+      "reason": "353 lines"
+    },
+    {
+      "file": "lib\\testing\\test-utils.tsx",
+      "lines": 312,
+      "sizeKB": "8.06",
+      "reason": "312 lines"
+    },
+    {
+      "file": "lib\\testing\\tests\\comprehensive\\config.ts",
+      "lines": 310,
+      "sizeKB": "8.95",
+      "reason": "310 lines"
+    },
+    {
+      "file": "lib\\validators\\analytics.ts",
+      "lines": 143,
+      "sizeKB": "4.09",
+      "reason": "143 lines"
+    },
+    {
+      "file": "lib\\validators\\orders\\order-submission.ts",
+      "lines": 155,
+      "sizeKB": "6.04",
+      "reason": "155 lines"
+    },
+    {
+      "file": "lib\\vps-connection-test.ts",
+      "lines": 666,
+      "sizeKB": "17.77",
+      "reason": "666 lines"
+    },
+    {
+      "file": "middleware\\performance.ts",
+      "lines": 307,
+      "sizeKB": "8.35",
+      "reason": "307 lines"
+    },
+    {
+      "file": "middleware.ts",
+      "lines": 388,
+      "sizeKB": "11.50",
+      "reason": "388 lines"
+    },
+    {
+      "file": "services\\admin\\admin.service.ts",
+      "lines": 484,
+      "sizeKB": "14.13",
+      "reason": "484 lines"
+    },
+    {
+      "file": "services\\admin\\audit.service.ts",
+      "lines": 211,
+      "sizeKB": "5.46",
+      "reason": "211 lines"
+    },
+    {
+      "file": "services\\admin\\bulk.service.ts",
+      "lines": 320,
+      "sizeKB": "9.55",
+      "reason": "320 lines"
+    },
+    {
+      "file": "services\\auth\\auth.service.ts",
+      "lines": 170,
+      "sizeKB": "4.14",
+      "reason": "170 lines"
+    },
+    {
+      "file": "services\\cart\\cart.service.ts",
+      "lines": 429,
+      "sizeKB": "11.79",
+      "reason": "429 lines"
+    },
+    {
+      "file": "services\\order-submission.service.ts",
+      "lines": 607,
+      "sizeKB": "17.48",
+      "reason": "607 lines"
+    },
+    {
+      "file": "services\\orders\\order.service.ts",
+      "lines": 250,
+      "sizeKB": "6.51",
+      "reason": "250 lines"
+    },
+    {
+      "file": "services\\performance-alerting-service.ts",
+      "lines": 328,
+      "sizeKB": "8.12",
+      "reason": "328 lines"
+    },
+    {
+      "file": "services\\performance-monitoring-service.ts",
+      "lines": 228,
+      "sizeKB": "5.94",
+      "reason": "228 lines"
+    },
+    {
+      "file": "services\\products\\product.service.ts",
+      "lines": 226,
+      "sizeKB": "6.04",
+      "reason": "226 lines"
+    },
+    {
+      "file": "services\\realtime-cart.service.ts",
+      "lines": 582,
+      "sizeKB": "15.25",
+      "reason": "582 lines"
+    },
+    {
+      "file": "setupTests.ts",
+      "lines": 430,
+      "sizeKB": "11.43",
+      "reason": "430 lines"
+    },
+    {
+      "file": "store\\authStore.ts",
+      "lines": 126,
+      "sizeKB": "3.44",
+      "reason": "126 lines"
+    },
+    {
+      "file": "test-utils.tsx",
+      "lines": 311,
+      "sizeKB": "9.96",
+      "reason": "311 lines"
+    },
+    {
+      "file": "tests\\admin\\admin.test.ts",
+      "lines": 621,
+      "sizeKB": "18.92",
+      "reason": "621 lines"
+    },
+    {
+      "file": "types\\admin.ts",
+      "lines": 275,
+      "sizeKB": "5.36",
+      "reason": "275 lines"
+    },
+    {
+      "file": "types\\cart.ts",
+      "lines": 103,
+      "sizeKB": "1.81",
+      "reason": "103 lines"
+    },
+    {
+      "file": "types\\database.ts",
+      "lines": 1104,
+      "sizeKB": "32.45",
+      "reason": "1104 lines"
+    },
+    {
+      "file": "types\\driver.ts",
+      "lines": 146,
+      "sizeKB": "3.40",
+      "reason": "146 lines"
+    },
+    {
+      "file": "types\\order-submission.ts",
+      "lines": 291,
+      "sizeKB": "7.79",
+      "reason": "291 lines"
+    },
+    {
+      "file": "types\\performance.ts",
+      "lines": 207,
+      "sizeKB": "5.65",
+      "reason": "207 lines"
+    },
+    {
+      "file": "types\\realtime-cart.ts",
+      "lines": 126,
+      "sizeKB": "2.56",
+      "reason": "126 lines"
+    },
+    {
+      "file": "types\\restaurant-temp.ts",
+      "lines": 187,
+      "sizeKB": "4.68",
+      "reason": "187 lines"
+    },
+    {
+      "file": "utils\\performance-testing.ts",
+      "lines": 374,
+      "sizeKB": "9.75",
+      "reason": "374 lines"
+    }
+  ],
+  "heavyDependencies": [
+    {
+      "file": "app\\(dashboard)\\admin\\drivers\\page.tsx",
+      "dependencies": [
+        "sonner"
+      ],
+      "lines": 133,
+      "sizeKB": "4.64"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\orders\\page.tsx",
+      "dependencies": [
+        "date-fns",
+        "react-day-picker"
+      ],
+      "lines": 96,
+      "sizeKB": "3.68"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\users\\page.tsx",
+      "dependencies": [
+        "sonner"
+      ],
+      "lines": 135,
+      "sizeKB": "4.82"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboard.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 307,
+      "sizeKB": "14.65"
+    },
+    {
+      "file": "app\\api\\auth\\create-test-user\\route.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 144,
+      "sizeKB": "4.29"
+    },
+    {
+      "file": "app\\api\\contact\\route.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 55,
+      "sizeKB": "1.67"
+    },
+    {
+      "file": "app\\api\\orders\\analytics\\route.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 292,
+      "sizeKB": "8.83"
+    },
+    {
+      "file": "app\\dashboard\\admin\\analytics\\page.tsx",
+      "dependencies": [
+        "date-fns",
+        "react-day-picker"
+      ],
+      "lines": 247,
+      "sizeKB": "8.95"
+    },
+    {
+      "file": "app\\dashboard\\admin\\orders\\page.tsx",
+      "dependencies": [
+        "date-fns",
+        "react-day-picker"
+      ],
+      "lines": 380,
+      "sizeKB": "15.23"
+    },
+    {
+      "file": "app\\dashboard\\admin\\users\\page.tsx",
+      "dependencies": [
+        "react-hook-form",
+        "zod"
+      ],
+      "lines": 634,
+      "sizeKB": "21.80"
+    },
+    {
+      "file": "app\\dashboard\\driver\\history\\page.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 473,
+      "sizeKB": "17.69"
+    },
+    {
+      "file": "app\\orders\\actions.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 585,
+      "sizeKB": "15.57"
+    },
+    {
+      "file": "components\\admin\\AnalyticsDashboard.tsx",
+      "dependencies": [
+        "recharts"
+      ],
+      "lines": 566,
+      "sizeKB": "24.12"
+    },
+    {
+      "file": "components\\admin\\LiveOrderFeed.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 149,
+      "sizeKB": "4.90"
+    },
+    {
+      "file": "components\\admin\\OrderDetails.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 370,
+      "sizeKB": "12.77"
+    },
+    {
+      "file": "components\\admin\\OrderManagementTable.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 455,
+      "sizeKB": "16.08"
+    },
+    {
+      "file": "components\\admin\\UserModal.tsx",
+      "dependencies": [
+        "react-hook-form",
+        "zod"
+      ],
+      "lines": 318,
+      "sizeKB": "11.04"
+    },
+    {
+      "file": "components\\analytics\\DateRangeFilter.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 100,
+      "sizeKB": "2.98"
+    },
+    {
+      "file": "components\\notifications\\NotificationCenter.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 211,
+      "sizeKB": "6.72"
+    },
+    {
+      "file": "components\\performance\\PerformanceAlertsDashboard.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 257,
+      "sizeKB": "9.09"
+    },
+    {
+      "file": "components\\performance\\PerformanceDashboard.tsx",
+      "dependencies": [
+        "recharts"
+      ],
+      "lines": 678,
+      "sizeKB": "25.06"
+    },
+    {
+      "file": "components\\restaurant\\CommentForm.tsx",
+      "dependencies": [
+        "sonner"
+      ],
+      "lines": 46,
+      "sizeKB": "1.24"
+    },
+    {
+      "file": "components\\restaurant\\OrderForm.tsx",
+      "dependencies": [
+        "react-hook-form",
+        "zod",
+        "sonner"
+      ],
+      "lines": 134,
+      "sizeKB": "4.15"
+    },
+    {
+      "file": "components\\restaurant\\OrderHistoryFilters.tsx",
+      "dependencies": [
+        "date-fns"
+      ],
+      "lines": 143,
+      "sizeKB": "4.41"
+    },
+    {
+      "file": "components\\ui\\accordion.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 65,
+      "sizeKB": "2.00"
+    },
+    {
+      "file": "components\\ui\\avatar.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 42,
+      "sizeKB": "1.02"
+    },
+    {
+      "file": "components\\ui\\button.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 49,
+      "sizeKB": "1.73"
+    },
+    {
+      "file": "components\\ui\\calendar.tsx",
+      "dependencies": [
+        "react-day-picker"
+      ],
+      "lines": 55,
+      "sizeKB": "2.32"
+    },
+    {
+      "file": "components\\ui\\checkbox.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 29,
+      "sizeKB": "1.03"
+    },
+    {
+      "file": "components\\ui\\data-table.tsx",
+      "dependencies": [
+        "@tanstack/react-table"
+      ],
+      "lines": 44,
+      "sizeKB": "1.08"
+    },
+    {
+      "file": "components\\ui\\dialog.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 123,
+      "sizeKB": "4.33"
+    },
+    {
+      "file": "components\\ui\\dropdown-menu.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 229,
+      "sizeKB": "8.10"
+    },
+    {
+      "file": "components\\ui\\form.tsx",
+      "dependencies": [
+        "react-hook-form",
+        "@radix-ui"
+      ],
+      "lines": 153,
+      "sizeKB": "3.61"
+    },
+    {
+      "file": "components\\ui\\label.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 21,
+      "sizeKB": "0.56"
+    },
+    {
+      "file": "components\\ui\\popover.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 32,
+      "sizeKB": "1.21"
+    },
+    {
+      "file": "components\\ui\\progress.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 26,
+      "sizeKB": "0.75"
+    },
+    {
+      "file": "components\\ui\\scroll-area.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 57,
+      "sizeKB": "1.59"
+    },
+    {
+      "file": "components\\ui\\select.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 154,
+      "sizeKB": "5.46"
+    },
+    {
+      "file": "components\\ui\\separator.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 27,
+      "sizeKB": "0.71"
+    },
+    {
+      "file": "components\\ui\\sheet.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 131,
+      "sizeKB": "4.25"
+    },
+    {
+      "file": "components\\ui\\slider.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 59,
+      "sizeKB": "1.91"
+    },
+    {
+      "file": "components\\ui\\sonner.tsx",
+      "dependencies": [
+        "sonner"
+      ],
+      "lines": 41,
+      "sizeKB": "1.01"
+    },
+    {
+      "file": "components\\ui\\switch.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 30,
+      "sizeKB": "1.18"
+    },
+    {
+      "file": "components\\ui\\tabs.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 45,
+      "sizeKB": "1.46"
+    },
+    {
+      "file": "components\\ui\\toast.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 138,
+      "sizeKB": "5.09"
+    },
+    {
+      "file": "components\\ui\\tooltip.tsx",
+      "dependencies": [
+        "@radix-ui"
+      ],
+      "lines": 58,
+      "sizeKB": "1.84"
+    },
+    {
+      "file": "hooks\\useRealtimeDashboard.ts",
+      "dependencies": [
+        "sonner"
+      ],
+      "lines": 34,
+      "sizeKB": "0.75"
+    },
+    {
+      "file": "lib\\env-validator.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 238,
+      "sizeKB": "6.71"
+    },
+    {
+      "file": "lib\\env.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 226,
+      "sizeKB": "7.43"
+    },
+    {
+      "file": "lib\\validators\\analytics.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 143,
+      "sizeKB": "4.09"
+    },
+    {
+      "file": "lib\\validators\\auth\\auth.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 37,
+      "sizeKB": "1.29"
+    },
+    {
+      "file": "lib\\validators\\orders\\order-submission.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 155,
+      "sizeKB": "6.04"
+    },
+    {
+      "file": "lib\\validators\\orders\\orders.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 40,
+      "sizeKB": "1.26"
+    },
+    {
+      "file": "lib\\validators\\product.schema.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 73,
+      "sizeKB": "1.86"
+    },
+    {
+      "file": "lib\\validators\\products\\products.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 37,
+      "sizeKB": "1.56"
+    },
+    {
+      "file": "lib\\validators\\restaurant\\cart.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 23,
+      "sizeKB": "0.59"
+    },
+    {
+      "file": "lib\\validators\\restaurant\\order.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 24,
+      "sizeKB": "0.85"
+    },
+    {
+      "file": "lib\\validators\\restaurant\\orders.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 18,
+      "sizeKB": "0.65"
+    },
+    {
+      "file": "services\\auth\\auth.service.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 170,
+      "sizeKB": "4.14"
+    },
+    {
+      "file": "services\\cart\\cart.service.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 429,
+      "sizeKB": "11.79"
+    },
+    {
+      "file": "services\\orders\\order.service.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 250,
+      "sizeKB": "6.51"
+    },
+    {
+      "file": "services\\products\\product.service.ts",
+      "dependencies": [
+        "zod"
+      ],
+      "lines": 226,
+      "sizeKB": "6.04"
+    }
+  ],
+  "dynamicImports": [
+    {
+      "file": "app\\(dashboard)\\admin\\drivers\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\orders\\live\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\orders\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\users\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\checkout\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\history\\page.tsx",
+      "type": "next/dynamic"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\new\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\products\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboardClient.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\api\\csrf\\route.ts",
+      "type": "import()"
+    },
+    {
+      "file": "app\\catalog\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\admin\\analytics\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\admin\\orders\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\admin\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\admin\\performance\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\admin\\products\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\admin\\users\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\driver\\layout-client.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\driver\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\history\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "app\\health\\page.tsx",
+      "type": "import()"
+    },
+    {
+      "file": "lib\\logger.test.ts",
+      "type": "import()"
+    }
+  ],
+  "suspenseBoundaries": [
+    {
+      "file": "app\\(dashboard)\\admin\\drivers\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\orders\\live\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\orders\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\admin\\users\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\checkout\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\history\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\new\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\orders\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\products\\page.tsx"
+    },
+    {
+      "file": "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboardClient.tsx"
+    },
+    {
+      "file": "app\\catalog\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\admin\\analytics\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\admin\\orders\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\admin\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\admin\\performance\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\admin\\products\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\admin\\users\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\driver\\layout-client.tsx"
+    },
+    {
+      "file": "app\\dashboard\\driver\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\history\\page.tsx"
+    },
+    {
+      "file": "app\\dashboard\\restaurant\\page.tsx"
+    },
+    {
+      "file": "app\\health\\page.tsx"
+    }
+  ],
+  "opportunities": [
+    {
+      "category": "Code Splitting",
+      "priority": "HIGH",
+      "impact": "230 large components can use dynamic imports",
+      "count": 230,
+      "files": [
+        "app\\(dashboard)\\admin\\_components\\AdminNavigation.tsx",
+        "app\\(dashboard)\\admin\\_components\\AdminSidebar.tsx",
+        "app\\(dashboard)\\analytics\\page.tsx",
+        "app\\(dashboard)\\restaurant\\orders\\[id]\\page.tsx",
+        "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboard.tsx",
+        "app\\api\\analytics\\export\\route.ts",
+        "app\\api\\analytics\\kpis\\route.ts",
+        "app\\api\\auth\\create-test-user\\route.ts",
+        "app\\api\\driver\\deliveries\\route.ts",
+        "app\\api\\health\\route.ts"
+      ],
+      "estimatedSavings": "2087.05 KB"
+    },
+    {
+      "category": "Heavy Dependencies",
+      "priority": "HIGH",
+      "impact": "56 components with heavy libs need lazy loading",
+      "count": 56,
+      "files": [
+        "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboard.tsx",
+        "app\\api\\auth\\create-test-user\\route.ts",
+        "app\\api\\contact\\route.ts",
+        "app\\api\\orders\\analytics\\route.ts",
+        "app\\dashboard\\driver\\history\\page.tsx",
+        "app\\orders\\actions.ts",
+        "components\\admin\\AnalyticsDashboard.tsx",
+        "components\\admin\\LiveOrderFeed.tsx",
+        "components\\admin\\OrderDetails.tsx",
+        "components\\admin\\OrderManagementTable.tsx"
+      ],
+      "topDependencies": [
+        "date-fns",
+        "zod",
+        "recharts",
+        "react-hook-form",
+        "sonner",
+        "@radix-ui",
+        "react-day-picker",
+        "@tanstack/react-table"
+      ]
+    },
+    {
+      "category": "Suspense Boundaries",
+      "priority": "MEDIUM",
+      "impact": "2 dynamic imports missing Suspense",
+      "count": 2,
+      "files": [
+        "app\\api\\csrf\\route.ts",
+        "lib\\logger.test.ts"
+      ]
+    }
+  ],
+  "phase3Mapping": {
+    "T057": {
+      "task": "Create code splitting baseline analysis",
+      "status": "COMPLETE",
+      "file": "analyze-code-splitting.mjs"
+    },
+    "T058": {
+      "task": "Identify and implement route-based code splitting",
+      "status": "READY",
+      "targetFiles": [],
+      "estimatedImpact": "10-15% bundle reduction"
+    },
+    "T059": {
+      "task": "Implement dynamic imports for heavy dependencies",
+      "status": "READY",
+      "targetFiles": [
+        "app\\(dashboard)\\restaurant\\_components\\RestaurantDashboard.tsx",
+        "app\\api\\auth\\create-test-user\\route.ts",
+        "app\\api\\contact\\route.ts",
+        "app\\api\\orders\\analytics\\route.ts",
+        "app\\dashboard\\driver\\history\\page.tsx",
+        "app\\orders\\actions.ts",
+        "components\\admin\\AnalyticsDashboard.tsx",
+        "components\\admin\\LiveOrderFeed.tsx",
+        "components\\admin\\OrderDetails.tsx",
+        "components\\admin\\OrderManagementTable.tsx"
+      ],
+      "dependencies": [
+        "date-fns",
+        "zod",
+        "recharts",
+        "react-hook-form",
+        "sonner",
+        "@radix-ui",
+        "react-day-picker",
+        "@tanstack/react-table"
+      ],
+      "estimatedImpact": "15-25% bundle reduction"
+    },
+    "T060": {
+      "task": "Add Suspense boundaries for all dynamic imports",
+      "status": "READY",
+      "targetFiles": [
+        "app\\api\\csrf\\route.ts",
+        "lib\\logger.test.ts"
+      ],
+      "estimatedImpact": "Better loading UX"
+    },
+    "T061": {
+      "task": "Implement component-level code splitting",
+      "status": "READY",
+      "targetFiles": [],
+      "estimatedImpact": "5-10% bundle reduction"
+    },
+    "T062": {
+      "task": "Optimize admin dashboard with lazy loading",
+      "status": "READY",
+      "focus": "Admin components with heavy charts"
+    },
+    "T063": {
+      "task": "Optimize restaurant catalog with lazy loading",
+      "status": "READY",
+      "focus": "Product grid and filters"
+    },
+    "T064": {
+      "task": "Optimize analytics dashboard with lazy loading",
+      "status": "READY",
+      "focus": "Chart components and date pickers"
+    },
+    "T065": {
+      "task": "Add loading skeletons for all lazy components",
+      "status": "READY",
+      "estimatedImpact": "Improved perceived performance"
+    },
+    "T066": {
+      "task": "Measure and document bundle size improvements",
+      "status": "PENDING",
+      "metrics": "Before/after bundle analysis"
+    }
+  }
+}

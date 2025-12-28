@@ -15,27 +15,102 @@ import {
   TrendingUp,
   DollarSign,
   Package,
+  Loader2,
 } from 'lucide-react'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
-import { RestaurantMetrics, RestaurantOrder } from '@/types/restaurant'
+import type { RestaurantMetrics, RestaurantOrder } from '@/types/restaurant'
 import { useToast } from '@/hooks/use-toast'
+import { loadPaginatedOrders } from '@/app/dashboard/restaurant/actions'
 
-export function RestaurantDashboardContent() {
+export function RestaurantDashboardContent({ isDemo = false }: { isDemo?: boolean }) {
   const [metrics, setMetrics] = useState<RestaurantMetrics | null>(null)
   const [recentOrders, setRecentOrders] = useState<RestaurantOrder[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
   const { toast } = useToast()
 
   const loadDashboardData = useCallback(async () => {
+    if (isDemo) {
+      // Simulate a small delay for realism
+      setTimeout(() => {
+        setMetrics({
+          total_orders: 150,
+          total_spent: 4500,
+          pending_orders: 5,
+          completed_orders: 145,
+          average_order_value: 30,
+          most_ordered_products: [
+            { product_name: 'Khinkali', quantity: 500 },
+            { product_name: 'Khachapuri', quantity: 200 },
+            { product_name: 'Badrijani', quantity: 150 },
+          ],
+          delivery_performance: {
+            average_delivery_time: 25,
+            on_time_deliveries: 147,
+            late_deliveries: 3,
+          },
+        })
+        setRecentOrders([
+          {
+            id: '1',
+            status: 'delivered',
+            total_amount: 120,
+            created_at: new Date().toISOString(),
+            items: [],
+          },
+          {
+            id: '2',
+            status: 'processing',
+            total_amount: 85,
+            created_at: new Date().toISOString(),
+            items: [],
+          },
+          {
+            id: '3',
+            status: 'pending',
+            total_amount: 200,
+            created_at: new Date().toISOString(),
+            items: [],
+          },
+        ] as any)
+        setLoading(false)
+      }, 500)
+      return
+    }
+
     try {
       setLoading(true)
-      const [metricsData, ordersData] = await Promise.all([
+
+      // T017: Load metrics and PAGINATED orders (using optimized query)
+      const [metricsData, ordersResult] = await Promise.all([
         RestaurantUtils.getRestaurantMetrics(),
-        RestaurantUtils.getOrders({ status: ['pending', 'confirmed', 'priced'] }),
+        loadPaginatedOrders({
+          status: ['pending', 'confirmed', 'priced'],
+          limit: 5, // Show 5 recent orders on dashboard
+        }),
       ])
 
       setMetrics(metricsData)
-      setRecentOrders(ordersData.slice(0, 5))
+
+      if (ordersResult.success && ordersResult.data) {
+        const { items, nextCursor: cursor, hasMore: more } = ordersResult.data
+        // Transform paginated items to RestaurantOrder format
+        const orders = items.map((item) => ({
+          ...item,
+          items:
+            item.order_items?.map((oi) => ({
+              ...oi,
+              product_name: oi.products?.name ?? '',
+            })) ?? [],
+        })) as unknown as RestaurantOrder[]
+        setRecentOrders(orders)
+        setNextCursor(cursor)
+        setHasMore(more)
+      } else {
+        throw new Error(ordersResult.error || 'Failed to load orders')
+      }
     } catch (error) {
       logger.error('Failed to load dashboard data:', error)
       toast({
@@ -46,7 +121,49 @@ export function RestaurantDashboardContent() {
     } finally {
       setLoading(false)
     }
-  }, [toast])
+  }, [toast, isDemo])
+
+  // T017: Load more orders function (cursor-based pagination)
+  const loadMoreOrders = useCallback(async () => {
+    if (!nextCursor || loadingMore || isDemo) return
+
+    try {
+      setLoadingMore(true)
+
+      const result = await loadPaginatedOrders({
+        status: ['pending', 'confirmed', 'priced'],
+        limit: 5,
+        cursor: nextCursor,
+      })
+
+      if (result.success && result.data) {
+        const { items, nextCursor: cursor, hasMore: more } = result.data
+        // Transform paginated items to RestaurantOrder format
+        const newOrders = items.map((item) => ({
+          ...item,
+          items:
+            item.order_items?.map((oi) => ({
+              ...oi,
+              product_name: oi.products?.name ?? '',
+            })) ?? [],
+        })) as unknown as RestaurantOrder[]
+        setRecentOrders((prev: RestaurantOrder[]) => [...prev, ...newOrders])
+        setNextCursor(cursor)
+        setHasMore(more)
+      } else {
+        throw new Error(result.error || 'Failed to load more orders')
+      }
+    } catch (error) {
+      logger.error('Failed to load more orders:', error)
+      toast({
+        title: 'შეცდომა',
+        description: 'დამატებითი შეკვეთების ჩატვირთვა ვერ მოხერხდა',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [nextCursor, loadingMore, toast, isDemo])
 
   useEffect(() => {
     loadDashboardData()
@@ -196,6 +313,22 @@ export function RestaurantDashboardContent() {
                       </div>
                     </div>
                   ))}
+
+                  {/* T017: Load More button for cursor-based pagination */}
+                  {!isDemo && hasMore && (
+                    <div className="flex justify-center mt-4">
+                      <Button onClick={loadMoreOrders} disabled={loadingMore} variant="outline">
+                        {loadingMore ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            იტვირთება...
+                          </>
+                        ) : (
+                          'მეტის ნახვა'
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -209,11 +342,11 @@ export function RestaurantDashboardContent() {
                 <CardTitle>პოპულარული პროდუქტები</CardTitle>
               </CardHeader>
               <CardContent>
-                {metrics?.most_ordered_products.length === 0 ? (
+                {!metrics?.most_ordered_products?.length ? (
                   <div className="text-center py-8 text-muted-foreground">მონაცემები არ არის</div>
                 ) : (
                   <div className="space-y-2">
-                    {metrics?.most_ordered_products.map((product, index) => (
+                    {metrics?.most_ordered_products?.map((product, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <span className="text-sm">{product.product_name}</span>
                         <Badge variant="secondary">{product.quantity}</Badge>
@@ -233,19 +366,19 @@ export function RestaurantDashboardContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">დროული მიწოდება</span>
                     <span className="font-medium">
-                      {metrics?.delivery_performance.on_time_deliveries || 0}
+                      {metrics?.delivery_performance?.on_time_deliveries || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">დაგვიანებული</span>
                     <span className="font-medium text-destructive">
-                      {metrics?.delivery_performance.late_deliveries || 0}
+                      {metrics?.delivery_performance?.late_deliveries || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">საშუალო დრო</span>
                     <span className="font-medium">
-                      {metrics?.delivery_performance.average_delivery_time || 0} წთ
+                      {metrics?.delivery_performance?.average_delivery_time || 0} წთ
                     </span>
                   </div>
                 </div>

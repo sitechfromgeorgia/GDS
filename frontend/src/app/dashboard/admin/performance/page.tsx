@@ -1,12 +1,20 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import PerformanceDashboard from '@/components/performance/PerformanceDashboard'
+import { PerformanceDashboardSkeleton } from '@/components/performance/PerformanceDashboardSkeleton'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load PerformanceDashboard with recharts (25.06 KB component)
+// Why: Massive component with heavy chart library
+// Expected impact: 15-25% initial bundle reduction
+const PerformanceDashboard = lazy(() => import('@/components/performance/PerformanceDashboard'))
 
 const PerformanceMonitoringPage = () => {
   const { user } = useAuth()
@@ -42,7 +50,9 @@ const PerformanceMonitoringPage = () => {
         </Button>
       </div>
 
-      <PerformanceDashboard />
+      <Suspense fallback={<PerformanceDashboardSkeleton />}>
+        <PerformanceDashboard />
+      </Suspense>
     </div>
   )
 }

@@ -18,7 +18,8 @@ import {
   Clock,
   MessageSquare,
 } from 'lucide-react'
-import { CartItem, Product } from '@/types/restaurant'
+import type { CartItem } from '@/types/restaurant'
+import { Product } from '@/types/restaurant'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
 
 interface CartProps {
@@ -27,6 +28,11 @@ interface CartProps {
   onRemoveItem: (productId: string) => void
   onUpdateNotes: (productId: string, notes: string) => void
   onClearCart: () => void
+  onSubmitOrder: (orderData: {
+    deliveryAddress: string
+    deliveryTime?: string
+    specialInstructions?: string
+  }) => Promise<void>
 }
 
 export function Cart({
@@ -35,6 +41,7 @@ export function Cart({
   onRemoveItem,
   onUpdateNotes,
   onClearCart,
+  onSubmitOrder,
 }: CartProps) {
   const [deliveryAddress, setDeliveryAddress] = useState('')
   const [deliveryTime, setDeliveryTime] = useState('')
@@ -57,10 +64,8 @@ export function Cart({
     }
   }
 
-  const handleSubmitOrder = () => {
-    // This will be handled by the parent component
-    logger.info('Order data:', {
-      items,
+  const handleSubmitOrder = async () => {
+    await onSubmitOrder({
       deliveryAddress,
       deliveryTime,
       specialInstructions,

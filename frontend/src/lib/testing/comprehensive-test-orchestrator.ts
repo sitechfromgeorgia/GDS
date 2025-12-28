@@ -1,7 +1,10 @@
 import { logger } from '@/lib/logger'
-import { apiTester, APITestSuite } from './api-tester'
-import { authTester, AuthTestSuite, AuthTestConfig } from './auth-tester'
-import { realtimeTester, RealtimeTestSuite, RealtimeTestConfig } from './realtime-tester'
+import type { APITestSuite } from './api-tester';
+import { apiTester } from './api-tester'
+import type { AuthTestSuite, AuthTestConfig } from './auth-tester';
+import { authTester } from './auth-tester'
+import type { RealtimeTestSuite, RealtimeTestConfig } from './realtime-tester';
+import { realtimeTester } from './realtime-tester'
 import { recordPerformance } from '../monitoring/performance'
 
 /**

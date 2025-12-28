@@ -2,7 +2,8 @@
 // Based on specs/001-analytics-dashboard/contracts/csv-export.json
 
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { exportQueryParamsSchema, parseStatusParam } from '@/lib/validators/analytics'
 import { analyticsService } from '@/lib/supabase/analytics.service'
 import { createServerClient } from '@/lib/supabase/server'

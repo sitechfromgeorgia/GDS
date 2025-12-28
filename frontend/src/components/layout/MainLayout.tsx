@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { LogOut, Package, Users, Truck } from 'lucide-react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { LanguageSwitcher } from '@/components/ui/language-switcher'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -11,6 +13,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { profile, signOut, isAdmin, isRestaurant, isDriver } = useAuth()
+  const { t } = useLanguage()
 
   const getRoleIcon = () => {
     if (isAdmin()) return <Users className="h-4 w-4" />
@@ -20,10 +23,10 @@ export function MainLayout({ children }: MainLayoutProps) {
   }
 
   const getRoleText = () => {
-    if (isAdmin()) return 'ადმინისტრატორი'
-    if (isRestaurant()) return 'რესტორანი'
-    if (isDriver()) return 'მძღოლი'
-    return 'უცნობი'
+    if (isAdmin()) return t('common.admin')
+    if (isRestaurant()) return t('common.restaurant')
+    if (isDriver()) return t('common.driver')
+    return t('common.unknown')
   }
 
   return (
@@ -41,8 +44,9 @@ export function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <span className="text-sm text-gray-600">
-                {profile?.full_name || profile?.restaurant_name || 'მომხმარებელი'}
+                {profile?.full_name || profile?.restaurant_name || t('common.user')}
               </span>
               <Button
                 variant="outline"
@@ -51,7 +55,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                 className="flex items-center gap-2"
               >
                 <LogOut className="h-4 w-4" />
-                გასვლა
+                {t('common.logout')}
               </Button>
             </div>
           </div>

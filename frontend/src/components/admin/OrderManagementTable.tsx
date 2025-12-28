@@ -30,7 +30,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { MoreHorizontal, Eye, DollarSign } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { createBrowserClient } from '@/lib/supabase'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 import { format } from 'date-fns'
 import { ka } from 'date-fns/locale'
 
@@ -41,7 +41,7 @@ type Order = Database['public']['Tables']['orders']['Row'] & {
   driver_name?: string
 }
 
-import { OrderStatus } from '@/types/database'
+import type { OrderStatus } from '@/types/database'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
@@ -237,9 +237,9 @@ export function OrderManagementTable({
           <Card key={i}>
             <CardContent className="p-4">
               <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-4 bg-muted rounded w-1/4" />
               </div>
             </CardContent>
           </Card>
@@ -310,7 +310,7 @@ export function OrderManagementTable({
                   შექმნილია
                 </Button>
               </TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -2,9 +2,9 @@
 import { logger } from '@/lib/logger'
 
 import { createBrowserClient } from '@/lib/supabase'
-import { RealtimeChannel } from '@supabase/supabase-js'
-import { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
-import { CartSession, RealtimeCartUpdate, CartActivityType } from '@/types/realtime-cart'
+import type { RealtimeChannel } from '@supabase/supabase-js'
+import type { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
+import type { CartSession, RealtimeCartUpdate, CartActivityType } from '@/types/realtime-cart'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
@@ -393,48 +393,44 @@ export class RealtimeCartService {
     this.channel = supabase.channel(`cart:${this.sessionId}`)
 
     // Subscribe to cart_items changes
-    this.channel!
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'cart_items',
-          filter: `cart_session_id=eq.${this.sessionId}`,
-        },
-        (payload) => {
-          const update: RealtimeCartUpdate = {
-            type: this.mapEventTypeToCartUpdateType(payload.eventType),
-            sessionId: this.sessionId!,
-            data: payload.new || payload.old,
-            timestamp: new Date().toISOString(),
-          }
-          callback(update)
+    this.channel!.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'cart_items',
+        filter: `cart_session_id=eq.${this.sessionId}`,
+      },
+      (payload) => {
+        const update: RealtimeCartUpdate = {
+          type: this.mapEventTypeToCartUpdateType(payload.eventType),
+          sessionId: this.sessionId!,
+          data: payload.new || payload.old,
+          timestamp: new Date().toISOString(),
         }
-      )
-      .subscribe()
+        callback(update)
+      }
+    ).subscribe()
 
     // Subscribe to cart_activities changes
-    this.channel!
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'cart_activities',
-          filter: `cart_session_id=eq.${this.sessionId}`,
-        },
-        (payload) => {
-          const update: RealtimeCartUpdate = {
-            type: 'activity',
-            sessionId: this.sessionId!,
-            data: payload.new,
-            timestamp: new Date().toISOString(),
-          }
-          callback(update)
+    this.channel!.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'cart_activities',
+        filter: `cart_session_id=eq.${this.sessionId}`,
+      },
+      (payload) => {
+        const update: RealtimeCartUpdate = {
+          type: 'activity',
+          sessionId: this.sessionId!,
+          data: payload.new,
+          timestamp: new Date().toISOString(),
         }
-      )
-      .subscribe()
+        callback(update)
+      }
+    ).subscribe()
 
     // Return unsubscribe function
     return () => {

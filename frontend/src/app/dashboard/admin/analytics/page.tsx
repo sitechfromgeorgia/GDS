@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense, lazy } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -24,11 +24,23 @@ import {
   BarChart3,
   Activity,
 } from 'lucide-react'
-import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard'
+import { AnalyticsDashboardSkeleton } from '@/components/admin/AnalyticsDashboardSkeleton'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { ka } from 'date-fns/locale'
 import type { DateRange } from 'react-day-picker'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load AnalyticsDashboard with recharts (24.12 KB component)
+// Why: Massive component with heavy chart library
+// Expected impact: 15-25% initial bundle reduction
+const AnalyticsDashboard = lazy(() =>
+  import('@/components/admin/AnalyticsDashboard').then((module) => ({
+    default: module.AnalyticsDashboard,
+  }))
+)
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -226,7 +238,9 @@ export default function AnalyticsPage() {
       </Card>
 
       {/* Analytics Dashboard */}
-      <AnalyticsDashboard dateRange={dateRange || { from: undefined, to: undefined }} />
+      <Suspense fallback={<AnalyticsDashboardSkeleton />}>
+        <AnalyticsDashboard dateRange={dateRange || { from: undefined, to: undefined }} />
+      </Suspense>
     </div>
   )
 }

@@ -78,8 +78,8 @@ export async function checkBackendHealth(): Promise<HealthCheckResult> {
 export function getBackendInfo() {
   return {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not configured',
-    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    hasAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     environment: process.env.NODE_ENV || 'unknown',
   }
 }

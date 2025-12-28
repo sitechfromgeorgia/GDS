@@ -365,7 +365,8 @@ export class AdminService {
     const totalOrders = orders?.length || 0
     const completedOrders =
       orders?.filter(
-        (order: any) => (order as any).status === 'delivered' || (order as any).status === 'completed'
+        (order: any) =>
+          (order as any).status === 'delivered' || (order as any).status === 'completed'
       ) || []
     const avgCompletionTime = this.calculateAverageCompletionTime(completedOrders)
 

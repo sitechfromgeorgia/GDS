@@ -104,5 +104,94 @@ export function createAdminClient() {
   })
 }
 
+/**
+ * Cursor-based pagination helper for orders (T016)
+ *
+ * Why cursor pagination vs offset/limit:
+ * - Consistent results even with concurrent inserts
+ * - Better performance (no offset scan overhead)
+ * - Works perfectly with idx_orders_restaurant_status_created index
+ *
+ * @param options Pagination options
+ * @returns Paginated orders with next cursor
+ *
+ * Example usage:
+ *   const result = await getOrdersPaginated({
+ *     restaurantId: user.id,
+ *     status: ['pending', 'confirmed'],
+ *     limit: 20,
+ *     cursor: previousResult?.nextCursor
+ *   })
+ */
+export async function getOrdersPaginated(options: {
+  restaurantId: string
+  status?: string[]
+  limit?: number
+  cursor?: string // ISO timestamp of last item
+}) {
+  const { restaurantId, status = ['pending', 'confirmed', 'priced'], limit = 20, cursor } = options
+
+  const supabase = await createServerClient()
+
+  // Build query with specific columns (works with covering index)
+  // Note: customer_name doesn't exist in orders table - restaurant info is via restaurant_id FK
+  let query = supabase
+    .from('orders')
+    .select(
+      `
+      id,
+      status,
+      total_amount,
+      driver_id,
+      created_at,
+      order_items (
+        id,
+        product_id,
+        quantity,
+        unit_price,
+        total_price,
+        products (
+          name,
+          unit
+        )
+      ),
+      profiles!orders_driver_id_fkey (
+        full_name
+      )
+    `,
+      { count: 'exact' }
+    )
+    .eq('restaurant_id', restaurantId)
+    .in('status', status)
+    .order('created_at', { ascending: false })
+    .limit(limit + 1) // Fetch one extra to detect if there's a next page
+
+  // Apply cursor (created_at < cursor for descending order)
+  if (cursor) {
+    query = query.lt('created_at', cursor)
+  }
+
+  const { data, error, count } = await query
+
+  if (error) {
+    throw error
+  }
+
+  // Check if there are more results
+  const hasMore = data != null && data.length > limit
+  const items = hasMore ? data.slice(0, limit) : (data ?? [])
+
+  // Next cursor is the created_at of the last item
+  const lastItem = items.length > 0 ? items[items.length - 1] : null
+  const nextCursor = hasMore && lastItem ? lastItem.created_at : null
+
+  return {
+    items,
+    nextCursor,
+    hasMore,
+    total: count || 0,
+  }
+}
+
 // Export types for convenience
 export type { Database } from '@/types/database'

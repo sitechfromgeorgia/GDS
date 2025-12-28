@@ -179,7 +179,7 @@ class PerformanceAlertingService {
   private checkThreshold(metric: string, value: number): void {
     const thresholdConfig = this.thresholds.find((t) => t.metric === metric)
 
-    if (!thresholdConfig || !thresholdConfig.enabled) {
+    if (!thresholdConfig?.enabled) {
       return
     }
 

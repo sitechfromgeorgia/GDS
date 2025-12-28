@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { cartService } from '@/services/cart/cart.service'
-import { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
+import type { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
 
 interface UseCartReturn {
   // Cart state

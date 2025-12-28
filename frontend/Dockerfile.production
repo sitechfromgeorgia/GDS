@@ -79,14 +79,11 @@ RUN addgroup --system --gid 1001 nodejs && \
 RUN mkdir -p /var/log/app && \
     chown -R nextjs:nodejs /var/log/app
 
-# Copy production dependencies from deps stage
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
-
 # Copy built application from builder stage
+# Without outputFileTracingRoot, standalone creates flat structure at .next/standalone/
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
 # Switch to non-root user
 USER nextjs
@@ -102,4 +99,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
+# server.js is now at /app/server.js (copied from .next/standalone/frontend/)
 CMD ["node", "server.js"]

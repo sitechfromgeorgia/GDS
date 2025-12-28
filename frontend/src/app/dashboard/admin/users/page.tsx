@@ -1,9 +1,19 @@
 'use client'
 import { logger } from '@/lib/logger'
 
-import { useState, useEffect, useCallback } from 'react'
-import { UserTable } from '@/components/admin/UserTable'
+import { useState, useEffect, useCallback, Suspense, lazy } from 'react'
+import { UserTableSkeleton } from '@/components/admin/UserTableSkeleton'
 import { Button } from '@/components/ui/button'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load UserTable
+// Why: Large component with complex filtering, bulk operations, and date formatting (~10-12 KB)
+// Expected impact: 10-15% bundle reduction for admin users page
+const UserTable = lazy(() =>
+  import('@/components/admin/UserTable').then((m) => ({ default: m.UserTable }))
+)
 import { Input } from '@/components/ui/input'
 
 import {
@@ -33,10 +43,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Plus, Users, UserCheck, UserX } from 'lucide-react'
-import { User, UserFormData } from '@/types/admin'
+import type { User, UserFormData } from '@/types/admin'
 
 import { createBrowserClient } from '@/lib/supabase'
-import { Database, ProfileInsert, ProfileUpdate, Profile } from '@/types/database'
+import type { Database, Profile } from '@/types/database'
+import { ProfileInsert, ProfileUpdate } from '@/types/database'
 import { useToast } from '@/hooks/use-toast'
 
 // Create Supabase client instance
@@ -111,7 +122,10 @@ export default function UsersPage() {
       })) as User[]
       setUsers(validatedUsers)
     } catch (error) {
-      logger.error('Error loading users:', error)
+      logger.error(
+        'Error loading users:',
+        error instanceof Error ? error.message : JSON.stringify(error)
+      )
       toast({
         title: 'შეცდომა',
         description: 'მომხმარებლების ჩატვირთვა ვერ მოხერხდა',
@@ -389,14 +403,16 @@ export default function UsersPage() {
       </div>
 
       {/* User Table */}
-      <UserTable
-        users={users}
-        loading={loading}
-        onEdit={openEditDialog}
-        onDelete={handleDeleteUser}
-        onToggleStatus={handleToggleStatus}
-        onBulkAction={handleBulkAction}
-      />
+      <Suspense fallback={<UserTableSkeleton />}>
+        <UserTable
+          users={users}
+          loading={loading}
+          onEdit={openEditDialog}
+          onDelete={handleDeleteUser}
+          onToggleStatus={handleToggleStatus}
+          onBulkAction={handleBulkAction}
+        />
+      </Suspense>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -417,7 +433,7 @@ export default function UsersPage() {
                   <FormItem>
                     <FormLabel>ელ-ფოსტა</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" disabled={!!editingUser} />
+                      <Input {...field} type="email" disabled={Boolean(editingUser)} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

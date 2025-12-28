@@ -1,0 +1,283 @@
+# ============================================================================
+# Prometheus Alert Rules - PostgreSQL Monitoring
+# ============================================================================
+# Purpose: T040-T050 - Alert on performance degradation
+# Created: 2025-11-25
+#
+# Alert Categories:
+# 1. Database Health (connection, uptime)
+# 2. Query Performance (slow queries, high latency)
+# 3. Index Usage (unused indexes, missing indexes)
+# 4. Cache Performance (low hit ratio)
+# 5. RPC Functions (analytics performance)
+# 6. Storage (disk space, table bloat)
+#
+# Severity Levels:
+# - critical: Immediate action required (production impact)
+# - warning: Investigation needed (performance degradation)
+# - info: Informational (trends, metrics)
+# ============================================================================
+
+groups:
+  # ============================================================================
+  # Database Health Alerts
+  # ============================================================================
+  - name: database_health
+    interval: 30s
+    rules:
+      # Database is down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: health
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "PostgreSQL instance {{ $labels.instance }} has been down for more than 1 minute."
+          runbook: "Check database logs, verify connection, restart if needed"
+
+      # Too many connections
+      - alert: PostgreSQLTooManyConnections
+        expr: |
+          sum(pg_stat_activity_count) by (instance) > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: connections
+        annotations:
+          summary: "Too many database connections"
+          description: "Database {{ $labels.instance }} has {{ $value }} connections (threshold: 100)"
+          runbook: "Check for connection leaks, review PgBouncer configuration"
+
+      # Idle in transaction
+      - alert: PostgreSQLIdleInTransaction
+        expr: |
+          sum(pg_stat_activity_count{state="idle in transaction"}) by (instance) > 10
+        for: 10m
+        labels:
+          severity: warning
+          category: connections
+        annotations:
+          summary: "Too many idle in transaction connections"
+          description: "Database {{ $labels.instance }} has {{ $value }} connections idle in transaction"
+          runbook: "Find and kill long-running transactions, check application connection handling"
+
+  # ============================================================================
+  # Query Performance Alerts
+  # ============================================================================
+  - name: query_performance
+    interval: 1m
+    rules:
+      # Slow queries detected
+      - alert: PostgreSQLSlowQueries
+        expr: |
+          pg_stat_statements_mean_exec_time_seconds > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "Slow queries detected"
+          description: "Query {{ $labels.queryid }} has mean execution time of {{ $value }}s (threshold: 1s)"
+          runbook: "Run EXPLAIN ANALYZE, check indexes, review query plan"
+
+      # Very slow queries (critical)
+      - alert: PostgreSQLVerySlow Queries
+        expr: |
+          pg_stat_statements_mean_exec_time_seconds > 5
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "Very slow queries detected"
+          description: "Query {{ $labels.queryid }} has mean execution time of {{ $value }}s (threshold: 5s)"
+          runbook: "URGENT: Optimize query immediately, check for missing indexes"
+
+      # High query load
+      - alert: PostgreSQLHighQueryLoad
+        expr: |
+          rate(pg_stat_statements_calls_total[5m]) > 1000
+        for: 10m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High query load detected"
+          description: "Query rate is {{ $value }} queries/sec (threshold: 1000)"
+          runbook: "Check for query loops, review application logic"
+
+  # ============================================================================
+  # Cache Performance Alerts
+  # ============================================================================
+  - name: cache_performance
+    interval: 1m
+    rules:
+      # Low cache hit ratio (overall)
+      - alert: PostgreSQLLowCacheHitRatio
+        expr: |
+          (
+            sum(pg_stat_database_blks_hit) by (instance)
+            /
+            (sum(pg_stat_database_blks_hit) by (instance) + sum(pg_stat_database_blks_read) by (instance))
+          ) < 0.95
+        for: 10m
+        labels:
+          severity: warning
+          category: cache
+        annotations:
+          summary: "Low database cache hit ratio"
+          description: "Cache hit ratio is {{ $value | humanizePercentage }} (threshold: 95%)"
+          runbook: "Increase shared_buffers, check for sequential scans, review query patterns"
+
+      # Very low cache hit ratio (critical)
+      - alert: PostgreSQLVeryLowCacheHitRatio
+        expr: |
+          (
+            sum(pg_stat_database_blks_hit) by (instance)
+            /
+            (sum(pg_stat_database_blks_hit) by (instance) + sum(pg_stat_database_blks_read) by (instance))
+          ) < 0.80
+        for: 5m
+        labels:
+          severity: critical
+          category: cache
+        annotations:
+          summary: "Very low database cache hit ratio"
+          description: "Cache hit ratio is {{ $value | humanizePercentage }} (threshold: 80%)"
+          runbook: "URGENT: Check memory configuration, increase shared_buffers immediately"
+
+  # ============================================================================
+  # Index Usage Alerts
+  # ============================================================================
+  - name: index_usage
+    interval: 5m
+    rules:
+      # High sequential scans
+      - alert: PostgreSQLHighSequentialScans
+        expr: |
+          rate(pg_stat_user_tables_seq_scan[10m]) > 100
+        for: 15m
+        labels:
+          severity: warning
+          category: indexes
+        annotations:
+          summary: "High sequential scan rate"
+          description: "Table {{ $labels.relname }} has {{ $value }} sequential scans/sec (threshold: 100)"
+          runbook: "Check for missing indexes, review WHERE clause columns"
+
+      # Unused indexes (info - not urgent)
+      - alert: PostgreSQLUnusedIndexes
+        expr: |
+          pg_stat_user_indexes_idx_scan == 0 and pg_relation_size_bytes > 10485760
+        for: 7d
+        labels:
+          severity: info
+          category: indexes
+        annotations:
+          summary: "Unused index detected"
+          description: "Index {{ $labels.indexrelname }} on table {{ $labels.relname }} is unused and wasting {{ $value | humanize }}B"
+          runbook: "Consider dropping unused index to save storage"
+
+  # ============================================================================
+  # RPC Function Performance Alerts (Analytics)
+  # ============================================================================
+  - name: rpc_performance
+    interval: 1m
+    rules:
+      # Slow RPC functions
+      - alert: PostgreSQLSlowRPCFunction
+        expr: |
+          pg_stat_user_functions_total_time_seconds / pg_stat_user_functions_calls > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: rpc
+        annotations:
+          summary: "Slow RPC function detected"
+          description: "Function {{ $labels.funcname }} has mean execution time of {{ $value }}s (threshold: 100ms)"
+          runbook: "Review function query plan, check indexes, optimize aggregations"
+
+      # Very slow RPC functions (critical)
+      - alert: PostgreSQLVerySlowRPCFunction
+        expr: |
+          pg_stat_user_functions_total_time_seconds / pg_stat_user_functions_calls > 0.5
+        for: 2m
+        labels:
+          severity: critical
+          category: rpc
+        annotations:
+          summary: "Very slow RPC function detected"
+          description: "Function {{ $labels.funcname }} has mean execution time of {{ $value }}s (threshold: 500ms)"
+          runbook: "URGENT: Optimize function immediately, check for missing indexes"
+
+  # ============================================================================
+  # Storage Alerts
+  # ============================================================================
+  - name: storage
+    interval: 5m
+    rules:
+      # High table bloat
+      - alert: PostgreSQLHighTableBloat
+        expr: |
+          (pg_stat_user_tables_n_dead_tup / NULLIF(pg_stat_user_tables_n_live_tup, 0)) > 0.20
+        for: 30m
+        labels:
+          severity: warning
+          category: storage
+        annotations:
+          summary: "High table bloat detected"
+          description: "Table {{ $labels.relname }} has {{ $value | humanizePercentage }} dead tuples (threshold: 20%)"
+          runbook: "Run VACUUM, check autovacuum settings, review update patterns"
+
+      # Database size growing too fast
+      - alert: PostgreSQLRapidDatabaseGrowth
+        expr: |
+          rate(pg_database_size_bytes[1h]) > 10485760
+        for: 1h
+        labels:
+          severity: info
+          category: storage
+        annotations:
+          summary: "Rapid database growth detected"
+          description: "Database {{ $labels.datname }} is growing at {{ $value | humanize }}B/hour (threshold: 10MB/hour)"
+          runbook: "Review data retention policies, check for log tables, analyze growth patterns"
+
+  # ============================================================================
+  # Replication Alerts (if you add replication later)
+  # ============================================================================
+  - name: replication
+    interval: 1m
+    rules:
+      # Replication lag
+      - alert: PostgreSQLReplicationLag
+        expr: |
+          pg_replication_lag_seconds > 60
+        for: 5m
+        labels:
+          severity: warning
+          category: replication
+        annotations:
+          summary: "Replication lag detected"
+          description: "Replica {{ $labels.instance }} is {{ $value }}s behind master (threshold: 60s)"
+          runbook: "Check network connectivity, review replica resources, check for long queries"
+
+# ============================================================================
+# Alert Testing
+# ============================================================================
+# After deployment, verify alerts are loaded:
+# 1. Open Prometheus UI: http://localhost:9090
+# 2. Go to "Alerts" tab
+# 3. Should see 15+ alert rules
+#
+# Test an alert (don't do in production!):
+# 1. Temporarily lower threshold in alert rule
+# 2. Wait for evaluation interval
+# 3. Check "Alerts" tab for firing alert
+# 4. Restore original threshold
+#
+# Configure Alertmanager for notifications:
+# 1. Add alertmanager service to docker-compose.yml
+# 2. Configure receivers (email, Slack, PagerDuty)
+# 3. Update alerting.alertmanagers in prometheus.yml

@@ -1,11 +1,29 @@
 'use client'
 import { logger } from '@/lib/logger'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react'
 import { useDebounce } from '@/hooks/useDebounce'
-import { ProductFilters } from '@/components/catalog/ProductFilters'
-import { ProductGrid } from '@/components/catalog/ProductGrid'
-import { ProductListView } from '@/components/catalog/ProductListView'
+import { ProductFiltersSkeleton } from '@/components/catalog/ProductFiltersSkeleton'
+import { ProductGridSkeleton } from '@/components/catalog/ProductGridSkeleton'
+import { ProductListViewSkeleton } from '@/components/catalog/ProductListViewSkeleton'
+
+// ============================================================================
+// Code Splitting (T061 - Component-Level Optimization)
+// ============================================================================
+// Lazy load catalog components (large page with multiple heavy components)
+// Why: ProductFilters + ProductGrid + ProductListView = heavy component bundle
+// Expected impact: 15-20% bundle reduction for catalog page
+const ProductFilters = lazy(() =>
+  import('@/components/catalog/ProductFilters').then((m) => ({ default: m.ProductFilters }))
+)
+
+const ProductGrid = lazy(() =>
+  import('@/components/catalog/ProductGrid').then((m) => ({ default: m.ProductGrid }))
+)
+
+const ProductListView = lazy(() =>
+  import('@/components/catalog/ProductListView').then((m) => ({ default: m.ProductListView }))
+)
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -33,7 +51,7 @@ import { cn } from '@/lib/utils'
 import { useProductCatalog } from '@/hooks/useProductCatalog'
 import { useProductSearch } from '@/hooks/useProductSearch'
 import { productFilterSchema } from '@/lib/validators/products/products'
-import { ProductFilterInput } from '@/lib/validators/products/products'
+import type { ProductFilterInput } from '@/lib/validators/products/products'
 
 type ViewMode = 'grid' | 'list'
 
@@ -226,14 +244,16 @@ export default function ProductCatalogPage() {
           {showFilters && (
             <div className="lg:col-span-1">
               <div className="sticky top-6">
-                <ProductFilters
-                  filters={filters}
-                  categories={categories}
-                  onFiltersChange={handleFiltersChange}
-                  onReset={handleFiltersReset}
-                  priceRange={priceRange}
-                  showAdvancedFilters={true}
-                />
+                <Suspense fallback={<ProductFiltersSkeleton />}>
+                  <ProductFilters
+                    filters={filters}
+                    categories={categories}
+                    onFiltersChange={handleFiltersChange}
+                    onReset={handleFiltersReset}
+                    priceRange={priceRange}
+                    showAdvancedFilters
+                  />
+                </Suspense>
               </div>
             </div>
           )}
@@ -335,53 +355,57 @@ export default function ProductCatalogPage() {
 
             {/* Products Display */}
             {viewMode === 'grid' ? (
-              <ProductGrid
-                products={products}
-                isLoading={isLoading}
-                isError={isError}
-                error={error}
-                filters={filters}
-                onAddToCart={handleAddToCart}
-                onProductClick={handleProductClick}
-                formatPrice={formatPrice}
-                variant="default"
-                columns={showFilters ? 3 : 4}
-                pagination={{
-                  hasNextPage: pagination?.hasNextPage || false,
-                  hasPreviousPage: pagination?.hasPreviousPage || false,
-                  onNextPage: () => handlePageChange(currentPage + 1),
-                  onPreviousPage: () => handlePageChange(currentPage - 1),
-                  isLoading,
-                }}
-                emptyState={{
-                  title: 'პროდუქტები არ მოიძებნა',
-                  description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები',
-                }}
-              />
+              <Suspense fallback={<ProductGridSkeleton />}>
+                <ProductGrid
+                  products={products}
+                  isLoading={isLoading}
+                  isError={isError}
+                  error={error}
+                  filters={filters}
+                  onAddToCart={handleAddToCart}
+                  onProductClick={handleProductClick}
+                  formatPrice={formatPrice}
+                  variant="default"
+                  columns={showFilters ? 3 : 4}
+                  pagination={{
+                    hasNextPage: pagination?.hasNextPage || false,
+                    hasPreviousPage: pagination?.hasPreviousPage || false,
+                    onNextPage: () => handlePageChange(currentPage + 1),
+                    onPreviousPage: () => handlePageChange(currentPage - 1),
+                    isLoading,
+                  }}
+                  emptyState={{
+                    title: 'პროდუქტები არ მოიძებნა',
+                    description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები',
+                  }}
+                />
+              </Suspense>
             ) : (
-              <ProductListView
-                products={products}
-                isLoading={isLoading}
-                isError={isError}
-                error={error}
-                filters={filters}
-                onAddToCart={handleAddToCart}
-                onProductClick={handleProductClick}
-                formatPrice={formatPrice}
-                showAddToCart={true}
-                showSort={false}
-                pagination={{
-                  hasNextPage: pagination?.hasNextPage || false,
-                  hasPreviousPage: pagination?.hasPreviousPage || false,
-                  onNextPage: () => handlePageChange(currentPage + 1),
-                  onPreviousPage: () => handlePageChange(currentPage - 1),
-                  isLoading,
-                }}
-                emptyState={{
-                  title: 'პროდუქტები არ მოიძებნა',
-                  description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები',
-                }}
-              />
+              <Suspense fallback={<ProductListViewSkeleton />}>
+                <ProductListView
+                  products={products}
+                  isLoading={isLoading}
+                  isError={isError}
+                  error={error}
+                  filters={filters}
+                  onAddToCart={handleAddToCart}
+                  onProductClick={handleProductClick}
+                  formatPrice={formatPrice}
+                  showAddToCart
+                  showSort={false}
+                  pagination={{
+                    hasNextPage: pagination?.hasNextPage || false,
+                    hasPreviousPage: pagination?.hasPreviousPage || false,
+                    onNextPage: () => handlePageChange(currentPage + 1),
+                    onPreviousPage: () => handlePageChange(currentPage - 1),
+                    isLoading,
+                  }}
+                  emptyState={{
+                    title: 'პროდუქტები არ მოიძებნა',
+                    description: 'სცადეთ შეცვალოთ ძიების პირობები ან ფილტრები',
+                  }}
+                />
+              </Suspense>
             )}
           </div>
         </div>

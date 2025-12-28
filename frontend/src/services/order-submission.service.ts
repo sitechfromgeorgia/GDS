@@ -2,18 +2,17 @@
 import { logger } from '@/lib/logger'
 
 import { createBrowserClient } from '@/lib/supabase'
-import {
+import type {
   OrderSubmissionInput,
   OrderSubmissionResult,
   OrderWithItems,
-  CartToOrderConversion,
   OrderConfirmation,
-  OrderSubmissionEvent,
   OrderSubmissionStats,
   BulkOrderSubmission,
   BulkOrderResult,
 } from '@/types/order-submission'
-import { Cart } from '@/types/cart'
+import { CartToOrderConversion, OrderSubmissionEvent } from '@/types/order-submission'
+import type { Cart } from '@/types/cart'
 import { RealtimeCartService } from './realtime-cart.service'
 
 // Create Supabase client instance

@@ -1,4 +1,5 @@
-import { useRef, useEffect, TouchEvent } from 'react'
+import type { TouchEvent } from 'react'
+import { useRef, useEffect } from 'react'
 
 export interface SwipeGestureOptions {
   onSwipeLeft?: () => void

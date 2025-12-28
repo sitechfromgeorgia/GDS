@@ -14,7 +14,8 @@
 // 1. Use supabase.auth.mfa.challenge({ factorId: 'factor-id' })
 // 2. Use supabase.auth.mfa.verify({ factorId: 'factor-id', challengeId: 'challenge-id', code: '123456' })
 
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   return NextResponse.json(

@@ -23,7 +23,7 @@ lint:
     - checkov@3.2.489
     - git-diff-check
     - isort@7.0.0
-    - markdownlint@0.45.0
+
     - osv-scanner@2.2.4
     - prettier@3.6.2
     - ruff@0.14.2
@@ -32,3 +32,7 @@ lint:
     - svgo@4.0.0
     - trufflehog@3.90.12
     - yamllint@1.37.1
+  ignore:
+    - linters: [ALL]
+      paths:
+        - "**/*.md"

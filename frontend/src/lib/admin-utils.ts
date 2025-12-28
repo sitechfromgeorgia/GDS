@@ -390,20 +390,20 @@ Generated: ${new Date().toLocaleString('ka-GE')}
 
 ## Orders by Status
 ${Object.entries(analytics.ordersByStatus)
-        .map(([status, count]) => `- **${status}**: ${count}`)
-        .join('\n')}
+  .map(([status, count]) => `- **${status}**: ${count}`)
+  .join('\n')}
 
 ## Revenue by Day
 ${Object.entries(analytics.revenueByDay)
-        .map(([date, revenue]) => `- **${date}**: ${this.formatCurrency(revenue)}`)
-        .join('\n')}
+  .map(([date, revenue]) => `- **${date}**: ${this.formatCurrency(revenue)}`)
+  .join('\n')}
 
 ## Top Products
 ${analytics.topProducts
-        .map(
-          (product) => `- **${product.rank}. ${product.name}**: ${this.formatCurrency(product.revenue)}`
-        )
-        .join('\n')}
+  .map(
+    (product) => `- **${product.rank}. ${product.name}**: ${this.formatCurrency(product.revenue)}`
+  )
+  .join('\n')}
 `
 
     return report

@@ -98,7 +98,7 @@ export function LiveChat({
 
     // Auto-resize textarea
     e.target.style.height = 'auto'
-    e.target.style.height = e.target.scrollHeight + 'px'
+    e.target.style.height = `${e.target.scrollHeight}px`
 
     // Typing indicator
     if (!isTypingLocal && e.target.value) {
@@ -184,7 +184,7 @@ export function LiveChat({
   if (isLoading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     )
   }
@@ -199,7 +199,7 @@ export function LiveChat({
               {otherUserName.charAt(0).toUpperCase()}
             </div>
             {isOtherUserOnline && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
             )}
           </div>
           <div>
@@ -210,13 +210,13 @@ export function LiveChat({
         <div className="flex items-center space-x-2">
           {!isConnected && (
             <span className="text-xs text-amber-600 flex items-center">
-              <span className="w-2 h-2 bg-amber-600 rounded-full mr-1 animate-pulse"></span>
+              <span className="w-2 h-2 bg-amber-600 rounded-full mr-1 animate-pulse" />
               Connecting...
             </span>
           )}
           {isConnected && (
             <span className="text-xs text-green-600 flex items-center">
-              <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+              <span className="w-2 h-2 bg-green-600 rounded-full mr-1" />
               Connected
             </span>
           )}
@@ -239,7 +239,7 @@ export function LiveChat({
                   key={groupIndex}
                   className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex flex-col space-y-1 max-w-[70%]`}>
+                  <div className="flex flex-col space-y-1 max-w-[70%]">
                     {group.map((message, index) => (
                       <div
                         key={message.id}
@@ -276,15 +276,15 @@ export function LiveChat({
               <div className="flex justify-start">
                 <div className="bg-gray-100 rounded-lg rounded-bl-none px-4 py-3">
                   <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                     <div
                       className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                       style={{ animationDelay: '0.1s' }}
-                    ></div>
+                    />
                     <div
                       className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                       style={{ animationDelay: '0.2s' }}
-                    ></div>
+                    />
                   </div>
                 </div>
               </div>

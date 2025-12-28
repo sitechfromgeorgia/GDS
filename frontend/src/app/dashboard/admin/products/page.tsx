@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense, lazy } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,10 +24,27 @@ import {
   TrendingUp,
   AlertTriangle,
 } from 'lucide-react'
-import { ProductTable } from '@/components/admin/ProductTable'
-import { ProductForm } from '@/components/admin/ProductForm'
+import { ProductFormSkeleton } from '@/components/admin/ProductFormSkeleton'
+import { ProductTableSkeleton } from '@/components/admin/ProductTableSkeleton'
 import { useToast } from '@/hooks/use-toast'
-import { Product } from '@/types/database'
+import type { Product } from '@/types/database'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load ProductForm
+// Why: Large form component with image upload, tabs, and complex UI (~8-10 KB)
+// Expected impact: 8-12% bundle reduction for admin products page
+const ProductForm = lazy(() =>
+  import('@/components/admin/ProductForm').then((m) => ({ default: m.ProductForm }))
+)
+
+// Lazy load ProductTable
+// Why: Large table component with data fetching, filtering, sorting, pagination (~8 KB)
+// Expected impact: Additional 6-8% bundle reduction
+const ProductTable = lazy(() =>
+  import('@/components/admin/ProductTable').then((m) => ({ default: m.ProductTable }))
+)
 
 type ProductForm = NonNullable<Product>
 
@@ -187,11 +204,13 @@ export default function ProductsPage() {
           <CardDescription>მართეთ პროდუქტების სია, ფასები და ინვენტარი</CardDescription>
         </CardHeader>
         <CardContent>
-          <ProductTable
-            searchTerm={searchTerm}
-            categoryFilter={selectedCategory}
-            onEditProduct={handleEditProduct}
-          />
+          <Suspense fallback={<ProductTableSkeleton />}>
+            <ProductTable
+              searchTerm={searchTerm}
+              categoryFilter={selectedCategory}
+              onEditProduct={handleEditProduct}
+            />
+          </Suspense>
         </CardContent>
       </Card>
 
@@ -202,7 +221,9 @@ export default function ProductsPage() {
             <DialogTitle>{editingProduct ? 'პროდუქტის რედაქტირება' : 'ახალი პროდუქტი'}</DialogTitle>
             <DialogDescription>შეავსეთ პროდუქტის დეტალები</DialogDescription>
           </DialogHeader>
-          <ProductForm product={editingProduct} onClose={handleProductFormClose} />
+          <Suspense fallback={<ProductFormSkeleton />}>
+            <ProductForm product={editingProduct} onClose={handleProductFormClose} />
+          </Suspense>
         </DialogContent>
       </Dialog>
     </div>

@@ -87,12 +87,14 @@ Distribution-Managment/
 │   │   ├── services/       # API services
 │   │   ├── types/          # TypeScript definitions
 │   │   └── validators/     # Zod validation schemas
-│   ├── public/             # Static assets
-│   └── docs/               # Frontend documentation
-├── project-documentation/   # Comprehensive project docs
+│   └── public/             # Static assets
+├── scripts/                 # Operational and maintenance scripts
+├── docs/                    # Project documentation
+│   ├── archive/            # Archived reports and docs
+│   └── RLS_POLICIES.md     # RLS security policies
+├── database/               # SQL migrations and optimizations
 ├── specs/                  # Feature specifications
-├── database/              # Migration tools and scripts
-└── docs/                  # General documentation
+└── archive/                # Deprecated files and backups
 ```
 
 ## Development Workflow
@@ -122,24 +124,6 @@ Distribution-Managment/
 
 ## Monitoring & Observability
 
-- **Primary**: Sentry for error tracking and performance monitoring
-- **Uptime**: External monitoring service for availability
-- **Health Checks**: Built-in system health monitoring
-
-## Documentation
-
-Comprehensive documentation includes:
-- **Architecture**: System design and component relationships
-- **API Reference**: Complete API documentation
-- **Security Guide**: Security best practices and RLS policies
-- **Deployment Guide**: Step-by-step deployment instructions
-- **Development Guide**: Local development setup and workflows
-
-## Contributing
-
-This project follows modern development practices with:
-- **TypeScript**: Full type safety across the codebase
-- **ESLint/Prettier**: Code quality and formatting standards
 - **Testing**: Unit and integration tests
 - **Documentation**: Comprehensive inline and external docs
 
@@ -149,4 +133,4 @@ Private repository - All rights reserved.
 
 ## Support
 
-For development support, refer to the project documentation in the `project-documentation/` directory or use the MCP tools for immediate assistance.
+For development support, refer to the project documentation in the `docs/` directory or use the MCP tools for immediate assistance.

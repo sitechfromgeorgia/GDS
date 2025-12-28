@@ -1,7 +1,8 @@
 import { logger } from '@/lib/logger'
-import { Database, OrderStatus } from '@/types/database'
+import type { Database, OrderStatus } from '@/types/database'
 import { ORDER_STATUSES } from '@/constants'
-import { orderRealtimeManager, OrderNotification } from './realtime'
+import type { OrderNotification } from './realtime'
+import { orderRealtimeManager } from './realtime'
 import { createServerClient } from '@/lib/supabase/server'
 
 type Order = Database['public']['Tables']['orders']['Row']
@@ -365,9 +366,7 @@ export class OrderNotificationManager {
   /**
    * Get order details with related profile information
    */
-  private static async getOrderDetails(
-    orderId: string
-  ): Promise<
+  private static async getOrderDetails(orderId: string): Promise<
     | (Order & {
         profiles?: { full_name: string | null; restaurant_name: string | null }
         driver_profile?: { full_name: string | null }

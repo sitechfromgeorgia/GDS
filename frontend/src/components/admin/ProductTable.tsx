@@ -33,7 +33,7 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { createBrowserClient } from '@/lib/supabase'
-import { Product } from '@/types/database'
+import type { Product } from '@/types/database'
 
 // Create Supabase client instance
 const supabase = createBrowserClient()
@@ -210,9 +210,9 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
           <Card key={i}>
             <CardContent className="p-4">
               <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-4 bg-muted rounded w-1/4" />
               </div>
             </CardContent>
           </Card>
@@ -277,7 +277,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
               </TableHead>
               <TableHead>ინვენტარი</TableHead>
               <TableHead>სტატუსი</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>

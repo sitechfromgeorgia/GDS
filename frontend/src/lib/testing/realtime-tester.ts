@@ -207,24 +207,8 @@ class RealtimeTester {
       // Subscribe to changes
       const subscriptionPromise = new Promise<RealtimeEvent[]>((resolve, reject) => {
         const events: RealtimeEvent[] = []
-        let timeout: NodeJS.Timeout
-
-        channel.on('postgres_changes', { event: '*', schema: 'public', table }, (payload: any) => {
-          const event: RealtimeEvent = {
-            event: payload.eventType.toUpperCase() as 'INSERT' | 'UPDATE' | 'DELETE',
-            table,
-            record: payload.new,
-            old_record: payload.old,
-            timestamp: new Date().toISOString(),
-          }
-
-          events.push(event)
-          this.receivedEvents.push(event)
-          logger.info(`   📡 Received ${table} ${event.event}:`, event.record?.id || 'unknown')
-        })
-
         // Set up timeout
-        timeout = setTimeout(() => {
+        const timeout = setTimeout(() => {
           resolve(events)
         }, this.config.timeout!)
 
@@ -521,7 +505,7 @@ class RealtimeTester {
           messagesSent: messageCountTarget,
           messagesReceived: messageCount,
           messagesPerSecond: messagesPerSecond.toFixed(2),
-          successRate: ((messageCount / messageCountTarget) * 100).toFixed(1) + '%',
+          successRate: `${((messageCount / messageCountTarget) * 100).toFixed(1)  }%`,
         },
       })
 

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNotifications } from '@/lib/realtime'
 import { useAuth } from '@/hooks/useAuth'
-import { OrderNotification } from '@/lib/realtime'
+import type { OrderNotification } from '@/lib/realtime'
 import { formatDistanceToNow } from 'date-fns'
 
 interface NotificationItemProps {

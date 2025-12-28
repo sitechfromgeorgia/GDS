@@ -31,7 +31,8 @@ import {
   MapPin,
   CheckCircle,
 } from 'lucide-react'
-import { DELIVERY_STATUSES, DriverDelivery } from '@/types/driver'
+import type { DriverDelivery } from '@/types/driver'
+import { DELIVERY_STATUSES } from '@/types/driver'
 import { format } from 'date-fns'
 import { ka } from 'date-fns/locale'
 

@@ -9,7 +9,9 @@
  * - Connection quality monitoring
  */
 
-import { RealtimeChannel, RealtimeClient, REALTIME_LISTEN_TYPES } from '@supabase/supabase-js'
+import type { RealtimeChannel, RealtimeClient } from '@supabase/supabase-js'
+import { REALTIME_LISTEN_TYPES } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 import type { Database } from '@/types/database'
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error'
@@ -32,6 +34,7 @@ interface ConnectionConfig {
   maxReconnectDelay?: number
   heartbeatInterval?: number
   messageQueueSize?: number
+  maxSubscriptions?: number // T026: Max subscriptions per client
   enableLogging?: boolean
 }
 
@@ -58,6 +61,7 @@ export class RealtimeConnectionManager {
     maxReconnectDelay: 30000, // 30 seconds
     heartbeatInterval: 30000, // 30 seconds
     messageQueueSize: 100,
+    maxSubscriptions: 50, // T026: Max subscriptions per client
     enableLogging: process.env.NODE_ENV === 'development',
   }
 
@@ -289,6 +293,7 @@ export class RealtimeConnectionManager {
 
   /**
    * Subscribe to a channel
+   * T026: Enforces max subscriptions limit (default: 50)
    */
   subscribe(channelName: string): RealtimeChannel | null {
     if (!this.client) return null
@@ -297,8 +302,21 @@ export class RealtimeConnectionManager {
       return this.channels.get(channelName)!
     }
 
+    // T026: Check subscription limit before creating new channel
+    if (this.channels.size >= this.config.maxSubscriptions) {
+      const errorMsg = `Subscription limit reached (${this.config.maxSubscriptions}). Cannot subscribe to channel: ${channelName}`
+      this.log(errorMsg)
+      const error = new Error(errorMsg)
+      this.errorListeners.forEach((listener) => listener(error))
+      return null
+    }
+
     const channel = this.client.channel(channelName)
     this.channels.set(channelName, channel)
+
+    this.log(
+      `Subscribed to channel: ${channelName} (${this.channels.size}/${this.config.maxSubscriptions})`
+    )
 
     return channel
   }
@@ -445,7 +463,7 @@ export class RealtimeConnectionManager {
 
   private log(...args: any[]) {
     if (this.config.enableLogging) {
-      console.log('[RealtimeConnectionManager]', ...args)
+      logger.debug('[RealtimeConnectionManager]', ...args)
     }
   }
 

@@ -2,7 +2,7 @@
 import { logger } from '@/lib/logger'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
+import type { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
 import { useCart } from '@/hooks/useCart'
 import { useToast, toast } from '@/hooks/use-toast'
 

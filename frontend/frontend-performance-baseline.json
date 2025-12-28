@@ -1,0 +1,122 @@
+{
+  "timestamp": "2025-11-25T21:18:29.859Z",
+  "analysis": {
+    "bundleSize": {
+      "status": "Build exists",
+      "pages": 1
+    },
+    "componentCount": {
+      "total": 124,
+      "pages": 56,
+      "layouts": 6,
+      "reusable": 62
+    },
+    "routeCount": {
+      "total": 56,
+      "static": 53,
+      "dynamic": 3,
+      "api": 25
+    },
+    "codePatterns": {
+      "use client": 137,
+      "use server": 0,
+      "dynamic imports": 3,
+      "Image optimization": 7,
+      "Font optimization": 0,
+      "Suspense boundaries": 3,
+      "Error boundaries": 1,
+      "Metadata exports": 5,
+      "generateStaticParams": 0,
+      "revalidate": 0
+    },
+    "opportunities": [
+      {
+        "category": "ISR",
+        "priority": "HIGH",
+        "task": "T051-T056: Implement ISR for static routes",
+        "impact": "53 static routes can use ISR",
+        "routes": [
+          "src\\app\\page.tsx",
+          "src\\app\\welcome\\page.tsx",
+          "src\\app\\test-simple\\page.tsx",
+          "src\\app\\test\\page.tsx",
+          "src\\app\\test\\enhanced\\page.tsx"
+        ]
+      },
+      {
+        "category": "Code Splitting",
+        "priority": "HIGH",
+        "task": "T057-T066: Implement code splitting with dynamic imports",
+        "impact": "Only 3 dynamic imports found, 124 total components",
+        "suggestion": "Split large components and route-based code splitting"
+      },
+      {
+        "category": "Images",
+        "priority": "MEDIUM",
+        "task": "Ensure all images use next/image",
+        "impact": "7 components use Image, 117 may need optimization",
+        "suggestion": "Replace <img> with next/image for automatic optimization"
+      },
+      {
+        "category": "SEO",
+        "priority": "MEDIUM",
+        "task": "Add metadata exports to all pages",
+        "impact": "51 pages missing metadata",
+        "suggestion": "Export metadata for SEO and social sharing"
+      },
+      {
+        "category": "Fonts",
+        "priority": "LOW",
+        "task": "Implement next/font for font optimization",
+        "impact": "No font optimization detected",
+        "suggestion": "Use next/font/google or next/font/local for automatic font optimization"
+      },
+      {
+        "category": "Server Components",
+        "priority": "HIGH",
+        "task": "Convert client components to server components where possible",
+        "impact": "137 client components (110% of total)",
+        "suggestion": "Use server components by default, client components only when needed"
+      },
+      {
+        "category": "Static Generation",
+        "priority": "HIGH",
+        "task": "Implement generateStaticParams for dynamic routes",
+        "impact": "3 dynamic routes without static generation",
+        "suggestion": "Pre-render dynamic routes at build time for better performance"
+      }
+    ]
+  },
+  "phase3Tasks": {
+    "T051-T056": {
+      "name": "ISR Implementation",
+      "status": "Ready to implement",
+      "priority": "HIGH",
+      "estimatedImpact": "30-50% faster page loads for static content"
+    },
+    "T057-T066": {
+      "name": "Code Splitting",
+      "status": "Ready to implement",
+      "priority": "HIGH",
+      "estimatedImpact": "20-40% smaller initial bundle size"
+    },
+    "T067-T070": {
+      "name": "Analytics Frontend Optimization",
+      "status": "Ready to implement",
+      "priority": "MEDIUM",
+      "estimatedImpact": "Faster analytics dashboard with RPC integration"
+    },
+    "T071-T077": {
+      "name": "Structured Logging",
+      "status": "Ready to implement",
+      "priority": "MEDIUM",
+      "estimatedImpact": "Better debugging and monitoring"
+    },
+    "T078-T082": {
+      "name": "Sentry APM",
+      "status": "Partially implemented",
+      "priority": "HIGH",
+      "estimatedImpact": "Real-time performance monitoring and error tracking"
+    }
+  }
+}

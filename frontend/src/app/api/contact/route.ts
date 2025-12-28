@@ -1,5 +1,6 @@
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 const contactSchema = z.object({
@@ -13,7 +14,25 @@ const contactSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    // Check content-type header
+    const contentType = request.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type must be application/json' }, { status: 400 })
+    }
+
+    // Get raw text first to check for empty body
+    const rawBody = await request.text()
+    if (!rawBody || rawBody.trim() === '') {
+      return NextResponse.json({ error: 'Request body cannot be empty' }, { status: 400 })
+    }
+
+    // Parse JSON with proper error handling
+    let body
+    try {
+      body = JSON.parse(rawBody)
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON format' }, { status: 400 })
+    }
 
     // Validate input
     const validatedData = contactSchema.parse(body)

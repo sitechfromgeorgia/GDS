@@ -24,7 +24,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
-import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { DeliveryLocation, DeliveryLocationInsert } from '@/types/database'
 
 interface GPSCoordinates {

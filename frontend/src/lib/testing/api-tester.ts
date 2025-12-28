@@ -113,7 +113,7 @@ const API_ENDPOINTS: APIEndpointTest[] = [
     description: 'Create new user profile',
     requiredAuth: true,
     testData: {
-      id: 'test-user-' + Date.now(),
+      id: `test-user-${  Date.now()}`,
       email: 'test@example.com',
       full_name: 'Test User',
       role: 'restaurant',
@@ -265,7 +265,7 @@ class APITester {
         duration: Date.now() - startTime,
         details: {
           connected: true,
-          hasSession: !!session,
+          hasSession: Boolean(session),
           environment: process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('localhost')
             ? 'local'
             : 'production',
@@ -496,7 +496,7 @@ class APITester {
         details: {
           error,
           hasAuthError,
-          returnedData: !!data,
+          returnedData: Boolean(data),
         },
       })
 
@@ -529,7 +529,7 @@ class APITester {
         status: error ? 'failed' : 'passed',
         duration: Date.now() - startTime,
         details: {
-          hasSession: !!session,
+          hasSession: Boolean(session),
           userId: session?.user?.id,
           expiresAt: session?.expires_at,
         },
@@ -576,7 +576,7 @@ class APITester {
         duration: Date.now() - startTime,
         details: {
           error,
-          returnedData: !!data,
+          returnedData: Boolean(data),
         },
       })
 

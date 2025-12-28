@@ -10,6 +10,8 @@
  */
 
 import * as React from 'react'
+import { Button } from '@/components/ui/button'
+import { logger } from '@/lib/logger'
 
 interface GlobalErrorProps {
   error: Error & { digest?: string }
@@ -18,9 +20,8 @@ interface GlobalErrorProps {
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
   React.useEffect(() => {
-    // Log critical error to console (simplified - no external dependencies)
-    console.error('Critical application error', error, {
-      digest: error.digest,
+    logger.error('Critical application error', {
+      error,
       location: 'global-error-boundary',
     })
   }, [error])
@@ -50,7 +51,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               ბოდიში, მოხდა სერიოზული შეცდომა. გთხოვთ, გადატვირთოთ გვერდი.
             </p>
 
-            {process.env.NODE_ENV === 'development' && (
+            {(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') && (
               <div
                 style={{
                   backgroundColor: '#f5f5f5',

@@ -2,10 +2,11 @@
 import { logger } from '@/lib/logger'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ProductCatalog } from '@/components/restaurant/ProductCatalog'
 import { Cart } from '@/components/restaurant/Cart'
-import { CartItem, Product } from '@/types/restaurant'
+import type { CartItem, Product } from '@/types/restaurant'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
 import { useToast } from '@/hooks/use-toast'
 
@@ -104,6 +105,9 @@ export default function OrderPage() {
     })
   }
 
+  const searchParams = useSearchParams()
+  const isDemo = searchParams.get('demo') === 'true'
+
   const handleSubmitOrder = async (orderData: {
     deliveryAddress: string
     deliveryTime?: string
@@ -116,6 +120,22 @@ export default function OrderPage() {
           description: 'კალათი ცარიელია',
           variant: 'destructive',
         })
+        return
+      }
+
+      if (isDemo) {
+        // Simulate successful order in demo mode
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const mockOrder = { id: 'demo-order-123' }
+
+        setCartItems([])
+        await RestaurantUtils.saveCartToStorage([])
+
+        toast({
+          title: 'შეკვეთა გაგზავნილია (Demo)',
+          description: `შეკვეთა #${mockOrder.id.slice(-8)} წარმატებით გაგზავნილია`,
+        })
+        setActiveTab('catalog')
         return
       }
 
@@ -173,6 +193,7 @@ export default function OrderPage() {
             onRemoveItem={handleRemoveItem}
             onUpdateNotes={handleUpdateNotes}
             onClearCart={handleClearCart}
+            onSubmitOrder={handleSubmitOrder}
           />
         </TabsContent>
       </Tabs>

@@ -2,7 +2,8 @@
 // Advanced cache management for Georgian Distribution System entities
 
 import { logger } from '@/lib/logger'
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import type { QueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { GDS_CACHE_KEYS } from './client'
 
 // Cache management configuration

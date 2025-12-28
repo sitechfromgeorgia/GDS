@@ -9,29 +9,48 @@
  * - Cryptographically random token generation
  * - Token expiration validation
  * - Hex encoding for safe transmission
+ *
+ * Edge Runtime Compatible:
+ * - Uses Web Crypto API (available in both browser and Edge Runtime)
+ * - Custom timing-safe comparison (no Node.js crypto module)
  */
-
-import { timingSafeEqual } from 'crypto'
 
 /**
  * Generate a cryptographically secure CSRF token
+ *
+ * Uses Web Crypto API which works in browser, Edge Runtime, and Node.js
  *
  * @param length - Token length in bytes (default: 32)
  * @returns Hex-encoded token string
  */
 export function generateCSRFToken(length: number = 32): string {
-  // Use Web Crypto API for browser compatibility
-  if (typeof window !== 'undefined' && window.crypto) {
-    const buffer = new Uint8Array(length)
-    window.crypto.getRandomValues(buffer)
-    return Array.from(buffer)
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('')
+  const buffer = new Uint8Array(length)
+  crypto.getRandomValues(buffer)
+  return Array.from(buffer)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+/**
+ * Custom timing-safe comparison for Edge Runtime
+ *
+ * Edge Runtime doesn't support Node.js crypto.timingSafeEqual,
+ * so we implement our own timing-safe comparison.
+ *
+ * @param a - First string
+ * @param b - Second string
+ * @returns true if strings match
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false
   }
 
-  // Use Node.js crypto for server-side
-  const crypto = require('crypto')
-  return crypto.randomBytes(length).toString('hex')
+  let result = 0
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return result === 0
 }
 
 /**
@@ -59,19 +78,10 @@ export function compareCSRFTokens(
   }
 
   try {
-    // Convert hex strings to buffers
-    const clientBuffer = Buffer.from(clientToken, 'hex')
-    const serverBuffer = Buffer.from(serverToken, 'hex')
-
-    // Ensure buffers are same length (invalid hex would cause mismatch)
-    if (clientBuffer.length !== serverBuffer.length) {
-      return false
-    }
-
-    // Timing-safe comparison
-    return timingSafeEqual(clientBuffer, serverBuffer)
+    // Timing-safe comparison of hex strings directly
+    return timingSafeEqual(clientToken, serverToken)
   } catch (error) {
-    // Invalid hex encoding or buffer creation failed - silent fail for security
+    // Invalid comparison - silent fail for security
     // Don't log details to avoid information leakage
     return false
   }

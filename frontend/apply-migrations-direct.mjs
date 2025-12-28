@@ -52,8 +52,7 @@ async function run() {
         await client.connect()
         console.log('✅ Connected to Postgres')
 
-        await applyMigration(client, '20251121000001_add_order_comments.sql')
-        await applyMigration(client, '20251121000002_add_cart_snapshots.sql')
+        await applyMigration(client, '20251125_create_deliveries_table.sql')
 
         console.log('\n🎉 All pending migrations applied!')
     } catch (err) {

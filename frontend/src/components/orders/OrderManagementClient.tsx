@@ -3,7 +3,7 @@ import { logger } from '@/lib/logger'
 
 import { useState, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 import { OrderDetailModal } from './OrderDetailModal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -206,7 +206,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
       </div>
     )
   }

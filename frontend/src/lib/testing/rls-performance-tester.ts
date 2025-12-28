@@ -6,7 +6,8 @@
  */
 
 import { logger } from '@/lib/logger'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 interface PerformanceMetric {
   query: string

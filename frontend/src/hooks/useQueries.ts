@@ -82,7 +82,7 @@ export function useOrder(orderId: string) {
       if (error) throw error
       return data as Order
     },
-    enabled: !!orderId,
+    enabled: Boolean(orderId),
     staleTime: GDSQueryUtils.getNetworkOptimizedConfig().staleTime,
   })
 }
@@ -191,7 +191,7 @@ export function useProduct(productId: string) {
       if (error) throw error
       return data as Product
     },
-    enabled: !!productId,
+    enabled: Boolean(productId),
     staleTime: GDSQueryUtils.getNetworkOptimizedConfig().staleTime,
   })
 }
@@ -279,7 +279,7 @@ export function useCurrentProfile() {
       if (error) throw error
       return data as Profile
     },
-    enabled: !!user,
+    enabled: Boolean(user),
     staleTime: GDSQueryUtils.getNetworkOptimizedConfig().staleTime,
   })
 }
@@ -363,7 +363,7 @@ export function useDashboardData() {
         products: profile.role === 'admin' ? additional[1]?.data || [] : [],
       }
     },
-    enabled: !!user && !!profile,
+    enabled: Boolean(user) && Boolean(profile),
     staleTime: GDSQueryUtils.getNetworkOptimizedConfig().staleTime,
   })
 }
@@ -379,8 +379,8 @@ export function useAnalytics(filters?: { startDate?: string; endDate?: string; r
       if (!profile || !user) throw new Error('Profile or user not loaded')
 
       let ordersQuery = supabase.from('orders').select('*')
-      let productsQuery = supabase.from('products').select('*')
-      let profilesQuery = supabase.from('profiles').select('*')
+      const productsQuery = supabase.from('products').select('*')
+      const profilesQuery = supabase.from('profiles').select('*')
 
       // Apply role-based filtering
       switch (profile.role) {
@@ -436,7 +436,7 @@ export function useAnalytics(filters?: { startDate?: string; endDate?: string; r
         ),
       }
     },
-    enabled: !!profile,
+    enabled: Boolean(profile),
     staleTime: GDSQueryUtils.getNetworkOptimizedConfig().staleTime,
   })
 }

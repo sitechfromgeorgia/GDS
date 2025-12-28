@@ -15,7 +15,7 @@ import {
   DollarSign,
   Package,
 } from 'lucide-react'
-import { Cart } from '@/types/cart'
+import type { Cart } from '@/types/cart'
 import { ORDER_SUBMISSION_GEORGIAN } from '@/types/order-submission'
 
 interface CheckoutSummaryProps {
@@ -217,7 +217,7 @@ export default function CheckoutSummary({
         >
           {isLoading ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
               იგზავნება...
             </>
           ) : (

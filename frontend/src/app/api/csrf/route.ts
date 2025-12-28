@@ -12,7 +12,8 @@
  */
 
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { generateCSRFToken } from '@/lib/csrf-utils'
 import { setCSRFCookie, getCSRFCookie } from '@/lib/csrf-cookie'
 
@@ -89,8 +90,8 @@ export async function POST(request: NextRequest) {
 
     if (!isValid) {
       logger.warn('CSRF token validation failed', {
-        hasToken: !!csrfToken,
-        hasCookie: !!cookieToken,
+        hasToken: Boolean(csrfToken),
+        hasCookie: Boolean(cookieToken),
       })
 
       return NextResponse.json({ error: 'Invalid CSRF token', valid: false }, { status: 403 })

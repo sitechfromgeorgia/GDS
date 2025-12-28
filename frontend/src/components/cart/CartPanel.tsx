@@ -76,7 +76,7 @@ export function CartPanel({
         ) : (
           <div className="space-y-4">
             {cart?.items.map((item) => (
-              <CompactCartItem key={item.id} item={item} compact={true} />
+              <CompactCartItem key={item.id} item={item} compact />
             ))}
             <Separator />
             <div className="flex justify-between items-center">

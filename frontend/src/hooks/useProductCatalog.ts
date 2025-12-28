@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { productService } from '@/services/products/product.service'
-import { ProductFilterInput } from '@/lib/validators/products/products'
+import type { ProductFilterInput } from '@/lib/validators/products/products'
 import { useCallback } from 'react'
 
 interface UseProductCatalogParams {

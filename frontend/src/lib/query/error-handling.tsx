@@ -3,7 +3,8 @@
 
 import { logger } from '@/lib/logger'
 import { useState, useCallback } from 'react'
-import { useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { useQueryClient, UseMutationResult } from '@tanstack/react-query'
 import { GDSQueryUtils } from './client'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -316,9 +317,9 @@ export function GDSLoadingState({
     case 'skeleton':
       return (
         <div className={`animate-pulse ${className}`}>
-          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+          <div className="h-4 bg-gray-200 rounded w-5/6" />
         </div>
       )
 
@@ -328,15 +329,15 @@ export function GDSLoadingState({
           <div
             className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`}
             style={{ animationDelay: '0ms' }}
-          ></div>
+          />
           <div
             className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`}
             style={{ animationDelay: '150ms' }}
-          ></div>
+          />
           <div
             className={`${sizeClasses[size]} bg-gray-400 rounded-full animate-bounce`}
             style={{ animationDelay: '300ms' }}
-          ></div>
+          />
           {showText && <span className={`${textSizeClasses[size]} ml-2`}>{loadingText}</span>}
         </div>
       )
@@ -344,7 +345,7 @@ export function GDSLoadingState({
     case 'pulse':
       return (
         <div className={`flex items-center justify-center gap-2 ${className}`}>
-          <div className={`${sizeClasses[size]} bg-gray-300 rounded-full animate-pulse`}></div>
+          <div className={`${sizeClasses[size]} bg-gray-300 rounded-full animate-pulse`} />
           {showText && <span className={textSizeClasses[size]}>{loadingText}</span>}
         </div>
       )

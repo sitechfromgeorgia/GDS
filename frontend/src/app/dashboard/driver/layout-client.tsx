@@ -1,0 +1,201 @@
+'use client'
+
+import { useState, Suspense, lazy } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Badge } from '@/components/ui/badge'
+import {
+  LayoutDashboard,
+  Truck,
+  History,
+  BarChart3,
+  Settings,
+  Menu,
+  Moon,
+  Sun,
+  LogOut,
+} from 'lucide-react'
+import { useAuthContext } from '@/components/auth/AuthProvider'
+import { useTheme } from 'next-themes'
+import { NotificationsDropdownSkeleton } from '@/components/notifications/NotificationsDropdownSkeleton'
+
+// ============================================================================
+// Code Splitting (T059 - Heavy Dependencies)
+// ============================================================================
+// Lazy load NotificationsDropdown
+// Why: Complex notification system with lucide-react icons, real-time subscriptions, and PWA features (~12-14 KB)
+// Expected impact: 10-15% bundle reduction for driver layout
+const NotificationsDropdown = lazy(() =>
+  import('@/components/notifications/NotificationsDropdown').then((m) => ({
+    default: m.NotificationsDropdown,
+  }))
+)
+
+const navigation = [
+  { name: 'მთავარი', href: '/dashboard/driver', icon: LayoutDashboard },
+  { name: 'მიწოდებები', href: '/dashboard/driver/deliveries', icon: Truck },
+  { name: 'ისტორია', href: '/dashboard/driver/history', icon: History },
+  { name: 'ანალიტიკა', href: '/dashboard/driver/analytics', icon: BarChart3 },
+  { name: 'პარამეტრები', href: '/dashboard/driver/settings', icon: Settings },
+]
+
+function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () => void }) {
+  const pathname = usePathname()
+  const { user, signOut } = useAuthContext()
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <div className={cn('flex flex-col h-full', mobile ? 'w-full' : 'w-64')}>
+      <div className="flex items-center justify-center h-16 px-4 border-b">
+        <h1 className="text-xl font-bold text-primary">მძღოლი</h1>
+      </div>
+
+      {/* Online Status Indicator */}
+      <div className="px-4 py-3 border-b bg-muted/50">
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-sm text-muted-foreground">ონლაინ</span>
+        </div>
+      </div>
+
+      <nav className="flex-1 px-4 py-6 space-y-2">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => mobile && onClose?.()}
+              className={cn(
+                'flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors',
+                isActive
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+              )}
+            >
+              <item.icon className="mr-3 h-5 w-5" />
+              {item.name}
+            </Link>
+          )
+        })}
+      </nav>
+
+      <div className="p-4 border-t">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-primary-foreground">
+                {user?.user_metadata?.full_name?.[0] || 'D'}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">
+                {user?.user_metadata?.full_name || 'მძღოლი'}
+              </p>
+              <Badge variant="secondary" className="text-xs">
+                {user?.user_metadata?.role || 'driver'}
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="w-full justify-start"
+          >
+            {theme === 'dark' ? (
+              <Sun className="mr-2 h-4 w-4" />
+            ) : (
+              <Moon className="mr-2 h-4 w-4" />
+            )}
+            {theme === 'dark' ? 'სინათლე' : 'მუქი'}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={signOut}
+            className="w-full justify-start text-destructive hover:text-destructive"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            გასვლა
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function DriverLayoutClient({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const pathname = usePathname()
+  const { user } = useAuthContext()
+
+  return (
+    <div className="flex h-screen bg-background">
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex md:flex-shrink-0">
+        <div className="flex flex-col w-64 border-r bg-card">
+          <Sidebar />
+        </div>
+      </div>
+
+      {/* Mobile Sidebar */}
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetContent className="p-0 w-64">
+          <Sidebar mobile onClose={() => setSidebarOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Top Bar */}
+        <header className="flex items-center justify-between h-16 px-4 border-b bg-card md:px-6">
+          <div className="flex items-center">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+            </Sheet>
+
+            <div className="ml-4 md:ml-0">
+              <h2 className="text-lg font-semibold">
+                {navigation.find((item) => item.href === pathname)?.name || 'მძღოლი'}
+              </h2>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Emergency Button */}
+            <Button variant="destructive" size="sm" className="hidden sm:flex">
+              გადაუდებელი
+            </Button>
+
+            {/* Notifications */}
+            {user?.id && (
+              <Suspense fallback={<NotificationsDropdownSkeleton />}>
+                <NotificationsDropdown userId={user.id} />
+              </Suspense>
+            )}
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
+      </div>
+    </div>
+  )
+}

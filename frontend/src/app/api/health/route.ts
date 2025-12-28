@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -50,10 +50,9 @@ export async function GET() {
     // Check environment variables
     const envCheck: EnvironmentCheck = {
       nodeEnv: process.env.NODE_ENV || 'unknown',
-      configured: !!(
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      )
+      configured: Boolean(
+        process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      ),
     }
 
     // Check memory usage
@@ -61,7 +60,7 @@ export async function GET() {
     const memCheck: MemoryCheck = {
       used: Math.round(memUsage.heapUsed / 1024 / 1024),
       total: Math.round(memUsage.heapTotal / 1024 / 1024),
-      percentage: Math.round((memUsage.heapUsed / memUsage.heapTotal) * 100)
+      percentage: Math.round((memUsage.heapUsed / memUsage.heapTotal) * 100),
     }
 
     // Initialize service checks
@@ -69,17 +68,16 @@ export async function GET() {
       database: { status: 'down', message: 'Not checked' },
       auth: { status: 'down', message: 'Not checked' },
       storage: { status: 'down', message: 'Not checked' },
-      api: { status: 'up', latency: Date.now() - startTime }
+      api: { status: 'up', latency: Date.now() - startTime },
     }
 
-    // Check database connectivity
+    // Check database connectivity (use admin client to bypass RLS for health checks)
     try {
-      const supabase = await createServerClient()
+      const supabase = createAdminClient()
       const dbStart = Date.now()
-      const { error, count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .limit(1)
+
+      // Use a simpler query that doesn't require count
+      const { data, error } = await supabase.from('profiles').select('id').limit(1)
 
       const dbLatency = Date.now() - dbStart
 
@@ -87,24 +85,25 @@ export async function GET() {
         services.database = {
           status: 'up',
           latency: dbLatency,
-          message: `Connected - ${count ?? 0} profiles`
+          message: `Connected - query successful (${data?.length ?? 0} rows)`,
         }
       } else {
         services.database = {
           status: 'down',
-          message: error.message
+          message: error.message || `Error code: ${error.code}`,
         }
       }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
       services.database = {
         status: 'down',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: `Exception: ${errorMsg}`,
       }
     }
 
-    // Check auth service
+    // Check auth service (use admin client)
     try {
-      const supabase = await createServerClient()
+      const supabase = createAdminClient()
       const authStart = Date.now()
       const { error } = await supabase.auth.getSession()
       const authLatency = Date.now() - authStart
@@ -112,18 +111,18 @@ export async function GET() {
       services.auth = {
         status: error ? 'degraded' : 'up',
         latency: authLatency,
-        message: error ? error.message : 'Service available'
+        message: error ? error.message : 'Service available',
       }
     } catch (error) {
       services.auth = {
         status: 'down',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       }
     }
 
-    // Check storage service
+    // Check storage service (use admin client)
     try {
-      const supabase = await createServerClient()
+      const supabase = createAdminClient()
       const storageStart = Date.now()
       const { data, error } = await supabase.storage.listBuckets()
       const storageLatency = Date.now() - storageStart
@@ -132,25 +131,25 @@ export async function GET() {
         services.storage = {
           status: 'up',
           latency: storageLatency,
-          message: `${data.length} buckets available`
+          message: `${data.length} buckets available`,
         }
       } else {
         services.storage = {
           status: 'down',
-          message: error?.message || 'Unable to list buckets'
+          message: error?.message || 'Unable to list buckets',
         }
       }
     } catch (error) {
       services.storage = {
         status: 'down',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       }
     }
 
     // Determine overall health status
-    const serviceStatuses = Object.values(services).map(s => s.status)
-    const upCount = serviceStatuses.filter(s => s === 'up').length
-    const downCount = serviceStatuses.filter(s => s === 'down').length
+    const serviceStatuses = Object.values(services).map((s) => s.status)
+    const upCount = serviceStatuses.filter((s) => s === 'up').length
+    const downCount = serviceStatuses.filter((s) => s === 'down').length
 
     let overallStatus: 'healthy' | 'degraded' | 'unhealthy'
     if (downCount === 0) {
@@ -169,8 +168,8 @@ export async function GET() {
       services,
       checks: {
         memory: memCheck,
-        environment: envCheck
-      }
+        environment: envCheck,
+      },
     }
 
     // Return appropriate HTTP status code
@@ -182,7 +181,7 @@ export async function GET() {
       {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Health check failed'
+        error: error instanceof Error ? error.message : 'Health check failed',
       },
       { status: 500 }
     )

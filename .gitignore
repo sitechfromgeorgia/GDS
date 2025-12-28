@@ -151,7 +151,7 @@ Thumbs.db
 
 # Database migrations and backups
 database/backups/
-*.sql
+
 *.dump
 
 # Docker

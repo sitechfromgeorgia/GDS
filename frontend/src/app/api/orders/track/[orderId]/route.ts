@@ -1,8 +1,10 @@
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { createOrderSubmissionService } from '@/services/order-submission.service'
 import { validateOrderTracking } from '@/lib/validators/orders/order-submission'
+import { validateApiRequest } from '@/lib/api/security'
 
 interface RouteContext {
   params: Promise<{ orderId: string }>
@@ -10,6 +12,13 @@ interface RouteContext {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    // 1. Validate Request (Auth required, CSRF not needed for GET)
+    const validation = await validateApiRequest(request, { requireAuth: true, requireCsrf: false })
+    if (!validation.valid) {
+      return validation.response
+    }
+    const user = validation.user
+
     // Await params promise (Next.js 15 requirement)
     const { orderId } = await context.params
 
@@ -30,11 +39,6 @@ export async function GET(request: NextRequest, context: RouteContext) {
     // Create Supabase client
     const supabase = await createServerClient()
 
-    // Get user session
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
     // Get restaurant ID from order
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
@@ -52,7 +56,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     // Initialize order submission service
     const orderService = createOrderSubmissionService({
       restaurantId,
-      userId: user?.id,
+      userId: user.id,
       enableNotifications: true,
       autoConfirm: false,
     })
@@ -88,14 +92,15 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
+    // 1. Validate Request (Auth + CSRF required)
+    const validation = await validateApiRequest(request, { requireAuth: true, requireCsrf: true })
+    if (!validation.valid) {
+      return validation.response
+    }
+    const user = validation.user
+
     // Await params promise (Next.js 15 requirement)
     const { orderId } = await context.params
-
-    // Get user session
-    const supabase = await createServerClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
 
     // Get request body for cancellation reason
     const body = await request.json().catch(() => ({}))
@@ -116,6 +121,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     // Get order data to initialize service
+    const supabase = await createServerClient()
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .select('restaurant_id')
@@ -132,7 +138,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     // Initialize order submission service
     const orderService = createOrderSubmissionService({
       restaurantId,
-      userId: user?.id,
+      userId: user.id,
       enableNotifications: true,
     })
 

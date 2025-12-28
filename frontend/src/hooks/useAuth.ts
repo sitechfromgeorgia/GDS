@@ -90,6 +90,7 @@ export function useAuth() {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     useAuthStore.getState().signOut()
+    window.location.href = '/login'
   }
 
   const isAdmin = () => {
@@ -120,6 +121,6 @@ export function useAuth() {
     isAdmin,
     isRestaurant,
     isDriver,
-    isAuthenticated: !!user,
+    isAuthenticated: Boolean(user),
   }
 }

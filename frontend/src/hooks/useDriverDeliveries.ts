@@ -1,6 +1,6 @@
 import { logger } from '@/lib/logger'
 import { useState, useEffect, useCallback } from 'react'
-import { DriverDelivery, DriverFilters } from '@/types/driver'
+import type { DriverDelivery, DriverFilters } from '@/types/driver'
 import { createBrowserClient } from '@/lib/supabase'
 
 // Create Supabase client instance

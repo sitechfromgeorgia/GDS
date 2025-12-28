@@ -24,13 +24,14 @@ import { dirname, join } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+import type {
+  TestSuiteConfig} from './comprehensive-test-orchestrator.js';
 import {
   runComprehensiveTests,
   runSmokeTests,
   runCriticalTests,
   runRegressionTests,
-  runFullTests,
-  TestSuiteConfig,
+  runFullTests
 } from './comprehensive-test-orchestrator.js'
 import {
   runRoleBasedTests,

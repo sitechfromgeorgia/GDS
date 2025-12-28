@@ -241,7 +241,7 @@ class PerformanceMonitor {
 
   endBuildPhase(phaseName: string) {
     const phase = this.buildMetrics.phases[phaseName]
-    if (phase && phase.start && !phase.end) {
+    if (phase?.start && !phase.end) {
       phase.end = Date.now()
       phase.duration = phase.end - phase.start
     }

@@ -1,7 +1,7 @@
 import { logger } from '@/lib/logger'
 import { create } from 'zustand'
-import { User } from '@supabase/supabase-js'
-import { Database } from '@/types/database'
+import type { User } from '@supabase/supabase-js'
+import type { Database } from '@/types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 

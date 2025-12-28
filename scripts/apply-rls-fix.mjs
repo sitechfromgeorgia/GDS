@@ -1,102 +1,191 @@
+#!/usr/bin/env node
 /**
- * Apply RLS Infinite Recursion Fix Migration
- * This script applies the RLS fix migration to resolve database hanging issues
+ * RLS Fix Verification and Test Script
+ * Tests database access with service role and authenticated users
  */
 
-import { createClient } from '@supabase/supabase-js'
-import { readFileSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+const SUPABASE_URL = "https://akxmacfsltzhbnunoepb.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFreG1hY2ZzbHR6aGJudW5vZXBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTg3ODMsImV4cCI6MjA3NzM5NDc4M30.51pqhjXAN9FuwXcpLefM85Bp9Y13nIMJJU_flm_K_zc";
+const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFreG1hY2ZzbHR6aGJudW5vZXBiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTgxODc4MywiZXhwIjoyMDc3Mzk0NzgzfQ.v59_YBUZ0V7bKlufZLSIa10MmE-sqTqDPWqwnaMPiPg";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const TEST_USERS = {
+  restaurant: { email: "restaurant@test.com", password: "Test123456!", role: "restaurant" },
+  admin: { email: "admin@test.com", password: "Test123456!", role: "admin" },
+  driver: { email: "driver@test.com", password: "Test123456!", role: "driver" }
+};
 
-// Configuration
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co'
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+async function testTableAccess(tableName, apiKey, description) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=*&limit=5`, {
+      headers: {
+        'apikey': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'count=exact'
+      }
+    });
 
-if (!SUPABASE_SERVICE_KEY) {
-  console.error('❌ Error: SUPABASE_SERVICE_ROLE_KEY is required')
-  console.log('💡 Set it in your .env.local file')
-  process.exit(1)
+    const contentRange = response.headers.get('content-range');
+    const count = contentRange ? contentRange.split('/')[1] : '?';
+
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, count, sample: data.length, error: null };
+    } else {
+      const errorText = await response.text();
+      return { success: false, count: 0, sample: 0, error: errorText };
+    }
+  } catch (error) {
+    return { success: false, count: 0, sample: 0, error: error.message };
+  }
 }
 
-// Create Supabase client with service role
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+async function authenticateUser(email, password) {
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {
+      'apikey': ANON_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { success: false, error };
   }
-})
 
-async function applyRLSFix() {
+  const data = await response.json();
+  return { success: true, access_token: data.access_token, user: data.user };
+}
+
+async function testAuthenticatedAccess(accessToken, tableName) {
   try {
-    console.log('🔧 Starting RLS Infinite Recursion Fix...\n')
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=*&limit=5`, {
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'count=exact'
+      }
+    });
 
-    // Read the migration file
-    const migrationPath = join(__dirname, '..', 'database', 'migrations', '20251120000001_fix_rls_infinite_recursion.sql')
-    console.log(`📄 Reading migration file: ${migrationPath}`)
+    const contentRange = response.headers.get('content-range');
+    const count = contentRange ? contentRange.split('/')[1] : '?';
 
-    const migrationSQL = readFileSync(migrationPath, 'utf-8')
+    if (response.ok) {
+      const data = await response.json();
+      return { success: true, count, sample: data.length };
+    } else {
+      const errorText = await response.text();
+      return { success: false, error: errorText };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
-    console.log('📊 Migration size:', migrationSQL.length, 'characters\n')
+async function main() {
+  console.log('='.repeat(70));
+  console.log('🔍 RLS VERIFICATION AND DATABASE ACCESS TEST');
+  console.log('='.repeat(70));
+  console.log(`Timestamp: ${new Date().toISOString()}\n`);
 
-    // Apply the migration
-    console.log('⚙️  Applying migration to database...')
+  const tables = ['profiles', 'products', 'orders', 'order_items', 'cart_snapshots'];
+  const results = { serviceRole: {}, authenticated: {} };
 
-    const { data, error } = await supabase.rpc('exec_sql', {
-      sql_query: migrationSQL
-    })
+  // Test 1: Service Role Access
+  console.log('📊 TEST 1: Service Role Access');
+  console.log('-'.repeat(50));
 
-    if (error) {
-      // Try alternative method if rpc doesn't exist
-      console.log('ℹ️  Trying alternative execution method...')
+  for (const table of tables) {
+    const result = await testTableAccess(table, SERVICE_ROLE_KEY, `service_role → ${table}`);
+    results.serviceRole[table] = result;
 
-      const { error: altError } = await supabase
-        .from('_migrations')
-        .insert({
-          name: '20251120000001_fix_rls_infinite_recursion',
-          executed_at: new Date().toISOString()
-        })
+    if (result.success) {
+      console.log(`   ✅ ${table}: ${result.count} rows (sampled ${result.sample})`);
+    } else {
+      const shortError = result.error.substring(0, 60);
+      console.log(`   ❌ ${table}: ${shortError}...`);
+    }
+  }
 
-      if (altError) {
-        throw new Error(`Migration execution failed: ${error.message || altError.message}`)
+  // Test 2: Authenticated User Access
+  console.log('\n📊 TEST 2: Authenticated User Access');
+  console.log('-'.repeat(50));
+
+  for (const [roleName, userInfo] of Object.entries(TEST_USERS)) {
+    console.log(`\n   👤 Testing as ${roleName} (${userInfo.email}):`);
+
+    const auth = await authenticateUser(userInfo.email, userInfo.password);
+    if (!auth.success) {
+      console.log(`      ❌ Authentication failed: ${auth.error}`);
+      continue;
+    }
+    console.log(`      ✅ Authenticated successfully`);
+
+    results.authenticated[roleName] = {};
+    for (const table of tables) {
+      const result = await testAuthenticatedAccess(auth.access_token, table);
+      results.authenticated[roleName][table] = result;
+
+      if (result.success) {
+        console.log(`      ✅ ${table}: ${result.count} rows`);
+      } else {
+        const shortError = (result.error || 'unknown error').substring(0, 50);
+        console.log(`      ❌ ${table}: ${shortError}`);
       }
     }
-
-    console.log('✅ Migration applied successfully!\n')
-
-    // Verify policies were created
-    console.log('🔍 Verifying policies...')
-
-    const { data: policies, error: policiesError } = await supabase
-      .from('pg_policies')
-      .select('tablename, policyname')
-      .in('tablename', ['profiles', 'orders', 'products'])
-      .ilike('policyname', '%_safe')
-
-    if (!policiesError && policies) {
-      console.log(`✅ Found ${policies.length} new safe policies:`)
-      policies.forEach(p => {
-        console.log(`   - ${p.tablename}.${p.policyname}`)
-      })
-    }
-
-    console.log('\n🎉 RLS Fix completed successfully!')
-    console.log('\n📋 Next steps:')
-    console.log('   1. Test database queries to ensure they don\'t hang')
-    console.log('   2. Run: cd frontend && npm install')
-    console.log('   3. Run: npm run build')
-
-  } catch (error) {
-    console.error('\n❌ Error applying RLS fix:')
-    console.error(error.message)
-    console.error('\n💡 Alternative: Run the SQL manually in Supabase Studio:')
-    console.error('   https://data.greenland77.ge/project/default/sql')
-    console.error('   Or: https://supabase.com/dashboard/project/akxmacfsltzhbnunoepb/sql/new')
-    process.exit(1)
   }
+
+  // Summary
+  console.log('\n' + '='.repeat(70));
+  console.log('📋 SUMMARY');
+  console.log('='.repeat(70));
+
+  const serviceRoleIssues = Object.entries(results.serviceRole)
+    .filter(([_, r]) => !r.success)
+    .map(([name]) => name);
+
+  if (serviceRoleIssues.length === 0) {
+    console.log('✅ Service Role: All tables accessible');
+  } else {
+    console.log(`❌ Service Role: Issues with: ${serviceRoleIssues.join(', ')}`);
+  }
+
+  for (const [role, tableResults] of Object.entries(results.authenticated)) {
+    const issues = Object.entries(tableResults)
+      .filter(([_, r]) => !r.success)
+      .map(([name]) => name);
+
+    if (issues.length === 0) {
+      console.log(`✅ ${role}: All expected tables accessible`);
+    } else {
+      console.log(`⚠️ ${role}: Limited access to: ${issues.join(', ')}`);
+    }
+  }
+
+  // Check if migration is needed
+  if (serviceRoleIssues.length > 0) {
+    console.log('\n' + '='.repeat(70));
+    console.log('⚠️  ACTION REQUIRED: Apply RLS Fix Migration');
+    console.log('='.repeat(70));
+    console.log(`
+The following tables have RLS issues blocking service_role access:
+${serviceRoleIssues.map(t => `  - ${t}`).join('\n')}
+
+TO FIX:
+1. Go to: https://supabase.com/dashboard/project/akxmacfsltzhbnunoepb/sql/new
+2. Copy the SQL from: database/migrations/20251128000001_fix_rls_complete.sql
+3. Run the migration
+4. Re-run this test script to verify
+`);
+  } else {
+    console.log('\n✅ All RLS policies are working correctly!');
+    console.log('You can proceed with cart and checkout testing.');
+  }
+
+  console.log('\n' + '='.repeat(70));
 }
 
-// Run the migration
-applyRLSFix()
+main().catch(console.error);

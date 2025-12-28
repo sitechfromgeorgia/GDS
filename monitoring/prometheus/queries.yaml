@@ -1,0 +1,450 @@
+# ============================================================================
+# PostgreSQL Exporter Custom Queries
+# ============================================================================
+# Purpose: T040-T050 - Query our custom monitoring views
+# Created: 2025-11-25
+#
+# This file defines custom metrics scraped from PostgreSQL by postgres_exporter
+# These queries target the monitoring views created in migration 20251125000010
+#
+# Query Structure:
+# - query: SQL query to execute
+# - metrics: List of metrics to expose
+#   - metric_name: Prometheus metric name
+#   - type: gauge, counter, histogram
+#   - description: Human-readable description
+#   - labels: Column names to use as labels
+#   - value: Column name containing the metric value
+# ============================================================================
+
+# ============================================================================
+# Query Performance Metrics (monitoring_query_performance view)
+# ============================================================================
+pg_query_performance:
+  query: |
+    SELECT
+      queryid::text,
+      calls,
+      mean_exec_time,
+      max_exec_time,
+      cache_hit_ratio
+    FROM monitoring_query_performance
+    LIMIT 100
+  metrics:
+    - metric_name: pg_query_calls_total
+      type: counter
+      description: "Total number of times query was executed"
+      labels:
+        - queryid
+      value: calls
+
+    - metric_name: pg_query_mean_exec_time_ms
+      type: gauge
+      description: "Mean execution time in milliseconds"
+      labels:
+        - queryid
+      value: mean_exec_time
+
+    - metric_name: pg_query_max_exec_time_ms
+      type: gauge
+      description: "Maximum execution time in milliseconds"
+      labels:
+        - queryid
+      value: max_exec_time
+
+    - metric_name: pg_query_cache_hit_ratio
+      type: gauge
+      description: "Cache hit ratio percentage for query"
+      labels:
+        - queryid
+      value: cache_hit_ratio
+
+# ============================================================================
+# Index Usage Statistics (monitoring_index_usage view)
+# ============================================================================
+pg_index_usage:
+  query: |
+    SELECT
+      schemaname,
+      tablename,
+      indexname,
+      idx_scan,
+      idx_tup_read,
+      idx_tup_fetch,
+      index_size_bytes,
+      usage_category
+    FROM monitoring_index_usage
+  metrics:
+    - metric_name: pg_index_scans_total
+      type: counter
+      description: "Number of index scans initiated on this index"
+      labels:
+        - schemaname
+        - tablename
+        - indexname
+        - usage_category
+      value: idx_scan
+
+    - metric_name: pg_index_tuples_read_total
+      type: counter
+      description: "Number of index entries returned by scans"
+      labels:
+        - schemaname
+        - tablename
+        - indexname
+      value: idx_tup_read
+
+    - metric_name: pg_index_tuples_fetched_total
+      type: counter
+      description: "Number of live table rows fetched by index scans"
+      labels:
+        - schemaname
+        - tablename
+        - indexname
+      value: idx_tup_fetch
+
+    - metric_name: pg_index_size_bytes
+      type: gauge
+      description: "Size of the index in bytes"
+      labels:
+        - schemaname
+        - tablename
+        - indexname
+      value: index_size_bytes
+
+# ============================================================================
+# Table Statistics (monitoring_table_stats view)
+# ============================================================================
+pg_table_stats:
+  query: |
+    SELECT
+      schemaname,
+      tablename,
+      seq_scan,
+      seq_tup_read,
+      idx_scan,
+      idx_tup_fetch,
+      inserts,
+      updates,
+      deletes,
+      live_tuples,
+      dead_tuples,
+      dead_tuple_ratio,
+      total_size_bytes,
+      health_status
+    FROM monitoring_table_stats
+  metrics:
+    - metric_name: pg_table_seq_scans_total
+      type: counter
+      description: "Number of sequential scans initiated"
+      labels:
+        - schemaname
+        - tablename
+        - health_status
+      value: seq_scan
+
+    - metric_name: pg_table_seq_tuples_read_total
+      type: counter
+      description: "Number of live rows fetched by sequential scans"
+      labels:
+        - schemaname
+        - tablename
+      value: seq_tup_read
+
+    - metric_name: pg_table_index_scans_total
+      type: counter
+      description: "Number of index scans initiated on table"
+      labels:
+        - schemaname
+        - tablename
+      value: idx_scan
+
+    - metric_name: pg_table_inserts_total
+      type: counter
+      description: "Number of rows inserted"
+      labels:
+        - schemaname
+        - tablename
+      value: inserts
+
+    - metric_name: pg_table_updates_total
+      type: counter
+      description: "Number of rows updated"
+      labels:
+        - schemaname
+        - tablename
+      value: updates
+
+    - metric_name: pg_table_deletes_total
+      type: counter
+      description: "Number of rows deleted"
+      labels:
+        - schemaname
+        - tablename
+      value: deletes
+
+    - metric_name: pg_table_live_tuples
+      type: gauge
+      description: "Estimated number of live rows"
+      labels:
+        - schemaname
+        - tablename
+      value: live_tuples
+
+    - metric_name: pg_table_dead_tuples
+      type: gauge
+      description: "Estimated number of dead rows"
+      labels:
+        - schemaname
+        - tablename
+      value: dead_tuples
+
+    - metric_name: pg_table_dead_tuple_ratio
+      type: gauge
+      description: "Percentage of dead tuples (bloat indicator)"
+      labels:
+        - schemaname
+        - tablename
+        - health_status
+      value: dead_tuple_ratio
+
+    - metric_name: pg_table_size_bytes
+      type: gauge
+      description: "Total size of table including indexes"
+      labels:
+        - schemaname
+        - tablename
+      value: total_size_bytes
+
+# ============================================================================
+# RPC Function Performance (monitoring_rpc_performance view)
+# ============================================================================
+pg_rpc_performance:
+  query: |
+    SELECT
+      function_name,
+      calls,
+      total_time_ms,
+      self_time_ms,
+      avg_time_ms,
+      performance_rating
+    FROM monitoring_rpc_performance
+  metrics:
+    - metric_name: pg_rpc_calls_total
+      type: counter
+      description: "Number of times RPC function was called"
+      labels:
+        - function_name
+        - performance_rating
+      value: calls
+
+    - metric_name: pg_rpc_total_time_ms
+      type: counter
+      description: "Total time spent in function including nested calls"
+      labels:
+        - function_name
+      value: total_time_ms
+
+    - metric_name: pg_rpc_self_time_ms
+      type: counter
+      description: "Total time spent in function excluding nested calls"
+      labels:
+        - function_name
+      value: self_time_ms
+
+    - metric_name: pg_rpc_avg_time_ms
+      type: gauge
+      description: "Average execution time per call"
+      labels:
+        - function_name
+        - performance_rating
+      value: avg_time_ms
+
+# ============================================================================
+# Connection Statistics (monitoring_connections view)
+# ============================================================================
+pg_connections:
+  query: |
+    SELECT
+      database,
+      total_connections,
+      active_connections,
+      idle_connections,
+      idle_in_transaction,
+      waiting_for_lock,
+      max_idle_time_seconds,
+      pool_status
+    FROM monitoring_connections
+  metrics:
+    - metric_name: pg_connections_total
+      type: gauge
+      description: "Total number of connections"
+      labels:
+        - database
+        - pool_status
+      value: total_connections
+
+    - metric_name: pg_connections_active
+      type: gauge
+      description: "Number of active connections"
+      labels:
+        - database
+      value: active_connections
+
+    - metric_name: pg_connections_idle
+      type: gauge
+      description: "Number of idle connections"
+      labels:
+        - database
+      value: idle_connections
+
+    - metric_name: pg_connections_idle_in_transaction
+      type: gauge
+      description: "Number of connections idle in transaction"
+      labels:
+        - database
+        - pool_status
+      value: idle_in_transaction
+
+    - metric_name: pg_connections_waiting_for_lock
+      type: gauge
+      description: "Number of connections waiting for locks"
+      labels:
+        - database
+      value: waiting_for_lock
+
+    - metric_name: pg_connections_max_idle_time_seconds
+      type: gauge
+      description: "Maximum time a connection has been idle"
+      labels:
+        - database
+      value: max_idle_time_seconds
+
+# ============================================================================
+# Database Size (monitoring_database_size view)
+# ============================================================================
+pg_database_size:
+  query: |
+    SELECT
+      database,
+      size_bytes,
+      table_count,
+      index_count,
+      rpc_function_count
+    FROM monitoring_database_size
+  metrics:
+    - metric_name: pg_database_size_bytes
+      type: gauge
+      description: "Total database size in bytes"
+      labels:
+        - database
+      value: size_bytes
+
+    - metric_name: pg_database_tables_count
+      type: gauge
+      description: "Number of tables in database"
+      labels:
+        - database
+      value: table_count
+
+    - metric_name: pg_database_indexes_count
+      type: gauge
+      description: "Number of indexes in database"
+      labels:
+        - database
+      value: index_count
+
+    - metric_name: pg_database_rpc_functions_count
+      type: gauge
+      description: "Number of RPC functions in database"
+      labels:
+        - database
+      value: rpc_function_count
+
+# ============================================================================
+# Slow Queries (monitoring_slow_queries view)
+# ============================================================================
+pg_slow_queries:
+  query: |
+    SELECT
+      username,
+      state,
+      duration_seconds,
+      severity,
+      COUNT(*) as query_count
+    FROM monitoring_slow_queries
+    GROUP BY username, state, duration_seconds, severity
+  metrics:
+    - metric_name: pg_slow_queries_count
+      type: gauge
+      description: "Number of currently running slow queries"
+      labels:
+        - username
+        - state
+        - severity
+      value: query_count
+
+    - metric_name: pg_slow_queries_duration_seconds
+      type: gauge
+      description: "Duration of slow queries in seconds"
+      labels:
+        - username
+        - state
+        - severity
+      value: duration_seconds
+
+# ============================================================================
+# Cache Hit Ratio (monitoring_cache_hit_ratio view)
+# ============================================================================
+pg_cache_hit_ratio:
+  query: |
+    SELECT
+      metric,
+      heap_read,
+      heap_hit,
+      cache_hit_ratio,
+      rating
+    FROM monitoring_cache_hit_ratio
+  metrics:
+    - metric_name: pg_cache_heap_reads_total
+      type: counter
+      description: "Number of heap blocks read from disk"
+      labels:
+        - metric
+        - rating
+      value: heap_read
+
+    - metric_name: pg_cache_heap_hits_total
+      type: counter
+      description: "Number of heap blocks found in cache"
+      labels:
+        - metric
+        - rating
+      value: heap_hit
+
+    - metric_name: pg_cache_hit_ratio_percent
+      type: gauge
+      description: "Cache hit ratio as percentage"
+      labels:
+        - metric
+        - rating
+      value: cache_hit_ratio
+
+# ============================================================================
+# Notes
+# ============================================================================
+# 1. All these queries target the monitoring views created in migration
+#    20251125000010_create_monitoring_views.sql
+#
+# 2. Metrics are scraped every 15 seconds (configured in prometheus.yml)
+#
+# 3. View all metrics in Prometheus:
+#    http://localhost:9090/graph
+#
+# 4. Example PromQL queries:
+#    - pg_rpc_avg_time_ms{function_name="calculate_on_time_rate"}
+#    - pg_cache_hit_ratio_percent{metric="Overall Database"}
+#    - pg_connections_total{database="postgres"}
+#    - pg_table_dead_tuple_ratio{tablename="orders"}
+#
+# 5. These metrics power the Grafana dashboard (postgres-optimization.json)

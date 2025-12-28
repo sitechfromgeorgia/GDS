@@ -19,7 +19,7 @@ export default function DiagnosticPage() {
       const newResults = { ...results }
 
       // Check environment variables
-      newResults.envVars = !!(
+      newResults.envVars = Boolean(
         process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       )
 

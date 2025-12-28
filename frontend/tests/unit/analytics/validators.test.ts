@@ -1,78 +1,55 @@
 // Unit tests for Analytics Dashboard
 // Based on specs/001-analytics-dashboard/plan.md
-// Note: Jest is not configured in this project yet. Install Jest to run these tests.
 
-import { validateDateRange, isLargeDateRange, parseStatusParam } from '@/lib/validators/analytics';
+import { describe, it, expect } from 'vitest'
+import { validateDateRange, isLargeDateRange, parseStatusParam } from '@/lib/validators/analytics'
 
-// Test suite placeholder - requires Jest installation
-// Run: npm install --save-dev jest @types/jest ts-jest
+describe('Analytics Validators', () => {
+  describe('validateDateRange', () => {
+    it('should accept valid date range', () => {
+      const result = validateDateRange('2025-01-01T00:00:00Z', '2025-01-07T23:59:59Z')
+      expect(result.valid).toBe(true)
+      expect(result.error).toBeUndefined()
+    })
 
-export const analyticsValidatorTests = {
-  validateDateRange: {
-    validDateRange: () => {
-      const result = validateDateRange('2025-01-01T00:00:00Z', '2025-01-07T23:59:59Z');
-      console.assert(result.valid === true, 'Should accept valid date range');
-      console.assert(result.error === undefined, 'Should not have error');
-    },
-    invalidFromAfterTo: () => {
-      const result = validateDateRange('2025-01-07T00:00:00Z', '2025-01-01T00:00:00Z');
-      console.assert(result.valid === false, 'Should reject when from > to');
-      console.assert(result.error?.includes('before or equal'), 'Should have appropriate error message');
-    },
-    invalidRangeTooLarge: () => {
-      const result = validateDateRange('2024-01-01T00:00:00Z', '2025-02-01T00:00:00Z');
-      console.assert(result.valid === false, 'Should reject date range > 365 days');
-      console.assert(result.error?.includes('365 days'), 'Should have appropriate error message');
-    },
-  },
-  isLargeDateRange: {
-    largeRange: () => {
-      const result = isLargeDateRange('2024-10-01T00:00:00Z', '2025-01-15T00:00:00Z');
-      console.assert(result === true, 'Should return true for range > 90 days');
-    },
-    smallRange: () => {
-      const result = isLargeDateRange('2025-01-01T00:00:00Z', '2025-03-01T00:00:00Z');
-      console.assert(result === false, 'Should return false for range <= 90 days');
-    },
-  },
-  parseStatusParam: {
-    validStatuses: () => {
-      const result = parseStatusParam('delivered,completed');
-      console.assert(
-        JSON.stringify(result) === JSON.stringify(['delivered', 'completed']),
-        'Should parse comma-separated status values'
-      );
-    },
-    emptyString: () => {
-      const result = parseStatusParam('');
-      console.assert(result === undefined, 'Should return undefined for empty string');
-    },
-    invalidStatus: () => {
-      try {
-        parseStatusParam('delivered,invalid');
-        console.assert(false, 'Should throw error for invalid status');
-      } catch (error) {
-        console.assert(
-          error instanceof Error && error.message.includes('Invalid status values'),
-          'Should throw appropriate error'
-        );
-      }
-    },
-  },
-};
+    it('should reject when from date is after to date', () => {
+      const result = validateDateRange('2025-01-07T00:00:00Z', '2025-01-01T00:00:00Z')
+      expect(result.valid).toBe(false)
+      expect(result.error).toContain('before or equal')
+    })
 
-// Run tests manually
-if (typeof window === 'undefined') {
-  console.log('Running analytics validator tests...');
-  Object.entries(analyticsValidatorTests).forEach(([suiteName, suite]) => {
-    console.log(`\n${suiteName}:`);
-    Object.entries(suite).forEach(([testName, testFn]) => {
-      try {
-        testFn();
-        console.log(`  ✓ ${testName}`);
-      } catch (error) {
-        console.error(`  ✗ ${testName}`, error);
-      }
-    });
-  });
-}
+    it('should reject date range greater than 365 days', () => {
+      const result = validateDateRange('2024-01-01T00:00:00Z', '2025-02-01T00:00:00Z')
+      expect(result.valid).toBe(false)
+      expect(result.error).toContain('365 days')
+    })
+  })
+
+  describe('isLargeDateRange', () => {
+    it('should return true for range greater than 90 days', () => {
+      const result = isLargeDateRange('2024-10-01T00:00:00Z', '2025-01-15T00:00:00Z')
+      expect(result).toBe(true)
+    })
+
+    it('should return false for range less than or equal to 90 days', () => {
+      const result = isLargeDateRange('2025-01-01T00:00:00Z', '2025-03-01T00:00:00Z')
+      expect(result).toBe(false)
+    })
+  })
+
+  describe('parseStatusParam', () => {
+    it('should parse comma-separated status values', () => {
+      const result = parseStatusParam('delivered,completed')
+      expect(result).toEqual(['delivered', 'completed'])
+    })
+
+    it('should return undefined for empty string', () => {
+      const result = parseStatusParam('')
+      expect(result).toBeUndefined()
+    })
+
+    it('should throw error for invalid status', () => {
+      expect(() => parseStatusParam('delivered,invalid')).toThrow('Invalid status values')
+    })
+  })
+})

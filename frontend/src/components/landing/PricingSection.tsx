@@ -228,17 +228,18 @@ export function PricingSection() {
           <div className="bg-primary/5 rounded-lg p-8 max-w-2xl mx-auto">
             <Zap className="h-12 w-12 text-primary mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2">Ready to Get Started?</h3>
-            <p className="text-muted-foreground mb-6">
-              Join hundreds of restaurants already using our platform. Start your free trial today
-              with no credit card required.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link href="/demo">Start Free Trial</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="#contact">Contact Sales</Link>
-              </Button>
+            <div className="mt-8 text-center">
+              <p className="text-base text-gray-600">
+                Ready to modernize your distribution business?
+              </p>
+              <div className="mt-4 flex justify-center gap-4">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  Contact Sales
+                </Button>
+                <Button size="lg" variant="outline">
+                  View Demo
+                </Button>
+              </div>
             </div>
           </div>
         </div>

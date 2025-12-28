@@ -2,7 +2,7 @@
 import { logger } from '@/lib/logger'
 
 import { useState, useCallback } from 'react'
-import {
+import type {
   OrderSubmissionInput,
   OrderSubmissionResult,
   OrderWithItems,

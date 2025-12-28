@@ -1,5 +1,6 @@
 import { logger } from '@/lib/logger'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { DemoUtils } from '@/lib/demo-utils'
 import { DEMO_ANALYTICS_DATA } from '@/lib/demo-data'
 

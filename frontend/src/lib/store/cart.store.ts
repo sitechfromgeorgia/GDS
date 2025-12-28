@@ -2,82 +2,93 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 export interface CartItem {
-    product_id: string
+  productId: string
+  quantity: number
+  product: {
+    id: string
     name: string
-    quantity: number
+    category: string
     unit: string
-    price: number // Unit price
-    image_url?: string
+    image_url?: string | null
+    cost_price: number
+    is_active: boolean
+  }
 }
 
 interface CartState {
-    items: CartItem[]
-    addItem: (item: CartItem) => void
-    removeItem: (productId: string) => void
-    updateQuantity: (productId: string, quantity: number) => void
-    clearCart: () => void
-    getTotalItems: () => number
-    getTotalPrice: () => number
+  items: CartItem[]
+  isOpen: boolean
+  addItem: (item: CartItem) => void
+  removeItem: (productId: string) => void
+  updateQuantity: (productId: string, quantity: number) => void
+  clearCart: () => void
+  setIsOpen: (isOpen: boolean) => void
+  totalItems: () => number
 }
 
-// Temporarily removed persist to debug
 export const useCartStore = create<CartState>()(
-    persist(
-        (set, get) => ({
-            items: [],
-            addItem: (newItem) => {
-                set((state) => {
-                    const existingItem = state.items.find(
-                        (item) => item.product_id === newItem.product_id
-                    )
-                    if (existingItem) {
-                        return {
-                            items: state.items.map((item) =>
-                                item.product_id === newItem.product_id
-                                    ? { ...item, quantity: item.quantity + newItem.quantity }
-                                    : item
-                            ),
-                        }
-                    }
-                    return { items: [...state.items, newItem] }
-                })
-            },
-            removeItem: (productId) => {
-                set((state) => ({
-                    items: state.items.filter((item) => item.product_id !== productId),
-                }))
-            },
-            updateQuantity: (productId, quantity) => {
-                set((state) => ({
-                    items: state.items.map((item) =>
-                        item.product_id === productId ? { ...item, quantity } : item
-                    ),
-                }))
-            },
-            clearCart: () => set({ items: [] }),
-            getTotalItems: () => {
-                return get().items.reduce((total, item) => total + item.quantity, 0)
-            },
-            getTotalPrice: () => {
-                return get().items.reduce(
-                    (total, item) => total + item.price * item.quantity,
-                    0
-                )
-            },
-        }),
-        {
-            name: 'cart-storage',
-            storage: createJSONStorage(() => {
-                if (typeof window !== 'undefined') {
-                    return localStorage
-                }
-                return {
-                    getItem: () => null,
-                    setItem: () => { },
-                    removeItem: () => { },
-                }
-            }),
-            skipHydration: true,
+  persist(
+    (set, get) => ({
+      items: [],
+      isOpen: false,
+
+      addItem: (newItem) => {
+        set((state) => {
+          const existingItem = state.items.find((item) => item.productId === newItem.productId)
+
+          if (existingItem) {
+            return {
+              items: state.items.map((item) =>
+                item.productId === newItem.productId
+                  ? { ...item, quantity: item.quantity + newItem.quantity }
+                  : item
+              ),
+              isOpen: true, // Open cart when adding item
+            }
+          }
+
+          return {
+            items: [...state.items, newItem],
+            isOpen: true,
+          }
+        })
+      },
+
+      removeItem: (productId) => {
+        set((state) => ({
+          items: state.items.filter((item) => item.productId !== productId),
+        }))
+      },
+
+      updateQuantity: (productId, quantity) => {
+        if (quantity <= 0) {
+          get().removeItem(productId)
+          return
         }
-    )
+
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.productId === productId ? { ...item, quantity } : item
+          ),
+        }))
+      },
+
+      clearCart: () => {
+        set({ items: [] })
+      },
+
+      setIsOpen: (isOpen) => {
+        set({ isOpen })
+      },
+
+      totalItems: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0)
+      },
+    }),
+    {
+      name: 'restaurant-cart-storage',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ items: state.items }), // Only persist items
+    }
+  )
 )

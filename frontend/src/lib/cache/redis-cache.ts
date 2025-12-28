@@ -21,14 +21,29 @@ interface RedisClientType {
 class MockRedisClient {
   private data = new Map<string, string>()
   private ttl = new Map<string, number>()
+  private eventHandlers = new Map<string, ((error?: Error) => void)[]>()
 
-  on() {
+  on(event: string, callback: (error?: Error) => void) {
+    if (!this.eventHandlers.has(event)) {
+      this.eventHandlers.set(event, [])
+    }
+    this.eventHandlers.get(event)!.push(callback)
     return this
   }
-  connect() {
+
+  private emit(event: string, error?: Error) {
+    const handlers = this.eventHandlers.get(event) || []
+    handlers.forEach((handler) => handler(error))
+  }
+
+  async connect() {
+    // Emit connect event synchronously for test compatibility
+    this.emit('connect')
     return Promise.resolve()
   }
-  disconnect() {
+  async disconnect() {
+    // Emit disconnect event synchronously for test compatibility
+    this.emit('disconnect')
     return Promise.resolve()
   }
 
@@ -358,7 +373,7 @@ class GeorgianDistributionRedisCache {
     // Invalidate restaurant-specific caches
     if (restaurantId) {
       const restaurantKeys = await this.client?.keys(
-        this.getKey('orders:byRestaurant', restaurantId + ':*')
+        this.getKey('orders:byRestaurant', `${restaurantId}:*`)
       )
       if (restaurantKeys && restaurantKeys.length > 0) {
         for (const key of restaurantKeys) {
@@ -437,7 +452,7 @@ class GeorgianDistributionRedisCache {
 
   private parseRedisInfo(info: string, field: string): string {
     const lines = info.split('\n')
-    const line = lines.find((l) => l.startsWith(field + ':'))
+    const line = lines.find((l) => l.startsWith(`${field}:`))
     return line ? (line.split(':')[1] ?? '0') : '0'
   }
 

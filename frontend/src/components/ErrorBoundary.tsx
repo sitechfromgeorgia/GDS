@@ -1,7 +1,8 @@
 'use client'
 import { logger } from '@/lib/logger'
 
-import { Component, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { Component } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Card,

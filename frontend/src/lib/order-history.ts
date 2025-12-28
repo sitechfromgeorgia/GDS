@@ -1,6 +1,7 @@
 import { logger } from '@/lib/logger'
-import { Database, OrderStatus } from '@/types/database'
-import { ORDER_STATUSES, USER_ROLES } from '@/constants'
+import type { Database, OrderStatus } from '@/types/database'
+import type { USER_ROLES } from '@/constants'
+import { ORDER_STATUSES } from '@/constants'
 import { createServerClient } from '@/lib/supabase/server'
 
 type Order = Database['public']['Tables']['orders']['Row']

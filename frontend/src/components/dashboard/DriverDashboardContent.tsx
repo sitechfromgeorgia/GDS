@@ -115,9 +115,7 @@ export function DriverDashboardContent() {
             variant={isOnline ? 'default' : 'secondary'}
             className="flex items-center space-x-1"
           >
-            <div
-              className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
-            ></div>
+            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
             <span>{isOnline ? 'ონლაინ' : 'ოფლაინ'}</span>
           </Badge>
           <Button

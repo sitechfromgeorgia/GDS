@@ -1,13 +1,12 @@
-import type { NextConfig } from "next";
-import path from 'path';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   // React 19 + Next.js 15 configuration
   reactStrictMode: true,
 
-  // Fix for workspace root detection warning
-  // Points to the correct root directory for file tracing
-  outputFileTracingRoot: path.join(__dirname, '../'),
+  // CRITICAL: Disable source maps in development to prevent Edge Runtime EvalError
+  // Edge Runtime (middleware) does not allow eval() which source map generation uses
+  productionBrowserSourceMaps: false,
 
   // Allow images from self-hosted Supabase storage
   images: {
@@ -19,92 +18,118 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/storage/v1/object/public/**',
       },
+      // Mock images for Demo
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 
-  // API routes configuration with environment-aware CORS
+  // Security Headers & API CORS
   async headers() {
-    const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development';
+    const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development'
+    const isProduction = environment === 'production'
 
     // Define allowed origins based on environment
-    let allowedOrigins: string[];
-    if (environment === 'production') {
+    let allowedOrigins: string[]
+    if (isProduction) {
       allowedOrigins = [
         'https://greenland77.ge',
         'https://www.greenland77.ge',
         'http://localhost:3000', // Allow localhost for testing
-      ];
+      ]
     } else {
       allowedOrigins = [
         'http://localhost:3000',
         'http://localhost:3001',
         'http://127.0.0.1:3000',
-        'https://greenland77.ge', // Allow production domain for cross-environment testing
-      ];
+        'https://greenland77.ge',
+      ]
     }
 
-    // Additional CORS origins from environment variable (comma-separated)
-    const envCorsOrigins = process.env.NEXT_PUBLIC_CORS_ORIGINS;
+    // Additional CORS origins from environment variable
+    const envCorsOrigins = process.env.NEXT_PUBLIC_CORS_ORIGINS
     if (envCorsOrigins) {
       const additionalOrigins = envCorsOrigins
         .split(',')
-        .map(origin => origin.trim())
-        .filter(origin => origin.length > 0);
-      allowedOrigins = [...allowedOrigins, ...additionalOrigins];
+        .map((origin) => origin.trim())
+        .filter((origin) => origin.length > 0)
+      allowedOrigins = [...allowedOrigins, ...additionalOrigins]
     }
 
-    const primaryOrigin = allowedOrigins[0] || 'http://localhost:3000';
+    const primaryOrigin = allowedOrigins[0] || 'http://localhost:3000'
+
+    // CSP Directives
+    const cspDirectives = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https: blob:",
+      `connect-src 'self' https://data.greenland77.ge wss://data.greenland77.ge ${process.env.NEXT_PUBLIC_SUPABASE_URL ? `${process.env.NEXT_PUBLIC_SUPABASE_URL} ${process.env.NEXT_PUBLIC_SUPABASE_URL.replace('https', 'wss')}` : 'https://*.supabase.co wss://*.supabase.co'}`,
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join('; ')
+
+    const securityHeaders = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'X-XSS-Protection', value: '1; mode=block' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Content-Security-Policy', value: cspDirectives },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=(self), payment=()',
+      },
+    ]
+
+    if (isProduction) {
+      securityHeaders.push({
+        key: 'Strict-Transport-Security',
+        value: 'max-age=31536000; includeSubDomains; preload',
+      })
+    }
 
     return [
       {
-        source: '/api/:path*',
-        headers: [
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          // Reflect the request Origin only if it is in the allowed list
-          { key: 'Vary', value: 'Origin' },
-          { key: 'Access-Control-Allow-Origin', value: primaryOrigin as string },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
-          { key: 'Access-Control-Max-Age', value: '86400' }, // 24 hours
-        ],
+        source: '/:path*',
+        headers: securityHeaders,
       },
       {
-        // Handle preflight requests for OPTIONS method
-        // Security: Use specific origins instead of wildcard
         source: '/api/:path*',
-        has: [
-          {
-            type: 'header',
-            key: 'origin'
-          }
-        ],
         headers: [
-          // Use the first allowed origin instead of wildcard for security
-          // In production, middleware should validate the actual origin header
-          { key: 'Access-Control-Allow-Origin', value: primaryOrigin },
+          ...securityHeaders,
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Vary', value: 'Origin' },
+          { key: 'Access-Control-Allow-Origin', value: primaryOrigin },
           { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization',
+          },
           { key: 'Access-Control-Max-Age', value: '86400' },
         ],
       },
-    ];
+    ]
   },
 
-  // External packages for React Server Components (moved from experimental)
-  serverExternalPackages: ["@supabase/supabase-js"],
+  // External packages for React Server Components
+  serverExternalPackages: ['@supabase/supabase-js'],
 
-  // Bundle pages router dependencies (moved from experimental)
+  // Bundle pages router dependencies
   bundlePagesRouterDependencies: true,
 
-  // Experimental features for React 19 + Turbopack + React Compiler
   experimental: {
-    // React Compiler (auto-memoization and optimization)
-    // Note: Requires babel-plugin-react-compiler to be installed
-    reactCompiler: false, // Disabled until babel-plugin-react-compiler is installed
+    // React Compiler
+    reactCompiler: true,
 
-    // Server Actions with enhanced origins
+    // Server Actions
     serverActions: {
       bodySizeLimit: '2mb',
       allowedOrigins: [
@@ -113,11 +138,11 @@ const nextConfig: NextConfig = {
         '127.0.0.1:3000',
         'data.greenland77.ge',
         'greenland77.ge',
-        'www.greenland77.ge'
+        'www.greenland77.ge',
       ],
     },
 
-    // Package optimization for Turbopack
+    // Package optimization
     optimizePackageImports: [
       'lucide-react',
       'recharts',
@@ -125,74 +150,65 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-dialog',
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-select',
-      '@radix-ui/react-tabs'
+      '@radix-ui/react-tabs',
     ],
 
     // Memory and performance optimizations
     webpackMemoryOptimizations: true,
+
+    // Disable Edge Runtime source maps to prevent EvalError
+    // This is needed when using WASM-based SWC fallback
+    serverSourceMaps: false,
   },
 
-  // Webpack configuration for React Server Components and performance
+  // Webpack configuration
   webpack: (config, { dev, isServer }) => {
-    // Set unique webpack bundle name to avoid module federation issues
     config.output = config.output || {}
     config.output.uniqueName = 'georgian-distribution-frontend'
 
-    // Note: React alias removed - Next.js 15 handles React 19 resolution automatically
-    // The require.resolve() was causing "Module not found: Can't resolve 'react/jsx-runtime'" errors
-
-    // Fix for React Server Components module resolution
     if (isServer) {
-      // Add external packages that shouldn't be bundled on server
       config.externals.push('node:crypto', 'node:fs', 'node:path', 'node:buffer')
     }
 
-    // CRITICAL FIX: Disable splitChunks in development to avoid webpack runtime errors
+    // CRITICAL: Disable devtool for Edge Runtime compatibility
+    // Edge Runtime (middleware) does not allow eval() which source-map generation uses
+    // Using 'source-map' instead of eval-based devtools to fix middleware EvalError
     if (dev) {
+      // For Edge Runtime compatibility, use source-map (slower but no eval)
+      config.devtool = 'source-map'
+    } else {
+      config.devtool = false
+    }
+
+    if (isServer) {
       config.optimization = config.optimization || {}
       config.optimization.splitChunks = false
       config.optimization.runtimeChunk = false
-    }
-
-    // Use default devtool for development to avoid performance issues
-    // Only enable detailed source maps in production or when specifically needed
-    if (!dev) {
-      config.devtool = 'source-map'
-
-      // MODIFIED: Simplified chunk splitting to avoid webpack runtime errors
-      if (isServer) {
-        // Disable chunk splitting on server-side to prevent 'self' related issues
-        config.optimization = config.optimization || {}
-        config.optimization.splitChunks = false
-        config.optimization.runtimeChunk = false
-      } else {
-        // Performance optimizations for production (client-side only)
-        config.optimization.splitChunks = {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
-            supabase: {
-              test: /[\\/]node_modules[\\/]@supabase[\\/]/,
-              name: 'supabase',
-              chunks: 'all',
-              priority: 20,
-            },
-            ui: {
-              test: /[\\/]node_modules[\\/](lucide-react|recharts|date-fns)[\\/]/,
-              name: 'ui-libs',
-              chunks: 'all',
-              priority: 15,
-            },
+    } else {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
           },
-        }
+          supabase: {
+            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            priority: 20,
+          },
+          ui: {
+            test: /[\\/]node_modules[\\/](lucide-react|recharts|date-fns)[\\/]/,
+            name: 'ui-libs',
+            chunks: 'all',
+            priority: 15,
+          },
+        },
       }
     }
 
-    // Fix for development hot module replacement
     if (dev && !isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -205,23 +221,17 @@ const nextConfig: NextConfig = {
     return config
   },
 
-  // Enable compression
   compress: true,
-
-  // Production optimizations
   poweredByHeader: false,
 
-  // Environment-specific configuration
   env: {
     CUSTOM_KEY: 'my-value',
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
   },
 
-  // Redirects for environment switching
   async redirects() {
-    const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development';
+    const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || 'development'
 
-    // Optional: Redirect root to appropriate dashboard based on environment
     if (environment === 'production') {
       return [
         {
@@ -229,35 +239,24 @@ const nextConfig: NextConfig = {
           destination: '/dashboard/admin',
           permanent: false,
         },
-      ];
+      ]
     }
 
-    return [];
+    return []
   },
 
-  // Typescript configuration
   typescript: {
     ignoreBuildErrors: false,
   },
 
-  // ESLint configuration
-  // Temporarily allow warnings during builds - fix warnings in follow-up tasks
   eslint: {
     ignoreDuringBuilds: true,
   },
 
-  // Output configuration for deployment
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
-
-  // Asset configuration
-  assetPrefix: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_ASSET_PREFIX || '' : '',
-
-  // Base path configuration
+  assetPrefix:
+    process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_ASSET_PREFIX || '' : '',
   basePath: process.env.NODE_ENV === 'production' ? '' : '',
+}
 
-  // PWA Configuration
-  // Service worker is registered client-side via lib/pwa.ts
-  // Manifest.json is in public directory
-};
-
-export default nextConfig;
+export default nextConfig

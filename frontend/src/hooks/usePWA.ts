@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { BeforeInstallPromptEvent } from '@/lib/pwa'
 import {
   registerServiceWorker,
   isPWAInstalled,
   requestNotificationPermission,
   isOnline as checkIsOnline,
   onNetworkChange,
-  BeforeInstallPromptEvent,
 } from '@/lib/pwa'
 import { logger } from '@/lib/logger'
 
@@ -83,7 +83,7 @@ export function usePWA() {
     isInstalled,
     isOnline,
     registration,
-    canInstall: !!deferredPrompt,
+    canInstall: Boolean(deferredPrompt),
     notificationPermission,
     promptInstall,
     requestNotifications,

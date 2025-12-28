@@ -2,7 +2,7 @@ import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
 
 const supabase = createBrowserClient()
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 import type {
   RealtimeChannel,
   RealtimePostgresChangesPayload,

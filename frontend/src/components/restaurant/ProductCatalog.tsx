@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Search, Filter, Plus, Minus, ShoppingCart, Package } from 'lucide-react'
-import { Product, RestaurantProduct, ProductFilters, PRODUCT_CATEGORIES } from '@/types/restaurant'
+import type { RestaurantProduct, ProductFilters } from '@/types/restaurant'
+import { Product, PRODUCT_CATEGORIES } from '@/types/restaurant'
 import { RestaurantUtils } from '@/lib/restaurant-utils'
 import { useToast } from '@/hooks/use-toast'
 
@@ -25,7 +26,11 @@ interface ProductCatalogProps {
   cartItems: Array<{ product: RestaurantProduct; quantity: number; notes?: string }>
 }
 
-export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) {
+export function ProductCatalog({
+  onAddToCart,
+  cartItems,
+  isDemo = false,
+}: ProductCatalogProps & { isDemo?: boolean }) {
   const [products, setProducts] = useState<RestaurantProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<ProductFilters>({
@@ -37,9 +42,148 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
 
   useEffect(() => {
     loadProducts()
-  }, [filters])
+  }, [filters, isDemo])
 
   const loadProducts = async () => {
+    if (isDemo) {
+      setLoading(true)
+      // Realistic mock data for Demo
+      const mockProducts: RestaurantProduct[] = [
+        {
+          id: 'demo-1',
+          name: 'ხინკალი ქალაქური',
+          name_ka: 'ხინკალი ქალაქური',
+          description: 'უგემრიელესი ხინკალი საქონლის და ღორის ხორცით, მწვანილებით',
+          description_ka: 'უგემრიელესი ხინკალი საქონლის და ღორის ხორცით, მწვანილებით',
+          price: 1.5,
+          cost_price: 0.8,
+          category: 'Meat',
+          unit: 'ცალი',
+          image_url: 'https://placehold.co/600x400?text=Khinkali',
+          is_available: true,
+          min_order_quantity: 10,
+          max_order_quantity: 100,
+          stock_quantity: 1000,
+          min_stock_level: 100,
+          tags: ['popular', 'traditional'],
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 'demo-2',
+          name: 'იმერული ხაჭაპური',
+          name_ka: 'იმერული ხაჭაპური',
+          description: 'ტრადიციული იმერული ხაჭაპური ჭყინტი ყველით',
+          description_ka: 'ტრადიციული იმერული ხაჭაპური ჭყინტი ყველით',
+          price: 15.0,
+          cost_price: 8.0,
+          category: 'Dairy',
+          unit: 'ცალი',
+          image_url: 'https://placehold.co/600x400?text=Khachapuri',
+          is_available: true,
+          min_order_quantity: 1,
+          max_order_quantity: 20,
+          stock_quantity: 50,
+          min_stock_level: 10,
+          tags: ['vegetarian', 'traditional'],
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 'demo-3',
+          name: 'ქათმის მწვადი',
+          name_ka: 'ქათმის მწვადი',
+          description: 'ქათმის მწვადი სპეციალური მარინადით',
+          description_ka: 'ქათმის მწვადი სპეციალური მარინადით',
+          price: 12.5,
+          cost_price: 7.0,
+          category: 'Meat',
+          unit: 'პორცია',
+          image_url: 'https://placehold.co/600x400?text=Mtsvadi',
+          is_available: true,
+          min_order_quantity: 1,
+          max_order_quantity: 50,
+          stock_quantity: 100,
+          min_stock_level: 20,
+          tags: ['bbq', 'meat'],
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 'demo-4',
+          name: 'კიტრი-პომიდვრის სალათა',
+          name_ka: 'კიტრი-პომიდვრის სალათა',
+          description: 'ახალი კიტრი და პომიდორი კახური ზეთით და ნიგვზით',
+          description_ka: 'ახალი კიტრი და პომიდორი კახური ზეთით და ნიგვზით',
+          price: 8.0,
+          cost_price: 4.0,
+          category: 'Vegetables',
+          unit: 'პორცია',
+          image_url: 'https://placehold.co/600x400?text=Salad',
+          is_available: true,
+          min_order_quantity: 1,
+          max_order_quantity: 30,
+          stock_quantity: 50,
+          min_stock_level: 10,
+          tags: ['vegetarian', 'healthy'],
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 'demo-5',
+          name: 'ლობიანი',
+          name_ka: 'ლობიანი',
+          description: 'რაჭული ლობიანი ლორით',
+          description_ka: 'რაჭული ლობიანი ლორით',
+          price: 11.0,
+          cost_price: 6.0,
+          category: 'Grains',
+          unit: 'ცალი',
+          image_url: 'https://placehold.co/600x400?text=Lobiani',
+          is_available: true,
+          min_order_quantity: 1,
+          max_order_quantity: 20,
+          stock_quantity: 40,
+          min_stock_level: 10,
+          tags: ['traditional'],
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 'demo-6',
+          name: 'ლიმონათი ნატახტარი',
+          name_ka: 'ლიმონათი ნატახტარი',
+          description: 'მსხლის ლიმონათი 0.5ლ',
+          description_ka: 'მსხლის ლიმონათი 0.5ლ',
+          price: 2.5,
+          cost_price: 1.5,
+          category: 'Beverages',
+          unit: 'ბოთლი',
+          image_url: 'https://placehold.co/600x400?text=Lemonade',
+          is_available: true,
+          min_order_quantity: 10,
+          max_order_quantity: 100,
+          stock_quantity: 500,
+          min_stock_level: 50,
+          tags: ['drink'],
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ]
+
+      setTimeout(() => {
+        setProducts(mockProducts)
+        setLoading(false)
+      }, 500)
+      return
+    }
+
     try {
       setLoading(true)
       const data = await RestaurantUtils.getProducts({
@@ -64,6 +208,15 @@ export function ProductCatalog({ onAddToCart, cartItems }: ProductCatalogProps) 
   }
 
   const handleAddToCart = (product: RestaurantProduct) => {
+    if (isDemo) {
+      toast({
+        title: 'Demo Mode',
+        description: 'შეკვეთის განთავსება დემო ვერსიაში შეზღუდულია.',
+        variant: 'default',
+      })
+      return
+    }
+
     const existingItem = cartItems.find((item) => item.product.id === product.id)
     const currentQuantity = existingItem?.quantity || 0
 

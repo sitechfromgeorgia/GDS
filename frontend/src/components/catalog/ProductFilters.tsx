@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Search, Filter, X, RotateCcw, DollarSign, Package, Tag } from 'lucide-react'
-import { ProductFilterInput } from '@/lib/validators/products/products'
+import type { ProductFilterInput } from '@/lib/validators/products/products'
 
 interface ProductFiltersProps {
   filters: ProductFilterInput
@@ -74,9 +74,9 @@ export function ProductFilters({
 
   const hasActiveFilters = Boolean(
     filters.search ||
-      filters.category ||
-      filters.min_price !== undefined ||
-      filters.max_price !== undefined
+    filters.category ||
+    filters.min_price !== undefined ||
+    filters.max_price !== undefined
   )
 
   const getActiveFilterCount = () => {

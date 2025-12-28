@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 
 type UserRole = Database['public']['Tables']['profiles']['Row']['role']
 
@@ -24,7 +24,7 @@ export function RoleGuard({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
       </div>
     )
   }

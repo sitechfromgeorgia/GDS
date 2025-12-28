@@ -151,7 +151,7 @@ class GeorgianDistributionBrowserCache {
         key,
         data,
         timestamp: Date.now(),
-        expiresAt: Date.now() + this.CACHE_STRATEGIES[strategy].maxAge * 1000,
+        expiresAt: Date.now() + (this.CACHE_STRATEGIES[strategy]?.maxAge ?? 300) * 1000,
         accessCount: 0,
         lastAccessed: Date.now(),
         size,
@@ -164,7 +164,7 @@ class GeorgianDistributionBrowserCache {
       await this.saveToStorage()
 
       logger.info(
-        `💾 Georgian Distribution Browser Cache SET: ${key} (${size} bytes, TTL: ${this.CACHE_STRATEGIES[strategy].maxAge}s)`
+        `💾 Georgian Distribution Browser Cache SET: ${key} (${size} bytes, TTL: ${this.CACHE_STRATEGIES[strategy]?.maxAge ?? 300}s)`
       )
 
       this.metrics.hitRate++

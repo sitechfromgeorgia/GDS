@@ -2,8 +2,26 @@
 // This file runs before each test file
 
 import '@testing-library/jest-dom/vitest'
-import { vi, beforeAll, afterEach, afterAll } from 'vitest'
-import { createClient } from '@supabase/supabase-js'
+import { vi, afterEach } from 'vitest'
+
+// React 19 act compatibility - ensure act is available globally
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+;(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true
+
+// Suppress React 19 act warning from react-dom/test-utils
+const originalConsoleError = console.error
+console.error = (...args: unknown[]) => {
+  const message = args[0]
+  if (
+    typeof message === 'string' &&
+    (message.includes('ReactDOMTestUtils.act') ||
+      message.includes('react-dom/test-utils') ||
+      message.includes('Warning: ReactDOM.render'))
+  ) {
+    return // Suppress these warnings
+  }
+  originalConsoleError.apply(console, args)
+}
 
 // Mock environment variables for testing
 Object.defineProperty(process, 'env', {
@@ -19,14 +37,20 @@ Object.defineProperty(process, 'env', {
 // Mock Supabase client
 const mockSupabaseClient = {
   auth: {
-    getUser: vi.fn(),
-    getSession: vi.fn(),
-    signInWithPassword: vi.fn(),
-    signInWithOAuth: vi.fn(),
-    signOut: vi.fn(),
-    onAuthStateChange: vi.fn(),
-    refreshSession: vi.fn(),
-    getUserAttributes: vi.fn(),
+    getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    signInWithPassword: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    signInWithOAuth: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    signUp: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } }, error: null }),
+    signOut: vi.fn().mockResolvedValue({ error: null }),
+    onAuthStateChange: vi
+      .fn()
+      .mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+    refreshSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    getUserAttributes: vi.fn().mockResolvedValue({ data: { attributes: {} }, error: null }),
+    setSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    updateUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    resetPasswordForEmail: vi.fn().mockResolvedValue({ data: {}, error: null }),
   },
   from: vi.fn(() => ({
     select: vi.fn().mockReturnThis(),
@@ -66,11 +90,18 @@ const mockSupabaseClient = {
   })),
   storage: {
     from: vi.fn(() => ({
-      upload: vi.fn(),
-      download: vi.fn(),
-      remove: vi.fn(),
-      list: vi.fn(),
-      getPublicUrl: vi.fn(),
+      upload: vi.fn().mockResolvedValue({ data: { path: 'test-path' }, error: null }),
+      download: vi.fn().mockResolvedValue({ data: new Blob(), error: null }),
+      remove: vi.fn().mockResolvedValue({ data: [], error: null }),
+      list: vi.fn().mockResolvedValue({ data: [], error: null }),
+      getPublicUrl: vi
+        .fn()
+        .mockReturnValue({ data: { publicUrl: 'https://test.supabase.co/storage/test-path' } }),
+      createSignedUrl: vi
+        .fn()
+        .mockResolvedValue({ data: { signedUrl: 'https://test.supabase.co/signed' }, error: null }),
+      move: vi.fn().mockResolvedValue({ data: { message: 'success' }, error: null }),
+      copy: vi.fn().mockResolvedValue({ data: { path: 'test-path' }, error: null }),
     })),
   },
   realtime: {
@@ -83,7 +114,13 @@ const mockSupabaseClient = {
       untrack: vi.fn(),
     })),
   },
-  rpc: vi.fn(),
+  rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+  channel: vi.fn(() => ({
+    on: vi.fn().mockReturnThis(),
+    subscribe: vi.fn().mockReturnThis(),
+    unsubscribe: vi.fn(),
+  })),
+  removeChannel: vi.fn(),
 }
 
 // Mock createBrowserClient
@@ -130,8 +167,6 @@ vi.mock('@tanstack/react-query', () => ({
   useQueryClient: vi.fn(),
 }))
 
-
-
 // Mock react-hook-form
 vi.mock('react-hook-form', () => ({
   useForm: () => ({
@@ -149,13 +184,16 @@ vi.mock('react-hook-form', () => ({
 vi.mock('lucide-react', () => ({
   User: () => null,
   ShoppingCart: () => null,
+  ShoppingBag: () => null,
   Settings: () => null,
   LogOut: () => null,
   Menu: () => null,
   X: () => null,
   Plus: () => null,
+  Minus: () => null,
   Edit: () => null,
   Trash: () => null,
+  Trash2: () => null,
   Eye: () => null,
   EyeOff: () => null,
   Search: () => null,
@@ -165,6 +203,7 @@ vi.mock('lucide-react', () => ({
   Check: () => null,
   XCircle: () => null,
   AlertCircle: () => null,
+  AlertTriangle: () => null,
   Info: () => null,
   CheckCircle: () => null,
   Clock: () => null,
@@ -175,6 +214,81 @@ vi.mock('lucide-react', () => ({
   UserCircle: () => null,
   Lock: () => null,
   Unlock: () => null,
+  Send: () => null,
+  MessageCircle: () => null,
+  ChevronDown: () => null,
+  ChevronUp: () => null,
+  ChevronLeft: () => null,
+  ChevronRight: () => null,
+  ArrowLeft: () => null,
+  ArrowRight: () => null,
+  ArrowUp: () => null,
+  ArrowDown: () => null,
+  RefreshCw: () => null,
+  RotateCw: () => null,
+  Loader2: () => null,
+  Star: () => null,
+  Heart: () => null,
+  Home: () => null,
+  Package: () => null,
+  Truck: () => null,
+  MoreHorizontal: () => null,
+  MoreVertical: () => null,
+  Copy: () => null,
+  ExternalLink: () => null,
+  FileText: () => null,
+  Image: () => null,
+  Camera: () => null,
+  Bell: () => null,
+  BellOff: () => null,
+  Wifi: () => null,
+  WifiOff: () => null,
+  Sun: () => null,
+  Moon: () => null,
+  Globe: () => null,
+  CreditCard: () => null,
+  DollarSign: () => null,
+  Percent: () => null,
+  BarChart: () => null,
+  BarChart2: () => null,
+  BarChart3: () => null,
+  PieChart: () => null,
+  TrendingUp: () => null,
+  TrendingDown: () => null,
+  Activity: () => null,
+  Zap: () => null,
+  Target: () => null,
+  Award: () => null,
+  Flag: () => null,
+  Bookmark: () => null,
+  Tag: () => null,
+  Tags: () => null,
+  Folder: () => null,
+  FolderOpen: () => null,
+  File: () => null,
+  Files: () => null,
+  Save: () => null,
+  Printer: () => null,
+  Share: () => null,
+  Share2: () => null,
+  Link: () => null,
+  Link2: () => null,
+  Unlink: () => null,
+  Paperclip: () => null,
+  Scissors: () => null,
+  ClipboardList: () => null,
+  ClipboardCheck: () => null,
+  ListOrdered: () => null,
+  List: () => null,
+  Grid: () => null,
+  Columns: () => null,
+  Rows: () => null,
+  LayoutGrid: () => null,
+  LayoutList: () => null,
+  Maximize: () => null,
+  Minimize: () => null,
+  ZoomIn: () => null,
+  ZoomOut: () => null,
 }))
 
 // Mock date-fns
@@ -194,19 +308,35 @@ vi.mock('date-fns', () => ({
 // Mock global timers
 vi.useFakeTimers()
 
-// Mock IntersectionObserver
-global.IntersectionObserver = vi.fn(() => ({
-  disconnect: vi.fn(),
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-})) as any
+// Mock IntersectionObserver - must be a proper class for Next.js
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null
+  readonly rootMargin: string = ''
+  readonly thresholds: ReadonlyArray<number> = []
 
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn(() => ({
-  disconnect: vi.fn(),
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-})) as any
+  constructor(_callback: IntersectionObserverCallback) {
+    // Callback stored for potential future use in tests
+  }
+
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return []
+  }
+}
+
+global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver
+
+// Mock ResizeObserver - must be a proper class
+class MockResizeObserver implements ResizeObserver {
+  constructor() {}
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+
+global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver
 
 // Mock window.matchMedia
 if (typeof window !== 'undefined') {

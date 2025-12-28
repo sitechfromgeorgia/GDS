@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@/lib/supabase'
 import { z } from 'zod'
-import { Product } from '@/types/database'
-import { ProductFilterInput } from '@/lib/validators/products/products'
+import type { Product } from '@/types/database'
+import type { ProductFilterInput } from '@/lib/validators/products/products'
 
 // Enhanced product service with restaurant-focused features
 export class ProductService {

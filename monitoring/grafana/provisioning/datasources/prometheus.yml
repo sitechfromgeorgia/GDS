@@ -1,0 +1,41 @@
+# ============================================================================
+# Grafana Datasource Configuration - Prometheus
+# ============================================================================
+# Purpose: T040-T050 - Auto-provision Prometheus datasource
+# Created: 2025-11-25
+#
+# This file is automatically loaded by Grafana on startup
+# No manual configuration needed in Grafana UI
+# ============================================================================
+
+apiVersion: 1
+
+# List of datasources to insert/update
+datasources:
+  # Prometheus - PostgreSQL Metrics
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      # HTTP method for queries
+      httpMethod: POST
+
+      # Query timeout
+      queryTimeout: 60s
+
+      # Time interval
+      timeInterval: 15s
+
+      # Enable custom query parameters
+      customQueryParameters: ''
+
+      # Exemplars configuration
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: tempo
+
+    # Version (for updates)
+    version: 1

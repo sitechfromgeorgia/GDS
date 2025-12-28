@@ -1,0 +1,135 @@
+# ============================================================================
+# Prometheus Configuration - PostgreSQL Monitoring
+# ============================================================================
+# Purpose: T040-T050 - Scrape metrics from PostgreSQL Exporter
+# Created: 2025-11-25
+#
+# Targets:
+# 1. PostgreSQL Exporter (postgres_exporter:9187)
+# 2. Prometheus self-monitoring (localhost:9090)
+#
+# Scrape Interval: 15s (production standard)
+# Evaluation Interval: 15s (alert checking)
+# Retention: 90 days (set in docker-compose.yml)
+# ============================================================================
+
+global:
+  # How frequently to scrape targets
+  scrape_interval: 15s
+
+  # How frequently to evaluate alert rules
+  evaluation_interval: 15s
+
+  # Attach these labels to all time series or alerts
+  external_labels:
+    cluster: 'production'
+    environment: 'self-hosted-supabase'
+    datacenter: 'greenland77.ge'
+
+# ============================================================================
+# Alerting Configuration
+# ============================================================================
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # TODO: Add Alertmanager if you want email/Slack notifications
+          # - alertmanager:9093
+
+# ============================================================================
+# Alert Rules
+# ============================================================================
+rule_files:
+  - 'alerts.yml'
+
+# ============================================================================
+# Scrape Configurations
+# ============================================================================
+scrape_configs:
+  # ============================================================================
+  # PostgreSQL Exporter - Database Metrics
+  # ============================================================================
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres_exporter:9187']
+        labels:
+          instance: 'data.greenland77.ge'
+          db: 'postgres'
+          role: 'primary'
+
+    # Scrape frequency (override global)
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+    # Metric relabeling
+    metric_relabel_configs:
+      # Drop metrics we don't need to save storage
+      - source_labels: [__name__]
+        regex: 'pg_stat_database_tup_.*'
+        action: drop
+
+      # Add custom labels
+      - source_labels: [datname]
+        target_label: database
+        replacement: '${1}'
+
+  # ============================================================================
+  # Prometheus Self-Monitoring
+  # ============================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus'
+          role: 'tsdb'
+
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+# ============================================================================
+# Storage Configuration
+# ============================================================================
+# Retention is set via command line flag in docker-compose.yml:
+# --storage.tsdb.retention.time=90d
+
+# Optional: Remote write for long-term storage
+# remote_write:
+#   - url: "https://your-remote-storage/api/v1/write"
+#     basic_auth:
+#       username: "user"
+#       password: "password"
+
+# ============================================================================
+# Query Configuration
+# ============================================================================
+# Maximum samples that can be returned by a query
+# Default: 50,000,000
+# Increase if you get "query processing would load too many samples" errors
+# query:
+#   max_samples: 100000000
+#   timeout: 2m
+
+# ============================================================================
+# Verification Queries (run in Prometheus UI)
+# ============================================================================
+# After starting Prometheus, verify these queries work:
+#
+# 1. Check PostgreSQL is scraped:
+#    up{job="postgresql"}
+#
+# 2. Check database is up:
+#    pg_up
+#
+# 3. Check query performance:
+#    pg_stat_statements_mean_exec_time_seconds
+#
+# 4. Check cache hit ratio:
+#    pg_stat_database_blks_hit / (pg_stat_database_blks_hit + pg_stat_database_blks_read)
+#
+# 5. Check active connections:
+#    pg_stat_activity_count{state="active"}
+#
+# 6. Check index usage:
+#    pg_stat_user_indexes_idx_scan
+#
+# Access Prometheus UI: http://localhost:9090

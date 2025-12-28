@@ -470,7 +470,7 @@ class RoleBasedTester {
       const { error } = await supabase.from('products').select('*').eq('id', maliciousQuery)
       securityTests.push({
         test: 'SQL Injection Protection',
-        passed: !!error, // Should fail with error
+        passed: Boolean(error), // Should fail with error
         details: { error: error?.message },
       })
     } catch (error) {
@@ -489,8 +489,8 @@ class RoleBasedTester {
         .limit(1)
       securityTests.push({
         test: 'Unauthorized Access Prevention',
-        passed: !!error || !data,
-        details: { hasAccess: !error && !!data },
+        passed: Boolean(error) || !data,
+        details: { hasAccess: !error && Boolean(data) },
       })
     } catch (error) {
       securityTests.push({
@@ -501,7 +501,7 @@ class RoleBasedTester {
     }
 
     // Test session security
-    const hasValidSession = !!this.currentSession
+    const hasValidSession = Boolean(this.currentSession)
     securityTests.push({
       test: 'Session Security',
       passed: hasValidSession,

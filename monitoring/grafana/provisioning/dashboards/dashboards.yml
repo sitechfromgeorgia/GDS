@@ -1,0 +1,24 @@
+# ============================================================================
+# Grafana Dashboard Provisioning Configuration
+# ============================================================================
+# Purpose: T040-T050 - Auto-load PostgreSQL Optimization Dashboard
+# Created: 2025-11-25
+#
+# This file tells Grafana where to find dashboard JSON files
+# Dashboards are automatically imported on startup
+# ============================================================================
+
+apiVersion: 1
+
+providers:
+  # PostgreSQL Optimization Dashboards
+  - name: 'PostgreSQL Optimization'
+    orgId: 1
+    folder: 'PostgreSQL'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true

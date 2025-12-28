@@ -11,6 +11,6 @@ export const revalidate = 0
 export async function GET() {
   return NextResponse.json({
     status: 'alive',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   })
 }

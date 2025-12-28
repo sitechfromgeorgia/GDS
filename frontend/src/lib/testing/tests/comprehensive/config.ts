@@ -220,7 +220,7 @@ export class TestConfig {
 
     // Check credentials format
     Object.entries(this.credentials).forEach(([role, creds]) => {
-      if (!creds.email || !creds.email.includes('@')) {
+      if (!creds.email?.includes('@')) {
         errors.push(`Invalid email for ${role} role`)
       }
       if (!creds.password || creds.password.length < 6) {
@@ -277,7 +277,7 @@ Thresholds:
 - Overall Score: >${this.thresholds.performance.overallScore}%
 
 Configuration Valid: ${validation.valid ? '✅' : '❌'}
-${validation.errors.length > 0 ? 'Errors:\n' + validation.errors.map((e) => `  - ${e}`).join('\n') : ''}
+${validation.errors.length > 0 ? `Errors:\n${  validation.errors.map((e) => `  - ${e}`).join('\n')}` : ''}
     `.trim()
   }
 

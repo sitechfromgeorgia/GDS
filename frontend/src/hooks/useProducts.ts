@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productService } from '@/services/products/product.service'
-import { ProductFilterInput } from '@/lib/validators/products/products'
+import type { ProductFilterInput } from '@/lib/validators/products/products'
 
 // Query keys
 export const productQueryKeys = {
@@ -45,7 +45,7 @@ export function useProductsByCategory(category: string) {
   return useQuery({
     queryKey: [...productQueryKeys.lists(), { category }],
     queryFn: () => productService.getProductsByCategory(category),
-    enabled: !!category,
+    enabled: Boolean(category),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   })
@@ -66,7 +66,7 @@ export function useProduct(productId: string) {
   return useQuery({
     queryKey: productQueryKeys.detail(productId),
     queryFn: () => productService.getProductById(productId),
-    enabled: !!productId,
+    enabled: Boolean(productId),
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
   })

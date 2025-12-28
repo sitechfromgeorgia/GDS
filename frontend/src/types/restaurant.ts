@@ -1,4 +1,5 @@
-import { Database, Order, OrderItem, Product } from './database'
+import type { Order, OrderItem, Product } from './database'
+import { Database } from './database'
 
 // Restaurant-specific order type extending database Order
 export interface RestaurantOrder extends Order {

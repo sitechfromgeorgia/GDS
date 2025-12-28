@@ -20,8 +20,8 @@ const features = [
     icon: Truck,
     title: 'Real-Time Order Tracking',
     description:
-      'Track orders from placement to delivery with live GPS updates and automated status notifications.',
-    benefits: ['Live GPS tracking', 'Automated notifications', 'Delivery ETA', 'Order history'],
+      'Track orders from placement to delivery with real-time status updates and automated notifications.',
+    benefits: ['Real-time status', 'Automated notifications', 'Delivery ETA', 'Order history'],
   },
   {
     icon: BarChart3,

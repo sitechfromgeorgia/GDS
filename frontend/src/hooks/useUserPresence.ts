@@ -13,7 +13,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
-import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { UserPresence, UserPresenceInsert, UserPresenceUpdate } from '@/types/database'
 
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'

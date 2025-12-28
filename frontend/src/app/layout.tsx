@@ -5,6 +5,7 @@ import { Providers } from './providers'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { PWAInstallPrompt } from '@/components/mobile/PWAInstallPrompt'
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration'
+import { GeometricBackground } from '@/components/ui/GeometricBackground'
 import './globals.css'
 
 // Using system fonts instead of Google Fonts to avoid network dependencies during build
@@ -52,13 +53,20 @@ export const viewport: Viewport = {
   userScalable: true,
 }
 
-export default function RootLayout({
+import { createClient } from '@/lib/supabase/server'
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   return (
-    <html lang="ka">
+    <html lang="ka" suppressHydrationWarning>
       <head>
         <meta name="application-name" content="Georgian Distribution" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -72,7 +80,8 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <ErrorBoundary>
-          <Providers>
+          <Providers initialUser={user}>
+            <GeometricBackground />
             {children}
             <PWAInstallPrompt />
           </Providers>

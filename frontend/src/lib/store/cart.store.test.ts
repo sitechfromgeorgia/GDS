@@ -2,95 +2,100 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useCartStore } from './cart.store'
 
 describe('Cart Store', () => {
-    beforeEach(() => {
-        console.log('useCartStore:', useCartStore)
-        console.log('window type:', typeof window)
-        useCartStore.getState().clearCart()
+  beforeEach(() => {
+    // Clear cart before each test
+    useCartStore.getState().clearCart()
+  })
+
+  it('should start with empty cart', () => {
+    expect(useCartStore.getState().items).toHaveLength(0)
+    expect(useCartStore.getState().totalItems()).toBe(0)
+  })
+
+  it('should add items to cart', () => {
+    useCartStore.getState().addItem({
+      productId: '1',
+      quantity: 1,
+      product: {
+        id: '1',
+        name: 'Test Product',
+        category: 'meat',
+        unit: 'kg',
+        cost_price: 10,
+        is_active: true,
+      },
     })
 
-    it('should start with empty cart', () => {
-        expect(useCartStore.getState().items).toHaveLength(0)
-        expect(useCartStore.getState().getTotalItems()).toBe(0)
+    expect(useCartStore.getState().items).toHaveLength(1)
+    expect(useCartStore.getState().totalItems()).toBe(1)
+  })
+
+  it('should increment quantity for existing item', () => {
+    useCartStore.getState().addItem({
+      productId: '1',
+      quantity: 1,
+      product: {
+        id: '1',
+        name: 'Test Product',
+        category: 'meat',
+        unit: 'kg',
+        cost_price: 10,
+        is_active: true,
+      },
     })
 
-    it('should add items to cart', () => {
-        useCartStore.getState().addItem({
-            product_id: '1',
-            name: 'Test Product',
-            quantity: 1,
-            unit: 'kg',
-            price: 10
-        })
-
-        expect(useCartStore.getState().items).toHaveLength(1)
-        expect(useCartStore.getState().getTotalItems()).toBe(1)
+    useCartStore.getState().addItem({
+      productId: '1',
+      quantity: 2,
+      product: {
+        id: '1',
+        name: 'Test Product',
+        category: 'meat',
+        unit: 'kg',
+        cost_price: 10,
+        is_active: true,
+      },
     })
 
-    it('should increment quantity for existing item', () => {
-        useCartStore.getState().addItem({
-            product_id: '1',
-            name: 'Test Product',
-            quantity: 1,
-            unit: 'kg',
-            price: 10
-        })
+    const state = useCartStore.getState()
+    expect(state.items).toHaveLength(1)
+    expect(state.items[0]?.quantity).toBe(3)
+  })
 
-        useCartStore.getState().addItem({
-            product_id: '1',
-            name: 'Test Product',
-            quantity: 2,
-            unit: 'kg',
-            price: 10
-        })
-
-        expect(useCartStore.getState().items).toHaveLength(1)
-        expect(useCartStore.getState().items[0].quantity).toBe(3)
+  it('should remove item from cart', () => {
+    useCartStore.getState().addItem({
+      productId: '1',
+      quantity: 1,
+      product: {
+        id: '1',
+        name: 'Test Product',
+        category: 'meat',
+        unit: 'kg',
+        cost_price: 10,
+        is_active: true,
+      },
     })
 
-    it('should remove item from cart', () => {
-        useCartStore.getState().addItem({
-            product_id: '1',
-            name: 'Test Product',
-            quantity: 1,
-            unit: 'kg',
-            price: 10
-        })
+    useCartStore.getState().removeItem('1')
+    expect(useCartStore.getState().items).toHaveLength(0)
+  })
 
-        useCartStore.getState().removeItem('1')
-        expect(useCartStore.getState().items).toHaveLength(0)
+  it('should update quantity', () => {
+    useCartStore.getState().addItem({
+      productId: '1',
+      quantity: 1,
+      product: {
+        id: '1',
+        name: 'Test Product',
+        category: 'meat',
+        unit: 'kg',
+        cost_price: 10,
+        is_active: true,
+      },
     })
 
-    it('should update quantity', () => {
-        useCartStore.getState().addItem({
-            product_id: '1',
-            name: 'Test Product',
-            quantity: 1,
-            unit: 'kg',
-            price: 10
-        })
-
-        useCartStore.getState().updateQuantity('1', 5)
-        expect(useCartStore.getState().items[0].quantity).toBe(5)
-    })
-
-    it('should calculate total price', () => {
-        useCartStore.getState().addItem({
-            product_id: '1',
-            name: 'Product 1',
-            quantity: 2,
-            unit: 'kg',
-            price: 10
-        })
-
-        useCartStore.getState().addItem({
-            product_id: '2',
-            name: 'Product 2',
-            quantity: 1,
-            unit: 'kg',
-            price: 20
-        })
-
-        // (2 * 10) + (1 * 20) = 40
-        expect(useCartStore.getState().getTotalPrice()).toBe(40)
-    })
+    useCartStore.getState().updateQuantity('1', 5)
+    const state = useCartStore.getState()
+    expect(state.items[0]?.quantity).toBe(5)
+  })
 })

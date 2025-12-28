@@ -13,12 +13,12 @@ const faqs = [
       {
         question: 'How do I get started with Georgian Distribution?',
         answer:
-          "Getting started is easy! Simply sign up for a free trial, and our team will guide you through the setup process. We'll help you configure your account, import your data, and train your team on using the platform.",
+          "Getting started is easy! Simply contact our sales team, and we will guide you through the setup process. We'll help you configure your account, import your data, and train your team on using the platform.",
       },
       {
-        question: 'Do you offer a free trial?',
+        question: 'Do you offer a demo?',
         answer:
-          "Yes! We offer a 14-day free trial with full access to all features. No credit card required to get started. During your trial, you'll have access to our support team to help you get the most out of the platform.",
+          'Yes! We offer a live demo where you can explore all features. No commitment required. During the demo, our team will answer all your questions and show you how the platform fits your business needs.',
       },
       {
         question: 'What types of businesses can use your platform?',
@@ -33,7 +33,7 @@ const faqs = [
       {
         question: 'How does real-time order tracking work?',
         answer:
-          'Our platform provides real-time GPS tracking for all deliveries. Restaurants can see the exact location of their orders, estimated delivery times, and receive automatic notifications when orders are picked up, in transit, and delivered.',
+          'Our platform provides real-time status updates for all deliveries. Restaurants can see the status of their orders, estimated delivery times, and receive automatic notifications when orders are picked up, in transit, and delivered.',
       },
       {
         question: 'Can I integrate with my existing systems?',
@@ -58,7 +58,7 @@ const faqs = [
       {
         question: 'What are your pricing plans?',
         answer:
-          'We offer three main plans: Starter ($49/month), Professional ($149/month), and Enterprise ($399/month). All plans include a 14-day free trial. Annual billing saves you 20%. Contact our sales team for custom enterprise pricing.',
+          'We offer three main plans: Starter, Professional, and Enterprise. Contact our sales team for custom pricing tailored to your business needs.',
       },
       {
         question: 'Do you offer refunds?',

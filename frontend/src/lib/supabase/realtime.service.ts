@@ -1,4 +1,4 @@
-import { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js'
+import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js'
 
 export type SubscriptionCallback = (payload: any) => void
 

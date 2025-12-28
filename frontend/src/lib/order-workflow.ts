@@ -1,8 +1,9 @@
 import { logger } from '@/lib/logger'
-import { Database } from '@/types/database'
+import type { Database } from '@/types/database'
 import { ORDER_STATUSES, USER_ROLES } from '@/constants'
 import { OrderBusinessLogic } from './business-logic'
-import { orderRealtimeManager, OrderNotification } from './realtime'
+import type { OrderNotification } from './realtime'
+import { orderRealtimeManager } from './realtime'
 import { createServerClient } from '@/lib/supabase/server'
 
 type Order = Database['public']['Tables']['orders']['Row']

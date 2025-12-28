@@ -1,6 +1,6 @@
 import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
-import {
+import type {
   Cart,
   CartItem,
   CartItemInput,

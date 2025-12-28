@@ -74,7 +74,7 @@ class ConnectionPoolManager {
 
     let status: 'healthy' | 'warning' | 'critical' = 'healthy'
     let message = 'Connection pool is healthy'
-    let recommendations: string[] = []
+    const recommendations: string[] = []
 
     if (utilization > 0.8) {
       status = 'warning'

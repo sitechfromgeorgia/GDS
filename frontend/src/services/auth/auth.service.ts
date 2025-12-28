@@ -2,7 +2,7 @@ import { logger } from '@/lib/logger'
 import { createBrowserClient } from '@/lib/supabase'
 
 const createClient = createBrowserClient
-import { User } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 import { z } from 'zod'
 
 // Zod schemas for validation
@@ -35,7 +35,7 @@ export class AuthService {
     // Validate input
     const result = signInSchema.safeParse({ email, password })
     if (!result.success) {
-      throw new Error('Invalid input: ' + result.error.message)
+      throw new Error(`Invalid input: ${result.error.message}`)
     }
 
     const { data, error } = await this.supabase.auth.signInWithPassword({
@@ -113,7 +113,7 @@ export class AuthService {
   async createUser(userData: SignUpInput) {
     const result = signUpSchema.safeParse(userData)
     if (!result.success) {
-      throw new Error('Invalid input: ' + result.error.message)
+      throw new Error(`Invalid input: ${result.error.message}`)
     }
 
     const { data, error } = await this.supabase.auth.signUp({

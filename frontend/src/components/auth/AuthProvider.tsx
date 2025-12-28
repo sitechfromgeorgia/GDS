@@ -20,11 +20,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+import type { User } from '@supabase/supabase-js'
+
 interface AuthProviderProps {
   children?: React.ReactNode
+  initialUser?: User | null
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const pathname = usePathname()
   const [authReady, setAuthReady] = useState(false)
   const [isClient, setIsClient] = useState(false)
@@ -34,36 +37,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Mark when we're on client side (after hydration)
   useEffect(() => {
+    console.log('AuthProvider: Mounted, setting isClient=true')
     setIsClient(true)
   }, [])
+
+  useEffect(() => {
+    console.log('AuthProvider: State changed', { isClient, authReady, isAuthenticated })
+  }, [isClient, authReady, isAuthenticated])
 
   // Initialize auth once on mount (client-side only)
   useEffect(() => {
     if (!isClient) return // Skip on server
 
     let mounted = true
-    let timeoutId: NodeJS.Timeout
-
     // Set a hard timeout at React level (10 seconds)
-    timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       if (mounted && !authReady) {
         console.warn('Auth initialization timeout - forcing ready state')
         setAuthReady(true)
       }
     }, 10000)
 
-    ensureAuthInitialized()
+    console.log('AuthProvider: Calling ensureAuthInitialized')
+
+    ensureAuthInitialized(initialUser)
       .then(() => {
         clearTimeout(timeoutId)
+        console.log('AuthProvider: ensureAuthInitialized resolved')
         if (mounted) {
           setAuthReady(true)
         }
       })
       .catch((error) => {
         clearTimeout(timeoutId)
-        // Even if initialization fails, set authReady to true
-        // to prevent infinite loading. The loading state from
-        // useAuth() will be false, allowing the app to render.
         console.error('Auth initialization error:', error)
         if (mounted) {
           setAuthReady(true)
@@ -80,7 +86,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const publicRoutes = ['/', '/welcome', '/demo', '/landing', '/login']
   const isDemoRoute = pathname.startsWith('/dashboard/demo')
   const isCatalogRoute = pathname.startsWith('/catalog')
-  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/api') || isDemoRoute || isCatalogRoute
+  const isPublicRoute =
+    publicRoutes.includes(pathname) || pathname.startsWith('/api') || isDemoRoute || isCatalogRoute
 
   // Show loading spinner during auth initialization - but NOT for public routes
   // This prevents hydration issues and allows public pages to render immediately

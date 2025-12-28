@@ -36,7 +36,7 @@ export class OrderService {
     // Validate order data
     const result = orderCreateSchema.safeParse(orderData)
     if (!result.success) {
-      throw new Error('Invalid order data: ' + result.error.message)
+      throw new Error(`Invalid order data: ${result.error.message}`)
     }
 
     // Calculate total amount

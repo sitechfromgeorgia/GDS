@@ -32,6 +32,8 @@ export const clientOptions = {
     params: {
       eventsPerSecond: 10,
     },
+    heartbeatIntervalMs: 30000,
+    timeout: 60000,
   },
   global: {
     headers: {
@@ -57,65 +59,7 @@ export function createBrowserClient() {
     throw new Error('Missing required Supabase environment variables')
   }
 
-  return createSupabaseBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        if (typeof document === 'undefined') return undefined
-        return document.cookie
-          .split('; ')
-          .find((row) => row.startsWith(name + '='))
-          ?.split('=')[1]
-      },
-      set(name: string, value: string, options: any) {
-        if (typeof document === 'undefined') return
-
-        const cookieParts = [`${name}=${value}`, 'path=/']
-
-        // Add SameSite attribute (critical for cross-page auth)
-        if (options.sameSite !== undefined) {
-          cookieParts.push(`SameSite=${options.sameSite}`)
-        } else {
-          cookieParts.push('SameSite=Lax') // Default to Lax for navigation
-        }
-
-        // Add Secure flag in production
-        if (
-          options.secure ||
-          (typeof window !== 'undefined' && window.location.protocol === 'https:')
-        ) {
-          cookieParts.push('Secure')
-        }
-
-        // Add domain if specified
-        if (options.domain) {
-          cookieParts.push(`domain=${options.domain}`)
-        }
-
-        // Add max-age
-        if (options.maxAge) {
-          cookieParts.push(`max-age=${options.maxAge}`)
-        }
-
-        // Add expires if specified
-        if (options.expires) {
-          cookieParts.push(`expires=${options.expires}`)
-        }
-
-        document.cookie = cookieParts.join('; ')
-      },
-      remove(name: string, options: any) {
-        if (typeof document === 'undefined') return
-
-        const cookieParts = [`${name}=`, 'path=/', 'max-age=0']
-
-        if (options.domain) {
-          cookieParts.push(`domain=${options.domain}`)
-        }
-
-        document.cookie = cookieParts.join('; ')
-      },
-    },
-  })
+  return createSupabaseBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
 }
 
 /**
@@ -161,7 +105,7 @@ export function getEnvironmentInfo() {
   return {
     url: supabaseUrl,
     isLocal: supabaseUrl?.includes('localhost') || supabaseUrl?.includes('127.0.0.1'),
-    hasAnonKey: !!supabaseAnonKey,
+    hasAnonKey: Boolean(supabaseAnonKey),
     clientInfo: 'georgian-distribution-system@1.0.0',
   }
 }

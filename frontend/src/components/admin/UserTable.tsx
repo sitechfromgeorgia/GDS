@@ -47,7 +47,8 @@ import {
   Download,
   Upload,
 } from 'lucide-react'
-import { User, FilterParams, AdminAction } from '@/types/admin'
+import type { User } from '@/types/admin'
+import { FilterParams, AdminAction } from '@/types/admin'
 import { USER_ROLES } from '@/constants'
 
 interface UserTableProps {
@@ -159,12 +160,12 @@ export function UserTable({
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="h-10 bg-gray-200 rounded animate-pulse w-64"></div>
-          <div className="h-10 bg-gray-200 rounded animate-pulse w-32"></div>
+          <div className="h-10 bg-gray-200 rounded animate-pulse w-64" />
+          <div className="h-10 bg-gray-200 rounded animate-pulse w-32" />
         </div>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 bg-gray-200 rounded animate-pulse"></div>
+            <div key={i} className="h-16 bg-gray-200 rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -245,7 +246,7 @@ export function UserTable({
               <TableHead>სტატუსი</TableHead>
               <TableHead>ტელეფონი</TableHead>
               <TableHead>შექმნილი</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -14,7 +14,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
-import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import type { ChatMessage, ChatMessageInsert } from '@/types/database'
 
 interface UseChatMessagesOptions {
@@ -101,7 +101,8 @@ export function useChatMessages(options: UseChatMessagesOptions): UseChatMessage
         setOffset(reset ? MESSAGES_PER_PAGE : currentOffset + MESSAGES_PER_PAGE)
 
         // Calculate unread count
-        const unread = data?.filter((m: ChatMessage) => !m.is_read && m.sender_id !== userId).length || 0
+        const unread =
+          data?.filter((m: ChatMessage) => !m.is_read && m.sender_id !== userId).length || 0
         setUnreadCount(unread)
 
         setError(null)

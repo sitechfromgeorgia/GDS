@@ -224,7 +224,8 @@ export async function testBackendAccessibility(): Promise<{
   realtime: boolean
   details: Record<string, string>
 }> {
-  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://akxmacfsltzhbnunoepb.supabase.co'
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!baseUrl) throw new Error('Supabase URL missing')
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   const results = {

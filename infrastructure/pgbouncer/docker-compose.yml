@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: distribution-pgbouncer
+    restart: unless-stopped
+
+    # Port mapping
+    # External port 6432 maps to internal PgBouncer port 6432
+    ports:
+      - "6432:6432"
+
+    # Environment variables
+    environment:
+      # Database connection URLs
+      # Format: postgres://user:password@host:port/database
+      #
+      # IMPORTANT: Update these with actual credentials from environment variables
+      - DATABASE_URL=${DATABASE_URL}
+
+      # PgBouncer pool settings
+      - POOL_MODE=transaction
+      - DEFAULT_POOL_SIZE=20
+      - MAX_CLIENT_CONN=100
+      - RESERVE_POOL_SIZE=5
+      - RESERVE_POOL_TIMEOUT=3
+
+      # Timeouts (seconds)
+      - SERVER_IDLE_TIMEOUT=600
+      - SERVER_LIFETIME=3600
+      - QUERY_TIMEOUT=120
+
+      # Logging
+      - LOG_CONNECTIONS=1
+      - LOG_DISCONNECTIONS=1
+      - LOG_POOLER_ERRORS=1
+
+    # Mount configuration files
+    volumes:
+      # Main config
+      - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+
+      # User authentication file
+      # Create this file with format: "username" "md5<md5_of_password_and_username>"
+      # Example: "postgres" "md5d8578edf8458ce06fbc5bb76a58c5ca4"
+      - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+
+      # Logs directory (optional)
+      - pgbouncer-logs:/var/log/pgbouncer
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "6432"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+    # Network
+    networks:
+      - database-network
+
+    # Labels for monitoring
+    labels:
+      - "com.distribution.service=pgbouncer"
+      - "com.distribution.environment=production"
+      - "com.distribution.description=PostgreSQL connection pooler"
+
+volumes:
+  pgbouncer-logs:
+    driver: local
+
+networks:
+  database-network:
+    driver: bridge
+    name: distribution-database-network
+
+# Usage:
+#
+# 1. Create userlist.txt file:
+#    echo '"postgres" "md5..."' > userlist.txt
+#
+# 2. Set DATABASE_URL environment variable:
+#    export DATABASE_URL=postgres://user:password@host:5432/dbname
+#
+# 3. Start PgBouncer:
+#    docker-compose up -d
+#
+# 4. View logs:
+#    docker-compose logs -f pgbouncer
+#
+# 5. View pool stats:
+#    psql -h localhost -p 6432 -U postgres pgbouncer -c "SHOW POOLS"
+#
+# 6. Stop PgBouncer:
+#    docker-compose down
+#
+# Connection strings (update your application):
+#   Before: postgres://user:password@data.greenland77.ge:5432/postgres
+#   After:  postgres://user:password@localhost:6432/production
+#
+# Expected results:
+#   - 5X connection efficiency (500 clients → 100 server connections)
+#   - Faster connection establishment (connection reuse)
+#   - Better query throughput (reduced connection overhead)
+#   - Graceful handling of connection spikes (reserve pool)

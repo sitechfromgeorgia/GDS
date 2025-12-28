@@ -1,7 +1,0 @@
-
-> frontend@0.1.0 test
-> vitest run
-
-
-[1m[46m RUN [49m[22m [36mv4.0.10 [39m[90mC:/Users/SITECH/Desktop/DEV/Distribution-Managment/frontend[39m
-

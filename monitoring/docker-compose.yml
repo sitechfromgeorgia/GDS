@@ -1,0 +1,164 @@
+# ============================================================================
+# PostgreSQL Monitoring Stack - Docker Compose
+# ============================================================================
+# Purpose: T040-T050 - Grafana + Prometheus + PostgreSQL Exporter
+# Created: 2025-11-25
+#
+# Services:
+# 1. Prometheus (TSDB) - Port 9090
+# 2. PostgreSQL Exporter - Port 9187
+# 3. Grafana (UI) - Port 3000
+#
+# Usage:
+#   1. Update .env file with credentials
+#   2. docker-compose up -d
+#   3. Access Grafana: http://localhost:3000
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Prometheus - Time Series Database
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: postgres-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # PostgreSQL Exporter - Metrics Collection
+  # ============================================================================
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      # IMPORTANT: Update this with your actual database credentials
+      DATA_SOURCE_NAME: "postgresql://monitoring:${MONITORING_PASSWORD}@data.greenland77.ge:5432/postgres?sslmode=require"
+
+      # Custom queries for monitoring views
+      PG_EXPORTER_EXTEND_QUERY_PATH: "/etc/postgres_exporter/queries.yaml"
+    volumes:
+      - ./prometheus/queries.yaml:/etc/postgres_exporter/queries.yaml
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9187/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Grafana - Visualization & Dashboards
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: postgres-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # Security
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+
+      # Server
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
+
+      # Analytics
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+
+      # Auth
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_BASIC_ENABLED=true
+
+      # Alerting
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - monitoring
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  monitoring:
+    driver: bridge
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# ============================================================================
+# Post-Deployment Notes
+# ============================================================================
+# 1. Create .env file with:
+#    MONITORING_PASSWORD=your_monitoring_password
+#    GRAFANA_PASSWORD=your_grafana_password
+#
+# 2. Start services:
+#    docker-compose up -d
+#
+# 3. Check health:
+#    docker-compose ps
+#    docker-compose logs -f
+#
+# 4. Access Grafana:
+#    URL: http://localhost:3000
+#    User: admin
+#    Password: (from GRAFANA_PASSWORD)
+#
+# 5. Verify Prometheus:
+#    URL: http://localhost:9090
+#    Check targets: http://localhost:9090/targets
+#
+# 6. Verify PostgreSQL Exporter:
+#    Metrics: http://localhost:9187/metrics
+#
+# 7. Import dashboard:
+#    Grafana → Dashboards → Import → Upload postgres-optimization.json

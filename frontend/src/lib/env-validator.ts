@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 // Define environment schema with strict validation
 const envSchema = z.object({
@@ -13,25 +14,18 @@ const envSchema = z.object({
   // Supabase configuration (required)
   NEXT_PUBLIC_SUPABASE_URL: z.string().url('Invalid Supabase URL'),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20, 'Invalid Supabase anon key'),
-  SUPABASE_SERVICE_ROLE_KEY: z
-    .string()
-    .min(20, 'Invalid Supabase service role key')
-    .optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(20, 'Invalid Supabase service role key').optional(),
 
   // Application configuration
   NEXT_PUBLIC_APP_URL: z.string().url('Invalid app URL'),
-  NEXT_PUBLIC_ENVIRONMENT: z
-    .enum(['development', 'staging', 'production'])
-    .default('development'),
+  NEXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'staging', 'production']).default('development'),
 
   // Monitoring and logging
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   SENTRY_ORG: z.string().optional(),
   SENTRY_PROJECT: z.string().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),
-  LOG_LEVEL: z
-    .enum(['debug', 'info', 'warn', 'error'])
-    .default('info'),
+  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   LOGS_DIR: z.string().default('/var/log/app'),
 
   // Feature flags
@@ -119,9 +113,9 @@ export function validateEnv(): Env {
         return `  - ${err.path.join('.')}: ${err.message}`
       })
 
-      console.error('❌ Environment validation failed:')
-      console.error(errorMessages.join('\n'))
-      console.error('\n📝 Please check your .env file and ensure all required variables are set.')
+      logger.error('❌ Environment validation failed:')
+      logger.error(errorMessages.join('\n'))
+      logger.error('\n📝 Please check your .env file and ensure all required variables are set.')
 
       throw new Error('Environment validation failed')
     }
@@ -177,7 +171,7 @@ export function validateProductionEnv(): void {
   }
 
   if (!env.NEXT_PUBLIC_SENTRY_DSN) {
-    console.warn('⚠️  SENTRY_DSN is not set. Error tracking will be disabled.')
+    logger.warn('⚠️  SENTRY_DSN is not set. Error tracking will be disabled.')
   }
 
   if (!env.SESSION_SECRET) {
@@ -198,12 +192,12 @@ export function validateProductionEnv(): void {
   }
 
   if (errors.length > 0) {
-    console.error('❌ Production environment validation failed:')
-    errors.forEach((err) => console.error(`  - ${err}`))
+    logger.error('❌ Production environment validation failed:')
+    errors.forEach((err) => logger.error(`  - ${err}`))
     throw new Error('Production environment validation failed')
   }
 
-  console.log('✅ Production environment validation passed')
+  logger.info('✅ Production environment validation passed')
 }
 
 /**
@@ -212,17 +206,19 @@ export function validateProductionEnv(): void {
 export function printEnvSummary(): void {
   const env = getValidatedEnv()
 
-  console.log('📋 Environment Configuration:')
-  console.log(`  - Environment: ${env.NODE_ENV}`)
-  console.log(`  - App URL: ${env.NEXT_PUBLIC_APP_URL}`)
-  console.log(`  - Supabase URL: ${env.NEXT_PUBLIC_SUPABASE_URL}`)
-  console.log(`  - Log Level: ${env.LOG_LEVEL}`)
-  console.log(`  - Analytics: ${env.NEXT_PUBLIC_ENABLE_ANALYTICS ? 'Enabled' : 'Disabled'}`)
-  console.log(`  - Demo Mode: ${env.NEXT_PUBLIC_ENABLE_DEMO_MODE ? 'Enabled' : 'Disabled'}`)
-  console.log(`  - Performance Monitoring: ${env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING ? 'Enabled' : 'Disabled'}`)
-  console.log(`  - Sentry: ${env.NEXT_PUBLIC_SENTRY_DSN ? 'Configured' : 'Not configured'}`)
-  console.log(`  - CDN: ${env.CDN_URL || 'Not configured'}`)
-  console.log(`  - Backup: ${env.BACKUP_ENABLED ? 'Enabled' : 'Disabled'}`)
+  logger.info('📋 Environment Configuration:')
+  logger.info(`  - Environment: ${env.NODE_ENV}`)
+  logger.info(`  - App URL: ${env.NEXT_PUBLIC_APP_URL}`)
+  logger.info(`  - Supabase URL: ${env.NEXT_PUBLIC_SUPABASE_URL}`)
+  logger.info(`  - Log Level: ${env.LOG_LEVEL}`)
+  logger.info(`  - Analytics: ${env.NEXT_PUBLIC_ENABLE_ANALYTICS ? 'Enabled' : 'Disabled'}`)
+  logger.info(`  - Demo Mode: ${env.NEXT_PUBLIC_ENABLE_DEMO_MODE ? 'Enabled' : 'Disabled'}`)
+  logger.info(
+    `  - Performance Monitoring: ${env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING ? 'Enabled' : 'Disabled'}`
+  )
+  logger.info(`  - Sentry: ${env.NEXT_PUBLIC_SENTRY_DSN ? 'Configured' : 'Not configured'}`)
+  logger.info(`  - CDN: ${env.CDN_URL || 'Not configured'}`)
+  logger.info(`  - Backup: ${env.BACKUP_ENABLED ? 'Enabled' : 'Disabled'}`)
 }
 
 // Auto-validate on import (only in Node.js environment)

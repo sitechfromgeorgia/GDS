@@ -83,7 +83,7 @@ export const safeSupabase = {
   },
 
   select: <T extends keyof Database['public']['Tables']>(table: T, query?: string) => {
-    let queryBuilder = (supabase as any).from(table).select(query || '*')
+    const queryBuilder = (supabase as any).from(table).select(query || '*')
     return queryBuilder
   },
 }

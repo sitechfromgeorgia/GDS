@@ -3,9 +3,10 @@ import { logger } from '@/lib/logger'
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useToast } from '@/hooks/use-toast'
-import { Cart, CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
+import type { Cart } from '@/types/cart'
+import { CartItem, CartItemInput, CartUpdateInput } from '@/types/cart'
 import { RealtimeCartService } from '@/services/realtime-cart.service'
-import { CartSession, RealtimeCartUpdate } from '@/types/realtime-cart'
+import type { CartSession, RealtimeCartUpdate } from '@/types/realtime-cart'
 
 interface RealtimeCartContextValue {
   // Cart state

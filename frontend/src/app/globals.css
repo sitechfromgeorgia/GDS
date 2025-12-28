@@ -1,7 +1,6 @@
 @import "tailwindcss";
-/* @import "tw-animate-css"; */
 
-:root {
+@theme {
   --radius: 0.625rem;
   --color-background: oklch(1 0 0);
   --color-foreground: oklch(0.145 0 0);
@@ -134,20 +133,42 @@
 
   /* Mobile-optimized spacing */
   .mobile-padding {
-    @apply px-4 py-3;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
 
   @media (min-width: 768px) {
     .mobile-padding {
-      @apply px-6 py-4;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
     }
   }
 
   /* Responsive container with safe padding */
   .container-safe {
-    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  @media (min-width: 640px) {
+    .container-safe {
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-safe {
+      padding-left: max(2rem, env(safe-area-inset-left));
+      padding-right: max(2rem, env(safe-area-inset-right));
+    }
   }
 
   /* Full viewport height accounting for mobile browser chrome */
@@ -167,7 +188,13 @@
 /* Animations for mobile interactions */
 @layer components {
   .animate-tap {
-    @apply active:scale-95 transition-transform duration-100;
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 100ms;
+  }
+
+  .animate-tap:active {
+    transform: scale(0.95);
   }
 
   .animate-slide-up {
