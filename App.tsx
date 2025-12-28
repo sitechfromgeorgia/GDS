@@ -41,6 +41,12 @@ interface AppContextType {
   toggleProductStatus: (id: string) => Promise<void>;
   toggleProductPromo: (id: string) => Promise<void>;
   bulkProductAction: (ids: string[], updates: Partial<Product>) => Promise<void>;
+  addUnit: (unit: string) => Promise<void>;
+  updateUnit: (oldUnit: string, newUnit: string) => Promise<void>;
+  deleteUnit: (unit: string) => Promise<void>;
+  addCategory: (category: string) => Promise<void>;
+  updateCategory: (oldCategory: string, newCategory: string) => Promise<void>;
+  deleteCategory: (category: string) => Promise<void>;
   addUser: (user: User) => Promise<void>;
   updateUser: (user: User) => Promise<void>;
   updateUserStatus: (id: string, isActive: boolean) => Promise<void>;
@@ -196,6 +202,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const toggleProductStatus = async (id: string) => { if (isDemo) db.toggleProductStatus(id); refreshData(); };
   const toggleProductPromo = async (id: string) => { if (isDemo) db.toggleProductPromo(id); refreshData(); };
   const bulkProductAction = async (ids: string[], updates: any) => { if (isDemo) db.bulkUpdateProducts(ids, updates); refreshData(); };
+  
+  const addUnit = async (unit: string) => { if (isDemo) db.addUnit(unit); refreshData(); };
+  const updateUnit = async (oldUnit: string, newUnit: string) => { if (isDemo) db.updateUnit(oldUnit, newUnit); refreshData(); };
+  const deleteUnit = async (unit: string) => { if (isDemo) db.deleteUnit(unit); refreshData(); };
+  
+  const addCategory = async (category: string) => { if (isDemo) db.addCategory(category); refreshData(); };
+  const updateCategory = async (oldCategory: string, newCategory: string) => { if (isDemo) db.updateCategory(oldCategory, newCategory); refreshData(); };
+  const deleteCategory = async (category: string) => { if (isDemo) db.deleteCategory(category); refreshData(); };
+
   const addUser = async (u: User) => { db.addUser(u); refreshData(); };
   const updateUser = async (u: User) => { db.updateUser(u); if(user?.id === u.id) setUser(u); refreshData(); };
   const updateUserStatus = async (id: string, active: boolean) => { db.updateUserStatus(id, active); refreshData(); };
@@ -210,6 +225,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       user, users, products, orders, units, categories, theme, config, isDemo,
       toggleTheme, login, logout, refreshData, saveConfig,
       addProduct, updateProduct, deleteProduct, toggleProductStatus, toggleProductPromo, bulkProductAction,
+      addUnit, updateUnit, deleteUnit, addCategory, updateCategory, deleteCategory,
       addUser, updateUser, updateUserStatus, createOrder, updateOrderStatus, updateOrderPricing, showToast
     }}>
       {children}
