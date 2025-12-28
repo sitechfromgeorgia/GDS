@@ -1,56 +1,62 @@
 {
-  "task_description": "Complete the useUsers hook with full CRUD functionality for user management. Implement fetching, filtering, updating, and deleting users with proper error handling using TanStack Query and Supabase patterns.",
+  "task_description": "Complete the useUsers hook with React Query CRUD operations following the useProducts.ts pattern. Replace TODO markers with working implementation for fetching, filtering, updating, and deleting users.",
   "files_to_modify": {
     "frontend": ["src/hooks/useUsers.ts"]
   },
   "files_to_reference": [
     "frontend/src/hooks/useProducts.ts",
-    "frontend/src/lib/supabase/client.ts",
-    "frontend/__tests__/integration/user-management-flow.test.tsx"
+    "frontend/src/lib/services/admin/user.service.ts",
+    "frontend/src/types/admin.ts",
+    "frontend/src/components/admin/UserTable.tsx"
   ],
   "patterns": {
-    "tanstack_query_pattern": "Hierarchical query keys, useQuery for fetching, useMutation for updates with cache invalidation. Pattern: { all, lists(), list(filters), detail(id) }. Always invalidate queries in onSuccess callbacks.",
-    "supabase_pattern": "Use createBrowserClient() from @/lib/supabase/client. Always destructure { data, error } and throw errors. Let TanStack Query handle error states.",
-    "realtime_pattern": "Use channels for subscriptions with postgres_changes events. Update cache with setQueryData for specific items, invalidateQueries for lists. Clean up subscriptions in useEffect return.",
-    "validation_pattern": "Validate inputs before API calls. Return consistent format: { success: boolean, data?: T, error?: string }",
-    "permission_pattern": "Check permissions before privileged operations (role changes, deletions). Validate on both client and server."
+    "query_keys_pattern": "Hierarchical query keys object: { all, lists(), list(filters), infinite(filters), details(), detail(id) }. Export as const for type safety. Pattern from useProducts.ts lines 7-17.",
+    "useQuery_pattern": "useQuery with queryKey and queryFn. Set staleTime: 5min, gcTime: 10min. Use filters in both queryKey and queryFn. Pattern from useProducts.ts lines 20-27.",
+    "useInfiniteQuery_pattern": "useInfiniteQuery with pageParam, initialPageParam: 1, getNextPageParam logic. Pattern from useProducts.ts lines 30-41.",
+    "useMutation_pattern": "useMutation with mutationFn and onSuccess callback. Get queryClient from useQueryClient(). Invalidate userQueryKeys.all in onSuccess. Pattern from useProducts.ts lines 76-87.",
+    "service_integration_pattern": "All API calls through userService singleton. Service handles Supabase interactions, throws errors for React Query to catch. Pattern from user.service.ts."
   },
   "existing_implementations": {
-    "description": "useProducts.ts provides complete TanStack Query implementation with query keys, useQuery, useMutation, useInfiniteQuery for pagination, and real-time updates. Supabase client uses createBrowserClient() with proper error handling.",
+    "description": "useProducts.ts provides complete React Query implementation (194 lines). userService has all CRUD methods ready: getUsers(filters), getUserById(id), updateUser(id, data), toggleUserStatus(id, isActive), deleteUser(id). All types defined in admin.ts.",
     "relevant_files": [
       "frontend/src/hooks/useProducts.ts",
-      "frontend/src/lib/supabase/client.ts"
+      "frontend/src/lib/services/admin/user.service.ts",
+      "frontend/src/types/admin.ts"
     ],
-    "query_keys_pattern": "Export const with hierarchical keys using 'as const' for type safety",
-    "mutation_pattern": "useMutation with mutationFn and onSuccess for cache invalidation",
-    "real_time_pattern": "useCallback for handleUpdate, queryClient.setQueryData + invalidateQueries"
+    "service_methods_available": {
+      "getUsers": "Fetches users with optional FilterParams (search, role, status)",
+      "getUserById": "Fetches single user by ID, returns User | null",
+      "updateUser": "Updates user profile, returns User | null",
+      "toggleUserStatus": "Toggles is_active field, returns boolean",
+      "deleteUser": "HARD deletes user from profiles table, returns boolean"
+    }
   },
   "required_operations": [
-    "User fetching with pagination (useQuery)",
-    "Filter by role and status (query key variations)",
-    "User creation (useMutation with validation)",
-    "Profile updates (useMutation with validation)",
-    "Role management (useMutation with permission checks + audit logging)",
-    "Status management (activate/deactivate/suspend)",
-    "Soft delete (useMutation with safety checks)",
-    "Search by name/email",
-    "Password reset flows",
-    "User statistics calculation",
-    "Real-time subscriptions (channel with postgres_changes)",
-    "Comprehensive error handling"
+    "useUsers(filters) - Fetch users with role and status filtering using useQuery",
+    "useInfiniteUsers(filters, limit) - Paginated fetching with useInfiniteQuery",
+    "useUser(userId) - Fetch single user by ID with useQuery",
+    "useUpdateUser() - Update user profile/role with useMutation",
+    "useToggleUserStatus() - Toggle is_active status with useMutation",
+    "useDeleteUser() - Delete user with useMutation and cache invalidation"
   ],
-  "validation_requirements": {
-    "user_creation": ["email format", "duplicate email check", "password strength", "valid role"],
-    "profile_update": ["phone format validation"],
-    "role_change": ["admin-only permission", "valid role types", "audit logging"],
-    "soft_delete": ["prevent admin deletion", "check active orders"],
-    "suspension": ["require reason", "set suspension_until timestamp"]
+  "out_of_scope": [
+    "User creation (not in userService)",
+    "Soft delete (service uses HARD delete)",
+    "Audit logging (not in current implementation)",
+    "Email functionality (not in scope)",
+    "Bulk operations (handled by UserTable separately)",
+    "Password reset flows (out of scope)",
+    "Real-time subscriptions (not required for this task)"
+  ],
+  "critical_requirements": {
+    "cache_invalidation": "All mutations MUST invalidate userQueryKeys.all in onSuccess to refresh UI",
+    "filter_support": "Support FilterParams: { search?: string, role?: string, status?: string }",
+    "error_handling": "React Query handles errors - service throws, hook exposes in error state",
+    "type_safety": "Import User, UserFormData, FilterParams from @/types/admin"
   },
-  "database_tables": {
-    "profiles": "Main user profile table",
-    "audit_logs": "Audit trail for role changes and sensitive operations",
-    "email_queue": "Queue for welcome emails and password resets",
-    "orders": "Check for active orders before deletion"
+  "consumer_expectations": {
+    "UserTable_component": "Expects: users array, loading state, onEdit/onDelete/onToggleStatus callbacks. Component should work WITHOUT modification after hook implementation."
   },
-  "created_at": "2025-12-28T04:27:07.042785"
+  "created_at": "2025-12-28T04:27:07.042785",
+  "updated_at": "2025-12-28T12:55:00.000Z"
 }
