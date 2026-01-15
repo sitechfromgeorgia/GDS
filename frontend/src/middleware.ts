@@ -59,29 +59,18 @@ export async function middleware(request: NextRequest) {
   // 2. Performance Monitoring Start
   const start = performance.now()
 
-  // 3. Auth Session Check
-  let {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // TEST AUTH BYPASS: Allow access if the bypass cookie is present and valid
-  // This is strictly for E2E testing/verification in development/preview
-  const bypassCookie = request.cookies.get('TEST_AUTH_BYPASS')
-  let mockedUser = null
-
-  if (!user && bypassCookie && ['admin', 'restaurant', 'driver'].includes(bypassCookie.value)) {
-    const role = bypassCookie.value
-    mockedUser = {
-      id: `test-${role}-id`,
-      email: `test-${role}-browser@example.com`,
-      role: 'authenticated',
-      aud: 'authenticated',
-      created_at: new Date().toISOString(),
-      app_metadata: {},
-      user_metadata: { role: role },
-    }
-    // Override the user variable so downstream checks pass
-    user = mockedUser as any
+  // 3. Auth Session Check (with graceful error handling)
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch (error) {
+    // Auth service unavailable - fail closed (redirect to login)
+    console.error('[Middleware] Auth check failed:', error)
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    redirectUrl.searchParams.set('error', 'auth_unavailable')
+    return NextResponse.redirect(redirectUrl)
   }
 
   // 4. Route Protection
@@ -98,21 +87,16 @@ export async function middleware(request: NextRequest) {
 
     // Role-based protection for Admin
     if (path.startsWith('/dashboard/admin')) {
-      // If we are using a mocked test user, skip the database profile check
-      if (user?.user_metadata?.role === 'admin' && user?.id?.startsWith('test-')) {
-        // Allow access for test admin
-      } else {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
 
-        if (profile?.role !== 'admin') {
-          const redirectUrl = request.nextUrl.clone()
-          redirectUrl.pathname = '/dashboard' // Or 403 page
-          return NextResponse.redirect(redirectUrl)
-        }
+      if (profile?.role !== 'admin') {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = '/dashboard' // Or 403 page
+        return NextResponse.redirect(redirectUrl)
       }
     }
   }
@@ -148,3 +132,5 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
+
+

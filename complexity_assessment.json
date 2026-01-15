@@ -1,0 +1,72 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Complete checkout flow touches multiple UI components, backend API, database schema, and real-time notifications. Estimated 8-12 files across frontend/backend. Not complex enough to require self-critique as it follows standard e-commerce patterns, but substantial enough to need full context gathering.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 10,
+      "estimated_services": 2,
+      "is_cross_cutting": true,
+      "notes": "Checkout page, confirmation page, order API routes, database models, notification handlers, admin dashboard updates. Cross-cutting from user-facing checkout to backend to admin interface."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": true,
+      "notes": "Real-time notification system may require research if not already implemented. Need to determine if WebSocket/SSE infrastructure exists or if polling is acceptable. No external payment processors mentioned - orders stored directly in DB."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "Requires new 'orders' table with fields for order number, status, delivery preferences, special instructions, user reference, timestamps. Standard relational DB schema addition."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": true,
+      "unfamiliar_tech": [],
+      "notes": "Need to research existing cart system implementation, user authentication patterns, and notification infrastructure. Standard checkout patterns should exist in codebase or be familiar."
+    },
+    "risk": {
+      "level": "high",
+      "concerns": [
+        "Data integrity - orders must be persisted correctly",
+        "Notification reliability - admins must receive new order alerts",
+        "Authentication - only logged-in users can checkout",
+        "Cart state management - prevent double submissions",
+        "Critical business flow - checkout failures block revenue"
+      ],
+      "notes": "Checkout is the critical conversion point. Failures here directly impact business operations. Requires careful validation of order creation, proper error handling, and thorough testing of the complete flow."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "high",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration", "e2e"],
+    "security_scan_required": true,
+    "staging_deployment_required": false,
+    "reasoning": "Checkout is a critical business flow where failures directly impact revenue. Requires comprehensive testing including E2E to verify complete user journey from cart to confirmation. Security scan needed for order creation authorization and data integrity validation."
+  },
+
+  "created_at": "2025-12-28T12:00:00Z"
+}

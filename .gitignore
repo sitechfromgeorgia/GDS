@@ -273,3 +273,6 @@ prisma/migrations/
 nul
 */nul
 .aider*
+
+# Auto Claude data directory
+.auto-claude/

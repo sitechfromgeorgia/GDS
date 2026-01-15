@@ -174,35 +174,17 @@ Available MCP servers (configured in `.kilocode/mcp.json`):
 - **shadcn** - UI component management
 - **chrome-devtools** - Browser debugging
 
-## 🎨 Available Skills
+## 🎨 Available Skills (Global Hub)
 
-Specialized Claude Code skills for specific tasks:
+All specialized AI agent skills have been centralized in the **Antigravity Global Hub** (`.antigravity_hub`). This ensures consistent intelligence across all your projects.
 
-### Development & Architecture
-- **api-integration-specialist** - Third-party API integration expert
-- **code-quality-guardian** - Code review and best practices enforcement
-- **database-schema-architect** - Database design and optimization
-- **intelligent-debugger** - Systematic debugging for complex issues
-- **system-architecture-advisor** - System design and scalability patterns
+### Key Capabilities Available:
+- **Development:** `intelligent-debugger`, `code-quality-guardian`, `database-schema-architect`
+- **Design:** `modern-ui-designer` (Tailwind/shadcn), `mobile-first-designer`
+- **Planning:** `saas-architect`, `nextjs-supabase-saas-planner`
+- **Optimization:** `technical-seo-specialist`, `performance-optimization`
 
-### Design & UX
-- **mobile-first-designer** - Responsive design expert with PWA patterns
-- **modern-ui-designer** - 2025 UI/UX patterns with Tailwind & shadcn/ui
-- **user-feedback-interpreter** - UX research and feedback analysis
-
-### Product & Planning
-- **feature-impact-analyzer** - RICE/ICE prioritization framework for features
-- **idea-validator-pro** - Product idea validation and market research
-- **saas-architect** - SaaS architecture planning (Next.js + Supabase)
-- **saas-launch-planner** - SaaS launch planning with subscription models
-- **nextjs-supabase-saas-planner** - Complete SaaS planning for Next.js/Supabase
-
-### Optimization & Growth
-- **conversion-optimization-expert** - Conversion rate optimization
-- **technical-seo-specialist** - SEO optimization and performance
-- **prompt-optimization** - AI prompt engineering and optimization
-
-**Usage:** These skills are automatically available - reference them when relevant to the task
+**Usage:** These skills are automatically available. Simply request a task (e.g., "Debug this," "Plan a feature"), and the relevant agent will be activated from the Global Hub.
 
 ---
 
