@@ -1,4 +1,3 @@
-
 import { User, UserRole, Product, Order, OrderStatus, OrderItem } from '../types';
 
 // Default password for all demo accounts
