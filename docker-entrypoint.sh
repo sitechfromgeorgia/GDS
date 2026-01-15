@@ -4,10 +4,6 @@
 echo "Injecting runtime env vars..."
 ROOT_DIR=/usr/share/nginx/html
 
-# Debug: List all environment keys (values hidden for security)
-echo "Debug: Available Environment Variables:"
-printenv | cut -d= -f1 | sort | grep -E "VITE_|NEXT_|SUPABASE_|COMPANY_"
-
 # Support both VITE_* and NEXT_PUBLIC_* prefixes
 # Check VITE_ first, then fall back to NEXT_PUBLIC_
 SUPABASE_URL="${VITE_SUPABASE_URL:-$NEXT_PUBLIC_SUPABASE_URL}"
@@ -26,8 +22,5 @@ echo "};" >>$ROOT_DIR/config.js
 
 # Allow correct permissions
 chmod 644 $ROOT_DIR/config.js
-
-echo "Config generated:"
-cat $ROOT_DIR/config.js
 
 exec "$@"
