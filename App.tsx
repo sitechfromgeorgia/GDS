@@ -82,11 +82,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     // Access environment variables via process.env or window.env (runtime injection)
-    const getEnv = (key: string) => (window as any).env?.[key] || process.env[key];
+    // Support both VITE_* and NEXT_PUBLIC_* prefixes for compatibility
+    const getEnv = (key: string) => {
+      const viteKey = `VITE_${key}`;
+      const nextKey = `NEXT_PUBLIC_${key}`;
+      return (window as any).env?.[viteKey] || (window as any).env?.[nextKey] || 
+             import.meta.env?.[viteKey] || import.meta.env?.[nextKey];
+    };
 
-    const envUrl = getEnv('VITE_SUPABASE_URL');
-    const envKey = getEnv('VITE_SUPABASE_ANON_KEY');
-    const envCompany = getEnv('VITE_COMPANY_NAME');
+    const envUrl = getEnv('SUPABASE_URL');
+    const envKey = getEnv('SUPABASE_ANON_KEY');
+    const envCompany = getEnv('COMPANY_NAME');
 
     if (envUrl && envKey) {
       const envConfig: AppConfig = {
