@@ -138,22 +138,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const refreshData = useCallback(async () => {
     const supabase = getSupabase();
-    setUsers(db.getUsers());
-    setProducts(db.getProducts());
-    setOrders(db.getOrders());
-    setUnits(db.getUnits());
-    setCategories(db.getCategories());
+    
+    // Always load local mock data for fallback or initial state if needed, but prioritize Supabase
+    // If we are in DEMO mode, we might want to show Supabase products but keep local orders?
+    // User requirement: "Demo for restaurant must see REAL products"
+    
+    if (isDemo) {
+        // For Demo user:
+        // 1. Get Products from Supabase (Real data)
+        // 2. Keep Orders local (Mock)
+        // 3. User is Mock
+        if (supabase) {
+            const { data: realProducts } = await supabase.from('products').select('*');
+            if (realProducts) setProducts(realProducts as Product[]);
+            else setProducts(db.getProducts()); // Fallback
+            
+            const { data: realCategories } = await supabase.from('categories').select('*'); // If you have categories table
+            // If not using tables for units/categories yet, fallback to hardcoded or fetch distinct
+            setCategories(db.getCategories()); 
+            setUnits(db.getUnits());
+        } else {
+             setProducts(db.getProducts());
+        }
+        setOrders([]); // Demo user starts with empty orders or mock orders
+        setUsers(db.getUsers()); // Demo user only sees itself?
+        return;
+    }
 
-    if (supabase && !isDemo && user) {
+    if (supabase && user) {
       try {
         const [pRes, oRes, uRes] = await Promise.all([
           supabase.from('products').select('*'),
           supabase.from('orders').select('*').order('createdAt', { ascending: false }),
           supabase.from('users').select('*')
         ]);
+        
         if (pRes.data) setProducts(pRes.data as Product[]);
         if (oRes.data) setOrders(oRes.data as any);
         if (uRes.data) setUsers(uRes.data as User[]);
+        
+        // Load units/categories if they exist in DB, otherwise use defaults
+        // For now using DB defaults as they might not be in Supabase yet
+        setUnits(db.getUnits());
+        setCategories(db.getCategories());
+        
       } catch (e) {
         console.warn("Supabase sync failed");
       }
@@ -165,28 +193,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [user, isDemo, refreshData]);
 
   const login = async (email: string, password?: string, rememberMe: boolean = false): Promise<boolean> => {
-    const isMock = email.includes('@gds.ge') || email.includes('@rest.ge') || email.includes('@driver.ge');
+    // Check for demo login specifically
+    if (email === 'demo@gds.ge') {
+       const u = db.login(email, password);
+       if (u) {
+         setIsDemo(true);
+         setUser(u);
+         return true;
+       }
+    }
+
     const supabase = getSupabase();
     
-    if (isMock) {
-      const u = db.login(email, password);
-      if (u) {
-        setIsDemo(u.role === UserRole.DEMO || email.includes('demo'));
-        setUser(u);
-        if (rememberMe) localStorage.setItem('gds_session', JSON.stringify({ email: u.email }));
-        return true;
-      }
-    } else if (supabase) {
+    if (supabase) {
       try {
         const { data } = await supabase.auth.signInWithPassword({ email, password: password || '' });
         if (data.user) {
           const { data: profile } = await supabase.from('users').select('*').eq('id', data.user.id).single();
-          const mappedUser: User = profile || { id: data.user.id, email: data.user.email || '', name: 'User', role: UserRole.RESTAURANT };
+          // If no profile exists, create a basic one based on auth data (or handle error)
+          const mappedUser: User = profile || { 
+            id: data.user.id, 
+            email: data.user.email || '', 
+            name: 'User', 
+            role: UserRole.RESTAURANT, // Default role
+            isActive: true 
+          };
           setUser(mappedUser);
           setIsDemo(false);
+          if (rememberMe) localStorage.setItem('gds_session', JSON.stringify({ email: mappedUser.email }));
           return true;
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Login failed:", e);
+      }
     }
     return false;
   };
