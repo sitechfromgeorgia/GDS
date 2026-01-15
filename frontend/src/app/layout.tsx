@@ -21,14 +21,17 @@ import './globals.css'
 //   display: 'swap',
 // })
 
+// Company name from environment variable, with fallback
+const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Georgian Distribution System'
+
 export const metadata: Metadata = {
-  title: 'Georgian Distribution System',
+  title: companyName,
   description: 'B2B Food Distribution Management Platform',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Georgian Distribution',
+    title: companyName,
   },
   formatDetection: {
     telephone: false,

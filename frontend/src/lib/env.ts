@@ -29,6 +29,9 @@ const rawEnvSchema = z.object({
 
   // Performance Monitoring (Optional)
   NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
+
+  // Company Branding (Optional)
+  NEXT_PUBLIC_COMPANY_NAME: z.string().optional(),
 })
 
 // Type definition for validated environment variables
@@ -82,6 +85,7 @@ export function getEnv(): EnvVars {
       NEXT_PUBLIC_MOCK_DATA: process.env.NEXT_PUBLIC_MOCK_DATA,
       NEXT_PUBLIC_ENABLE_SW: process.env.NEXT_PUBLIC_ENABLE_SW,
       NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+      NEXT_PUBLIC_COMPANY_NAME: process.env.NEXT_PUBLIC_COMPANY_NAME,
     }
 
     // Validate using Zod schema (already transformed)
@@ -156,6 +160,7 @@ export function getClientSafeEnv() {
     mockData: env.NEXT_PUBLIC_MOCK_DATA,
     enableSW: env.NEXT_PUBLIC_ENABLE_SW,
     sentryDsn: env.NEXT_PUBLIC_SENTRY_DSN,
+    companyName: env.NEXT_PUBLIC_COMPANY_NAME,
   }
 }
 

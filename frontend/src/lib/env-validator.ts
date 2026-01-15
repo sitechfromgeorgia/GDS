@@ -87,6 +87,9 @@ const envSchema = z.object({
     .default('7')
     .transform((val) => parseInt(val, 10)),
   BACKUP_BUCKET: z.string().optional(),
+
+  // Company Branding (Optional)
+  NEXT_PUBLIC_COMPANY_NAME: z.string().optional(),
 })
 
 // Type inference from schema
@@ -182,12 +185,12 @@ export function validateProductionEnv(): void {
     errors.push('DEBUG_MODE should be disabled in production')
   }
 
-  // Check for secure URLs (HTTPS)
-  if (!env.NEXT_PUBLIC_APP_URL.startsWith('https://')) {
+  // Check for secure URLs (HTTPS) - case-insensitive
+  if (!env.NEXT_PUBLIC_APP_URL.toLowerCase().startsWith('https://')) {
     errors.push('APP_URL must use HTTPS in production')
   }
 
-  if (!env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://')) {
+  if (!env.NEXT_PUBLIC_SUPABASE_URL.toLowerCase().startsWith('https://')) {
     errors.push('SUPABASE_URL must use HTTPS in production')
   }
 
