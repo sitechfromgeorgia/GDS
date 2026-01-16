@@ -24,7 +24,12 @@ const resources = {
         confirm: "Confirm",
         price: "Price",
         assign: "Assign",
-        close: "Close"
+        close: "Close",
+        status: "Status",
+        no_phone: "No Phone",
+        select_all: "Select All",
+        selected: "Selected",
+        invalid_credentials: "Invalid credentials"
       },
       nav: {
         dashboard: "Dashboard",
@@ -34,6 +39,7 @@ const resources = {
         analytics: "Analytics",
         history: "History",
         deliveries: "Deliveries",
+        settings: "Settings",
         logout: "Logout"
       },
       admin: {
@@ -55,7 +61,20 @@ const resources = {
         weekly_trend: "Weekly Sales Trend",
         net_profit: "Net Profit (Est.)",
         avg_order: "Average Order Value",
-        profit_desc: "Based on Cost vs Sell price difference"
+        profit_desc: "Based on Cost vs Sell price difference",
+        system_status: "System Status",
+        demo_mode: "DEMO MODE (Local DB)",
+        live_mode: "LIVE (Supabase Connected)",
+        top_products: "Top Sold Products",
+        last_30_days: "Last 30 Days",
+        no_sales_data: "No sales data available",
+        avg_margin: "Avg Margin",
+        partners: "Partners",
+        vs_last_month: "vs last month",
+        sales_trends: "Sales Trends",
+        categories: "Categories",
+        realtime_desc: "Real-time market dynamics and strategic analysis",
+        export: "Export"
       },
       orders: {
         title: "Incoming Orders",
@@ -81,7 +100,10 @@ const resources = {
         table_sell: "Sell Price (Unit)",
         table_price: "Price",
         save_pricing: "Save Pricing",
-        assign_driver: "Assign Driver"
+        assign_driver: "Assign Driver",
+        pricing_required: "Pricing Required",
+        cost: "Cost",
+        sell: "Sell"
       },
       products: {
         subtitle: "Manage product catalog and units",
@@ -134,7 +156,16 @@ const resources = {
         location_label: "Google Maps Location",
         location_help: "Helps drivers find you easier.",
         active_order_title: "Order Processing",
-        active_order_desc: "You have an active order (#{{id}}). Current status: {{status}}."
+        active_order_desc: "You have an active order (#{{id}}). Current status: {{status}}.",
+        price_tbd: "Price TBD at Market",
+        no_products: "No products found in catalog",
+        notes: "Notes",
+        notes_placeholder: "e.g. Leave at the gate...",
+        order_submitted: "Order submitted successfully!",
+        total: "Total",
+        details: "Details",
+        total_payable: "Total Payable",
+        prices_visible_info: "Prices will be visible once the driver starts the delivery."
       },
       status: {
         all: "All Statuses",
@@ -152,7 +183,25 @@ const resources = {
         login_title: "Welcome Back",
         login_subtitle: "Enter your credentials to access the GDS portal",
         login_btn: "Login to Dashboard",
-        quick_fill: "Quick Login (Testing Only)"
+        quick_fill: "Quick Login (Testing Only)",
+        businesses_trust: "Businesses Trust Us"
+      },
+      driver: {
+        current_trip: "Current Trip",
+        active_orders: "active orders",
+        all_delivered: "All orders delivered!",
+        new_trips_appear: "New trips will appear here.",
+        on_the_way: "On the way",
+        location: "Location",
+        maps_location: "Google Maps Location",
+        no_address: "No address",
+        contact: "Contact",
+        no_phone: "No phone",
+        navigation: "Navigate",
+        call: "Call",
+        delivered: "Delivered",
+        today_history: "Today's History",
+        delivered_at: "Delivered"
       }
     }
   },
@@ -177,7 +226,12 @@ const resources = {
         confirm: "დადასტურება",
         price: "ფასი",
         assign: "დანიშვნა",
-        close: "დახურვა"
+        close: "დახურვა",
+        status: "სტატუსი",
+        no_phone: "ნომერი არ არის",
+        select_all: "ყველას მონიშვნა",
+        selected: "მონიშნულია",
+        invalid_credentials: "მონაცემები არასწორია"
       },
       nav: {
         dashboard: "მთავარი",
@@ -187,6 +241,7 @@ const resources = {
         analytics: "ანალიტიკა",
         history: "ისტორია",
         deliveries: "მიწოდება",
+        settings: "პარამეტრები",
         logout: "გასვლა"
       },
       admin: {
@@ -208,7 +263,20 @@ const resources = {
         weekly_trend: "გაყიდვების კვირის ტრენდი",
         net_profit: "სუფთა მოგება (დაახლ.)",
         avg_order: "შეკვეთის საშ. ღირებულება",
-        profit_desc: "ეფუძნება თვითღირებულებისა და გასაყიდი ფასის სხვაობას"
+        profit_desc: "ეფუძნება თვითღირებულებისა და გასაყიდი ფასის სხვაობას",
+        system_status: "სისტემის სტატუსი",
+        demo_mode: "დემო რეჟიმი (ლოკალური)",
+        live_mode: "აქტიური (Supabase)",
+        top_products: "ყველაზე გაყიდვადი პროდუქტები",
+        last_30_days: "ბოლო 30 დღე",
+        no_sales_data: "მონაცემები არ არის",
+        avg_margin: "საშ. მარჟა",
+        partners: "პარტნიორი",
+        vs_last_month: "წინა თვესთან",
+        sales_trends: "გაყიდვების დინამიკა",
+        categories: "კატეგორიები",
+        realtime_desc: "ბიზნესის დინამიკა და სტრატეგიული ანალიზი რეალურ დროში",
+        export: "ექსპორტი"
       },
       orders: {
         title: "შემოსული შეკვეთები",
@@ -234,7 +302,10 @@ const resources = {
         table_sell: "სარეალიზაციო ფასი",
         table_price: "ფასი",
         save_pricing: "ფასების შენახვა",
-        assign_driver: "მძღოლის დანიშვნა"
+        assign_driver: "მძღოლის დანიშვნა",
+        pricing_required: "ფასები შესაყვანია",
+        cost: "თვითღირ.",
+        sell: "გასაყიდი"
       },
       users: {
         title: "მომხმარებლების მართვა",
@@ -301,7 +372,16 @@ const resources = {
         location_label: "Google Maps ლოკაცია",
         location_help: "მძღოლისთვის ნავიგაციის გასამარტივებლად.",
         active_order_title: "შეკვეთა მუშავდება",
-        active_order_desc: "თქვენ გაქვთ აქტიური შეკვეთა (#{{id}}). სტატუსი: {{status}}."
+        active_order_desc: "თქვენ გაქვთ აქტიური შეკვეთა (#{{id}}). სტატუსი: {{status}}.",
+        price_tbd: "ფასი დადგინდება შეძენისას",
+        no_products: "პროდუქცია არ მოიძებნა",
+        notes: "შენიშვნა",
+        notes_placeholder: "მაგ. დატოვეთ ჭიშკართან...",
+        order_submitted: "შეკვეთა წარმატებით გაიგზავნა!",
+        total: "ჯამი",
+        details: "დეტალები",
+        total_payable: "სულ გადასახდელი",
+        prices_visible_info: "ფასები გამოჩნდება მას შემდეგ, რაც მძღოლი რეისში გავა."
       },
       status: {
         all: "ყველა სტატუსი",
@@ -319,7 +399,25 @@ const resources = {
         login_title: "მოგესალმებით",
         login_subtitle: "შეიყვანეთ მონაცემები სისტემაში შესასვლელად",
         login_btn: "პორტალზე შესვლა",
-        quick_fill: "სწრაფი შესვლა (ტესტირებისთვის)"
+        quick_fill: "სწრაფი შესვლა (ტესტირებისთვის)",
+        businesses_trust: "ბიზნესი გვენდობა"
+      },
+      driver: {
+        current_trip: "მიმდინარე რეისი",
+        active_orders: "აქტიური შეკვეთა",
+        all_delivered: "ყველა შეკვეთა მიტანილია!",
+        new_trips_appear: "ახალი რეისები გამოჩნდება აქ.",
+        on_the_way: "გზაშია",
+        location: "ლოკაცია",
+        maps_location: "Google Maps ლოკაცია",
+        no_address: "მისამართი არ არის",
+        contact: "კონტაქტი",
+        no_phone: "ნომერი არ არის",
+        navigation: "ნავიგაცია",
+        call: "დარეკვა",
+        delivered: "მიტანილია",
+        today_history: "დღევანდელი ისტორია",
+        delivered_at: "ჩაბარდა"
       }
     }
   }

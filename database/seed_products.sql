@@ -13,6 +13,7 @@ INSERT INTO categories (name) VALUES
 ('რძის ნაწარმი'), 
 ('ხორცი/თევზი'), 
 ('სოუსები/ზეთები'), 
+('სურსათი'),
 ('სხვა')
 ON CONFLICT (name) DO NOTHING;
 

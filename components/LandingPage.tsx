@@ -26,8 +26,7 @@ const BackgroundFX = () => (
 
 export const LandingPage = () => {
   const { login, config } = useApp();
-  const { t, i18n } = useTranslation();
-  const isGeo = i18n.language === 'ka';
+  const { t } = useTranslation();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +40,7 @@ export const LandingPage = () => {
     setIsSubmitting(true);
     const success = await login(email, password, true);
     setIsSubmitting(false);
-    if (!success) setError(i18n.language === 'ka' ? 'მონაცემები არასწორია' : 'Invalid credentials');
+    if (!success) setError(t('common.invalid_credentials'));
   };
 
   return (
@@ -97,7 +96,7 @@ export const LandingPage = () => {
                  {[1,2,3].map(i => <div key={i} className="h-10 w-10 rounded-full border-2 border-[#020617] bg-slate-800" />)}
                </div>
                <div className="text-sm font-bold text-slate-400">
-                  <span className="text-white">500+</span> {isGeo ? 'ბიზნესი გვენდობა' : 'Businesses Trust Us'}
+                  <span className="text-white">500+</span> {t('landing.businesses_trust')}
                </div>
             </div>
           </div>

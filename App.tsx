@@ -10,6 +10,7 @@ import {
   User,
   Product,
   Order,
+  OrderItem,
   UserRole,
   OrderStatus,
   Toast as ToastType,
@@ -157,7 +158,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const toggleTheme = () => {
-    setTheme((prev) => {
+    setTheme((prev: "light" | "dark") => {
       const next = prev === "light" ? "dark" : "light";
       localStorage.setItem("gds_theme", next);
       return next;
@@ -167,13 +168,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const showToast = useCallback(
     (message: string, type: ToastType["type"] = "success") => {
       const id = Date.now().toString();
-      setToasts((prev) => [...prev, { id, message, type }]);
+      setToasts((prev: ToastType[]) => [...prev, { id, message, type }]);
     },
     [],
   );
 
   const removeToast = (id: string) =>
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((prev: ToastType[]) => prev.filter((t: ToastType) => t.id !== id));
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -333,71 +334,192 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshData();
   };
   const toggleProductStatus = async (id: string) => {
-    if (isDemo) db.toggleProductStatus(id);
+    if (isDemo) {
+      db.toggleProductStatus(id);
+    } else {
+      const product = products.find((p: Product) => p.id === id);
+      if (product) {
+        await getSupabase()
+          ?.from("products")
+          .update({ isActive: !product.isActive })
+          .eq("id", id);
+      }
+    }
     refreshData();
   };
   const toggleProductPromo = async (id: string) => {
-    if (isDemo) db.toggleProductPromo(id);
+    if (isDemo) {
+      db.toggleProductPromo(id);
+    } else {
+      const product = products.find((p: Product) => p.id === id);
+      if (product) {
+        const nextPromo = !product.isPromo;
+        await getSupabase()
+          ?.from("products")
+          .update({
+            isPromo: nextPromo,
+            price: nextPromo ? product.price : null,
+          })
+          .eq("id", id);
+      }
+    }
     refreshData();
   };
-  const bulkProductAction = async (ids: string[], updates: any) => {
-    if (isDemo) db.bulkUpdateProducts(ids, updates);
+  const bulkProductAction = async (
+    ids: string[],
+    updates: Partial<Product>,
+  ) => {
+    if (isDemo) {
+      db.bulkUpdateProducts(ids, updates);
+    } else {
+      // Supabase doesn't support bulk update with IN, so update each
+      for (const id of ids) {
+        await getSupabase()?.from("products").update(updates).eq("id", id);
+      }
+    }
     refreshData();
   };
 
   const addUnit = async (unit: string) => {
-    if (isDemo) db.addUnit(unit);
+    if (isDemo) {
+      db.addUnit(unit);
+    } else {
+      await getSupabase()?.from("units").insert({ name: unit });
+    }
     refreshData();
   };
   const updateUnit = async (oldUnit: string, newUnit: string) => {
-    if (isDemo) db.updateUnit(oldUnit, newUnit);
+    if (isDemo) {
+      db.updateUnit(oldUnit, newUnit);
+    } else {
+      await getSupabase()?.from("units").update({ name: newUnit }).eq("name", oldUnit);
+      // Also update products using this unit
+      await getSupabase()?.from("products").update({ unit: newUnit }).eq("unit", oldUnit);
+    }
     refreshData();
   };
   const deleteUnit = async (unit: string) => {
-    if (isDemo) db.deleteUnit(unit);
+    if (isDemo) {
+      db.deleteUnit(unit);
+    } else {
+      await getSupabase()?.from("units").delete().eq("name", unit);
+    }
     refreshData();
   };
 
   const addCategory = async (category: string) => {
-    if (isDemo) db.addCategory(category);
+    if (isDemo) {
+      db.addCategory(category);
+    } else {
+      await getSupabase()?.from("categories").insert({ name: category });
+    }
     refreshData();
   };
   const updateCategory = async (oldCategory: string, newCategory: string) => {
-    if (isDemo) db.updateCategory(oldCategory, newCategory);
+    if (isDemo) {
+      db.updateCategory(oldCategory, newCategory);
+    } else {
+      await getSupabase()?.from("categories").update({ name: newCategory }).eq("name", oldCategory);
+      // Also update products using this category
+      await getSupabase()?.from("products").update({ category: newCategory }).eq("category", oldCategory);
+    }
     refreshData();
   };
   const deleteCategory = async (category: string) => {
-    if (isDemo) db.deleteCategory(category);
+    if (isDemo) {
+      db.deleteCategory(category);
+    } else {
+      await getSupabase()?.from("categories").delete().eq("name", category);
+    }
     refreshData();
   };
 
   const addUser = async (u: User) => {
-    db.addUser(u);
+    if (isDemo) {
+      db.addUser(u);
+    } else {
+      await getSupabase()?.from("users").insert(u);
+    }
     refreshData();
   };
   const updateUser = async (u: User) => {
-    db.updateUser(u);
+    if (isDemo) {
+      db.updateUser(u);
+    } else {
+      await getSupabase()?.from("users").update(u).eq("id", u.id);
+    }
     if (user?.id === u.id) setUser(u);
     refreshData();
   };
   const updateUserStatus = async (id: string, active: boolean) => {
-    db.updateUserStatus(id, active);
+    if (isDemo) {
+      db.updateUserStatus(id, active);
+    } else {
+      await getSupabase()
+        ?.from("users")
+        .update({ isActive: active })
+        .eq("id", id);
+    }
     refreshData();
   };
-  const createOrder = async (items: any[], notes?: string) => {
-    if (user) db.createOrder(user, items, notes);
+  const createOrder = async (
+    items: { product: Product; quantity: number }[],
+    notes?: string,
+  ) => {
+    if (isDemo) {
+      if (user) db.createOrder(user, items, notes);
+    } else if (user) {
+      const newOrder = {
+        id: `ord-${Date.now()}`,
+        restaurantId: user.id,
+        restaurantName: user.name,
+        status: OrderStatus.PENDING,
+        createdAt: new Date().toISOString(),
+        items: items.map((i) => ({
+          productId: i.product.id,
+          productName: i.product.name,
+          unit: i.product.unit,
+          quantity: i.quantity,
+          sellPrice: i.product.isPromo ? i.product.price : null,
+        })),
+        notes,
+      };
+      await getSupabase()?.from("orders").insert(newOrder);
+    }
     refreshData();
   };
   const updateOrderStatus = async (
     id: string,
-    status: any,
+    status: OrderStatus,
     driver?: string,
   ) => {
-    db.updateOrderStatus(id, status, driver);
+    if (isDemo) {
+      db.updateOrderStatus(id, status, driver);
+    } else {
+      const updates: { status: OrderStatus; driverId?: string } = { status };
+      if (driver) updates.driverId = driver;
+      await getSupabase()?.from("orders").update(updates).eq("id", id);
+    }
     refreshData();
   };
-  const updateOrderPricing = async (id: string, items: any) => {
-    db.updateOrderPricing(id, items);
+  const updateOrderPricing = async (id: string, items: OrderItem[]) => {
+    if (isDemo) {
+      db.updateOrderPricing(id, items);
+    } else {
+      const totalCost = items.reduce(
+        (acc, i) => acc + (i.sellPrice || 0) * i.quantity,
+        0,
+      );
+      const totalProfit = items.reduce(
+        (acc, i) =>
+          acc + ((i.sellPrice || 0) - (i.costPrice || 0)) * i.quantity,
+        0,
+      );
+      await getSupabase()
+        ?.from("orders")
+        .update({ items, totalCost, totalProfit })
+        .eq("id", id);
+    }
     refreshData();
   };
 
@@ -448,7 +570,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     >
       {children}
       <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none">
-        {toasts.map((t) => (
+        {toasts.map((t: ToastType) => (
           <Toast key={t.id} {...t} onClose={() => removeToast(t.id)} />
         ))}
       </div>

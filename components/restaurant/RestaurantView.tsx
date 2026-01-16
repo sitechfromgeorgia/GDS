@@ -109,7 +109,7 @@ const Catalog = () => {
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{product.name}</h3>
                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] mt-1">
-                  {product.unit} • {i18n.language === 'ka' ? 'ფასი დადგინდება შეძენისას' : 'Price TBD at Market'}
+                  {product.unit} • {t('restaurant.price_tbd')}
                 </p>
               </div>
               <Button size="sm" variant="outline" className="border-slate-200 dark:border-slate-800 hover:bg-slate-900 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-900 transition-colors shrink-0" onClick={() => addToCart(product)}>
@@ -119,7 +119,7 @@ const Catalog = () => {
           )) : (
             <div className="col-span-full py-16 text-center text-slate-400 dark:text-slate-500 italic flex flex-col items-center">
                <Package className="h-12 w-12 mb-3 opacity-20" />
-               <p>{i18n.language === 'ka' ? 'პროდუქცია არ მოიძებნა' : 'No products found in catalog'}</p>
+               <p>{t('restaurant.no_products')}</p>
             </div>
           )}
         </div>
@@ -171,11 +171,11 @@ const Catalog = () => {
               <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2 mb-2">
                   <MessageSquare className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                  <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{i18n.language === 'ka' ? 'შენიშვნა' : 'Notes'}</span>
+                  <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('restaurant.notes')}</span>
                 </div>
                 <textarea 
                   className="w-full h-24 p-3 text-sm border-2 border-slate-100 dark:border-slate-800 bg-transparent rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all resize-none placeholder:text-slate-300 dark:placeholder:text-slate-700 font-medium text-slate-900 dark:text-slate-100"
-                  placeholder={i18n.language === 'ka' ? 'მაგ. დატოვეთ ჭიშკართან...' : 'e.g. Leave at the gate...'}
+                  placeholder={t('restaurant.notes_placeholder')}
                   value={orderNotes}
                   onChange={(e) => setOrderNotes(e.target.value)}
                 />
@@ -220,7 +220,7 @@ const Catalog = () => {
       {submitted && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5">
            <CheckCircle2 className="h-6 w-6" />
-           <span className="font-bold">{i18n.language === 'ka' ? 'შეკვეთა წარმატებით გაიგზავნა!' : 'Order submitted successfully!'}</span>
+           <span className="font-bold">{t('restaurant.order_submitted')}</span>
         </div>
       )}
     </div>
@@ -270,14 +270,14 @@ const History = () => {
                     <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">{order.items.length} {t('common.items')}</span>
                     {showPrices(order.status) && order.totalCost && (
                        <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
-                         {i18n.language === 'ka' ? 'ჯამი: ' : 'Total: '} ${order.totalCost.toFixed(2)}
+                         {t('restaurant.total')}: ${order.totalCost.toFixed(2)}
                        </span>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                   <Button variant="outline" size="sm" onClick={() => setViewingOrder(order)} className="flex-1 sm:flex-none">
-                    <Eye className="h-4 w-4 mr-2" /> {i18n.language === 'ka' ? 'დეტალები' : 'Details'}
+                    <Eye className="h-4 w-4 mr-2" /> {t('restaurant.details')}
                   </Button>
                   {order.status === OrderStatus.DELIVERED && (
                     <Button onClick={() => updateOrderStatus(order.id, OrderStatus.COMPLETED)} className="bg-emerald-600 hover:bg-emerald-700 text-white border-none flex-1 sm:flex-none shadow-lg shadow-emerald-50 dark:shadow-none">
@@ -326,7 +326,7 @@ const History = () => {
                   {showPrices(viewingOrder.status) && viewingOrder.totalCost && (
                     <tfoot className="bg-slate-900 dark:bg-slate-950 text-white">
                        <tr>
-                         <td colSpan={2} className="p-4 text-right font-bold text-xs uppercase tracking-widest">{i18n.language === 'ka' ? 'სულ გადასახდელი' : 'Total Payable'}</td>
+                         <td colSpan={2} className="p-4 text-right font-bold text-xs uppercase tracking-widest">{t('restaurant.total_payable')}</td>
                          <td className="p-4 text-right font-black text-lg">${viewingOrder.totalCost.toFixed(2)}</td>
                        </tr>
                     </tfoot>
@@ -338,7 +338,7 @@ const History = () => {
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl flex items-center gap-3">
                    <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                    <p className="text-xs font-medium text-blue-800 dark:text-blue-200">
-                     {i18n.language === 'ka' ? 'ფასები გამოჩნდება მას შემდეგ, რაც მძღოლი რეისში გავა.' : 'Prices will be visible once the driver starts the delivery.'}
+                     {t('restaurant.prices_visible_info')}
                    </p>
                 </div>
               )}

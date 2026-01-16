@@ -117,17 +117,17 @@ export const UserManagement = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-slate-950 tracking-tight">{t('users.title')}</h2>
-          <p className="text-slate-500 font-medium">{t('users.subtitle')}</p>
+          <h2 className="text-3xl font-bold text-slate-950 dark:text-slate-100 tracking-tight">{t('users.title')}</h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">{t('users.subtitle')}</p>
         </div>
-        <Button onClick={handleOpenCreate} className="w-full sm:w-auto shadow-lg shadow-slate-200">
+        <Button onClick={handleOpenCreate} className="w-full sm:w-auto shadow-lg shadow-slate-200 dark:shadow-none">
           <Plus className="h-4 w-4 mr-2" /> {t('users.add_user')}
         </Button>
       </div>
 
-      <div className="flex bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+      <div className="flex bg-white dark:bg-slate-900 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" />
           <Input 
             placeholder={t('common.search')}
             className="pl-12 border-none shadow-none focus:ring-0 h-12" 
@@ -137,47 +137,47 @@ export const UserManagement = () => {
         </div>
       </div>
 
-      <div className="bg-white shadow-xl shadow-slate-100 rounded-2xl border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-100 dark:shadow-none rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-100">
-            <thead className="bg-slate-50/50">
+          <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
+            <thead className="bg-slate-50/50 dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">{t('users.name')}</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">{t('users.role')}</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">{t('users.email')}</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">სტატუსი</th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-widest">{t('common.actions')}</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('users.name')}</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('users.role')}</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('users.email')}</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('common.status')}</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('common.actions')}</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-slate-100">
+            <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="h-11 w-11 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                      <div className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                         {user.avatar ? (
                           <img src={user.avatar} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center bg-slate-900 text-white font-black text-sm">
+                          <div className="h-full w-full flex items-center justify-center bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-black text-sm">
                             {user.name.charAt(0)}
                           </div>
                         )}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-bold text-slate-900">{user.name}</div>
-                        <div className="text-[11px] text-slate-400 font-bold uppercase tracking-tight">{user.phone || 'No Phone'}</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{user.name}</div>
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-tight">{user.phone || t('common.no_phone')}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center space-x-2.5">
-                      <div className="p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                      <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                         {getRoleIcon(user.role)}
                       </div>
-                      <span className="text-sm font-semibold text-slate-700">{user.role}</span>
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{user.role}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-600">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-slate-600 dark:text-slate-400">
                     {user.email}
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">

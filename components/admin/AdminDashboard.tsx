@@ -76,9 +76,9 @@ const DashboardHome = () => {
              <div className={`absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-slate-900 animate-pulse ${isDemo ? 'bg-amber-500' : 'bg-emerald-500'}`} />
            </div>
            <div>
-             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">System Status</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-1">{t('admin.system_status')}</p>
              <p className={`text-xs font-bold ${isDemo ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                {isDemo ? 'DEMO MODE (Local DB)' : 'LIVE (Supabase Connected)'}
+                {isDemo ? t('admin.demo_mode') : t('admin.live_mode')}
              </p>
            </div>
         </div>
@@ -95,9 +95,9 @@ const DashboardHome = () => {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-            {i18n.language === 'ka' ? 'ყველაზე გაყიდვადი პროდუქტები' : 'Top Sold Products'}
+            {t('admin.top_products')}
           </h3>
-          <Badge variant="outline">{i18n.language === 'ka' ? 'ბოლო 30 დღე' : 'Last 30 Days'}</Badge>
+          <Badge variant="outline">{t('admin.last_30_days')}</Badge>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {topSoldProducts.length > 0 ? topSoldProducts.map((item, idx) => (
@@ -113,7 +113,7 @@ const DashboardHome = () => {
             </div>
           )) : (
             <div className="col-span-full py-6 text-center text-slate-400 dark:text-slate-600 italic text-sm">
-              {i18n.language === 'ka' ? 'მონაცემები არ არის' : 'No sales data available'}
+              {t('admin.no_sales_data')}
             </div>
           )}
         </div>

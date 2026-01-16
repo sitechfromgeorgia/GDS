@@ -4,8 +4,10 @@ import { useApp } from '../../App';
 import { Card, Button, Badge } from '../ui/Shared';
 import { MapPin, Phone, CheckCircle, Navigation, Clock } from 'lucide-react';
 import { OrderStatus } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 export const DriverDashboard = () => {
+  const { t } = useTranslation();
   const { orders, updateOrderStatus, user, users } = useApp();
   
   const myDeliveries = orders.filter(o => o.driverId === user?.id && o.status === OrderStatus.OUT_FOR_DELIVERY);
@@ -20,8 +22,8 @@ export const DriverDashboard = () => {
     <div className="max-w-lg mx-auto space-y-6">
       <div className="flex justify-between items-center px-2">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">მიმდინარე რეისი</h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">{myDeliveries.length} აქტიური შეკვეთა</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('driver.current_trip')}</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{myDeliveries.length} {t('driver.active_orders')}</p>
         </div>
         <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold animate-pulse">
           LIVE
@@ -34,8 +36,8 @@ export const DriverDashboard = () => {
             <div className="bg-slate-100 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                <CheckCircle className="h-10 w-10 text-slate-300 dark:text-slate-700" />
             </div>
-            <p className="font-bold text-slate-600 dark:text-slate-400">ყველა შეკვეთა მიტანილია!</p>
-            <p className="text-sm mt-1">ახალი რეისები გამოჩნდება აქ.</p>
+            <p className="font-bold text-slate-600 dark:text-slate-400">{t('driver.all_delivered')}</p>
+            <p className="text-sm mt-1">{t('driver.new_trips_appear')}</p>
           </Card>
         ) : (
           myDeliveries.map(order => {
@@ -49,24 +51,24 @@ export const DriverDashboard = () => {
                       <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100">{order.restaurantName}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-500 font-mono mt-1 uppercase tracking-tight">ID: {order.id}</p>
                     </div>
-                    <Badge variant="warning" className="px-3 py-1">გზაშია</Badge>
+                    <Badge variant="warning" className="px-3 py-1">{t('driver.on_the_way')}</Badge>
                   </div>
                   
                   <div className="space-y-3 mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-start">
                       <MapPin className="h-5 w-5 mr-3 shrink-0 text-blue-500 dark:text-blue-400 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                         <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">ლოკაცია</p>
+                         <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{t('driver.location')}</p>
                          <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                           {restaurant?.locationLink ? 'Google Maps ლოკაცია' : 'მისამართი არ არის'}
+                           {restaurant?.locationLink ? t('driver.maps_location') : t('driver.no_address')}
                          </p>
                       </div>
                     </div>
                     <div className="flex items-start">
                       <Phone className="h-5 w-5 mr-3 shrink-0 text-emerald-500 dark:text-emerald-400 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                         <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">კონტაქტი</p>
-                         <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">{restaurant?.phone || 'ნომერი არ არის'}</p>
+                         <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{t('driver.contact')}</p>
+                         <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">{restaurant?.phone || t('driver.no_phone')}</p>
                       </div>
                     </div>
                   </div>
@@ -79,7 +81,7 @@ export const DriverDashboard = () => {
                       onClick={() => handleNavigation(restaurant?.locationLink)}
                     >
                       <Navigation className="h-5 w-5 mr-2" /> 
-                      <span className="font-bold">ნავიგაცია</span>
+                      <span className="font-bold">{t('driver.navigation')}</span>
                     </Button>
                     
                     <a href={restaurant?.phone ? `tel:${restaurant.phone}` : '#'} className="block w-full">
@@ -89,7 +91,7 @@ export const DriverDashboard = () => {
                          disabled={!restaurant?.phone}
                        >
                           <Phone className="h-5 w-5 mr-2" /> 
-                          <span className="font-bold">დარეკვა</span>
+                          <span className="font-bold">{t('driver.call')}</span>
                        </Button>
                     </a>
                   </div>
@@ -99,7 +101,7 @@ export const DriverDashboard = () => {
                     onClick={() => updateOrderStatus(order.id, OrderStatus.DELIVERED)}
                   >
                     <CheckCircle className="h-6 w-6 text-emerald-400 dark:text-emerald-600" />
-                    მიტანილია
+                    {t('driver.delivered')}
                   </Button>
                 </div>
               </Card>
@@ -111,14 +113,14 @@ export const DriverDashboard = () => {
       {history.length > 0 && (
         <div className="pt-8 px-2 pb-10">
           <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center text-sm uppercase tracking-widest opacity-60">
-            <Clock className="h-4 w-4 mr-2" /> დღევანდელი ისტორია
+            <Clock className="h-4 w-4 mr-2" /> {t('driver.today_history')}
           </h3>
           <div className="space-y-3">
             {history.slice(0, 5).map(order => (
               <div key={order.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex justify-between items-center shadow-sm opacity-80">
                  <div>
                    <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">{order.restaurantName}</p>
-                   <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">ჩაბარდა: {new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                   <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{t('driver.delivered_at')}: {new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                  </div>
                  <Badge variant="success">OK</Badge>
               </div>

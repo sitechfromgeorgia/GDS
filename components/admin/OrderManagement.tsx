@@ -177,7 +177,7 @@ export const OrderManager = () => {
                       {needsPricing ? (
                         <div className="flex items-center gap-1.5 text-xs font-bold text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg border border-amber-100 dark:border-amber-900/50">
                           <AlertTriangle className="h-3.5 w-3.5" />
-                          {i18n.language === 'ka' ? 'ფასები შესაყვანია' : 'Pricing Required'}
+                          {t('orders.pricing_required')}
                         </div>
                       ) : (
                         <div className="flex flex-col gap-1">
@@ -232,8 +232,8 @@ export const OrderManager = () => {
                      <th className="p-4 text-center font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.table_qty')}</th>
                      {pricingMode && (
                        <>
-                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{i18n.language === 'ka' ? 'თვითღირ.' : 'Cost'}</th>
-                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{i18n.language === 'ka' ? 'გასაყიდი' : 'Sell'}</th>
+                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.cost')}</th>
+                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.sell')}</th>
                        </>
                      )}
                    </tr>

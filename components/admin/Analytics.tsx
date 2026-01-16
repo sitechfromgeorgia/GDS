@@ -98,13 +98,13 @@ export const Analytics = () => {
             {t('admin.bi_title')}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-            {isGeo ? 'ბიზნესის დინამიკა და სტრატეგიული ანალიზი რეალურ დროში' : 'Real-time market dynamics and strategic analysis'}
+            {t('admin.realtime_desc')}
           </p>
         </div>
         <div className="flex gap-2">
            <Button variant="outline" className="h-11">
              <Download className="h-4 w-4 mr-2" />
-             {isGeo ? 'ექსპორტი' : 'Export'}
+             {t('admin.export')}
            </Button>
         </div>
       </div>
@@ -113,9 +113,9 @@ export const Analytics = () => {
         {[
           { label: t('admin.total_revenue'), val: `$${metrics.totalSales.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: '#3b82f6' },
           { label: t('admin.net_profit'), val: `$${metrics.totalProfit.toLocaleString()}`, icon: Target, trend: '+8%', color: '#10b981' },
-          { label: isGeo ? 'საშ. მარჟა' : 'Avg Margin', val: `${metrics.margin.toFixed(1)}%`, icon: Percent, trend: '+1.4%', color: '#ec4899' },
+          { label: t('admin.avg_margin'), val: `${metrics.margin.toFixed(1)}%`, icon: Percent, trend: '+1.4%', color: '#ec4899' },
           { label: t('admin.avg_order'), val: `$${metrics.avgOrder.toFixed(0)}`, icon: ShoppingBag, trend: '-2%', color: '#6366f1' },
-          { label: isGeo ? 'პარტნიორი' : 'Partners', val: metrics.activeRest, icon: Store, trend: '+5%', color: '#f59e0b' },
+          { label: t('admin.partners'), val: metrics.activeRest, icon: Store, trend: '+5%', color: '#f59e0b' },
         ].map((m, i) => (
           <Card key={i} className="p-5 group hover:scale-[1.02] transition-transform border-slate-200 dark:border-slate-800">
             <div className="flex justify-between items-start">
@@ -127,7 +127,7 @@ export const Analytics = () => {
                 <m.icon className="h-4 w-4" />
               </div>
             </div>
-            <div className={`mt-3 text-[10px] font-bold ${m.trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{m.trend} vs last month</div>
+            <div className={`mt-3 text-[10px] font-bold ${m.trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{m.trend} {t('admin.vs_last_month')}</div>
           </Card>
         ))}
       </div>
@@ -136,7 +136,7 @@ export const Analytics = () => {
         <Card className="lg:col-span-2 p-6 h-[400px]">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-black dark:text-slate-100 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-500" /> {isGeo ? 'გაყიდვების დინამიკა' : 'Sales Trends'}
+              <TrendingUp className="h-5 w-5 text-blue-500" /> {t('admin.sales_trends')}
             </h3>
           </div>
           <ResponsiveContainer width="100%" height="100%">
@@ -160,7 +160,7 @@ export const Analytics = () => {
 
         <Card className="p-6 h-[400px]">
           <h3 className="text-lg font-black dark:text-slate-100 mb-6 flex items-center gap-2">
-            <PieIcon className="h-5 w-5 text-indigo-500" /> {isGeo ? 'კატეგორიები' : 'Categories'}
+            <PieIcon className="h-5 w-5 text-indigo-500" /> {t('admin.categories')}
           </h3>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>

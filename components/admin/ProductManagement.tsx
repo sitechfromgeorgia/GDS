@@ -349,7 +349,7 @@ export const ProductManager = () => {
               ) : (
                 <Square className="h-5 w-5" />
               )}
-              <span className="hidden sm:inline">{i18n.language === 'ka' ? 'ყველას მონიშვნა' : 'Select All'}</span>
+              <span className="hidden sm:inline">{t('common.select_all')}</span>
             </button>
           </div>
         )}
@@ -448,7 +448,7 @@ export const ProductManager = () => {
                           {t('products.price_label')} <SortIndicator column="price" />
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">სტატუსი</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('common.status')}</th>
                       <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('common.actions')}</th>
                     </tr>
                   </thead>
@@ -504,7 +504,7 @@ export const ProductManager = () => {
                    <div className="bg-emerald-500 text-white h-8 w-8 rounded-full flex items-center justify-center font-black text-xs">
                      {selectedIds.length}
                    </div>
-                   <span className="text-xs font-black text-white dark:text-slate-900 uppercase tracking-widest">{i18n.language === 'ka' ? 'მონიშნულია' : 'Selected'}</span>
+                   <span className="text-xs font-black text-white dark:text-slate-900 uppercase tracking-widest">{t('common.selected')}</span>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 h-9 font-bold text-white border-none" onClick={() => handleBulkStatusUpdate(true)}>
