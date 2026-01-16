@@ -14,10 +14,13 @@ export default function LandingPage() {
       <div className="relative z-10 text-center space-y-8 p-8 max-w-2xl mx-auto backdrop-blur-sm bg-background/30 rounded-3xl border border-white/10 shadow-2xl">
         {/* Title Section */}
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-            Georgian Distribution System
+          <div className="flex justify-center mb-6">
+             <img src="/icons/logo.png" alt="Greenland77 Logo" className="w-32 h-32 object-contain drop-shadow-2xl" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-green-700">
+            Greenland77
           </h1>
-          <p className="text-xl text-muted-foreground">Modern B2B Food Distribution Platform</p>
+          <p className="text-xl text-muted-foreground uppercase tracking-widest text-sm">Fruits & Vegetables</p>
         </div>
 
         {/* Action Buttons */}
@@ -48,7 +51,7 @@ export default function LandingPage() {
 
         {/* Footer/Status */}
         <div className="pt-8 text-sm text-muted-foreground/60">
-          <p>Secure • Real-time • Efficient</p>
+          <p>Greenland77 • Premium Quality • Reliable Distribution</p>
         </div>
       </div>
     </div>

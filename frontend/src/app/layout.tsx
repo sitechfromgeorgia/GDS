@@ -22,7 +22,7 @@ import './globals.css'
 // })
 
 // Company name from environment variable, with fallback
-const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Georgian Distribution System'
+const companyName = process.env.NEXT_PUBLIC_COMPANY_NAME || 'Greenland77 Distribution'
 
 export const metadata: Metadata = {
   title: companyName,

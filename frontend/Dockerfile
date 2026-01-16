@@ -28,8 +28,13 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
+# Copy logo restoration script and generation script explicitly if not in .
+COPY restore_logo.js ./
+COPY generate-pwa-assets.js ./
+
 # Build the application (React 19 + Next.js 15)
-RUN npm run build:docker
+# Note: npm run build:docker maps to 'next build', so we update package.json's build:docker or just use build
+RUN node restore_logo.js && node generate-pwa-assets.js && npm run build:docker
 
 # Stage 2: Runner
 FROM node:22-alpine AS runner

@@ -1,57 +1,51 @@
-// Generate PWA assets script
+const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-// Create a simple base64 encoded 1x1 transparent PNG
-const transparentPNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64'
-);
+const logoPath = path.join(__dirname, 'public', 'icons', 'logo.png');
+const iconsDir = path.join(__dirname, 'public', 'icons');
 
-// Icon sizes needed
+// Icon sizes required for PWA
 const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
-const iconsDir = path.join(__dirname, 'public', 'icons');
-const soundsDir = path.join(__dirname, 'public', 'sounds');
+async function generateIcons() {
+  // Ensure icons directory exists
+  if (!fs.existsSync(iconsDir)) {
+    fs.mkdirSync(iconsDir, { recursive: true });
+  }
 
-// Ensure directories exist
-if (!fs.existsSync(iconsDir)) {
-  fs.mkdirSync(iconsDir, { recursive: true });
+  if (!fs.existsSync(logoPath)) {
+    console.error('❌ Error: public/icons/logo.png not found.');
+    console.error('👉 Please copy your logo file to: ' + logoPath);
+    console.error('   You can run: node copy_logo.js');
+    process.exit(1);
+  }
+
+  console.log('🎨 Generating PWA icons from logo.png...');
+
+  try {
+    // Generate standard icons
+    for (const size of iconSizes) {
+      await sharp(logoPath)
+        .resize(size, size, {
+          fit: 'contain',
+          background: { r: 0, g: 0, b: 0, alpha: 0 }
+        })
+        .toFile(path.join(iconsDir, `icon-${size}x${size}.png`));
+      console.log(`  ✓ Generated icon-${size}x${size}.png`);
+    }
+
+    // Generate badge icon (monochrome/small)
+    await sharp(logoPath)
+      .resize(72, 72)
+      .toFile(path.join(iconsDir, 'badge-72x72.png'));
+    console.log('  ✓ Generated badge-72x72.png');
+
+    console.log('\n✅ PWA assets generated successfully!');
+  } catch (err) {
+    console.error('❌ Error generating icons:', err);
+    process.exit(1);
+  }
 }
-if (!fs.existsSync(soundsDir)) {
-  fs.mkdirSync(soundsDir, { recursive: true });
-}
 
-// Generate placeholder icon PNGs
-console.log('Generating placeholder icon files...');
-iconSizes.forEach(size => {
-  const filename = `icon-${size}x${size}.png`;
-  const filepath = path.join(iconsDir, filename);
-  fs.writeFileSync(filepath, transparentPNG);
-  console.log(`✓ Created ${filename}`);
-});
-
-// Generate badge icon
-const badgePath = path.join(iconsDir, 'badge-72x72.png');
-fs.writeFileSync(badgePath, transparentPNG);
-console.log('✓ Created badge-72x72.png');
-
-// Create a simple notification sound file (silence)
-// This is a minimal valid MP3 file (ID3v2 tag + 1 frame of silence)
-const silentMP3 = Buffer.from([
-  // ID3v2 header
-  0x49, 0x44, 0x33, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  // MP3 frame header (MPEG 1 Layer 3, 128kbps, 44.1kHz)
-  0xFF, 0xFB, 0x90, 0x00,
-  // Frame data (minimal silence)
-  ...Array(416).fill(0x00)
-]);
-
-const soundPath = path.join(soundsDir, 'notification.mp3');
-fs.writeFileSync(soundPath, silentMP3);
-console.log('✓ Created notification.mp3 (silent placeholder)');
-
-console.log('\n✅ PWA assets generated successfully!');
-console.log('\n⚠️  Note: These are placeholder files.');
-console.log('   Replace icon PNGs with your actual logo/branding.');
-console.log('   Replace notification.mp3 with your actual notification sound.');
+generateIcons();
