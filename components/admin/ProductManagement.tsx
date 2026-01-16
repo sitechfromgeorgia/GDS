@@ -170,10 +170,10 @@ export const ProductManager = () => {
         await updateProduct({ ...editingProduct, ...productToSave });
       } else {
         await addProduct({
+          ...productToSave,
           id: `p${Date.now()}`,
           isActive: true,
           image: newProduct.image || 'https://picsum.photos/300/200?random=' + Date.now(),
-          ...productToSave
         });
       }
       setIsModalOpen(false);
