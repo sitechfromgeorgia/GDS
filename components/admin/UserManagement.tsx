@@ -7,7 +7,7 @@ import { Plus, Search, Shield, User as UserIcon, Truck, Power, Lock, MapPin, Edi
 import { useTranslation } from 'react-i18next';
 
 export const UserManagement = () => {
-  const { users, addUser, updateUser, updateUserStatus } = useApp();
+  const { users, addUser, updateUser, updateUserStatus, showToast } = useApp();
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,6 +83,12 @@ export const UserManagement = () => {
         });
       }
     } else {
+      // Validate password length
+      if (!newUser.password || newUser.password.length < 6) {
+        showToast('პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს', 'error');
+        return;
+      }
+
       if (newUser.name && newUser.email && newUser.role) {
         await addUser({
           id: `u-${Date.now()}`, // Will be replaced by Supabase Auth ID
@@ -291,9 +297,20 @@ export const UserManagement = () => {
                <div>
                   <label className="block text-[13px] font-bold text-slate-900 mb-1.5 uppercase tracking-wide">{t('users.password')}</label>
                   <div className="relative">
-                     <Input type="text" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} placeholder="დროებითი პაროლი" />
-                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                     <Input
+                       type="text"
+                       value={newUser.password}
+                       onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                       placeholder="მინ. 6 სიმბოლო"
+                       className={newUser.password && newUser.password.length < 6 ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}
+                     />
+                     <Lock className={`absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 ${newUser.password && newUser.password.length < 6 ? 'text-red-400' : 'text-slate-400'}`} />
                   </div>
+                  <p className={`text-[11px] mt-1.5 font-medium ${newUser.password && newUser.password.length < 6 ? 'text-red-500' : 'text-slate-400'}`}>
+                    {newUser.password && newUser.password.length < 6
+                      ? `პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს (ახლა: ${newUser.password.length})`
+                      : 'პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს'}
+                  </p>
                </div>
              )}
              

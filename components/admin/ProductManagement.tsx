@@ -2,10 +2,10 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { useApp } from '../../App';
 import { Button, Input, Card, Badge, Modal } from '../ui/Shared';
-import { 
-  Plus, Search, Edit2, Power, Star, Camera, Layers, List, Trash2, 
-  AlertCircle, CheckSquare, Square, X, Check, ArrowUpDown, 
-  ChevronUp, ChevronDown, LayoutGrid, List as ListIcon 
+import {
+  Plus, Search, Edit2, Power, Star, Camera, Layers, List, Trash2,
+  AlertCircle, CheckSquare, Square, X, Check, ArrowUpDown,
+  ChevronUp, ChevronDown, LayoutGrid, List as ListIcon, TrendingUp
 } from 'lucide-react';
 import { Product } from '../../types';
 import { useTranslation, Trans } from 'react-i18next';
@@ -15,18 +15,19 @@ type SortOrder = 'asc' | 'desc';
 
 export const ProductManager = () => {
   const { t, i18n } = useTranslation();
-  const { 
-    products, 
-    units, 
-    categories, 
-    addProduct, 
-    updateProduct, 
+  const {
+    products,
+    orders,
+    units,
+    categories,
+    addProduct,
+    updateProduct,
     deleteProduct,
-    toggleProductStatus, 
-    toggleProductPromo, 
+    toggleProductStatus,
+    toggleProductPromo,
     bulkProductAction,
-    addUnit, 
-    updateUnit, 
+    addUnit,
+    updateUnit,
     deleteUnit,
     addCategory,
     updateCategory,
@@ -68,18 +69,38 @@ export const ProductManager = () => {
     }));
   };
 
+  // Calculate product order frequency from orders
+  const productOrderFrequency = useMemo(() => {
+    const frequency: Record<string, number> = {};
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        frequency[item.productId] = (frequency[item.productId] || 0) + item.quantity;
+      });
+    });
+    return frequency;
+  }, [orders]);
+
   const filteredAndSortedProducts = useMemo(() => {
     const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
-    
+
     return [...filtered].sort((a, b) => {
+      // First, sort by order frequency (most ordered first)
+      const aFreq = productOrderFrequency[a.id] || 0;
+      const bFreq = productOrderFrequency[b.id] || 0;
+
+      if (aFreq !== bFreq) {
+        return bFreq - aFreq; // Higher frequency first
+      }
+
+      // Then apply the selected sort
       const aVal = a[sortConfig.key] ?? (sortConfig.key === 'price' ? 0 : '');
       const bVal = b[sortConfig.key] ?? (sortConfig.key === 'price' ? 0 : '');
-      
+
       if (aVal < bVal) return sortConfig.order === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortConfig.order === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [products, search, sortConfig]);
+  }, [products, search, sortConfig, productOrderFrequency]);
 
   // Fix: Added missing filters for units and categories
   const filteredUnits = useMemo(() => 
@@ -359,14 +380,16 @@ export const ProductManager = () => {
         <>
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-24">
-              {filteredAndSortedProducts.map(product => {
+              {filteredAndSortedProducts.map((product, index) => {
                 const isSelected = selectedIds.includes(product.id);
+                const orderCount = productOrderFrequency[product.id] || 0;
+                const isPopular = orderCount > 0 && index < 10; // Top 10 most ordered
                 return (
-                  <Card 
-                    key={product.id} 
-                    className={`overflow-hidden hover:shadow-xl transition-all border-2 group relative ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/10' : 'border-slate-200 dark:border-slate-800'}`}
+                  <Card
+                    key={product.id}
+                    className={`overflow-hidden hover:shadow-xl transition-all border-2 group relative ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/10' : isPopular ? 'border-blue-200 dark:border-blue-900' : 'border-slate-200 dark:border-slate-800'}`}
                   >
-                    <button 
+                    <button
                       onClick={() => toggleSelection(product.id)}
                       className={`absolute top-3 left-3 z-20 p-1.5 rounded-lg transition-all ${isSelected ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white/90 dark:bg-slate-950/90 text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 hover:text-slate-500 backdrop-blur-sm shadow-sm'}`}
                     >
@@ -376,6 +399,11 @@ export const ProductManager = () => {
                     <div className="h-48 bg-slate-100 dark:bg-slate-800 relative overflow-hidden cursor-pointer" onClick={() => toggleSelection(product.id)}>
                       <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        {isPopular && (
+                          <Badge variant="info" className="shadow-md backdrop-blur-sm bg-blue-100/90 dark:bg-blue-950/90">
+                            <TrendingUp className="h-3 w-3 mr-1" /> TOP
+                          </Badge>
+                        )}
                         {product.isPromo && (
                           <Badge variant="warning" className="shadow-md backdrop-blur-sm bg-amber-100/90 dark:bg-amber-950/90">
                             <Star className="h-3 w-3 mr-1 fill-amber-500 text-amber-500" /> PROMO
@@ -389,6 +417,13 @@ export const ProductManager = () => {
                         <div className="absolute bottom-3 left-3">
                            <div className="bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-black shadow-lg text-sm">
                              ₾{product.price.toFixed(2)}
+                           </div>
+                        </div>
+                      )}
+                      {orderCount > 0 && (
+                        <div className="absolute bottom-3 right-3">
+                           <div className="bg-slate-900/80 dark:bg-slate-100/90 text-white dark:text-slate-900 px-2 py-1 rounded-lg font-bold shadow-lg text-[10px] backdrop-blur-sm">
+                             შეკვეთილი: {orderCount}
                            </div>
                         </div>
                       )}

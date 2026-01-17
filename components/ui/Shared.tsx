@@ -34,13 +34,14 @@ export const Card: React.FC<{ className?: string; children?: React.ReactNode }> 
 );
 
 // Badge
-export const Badge = ({ children, variant = 'default', className = '' }: { children?: React.ReactNode, variant?: 'default' | 'success' | 'warning' | 'destructive' | 'outline', className?: string }) => {
+export const Badge = ({ children, variant = 'default', className = '' }: { children?: React.ReactNode, variant?: 'default' | 'success' | 'warning' | 'destructive' | 'outline' | 'info', className?: string }) => {
   const variants = {
     default: "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-700 font-bold",
     success: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50 font-bold",
     warning: "bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-400 border-amber-200 dark:border-amber-900/50 font-bold",
     destructive: "bg-red-100 dark:bg-red-900/30 text-red-900 dark:text-red-400 border-red-200 dark:border-red-900/50 font-bold",
-    outline: "text-slate-900 dark:text-slate-100 border-2 border-slate-100 dark:border-slate-800 font-bold"
+    outline: "text-slate-900 dark:text-slate-100 border-2 border-slate-100 dark:border-slate-800 font-bold",
+    info: "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 font-bold"
   };
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] uppercase tracking-wider border ${variants[variant]} ${className}`}>
