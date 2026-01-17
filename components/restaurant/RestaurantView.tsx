@@ -262,9 +262,13 @@ const Catalog = () => {
 
 const History = () => {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrderStatus, user, refreshData } = useApp();
+  const { orders, updateOrderStatus, user, users, refreshData } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [viewingDriver, setViewingDriver] = useState<Order | null>(null);
+
+  // მძღოლის პოვნა ID-ით
+  const getDriver = (driverId?: string) => users.find(u => u.id === driverId);
 
   // URL-დან ფილტრების წაკითხვა
   const [search, setSearch] = useState(searchParams.get('search') || '');
@@ -526,6 +530,11 @@ const History = () => {
                   <Button variant="outline" size="sm" onClick={() => setViewingOrder(order)} className="flex-1 sm:flex-none">
                     <Eye className="h-4 w-4 mr-2" /> {t('restaurant.details')}
                   </Button>
+                  {order.status === OrderStatus.OUT_FOR_DELIVERY && order.driverId && (
+                    <Button variant="outline" size="sm" onClick={() => setViewingDriver(order)} className="flex-1 sm:flex-none border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                      <Phone className="h-4 w-4 mr-2" /> {t('restaurant.driver')}
+                    </Button>
+                  )}
                   {order.status === OrderStatus.DELIVERED && (
                     <Button onClick={() => updateOrderStatus(order.id, OrderStatus.COMPLETED)} className="bg-emerald-600 hover:bg-emerald-700 text-white border-none flex-1 sm:flex-none shadow-lg shadow-emerald-50 dark:shadow-none">
                       {t('restaurant.confirm_receive')}
@@ -595,6 +604,54 @@ const History = () => {
               </div>
            </div>
         )}
+      </Modal>
+
+      {/* Driver Info Modal */}
+      <Modal
+        isOpen={!!viewingDriver}
+        onClose={() => setViewingDriver(null)}
+        title={t('restaurant.driver_info')}
+      >
+        {viewingDriver && (() => {
+          const driver = getDriver(viewingDriver.driverId);
+          return driver ? (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                  {driver.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{driver.name}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{t('restaurant.driver')}</p>
+                </div>
+              </div>
+
+              {driver.phone && (
+                <a
+                  href={`tel:${driver.phone}`}
+                  className="flex items-center justify-center gap-3 w-full p-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-lg transition-colors"
+                >
+                  <Phone className="h-5 w-5" />
+                  {driver.phone}
+                </a>
+              )}
+
+              {!driver.phone && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl text-center">
+                  <p className="text-sm text-amber-800 dark:text-amber-200">{t('common.no_phone')}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <Button variant="secondary" onClick={() => setViewingDriver(null)}>{t('common.close')}</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 text-center text-slate-500">
+              {t('restaurant.driver_not_found')}
+            </div>
+          );
+        })()}
       </Modal>
     </div>
   );
