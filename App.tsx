@@ -112,9 +112,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
+  // Helper: Promise with timeout to prevent hanging
+  const promiseWithTimeout = <T,>(
+    promise: Promise<T>,
+    timeoutMs: number = 10000,
+    timeoutError = "Operation timeout"
+  ): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error(timeoutError)), timeoutMs)
+      ),
+    ]);
+  };
+
+  // Helper: Fetch user profile with timeout
+  const fetchUserProfile = async (userId: string, supabase: any): Promise<User | null> => {
+    try {
+      const result = await promiseWithTimeout(
+        supabase.from("users").select("*").eq("id", userId).single(),
+        8000,
+        "Profile load timeout"
+      );
+      return (result as any)?.data as User | null;
+    } catch (e) {
+      console.warn("Profile fetch failed:", e);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    // Access environment variables via process.env or window.env (runtime injection)
-    // Support both VITE_* and NEXT_PUBLIC_* prefixes for compatibility
+    let isMounted = true; // Prevent memory leaks and race conditions
+
+    // Access environment variables
     const getEnv = (key: string) => {
       const viteKey = `VITE_${key}`;
       const nextKey = `NEXT_PUBLIC_${key}`;
@@ -152,110 +182,117 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     }
 
-    // Restore session on page load
-    const restoreSession = async () => {
-      // First check for saved demo session (faster, no network)
-      const savedSession = localStorage.getItem("gds_session");
-      if (savedSession) {
-        try {
-          const { email } = JSON.parse(savedSession);
-          if (email === "demo@gds.ge") {
-            const demoUser = db.login(email, "demo");
-            if (demoUser) {
-              setIsDemo(true);
-              setUser(demoUser);
-              setLoading(false);
-              return;
-            }
+    // First check for saved demo session (faster, no network)
+    const savedSession = localStorage.getItem("gds_session");
+    if (savedSession) {
+      try {
+        const { email } = JSON.parse(savedSession);
+        if (email === "demo@gds.ge") {
+          const demoUser = db.login(email, "demo");
+          if (demoUser && isMounted) {
+            setIsDemo(true);
+            setUser(demoUser);
+            setLoading(false);
+            return; // Early return, no need for Supabase
           }
-        } catch (e) {
-          console.warn("Local session restore failed:", e);
-          localStorage.removeItem("gds_session");
         }
+      } catch (e) {
+        console.warn("Local session restore failed:", e);
+        localStorage.removeItem("gds_session");
       }
+    }
 
-      // Then check Supabase session
-      if (supabaseInitialized) {
-        const supabase = getSupabase();
-        if (supabase) {
-          try {
-            const { data: { session } } = await supabase.auth.getSession();
+    // Set up Supabase auth listener FIRST (before getSession)
+    // This is the recommended approach from Supabase docs
+    const supabase = getSupabase();
+    let subscription: { unsubscribe: () => void } | null = null;
 
-            if (session?.user) {
-              // User has active Supabase session
-              const { data: profile, error: profileError } = await supabase
-                .from("users")
-                .select("*")
-                .eq("id", session.user.id)
-                .single();
+    if (supabase && supabaseInitialized) {
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if (!isMounted) return;
+
+        console.log("Auth event:", event);
+
+        // Handle INITIAL_SESSION - this fires on page load/refresh
+        if (event === "INITIAL_SESSION") {
+          if (session?.user) {
+            // Session exists from localStorage, fetch profile asynchronously
+            fetchUserProfile(session.user.id, supabase).then((profile) => {
+              if (!isMounted) return;
 
               if (profile) {
-                setUser(profile as User);
+                setUser(profile);
                 setIsDemo(false);
-                setLoading(false);
-                return;
-              }
-
-              // Profile not found but session exists - create basic user from auth data
-              if (profileError || !profile) {
-                console.warn("Profile not found, using auth data:", profileError);
+              } else {
+                // No profile found, create basic user from auth data
                 const basicUser: User = {
                   id: session.user.id,
                   email: session.user.email || "",
                   name: session.user.email?.split("@")[0] || "User",
-                  role: UserRole.ADMIN, // Default to admin for now
+                  role: UserRole.ADMIN,
                   isActive: true,
                 };
                 setUser(basicUser);
                 setIsDemo(false);
-                setLoading(false);
-                return;
               }
-            }
-          } catch (e) {
-            console.warn("Session restore failed:", e);
+              setLoading(false);
+            });
+          } else {
+            // No session
+            setLoading(false);
           }
+          return;
         }
-      }
 
-      // No session found
-      setLoading(false);
-    };
+        // Handle SIGNED_IN
+        if (event === "SIGNED_IN" && session?.user) {
+          fetchUserProfile(session.user.id, supabase).then((profile) => {
+            if (!isMounted) return;
 
-    restoreSession();
-  }, []);
+            if (profile) {
+              setUser(profile);
+              setIsDemo(false);
+            }
+          });
+          return;
+        }
 
-  // Set up Supabase auth state listener in separate effect
-  useEffect(() => {
-    const supabase = getSupabase();
-    if (!supabase) return;
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+        // Handle SIGNED_OUT
         if (event === "SIGNED_OUT") {
           setUser(null);
           setIsDemo(false);
           localStorage.removeItem("gds_session");
-        } else if (event === "SIGNED_IN" && session?.user) {
-          // Fetch user profile when signed in
-          const { data: profile } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-
-          if (profile) {
-            setUser(profile as User);
-            setIsDemo(false);
-          }
+          return;
         }
+
+        // Handle TOKEN_REFRESHED
+        if (event === "TOKEN_REFRESHED" && session?.user) {
+          // Token refreshed, user state should already be set
+          return;
+        }
+      });
+
+      subscription = data.subscription;
+
+      // Fallback timeout - if INITIAL_SESSION doesn't fire within 10 seconds, stop loading
+      setTimeout(() => {
+        if (isMounted && loading) {
+          console.warn("Auth initialization timeout, stopping loading");
+          setLoading(false);
+        }
+      }, 10000);
+    } else {
+      // No Supabase configured
+      if (isMounted) {
+        setLoading(false);
       }
-    );
+    }
 
     return () => {
+      isMounted = false;
       subscription?.unsubscribe();
     };
-  }, [config]); // Re-run when config changes (supabase might become available)
+  }, []);
 
   const saveConfig = (cfg: AppConfig) => {
     localStorage.setItem("gds_system_config", JSON.stringify(cfg));
