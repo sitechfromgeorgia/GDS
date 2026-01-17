@@ -449,9 +449,14 @@ export const OrderManager = () => {
                           <DollarSign className="h-3 w-3 mr-1" /> {t('common.price')}
                         </Button>
                       )}
-                      {(order.status === OrderStatus.CONFIRMED || order.status === OrderStatus.OUT_FOR_DELIVERY) && (
+                      {order.status === OrderStatus.CONFIRMED && !needsPricing && (
                          <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white border-none" onClick={() => handleOpenOrder(order, 'view')}>
                           <Truck className="h-3 w-3 mr-1" /> {t('common.assign')}
+                         </Button>
+                      )}
+                      {order.status === OrderStatus.OUT_FOR_DELIVERY && (
+                         <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')}>
+                          <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
                          </Button>
                       )}
                       <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="text-slate-400 dark:text-slate-500">
