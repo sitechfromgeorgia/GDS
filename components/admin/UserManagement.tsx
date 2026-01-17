@@ -85,15 +85,16 @@ export const UserManagement = () => {
     } else {
       if (newUser.name && newUser.email && newUser.role) {
         await addUser({
-          id: `u-${Date.now()}`,
+          id: `u-${Date.now()}`, // Will be replaced by Supabase Auth ID
           name: newUser.name,
           email: newUser.email,
           role: newUser.role,
           phone: newUser.phone,
           locationLink: newUser.locationLink,
           isActive: true,
-          avatar: newUser.avatar
-        } as User);
+          avatar: newUser.avatar,
+          password: newUser.password, // Pass password for Supabase Auth
+        } as User & { password?: string });
       }
     }
     setIsModalOpen(false);

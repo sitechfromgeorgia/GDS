@@ -256,6 +256,25 @@ const resources = {
         delivered: "Delivered",
         today_history: "Today's History",
         delivered_at: "Delivered"
+      },
+      errors: {
+        supabase_not_configured: "Supabase is not configured",
+        user_creation_failed: "User creation failed",
+        profile_creation_failed: "Profile creation failed"
+      },
+      users: {
+        title: "User Management",
+        subtitle: "Manage access, roles and establishments",
+        add_user: "Add User",
+        name: "Full Name",
+        email: "Email",
+        role: "System Role",
+        phone: "Phone Number",
+        password: "Temporary Password",
+        user_created_success: "User created successfully",
+        role_admin: "Administrator (Full Access)",
+        role_restaurant: "Restaurant (Orders)",
+        role_driver: "Driver (Logistics)"
       }
     }
   },
@@ -418,9 +437,15 @@ const resources = {
         phone: "ტელეფონის ნომერი",
         password: "დროებითი პაროლი",
         create_success: "მომხმარებელი დაემატა",
+        user_created_success: "მომხმარებელი წარმატებით შეიქმნა",
         role_admin: "ადმინისტრატორი (სრული წვდომა)",
         role_restaurant: "რესტორანი (შეკვეთები)",
         role_driver: "მძღოლი (ლოჯისტიკა)"
+      },
+      errors: {
+        supabase_not_configured: "Supabase არ არის კონფიგურირებული",
+        user_creation_failed: "მომხმარებლის შექმნა ვერ მოხერხდა",
+        profile_creation_failed: "პროფილის შექმნა ვერ მოხერხდა"
       },
       products: {
         subtitle: "მართეთ პროდუქციის კატალოგი და ერთეულები",

@@ -580,11 +580,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshData();
   };
 
-  const addUser = async (u: User) => {
+  const addUser = async (u: User & { password?: string }) => {
     if (isDemo) {
       db.addUser(u);
     } else {
-      await getSupabase()?.from("users").insert(u);
+      const supabase = getSupabase();
+      if (!supabase) {
+        showToast(t("errors.supabase_not_configured"), "error");
+        return;
+      }
+
+      // Step 1: Create user in Supabase Auth
+      // The database trigger will automatically create profile in public.users
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: u.email,
+        password: u.password || "TempPassword123!",
+        options: {
+          data: {
+            name: u.name,
+            role: u.role,
+          },
+        },
+      });
+
+      if (authError) {
+        console.error("Auth user creation failed:", authError);
+        showToast(authError.message || t("errors.user_creation_failed"), "error");
+        return;
+      }
+
+      if (!authData.user) {
+        showToast(t("errors.user_creation_failed"), "error");
+        return;
+      }
+
+      // Step 2: Update the profile with additional fields (trigger already created basic profile)
+      // Small delay to ensure trigger has completed
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({
+          phone: u.phone || null,
+          locationLink: u.locationLink || null,
+          avatar: u.avatar || null,
+        })
+        .eq("id", authData.user.id);
+
+      if (updateError) {
+        console.warn("Profile update failed (non-critical):", updateError);
+        // Don't return error - user was still created successfully
+      }
+
+      showToast(t("users.user_created_success"), "success");
     }
     refreshData();
   };
