@@ -82,6 +82,7 @@ interface AppContextType {
     driverId?: string,
   ) => Promise<void>;
   updateOrderPricing: (id: string, items: any[]) => Promise<void>;
+  updateProductCostPrice: (productId: string, costPrice: number) => Promise<void>;
   showToast: (message: string, type?: ToastType["type"]) => void;
   isDemo: boolean;
 }
@@ -845,6 +846,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshData();
   };
 
+  // Update costPrice for a product across all CONFIRMED orders
+  const updateProductCostPrice = async (productId: string, costPrice: number) => {
+    const confirmedOrders = orders.filter(o => o.status === OrderStatus.CONFIRMED);
+
+    for (const order of confirmedOrders) {
+      const hasProduct = order.items.some(item => item.productId === productId);
+      if (!hasProduct) continue;
+
+      const updatedItems = order.items.map(item =>
+        item.productId === productId
+          ? { ...item, costPrice }
+          : item
+      );
+
+      if (isDemo) {
+        db.updateOrderPricing(order.id, updatedItems);
+      } else {
+        await getSupabase()
+          ?.from("orders")
+          .update({ items: updatedItems })
+          .eq("id", order.id);
+      }
+    }
+
+    refreshData();
+    showToast(`თვითღირებულება განახლდა: ${costPrice}₾`, "success");
+  };
+
   if (loading)
     return (
       <div className="h-screen flex items-center justify-center">
@@ -888,6 +917,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         createOrder,
         updateOrderStatus,
         updateOrderPricing,
+        updateProductCostPrice,
         showToast,
       }}
     >

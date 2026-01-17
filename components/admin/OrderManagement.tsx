@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 export const OrderManager = () => {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrderStatus, updateOrderPricing, users } = useApp();
+  const { orders, updateOrderStatus, updateOrderPricing, updateProductCostPrice, users } = useApp();
   const drivers = users.filter(u => u.role === UserRole.DRIVER);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -38,18 +38,31 @@ export const OrderManager = () => {
   // Aggregation view logic (Shopping List)
   const shoppingList = useMemo(() => {
     const confirmedOrders = orders.filter(o => o.status === OrderStatus.CONFIRMED);
-    const summary: Record<string, { name: string, quantity: number, unit: string }> = {};
-    
+    const summary: Record<string, { productId: string, name: string, quantity: number, unit: string, costPrice?: number }> = {};
+
     confirmedOrders.forEach(order => {
       order.items.forEach(item => {
         if (!summary[item.productId]) {
-          summary[item.productId] = { name: item.productName, quantity: 0, unit: item.unit };
+          summary[item.productId] = {
+            productId: item.productId,
+            name: item.productName,
+            quantity: 0,
+            unit: item.unit,
+            costPrice: item.costPrice
+          };
         }
         summary[item.productId].quantity += item.quantity;
+        // Take the latest costPrice if set
+        if (item.costPrice !== undefined) {
+          summary[item.productId].costPrice = item.costPrice;
+        }
       });
     });
     return Object.values(summary);
   }, [orders]);
+
+  // State for cost price inputs in shopping list
+  const [costPriceInputs, setCostPriceInputs] = useState<Record<string, string>>({});
 
   // Status mapping for filter labels
   const getStatusLabel = (status: string) => {
@@ -246,11 +259,44 @@ export const OrderManager = () => {
           <Badge variant="outline">{shoppingList.length} {t('common.items')}</Badge>
         </div>
         {shoppingList.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {shoppingList.map((item, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-center">
-                <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{item.name}</div>
-                <div className="text-blue-600 dark:text-blue-400 font-black text-lg mt-1">{item.quantity} <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{item.unit}</span></div>
+              <div key={idx} className="bg-white dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{item.name}</div>
+                  <div className="text-blue-600 dark:text-blue-400 font-black text-lg">{item.quantity} <span className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase">{item.unit}</span></div>
+                </div>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t('orders.cost')}:</span>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="w-20 h-8 text-sm"
+                    value={costPriceInputs[item.productId] ?? (item.costPrice || '')}
+                    onChange={(e) => setCostPriceInputs(prev => ({ ...prev, [item.productId]: e.target.value }))}
+                  />
+                  <span className="text-xs text-slate-400">₾</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-2 text-xs"
+                    onClick={() => {
+                      const price = parseFloat(costPriceInputs[item.productId] || '0');
+                      if (price > 0) {
+                        updateProductCostPrice(item.productId, price);
+                        setCostPriceInputs(prev => ({ ...prev, [item.productId]: '' }));
+                      }
+                    }}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+                {item.costPrice && (
+                  <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
+                    ✓ {t('orders.cost')}: {item.costPrice}₾
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -436,8 +482,8 @@ export const OrderManager = () => {
                      <th className="p-4 text-center font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.table_qty')}</th>
                      {pricingMode && (
                        <>
-                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.cost')}</th>
-                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.sell')}</th>
+                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.cost')} ₾</th>
+                         <th className="p-4 text-left font-black text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('orders.sell')} ₾</th>
                        </>
                      )}
                    </tr>
@@ -453,17 +499,17 @@ export const OrderManager = () => {
                        {pricingMode && (
                          <>
                            <td className="p-4">
-                             <Input 
-                               type="number" step="0.1" className="w-20 h-9 p-2" 
-                               value={item.costPrice || ''} 
-                               onChange={(e) => handlePriceChange(idx, 'costPrice', e.target.value)} 
-                             />
+                             {item.costPrice ? (
+                               <span className="text-slate-600 dark:text-slate-400 font-medium">{item.costPrice}</span>
+                             ) : (
+                               <span className="text-amber-500 text-xs font-medium">არ არის</span>
+                             )}
                            </td>
                            <td className="p-4">
-                             <Input 
-                               type="number" step="0.1" className="w-20 h-9 p-2 border-emerald-200 dark:border-emerald-900" 
-                               value={item.sellPrice || ''} 
-                               onChange={(e) => handlePriceChange(idx, 'sellPrice', e.target.value)} 
+                             <Input
+                               type="number" step="0.1" className="w-20 h-9 p-2 border-emerald-200 dark:border-emerald-900"
+                               value={item.sellPrice || ''}
+                               onChange={(e) => handlePriceChange(idx, 'sellPrice', e.target.value)}
                              />
                            </td>
                          </>
