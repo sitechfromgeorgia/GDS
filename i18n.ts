@@ -108,6 +108,21 @@ const resources = {
         realtime_desc: "Real-time market dynamics and strategic analysis",
         export: "Export"
       },
+      analytics: {
+        period_today: "Today",
+        period_week: "Week",
+        period_month: "Month",
+        period_year: "Year",
+        vs_previous: "vs previous period",
+        revenue: "Revenue",
+        profit: "Profit",
+        top_products: "Top Products",
+        top_restaurants: "Top Partners",
+        units_sold: "units sold",
+        orders: "orders",
+        order_status: "Order Status",
+        orders_trend: "Orders Trend"
+      },
       orders: {
         title: "Incoming Orders",
         shopping_list_title: "Shopping List (Confirmed)",
@@ -348,6 +363,21 @@ const resources = {
         categories: "კატეგორიები",
         realtime_desc: "ბიზნესის დინამიკა და სტრატეგიული ანალიზი რეალურ დროში",
         export: "ექსპორტი"
+      },
+      analytics: {
+        period_today: "დღეს",
+        period_week: "კვირა",
+        period_month: "თვე",
+        period_year: "წელი",
+        vs_previous: "წინა პერიოდთან",
+        revenue: "შემოსავალი",
+        profit: "მოგება",
+        top_products: "ტოპ პროდუქტები",
+        top_restaurants: "ტოპ პარტნიორები",
+        units_sold: "გაყიდული ერთეული",
+        orders: "შეკვეთა",
+        order_status: "შეკვეთის სტატუსი",
+        orders_trend: "შეკვეთების დინამიკა"
       },
       orders: {
         title: "შემოსული შეკვეთები",
