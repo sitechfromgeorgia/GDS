@@ -3,11 +3,11 @@ import React, { useState, useRef } from 'react';
 import { useApp } from '../../App';
 import { Button, Input, Badge, Modal } from '../ui/Shared';
 import { UserRole, User } from '../../types';
-import { Plus, Search, Shield, User as UserIcon, Truck, Power, Lock, MapPin, Edit2, Phone, CheckCircle2, Camera, UserCircle } from 'lucide-react';
+import { Plus, Search, Shield, User as UserIcon, Truck, Power, Lock, MapPin, Edit2, Phone, CheckCircle2, Camera, UserCircle, Trash2, AlertTriangle, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const UserManagement = () => {
-  const { users, addUser, updateUser, updateUserStatus, showToast } = useApp();
+  const { users, addUser, updateUser, updateUserStatus, deleteUser, showToast } = useApp();
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +22,21 @@ export const UserManagement = () => {
     locationLink: '',
     password: '',
     avatar: ''
+  });
+
+  // Delete confirmation modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    user: User | null;
+    adminPassword: string;
+    confirmEmail: string;
+    isDeleting: boolean;
+  }>({
+    isOpen: false,
+    user: null,
+    adminPassword: '',
+    confirmEmail: '',
+    isDeleting: false
   });
 
   const filteredUsers = users.filter(u => 
@@ -110,6 +125,52 @@ export const UserManagement = () => {
     updateUserStatus(id, !currentStatus);
   };
 
+  const handleOpenDeleteModal = (user: User) => {
+    setDeleteModal({
+      isOpen: true,
+      user,
+      adminPassword: '',
+      confirmEmail: '',
+      isDeleting: false
+    });
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteModal({
+      isOpen: false,
+      user: null,
+      adminPassword: '',
+      confirmEmail: '',
+      isDeleting: false
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.user) return;
+
+    // Validate email matches
+    if (deleteModal.confirmEmail !== deleteModal.user.email) {
+      showToast('შეყვანილი მეილი არ ემთხვევა', 'error');
+      return;
+    }
+
+    // Validate password is entered
+    if (!deleteModal.adminPassword || deleteModal.adminPassword.length < 6) {
+      showToast('შეიყვანეთ თქვენი პაროლი', 'error');
+      return;
+    }
+
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+
+    const success = await deleteUser(deleteModal.user.id, deleteModal.adminPassword);
+
+    if (success) {
+      handleCloseDeleteModal();
+    } else {
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
+    }
+  };
+
   const getRoleIcon = (role: UserRole) => {
     switch (role) {
       case UserRole.ADMIN: return <Shield className="h-4 w-4 text-purple-600" />;
@@ -196,13 +257,23 @@ export const UserManagement = () => {
                     <Button size="sm" variant="secondary" onClick={() => handleOpenEdit(user)} className="h-9 w-9 p-0">
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant={user.isActive !== false ? 'outline' : 'primary'}
-                      className={`h-9 w-9 p-0 ${user.isActive !== false ? 'text-red-500 border-red-100 hover:bg-red-50' : ''}`}
+                      className={`h-9 w-9 p-0 ${user.isActive !== false ? 'text-amber-500 border-amber-100 hover:bg-amber-50 dark:border-amber-900 dark:hover:bg-amber-900/20' : ''}`}
                       onClick={() => toggleStatus(user.id, user.isActive)}
+                      title={user.isActive !== false ? 'გათიშვა' : 'ჩართვა'}
                     >
                       <Power className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-9 w-9 p-0 text-red-500 border-red-100 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
+                      onClick={() => handleOpenDeleteModal(user)}
+                      title="წაშლა"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </td>
                 </tr>
@@ -349,6 +420,118 @@ export const UserManagement = () => {
             <Button variant="outline" className="flex-1" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
             <Button onClick={handleSubmit} className="flex-1 bg-slate-900 hover:bg-slate-800 ring-offset-2 shadow-lg shadow-slate-200">
               {editingId ? 'მონაცემების შენახვა' : 'მომხმარებლის დამატება'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={handleCloseDeleteModal}
+        title="მომხმარებლის წაშლა"
+      >
+        <div className="space-y-6">
+          {/* Warning Banner */}
+          <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-xl">
+            <AlertTriangle className="h-6 w-6 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-red-800 dark:text-red-300">
+                ყურადღება! ეს მოქმედება შეუქცევადია
+              </p>
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                მომხმარებლის წაშლის შემდეგ მისი აღდგენა შეუძლებელი იქნება.
+              </p>
+            </div>
+          </div>
+
+          {/* User Info */}
+          {deleteModal.user && (
+            <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="h-12 w-12 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                {deleteModal.user.avatar ? (
+                  <img src={deleteModal.user.avatar} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-lg font-black text-slate-600 dark:text-slate-300">
+                    {deleteModal.user.name.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 dark:text-slate-100">{deleteModal.user.name}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{deleteModal.user.email}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Confirmation Fields */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[13px] font-bold text-slate-900 dark:text-slate-100 mb-1.5 uppercase tracking-wide">
+                თქვენი პაროლი
+              </label>
+              <div className="relative">
+                <Input
+                  type="password"
+                  value={deleteModal.adminPassword}
+                  onChange={(e) => setDeleteModal(prev => ({ ...prev, adminPassword: e.target.value }))}
+                  placeholder="შეიყვანეთ თქვენი პაროლი"
+                  className="pr-10"
+                />
+                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1.5">
+                უსაფრთხოებისთვის შეიყვანეთ თქვენი ადმინისტრატორის პაროლი
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-bold text-slate-900 dark:text-slate-100 mb-1.5 uppercase tracking-wide">
+                მომხმარებლის მეილი
+              </label>
+              <div className="relative">
+                <Input
+                  type="email"
+                  value={deleteModal.confirmEmail}
+                  onChange={(e) => setDeleteModal(prev => ({ ...prev, confirmEmail: e.target.value }))}
+                  placeholder={deleteModal.user?.email || 'user@example.com'}
+                  className="pr-10"
+                />
+                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1.5">
+                დასადასტურებლად ჩაწერეთ მომხმარებლის მეილი: <span className="font-bold text-slate-600 dark:text-slate-300">{deleteModal.user?.email}</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-4 flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handleCloseDeleteModal}
+              disabled={deleteModal.isDeleting}
+            >
+              გაუქმება
+            </Button>
+            <Button
+              variant="danger"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleConfirmDelete}
+              disabled={deleteModal.isDeleting || !deleteModal.adminPassword || !deleteModal.confirmEmail}
+            >
+              {deleteModal.isDeleting ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  იშლება...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  წაშლა
+                </>
+              )}
             </Button>
           </div>
         </div>

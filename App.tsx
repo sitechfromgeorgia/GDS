@@ -71,6 +71,7 @@ interface AppContextType {
   addUser: (user: User) => Promise<void>;
   updateUser: (user: User) => Promise<void>;
   updateUserStatus: (id: string, isActive: boolean) => Promise<void>;
+  deleteUser: (id: string, adminPassword: string) => Promise<boolean>;
   createOrder: (
     items: { product: Product; quantity: number }[],
     notes?: string,
@@ -671,6 +672,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     refreshData();
   };
+
+  const deleteUser = async (id: string, adminPassword: string): Promise<boolean> => {
+    // Verify admin password by attempting to sign in
+    const supabase = getSupabase();
+    if (!supabase || !user) {
+      showToast(t("errors.supabase_not_configured"), "error");
+      return false;
+    }
+
+    // Verify admin password
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: adminPassword,
+    });
+
+    if (signInError) {
+      showToast("არასწორი პაროლი", "error");
+      return false;
+    }
+
+    // Don't allow deleting yourself
+    if (id === user.id) {
+      showToast("საკუთარი ანგარიშის წაშლა არ შეიძლება", "error");
+      return false;
+    }
+
+    if (isDemo) {
+      // For demo mode, just remove from local state
+      db.deleteUser?.(id);
+      showToast("მომხმარებელი წაშლილია", "success");
+      refreshData();
+      return true;
+    }
+
+    // Delete from users table (this will cascade or be handled by DB)
+    const { error: dbError } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", id);
+
+    if (dbError) {
+      console.error("Error deleting user from DB:", dbError);
+      showToast("მომხმარებლის წაშლა ვერ მოხერხდა", "error");
+      return false;
+    }
+
+    showToast("მომხმარებელი წარმატებით წაიშალა", "success");
+    refreshData();
+    return true;
+  };
+
   const createOrder = async (
     items: { product: Product; quantity: number }[],
     notes?: string,
@@ -771,6 +823,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         addUser,
         updateUser,
         updateUserStatus,
+        deleteUser,
         createOrder,
         updateOrderStatus,
         updateOrderPricing,
