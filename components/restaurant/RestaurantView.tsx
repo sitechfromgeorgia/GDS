@@ -135,7 +135,7 @@ const Catalog = () => {
           </h3>
         </div>
         
-        <div className="flex-1 p-6 overflow-y-auto space-y-5 max-h-[400px] lg:max-h-none">
+        <div className="flex-1 p-6 overflow-y-auto space-y-5 max-h-[50vh] lg:max-h-[calc(100vh-280px)]">
           {cart.length === 0 ? (
             <div className="text-center py-12 flex flex-col items-center justify-center">
               <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-full mb-4">

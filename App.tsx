@@ -403,6 +403,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (user) refreshData();
   }, [user, isDemo, refreshData]);
 
+  // Realtime subscription for orders - enables live updates between restaurant and admin
+  useEffect(() => {
+    if (isDemo || !user) return;
+
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel('orders-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          console.log('Realtime order update:', payload.eventType);
+          if (payload.eventType === 'INSERT') {
+            const newOrder = payload.new as Order;
+            setOrders((prev) => {
+              // Avoid duplicates (optimistic update may have added it already)
+              if (prev.some((o) => o.id === newOrder.id)) return prev;
+              return [newOrder, ...prev];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedOrder = payload.new as Order;
+            setOrders((prev) =>
+              prev.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
+            );
+          } else if (payload.eventType === 'DELETE') {
+            const deletedOrder = payload.old as Order;
+            setOrders((prev) => prev.filter((o) => o.id !== deletedOrder.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isDemo, user]);
+
   const login = async (
     email: string,
     password?: string,
@@ -727,24 +766,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     items: { product: Product; quantity: number }[],
     notes?: string,
   ) => {
+    if (!user) return;
+
+    const newOrder: Order = {
+      id: `ord-${Date.now()}`,
+      restaurantId: user.id,
+      restaurantName: user.name,
+      status: OrderStatus.PENDING,
+      createdAt: new Date().toISOString(),
+      items: items.map((i) => ({
+        productId: i.product.id,
+        productName: i.product.name,
+        unit: i.product.unit,
+        quantity: i.quantity,
+        sellPrice: i.product.isPromo ? i.product.price : undefined,
+      })),
+      notes,
+    };
+
+    // Optimistic update - immediately add to local state
+    setOrders((prev) => [newOrder, ...prev]);
+
     if (isDemo) {
-      if (user) db.createOrder(user, items, notes);
-    } else if (user) {
-      const newOrder = {
-        id: `ord-${Date.now()}`,
-        restaurantId: user.id,
-        restaurantName: user.name,
-        status: OrderStatus.PENDING,
-        createdAt: new Date().toISOString(),
-        items: items.map((i) => ({
-          productId: i.product.id,
-          productName: i.product.name,
-          unit: i.product.unit,
-          quantity: i.quantity,
-          sellPrice: i.product.isPromo ? i.product.price : null,
-        })),
-        notes,
-      };
+      db.createOrder(user, items, notes);
+    } else {
       await getSupabase()?.from("orders").insert(newOrder);
     }
     refreshData();
