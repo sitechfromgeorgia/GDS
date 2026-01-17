@@ -218,12 +218,12 @@ const Catalog = () => {
         </div>
 
         <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20">
-           <Button 
-             className="w-full h-14 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg dark:shadow-none border-none text-base font-bold" 
-             disabled={cart.length === 0 || !!activeOrder} 
+           <Button
+             className="w-full h-14 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg dark:shadow-none border-none text-base font-bold"
+             disabled={cart.length === 0}
              onClick={handleOpenConfirm}
            >
-             {activeOrder ? t('restaurant.active_order_title') : t('restaurant.checkout_btn')}
+             {t('restaurant.checkout_btn')}
            </Button>
         </div>
       </div>
