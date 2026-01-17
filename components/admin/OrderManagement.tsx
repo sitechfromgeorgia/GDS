@@ -1,9 +1,11 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useApp } from '../../App';
 import { Button, Input, Card, Badge, Modal } from '../ui/Shared';
+import { FilterChips, FilterChip } from '../ui/FilterChips';
+import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { OrderStatus, Order, UserRole, OrderItem } from '../../types';
-import { Check, Truck, Eye, DollarSign, ShoppingBag, Wallet, AlertTriangle, MessageSquare, Clock } from 'lucide-react';
+import { Check, Truck, Eye, DollarSign, ShoppingBag, Wallet, AlertTriangle, MessageSquare, Clock, Search, Filter, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const OrderManager = () => {
@@ -17,6 +19,21 @@ export const OrderManager = () => {
 
   // Filter State
   const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [search, setSearch] = useState('');
+  const [dateFilter, setDateFilter] = useState<DatePreset>('all');
+  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({ start: '', end: '' });
+  const [restaurantFilter, setRestaurantFilter] = useState<string>('all');
+
+  // Get unique restaurants from orders
+  const restaurants = useMemo(() => {
+    const uniqueRestaurants = new Map<string, string>();
+    orders.forEach(order => {
+      if (!uniqueRestaurants.has(order.restaurantId)) {
+        uniqueRestaurants.set(order.restaurantId, order.restaurantName);
+      }
+    });
+    return Array.from(uniqueRestaurants, ([id, name]) => ({ id, name }));
+  }, [orders]);
 
   // Aggregation view logic (Shopping List)
   const shoppingList = useMemo(() => {
@@ -46,13 +63,142 @@ export const OrderManager = () => {
     }
   };
 
+  // Status counts for badges
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: orders.length };
+    Object.values(OrderStatus).forEach(status => {
+      counts[status] = orders.filter(o => o.status === status).length;
+    });
+    return counts;
+  }, [orders]);
+
   // Filter Logic
   const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
-      if (statusFilter !== 'All' && order.status !== statusFilter) return false;
-      return true;
-    }).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [orders, statusFilter]);
+    let result = [...orders];
+
+    // Status filter
+    if (statusFilter !== 'All') {
+      result = result.filter(order => order.status === statusFilter);
+    }
+
+    // Search filter (ID, restaurant name, product name)
+    if (search.trim()) {
+      const searchLower = search.toLowerCase();
+      result = result.filter(order =>
+        order.id.toLowerCase().includes(searchLower) ||
+        order.restaurantName.toLowerCase().includes(searchLower) ||
+        order.items.some(item => item.productName.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Restaurant filter
+    if (restaurantFilter !== 'all') {
+      result = result.filter(order => order.restaurantId === restaurantFilter);
+    }
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      let filterStartDate = new Date();
+      let filterEndDate: Date | null = null;
+
+      switch (dateFilter) {
+        case 'today':
+          filterStartDate.setHours(0, 0, 0, 0);
+          break;
+        case 'yesterday':
+          filterStartDate.setDate(now.getDate() - 1);
+          filterStartDate.setHours(0, 0, 0, 0);
+          filterEndDate = new Date();
+          filterEndDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          filterStartDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          filterStartDate.setDate(now.getDate() - 30);
+          break;
+        case 'lastMonth':
+          filterStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          filterEndDate = new Date(now.getFullYear(), now.getMonth(), 0);
+          break;
+        case 'custom':
+          if (customDateRange.start && customDateRange.end) {
+            filterStartDate = new Date(customDateRange.start);
+            filterEndDate = new Date(customDateRange.end);
+            filterEndDate.setHours(23, 59, 59, 999);
+          }
+          break;
+      }
+
+      result = result.filter(order => {
+        const orderDate = new Date(order.createdAt);
+        if (filterEndDate) {
+          return orderDate >= filterStartDate && orderDate <= filterEndDate;
+        }
+        return orderDate >= filterStartDate;
+      });
+    }
+
+    return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [orders, statusFilter, search, restaurantFilter, dateFilter, customDateRange]);
+
+  // Active filter chips
+  const activeChips = useMemo(() => {
+    const chips: FilterChip[] = [];
+
+    if (search) {
+      chips.push({ id: 'search', label: t('filters.search'), value: search });
+    }
+    if (statusFilter !== 'All') {
+      chips.push({ id: 'status', label: t('filters.status'), value: getStatusLabel(statusFilter) });
+    }
+    if (restaurantFilter !== 'all') {
+      const restaurant = restaurants.find(r => r.id === restaurantFilter);
+      chips.push({ id: 'restaurant', label: t('filters.restaurant'), value: restaurant?.name || restaurantFilter });
+    }
+    if (dateFilter !== 'all') {
+      let dateLabel = '';
+      switch (dateFilter) {
+        case 'today': dateLabel = t('filters.today'); break;
+        case 'yesterday': dateLabel = t('filters.yesterday'); break;
+        case 'week': dateLabel = t('filters.last_7_days'); break;
+        case 'month': dateLabel = t('filters.last_30_days'); break;
+        case 'lastMonth': dateLabel = t('filters.last_month'); break;
+        case 'custom': dateLabel = `${customDateRange.start} - ${customDateRange.end}`; break;
+      }
+      chips.push({ id: 'date', label: t('filters.date'), value: dateLabel });
+    }
+
+    return chips;
+  }, [search, statusFilter, restaurantFilter, dateFilter, customDateRange, t, restaurants]);
+
+  const handleRemoveChip = useCallback((chipId: string) => {
+    switch (chipId) {
+      case 'search': setSearch(''); break;
+      case 'status': setStatusFilter('All'); break;
+      case 'restaurant': setRestaurantFilter('all'); break;
+      case 'date':
+        setDateFilter('all');
+        setCustomDateRange({ start: '', end: '' });
+        break;
+    }
+  }, []);
+
+  const handleClearAllFilters = useCallback(() => {
+    setSearch('');
+    setStatusFilter('All');
+    setRestaurantFilter('all');
+    setDateFilter('all');
+    setCustomDateRange({ start: '', end: '' });
+  }, []);
+
+  const handleDateFilterChange = useCallback((preset: DatePreset, customRange?: { start: string; end: string }) => {
+    setDateFilter(preset);
+    if (customRange) {
+      setCustomDateRange(customRange);
+    }
+  }, []);
 
   const handleOpenOrder = (order: Order, mode: 'view' | 'pricing') => {
     setSelectedOrder(order);
@@ -122,18 +268,76 @@ export const OrderManager = () => {
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-6 flex flex-col md:flex-row gap-5 items-center">
-            <select 
-                className="flex h-11 w-full md:w-56 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-sm"
+        <Card className="p-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder={t('filters.search_orders')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-slate-400" />
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-            >
-                <option value="All">{t('orders.all_statuses')}</option>
+                className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              >
+                <option value="All">{t('orders.all_statuses')} ({statusCounts['All'] || 0})</option>
                 {Object.values(OrderStatus).map(s => (
-                    <option key={s} value={s}>{getStatusLabel(s)}</option>
+                  <option key={s} value={s}>{getStatusLabel(s)} ({statusCounts[s] || 0})</option>
                 ))}
-            </select>
-        </div>
+              </select>
+            </div>
+
+            {/* Restaurant Filter */}
+            {restaurants.length > 0 && (
+              <select
+                value={restaurantFilter}
+                onChange={(e) => setRestaurantFilter(e.target.value)}
+                className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              >
+                <option value="all">{t('filters.all_restaurants')}</option>
+                {restaurants.map(r => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </select>
+            )}
+
+            {/* Date Filter */}
+            <DateRangePicker
+              value={dateFilter}
+              onChange={handleDateFilterChange}
+              customRange={customDateRange}
+            />
+          </div>
+
+          {/* Active Filter Chips */}
+          <FilterChips
+            chips={activeChips}
+            onRemove={handleRemoveChip}
+            onClearAll={handleClearAllFilters}
+          />
+
+          {/* Results count */}
+          <div className={`mt-3 text-xs font-medium text-slate-400 dark:text-slate-500 ${activeChips.length > 0 ? 'pt-3' : ''}`}>
+            {t('filters.results_count', { count: filteredOrders.length })}
+          </div>
+        </Card>
 
         <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-100 dark:shadow-none rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
           <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">

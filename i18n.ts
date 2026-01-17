@@ -41,6 +41,28 @@ const resources = {
         search_placeholder: "Search by order ID or product...",
         results_count: "{{count}} orders found"
       },
+      filters: {
+        active: "Active Filters",
+        clear_all: "Clear All",
+        search: "Search",
+        status: "Status",
+        date: "Date",
+        restaurant: "Restaurant",
+        all_time: "All Time",
+        today: "Today",
+        yesterday: "Yesterday",
+        last_7_days: "Last 7 Days",
+        last_30_days: "Last 30 Days",
+        last_month: "Last Month",
+        custom_range: "Custom Range",
+        quick_select: "Quick Select",
+        from: "From",
+        to: "To",
+        apply: "Apply",
+        search_orders: "Search orders, restaurants, products...",
+        all_restaurants: "All Restaurants",
+        results_count: "{{count}} results found"
+      },
       nav: {
         dashboard: "Dashboard",
         orders: "Orders",
@@ -259,6 +281,28 @@ const resources = {
       history: {
         search_placeholder: "ძებნა ID-ით ან პროდუქტით...",
         results_count: "ნაპოვნია {{count}} შეკვეთა"
+      },
+      filters: {
+        active: "აქტიური ფილტრები",
+        clear_all: "გასუფთავება",
+        search: "ძებნა",
+        status: "სტატუსი",
+        date: "თარიღი",
+        restaurant: "რესტორანი",
+        all_time: "მთელი პერიოდი",
+        today: "დღეს",
+        yesterday: "გუშინ",
+        last_7_days: "ბოლო 7 დღე",
+        last_30_days: "ბოლო 30 დღე",
+        last_month: "წინა თვე",
+        custom_range: "კასტომური დიაპაზონი",
+        quick_select: "სწრაფი არჩევანი",
+        from: "დან",
+        to: "მდე",
+        apply: "გამოყენება",
+        search_orders: "შეკვეთების, რესტორნების, პროდუქტების ძებნა...",
+        all_restaurants: "ყველა რესტორანი",
+        results_count: "ნაპოვნია {{count}} შედეგი"
       },
       nav: {
         dashboard: "მთავარი",

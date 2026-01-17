@@ -1,10 +1,12 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Routes, Route, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../App';
 import { Card, Button, Badge, Input, Modal } from '../ui/Shared';
+import { FilterChips, FilterChip } from '../ui/FilterChips';
+import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { Product, OrderStatus, Order } from '../../types';
-import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar } from 'lucide-react';
+import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const Catalog = () => {
@@ -230,18 +232,46 @@ const Catalog = () => {
 const History = () => {
   const { t, i18n } = useTranslation();
   const { orders, updateOrderStatus, user, refreshData } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('all');
+
+  // URL-დან ფილტრების წაკითხვა
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'all');
+  const [dateFilter, setDateFilter] = useState<DatePreset>((searchParams.get('date') as DatePreset) || 'all');
+  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({
+    start: searchParams.get('dateStart') || '',
+    end: searchParams.get('dateEnd') || ''
+  });
 
   useEffect(() => {
     refreshData();
   }, [refreshData]);
 
+  // URL-ში ფილტრების შენახვა
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (statusFilter !== 'all') params.set('status', statusFilter);
+    if (dateFilter !== 'all') params.set('date', dateFilter);
+    if (dateFilter === 'custom' && customDateRange.start) params.set('dateStart', customDateRange.start);
+    if (dateFilter === 'custom' && customDateRange.end) params.set('dateEnd', customDateRange.end);
+    setSearchParams(params, { replace: true });
+  }, [search, statusFilter, dateFilter, customDateRange, setSearchParams]);
+
   const showPrices = (status: OrderStatus) => {
       return [OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED, OrderStatus.COMPLETED].includes(status);
   };
+
+  // სტატუსების რაოდენობის დათვლა
+  const statusCounts = useMemo(() => {
+    const userOrders = orders.filter(o => o.restaurantId === user?.id);
+    const counts: Record<string, number> = { all: userOrders.length };
+    Object.values(OrderStatus).forEach(status => {
+      counts[status] = userOrders.filter(o => o.status === status).length;
+    });
+    return counts;
+  }, [orders, user?.id]);
 
   const filteredOrders = useMemo(() => {
     let result = orders.filter(o => o.restaurantId === user?.id);
@@ -263,26 +293,49 @@ const History = () => {
     // თარიღის ფილტრი
     if (dateFilter !== 'all') {
       const now = new Date();
-      const filterDate = new Date();
+      let filterStartDate = new Date();
+      let filterEndDate: Date | null = null;
 
       switch (dateFilter) {
         case 'today':
-          filterDate.setHours(0, 0, 0, 0);
-          result = result.filter(o => new Date(o.createdAt) >= filterDate);
+          filterStartDate.setHours(0, 0, 0, 0);
+          break;
+        case 'yesterday':
+          filterStartDate.setDate(now.getDate() - 1);
+          filterStartDate.setHours(0, 0, 0, 0);
+          filterEndDate = new Date();
+          filterEndDate.setHours(0, 0, 0, 0);
           break;
         case 'week':
-          filterDate.setDate(now.getDate() - 7);
-          result = result.filter(o => new Date(o.createdAt) >= filterDate);
+          filterStartDate.setDate(now.getDate() - 7);
           break;
         case 'month':
-          filterDate.setMonth(now.getMonth() - 1);
-          result = result.filter(o => new Date(o.createdAt) >= filterDate);
+          filterStartDate.setDate(now.getDate() - 30);
+          break;
+        case 'lastMonth':
+          filterStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          filterEndDate = new Date(now.getFullYear(), now.getMonth(), 0);
+          break;
+        case 'custom':
+          if (customDateRange.start && customDateRange.end) {
+            filterStartDate = new Date(customDateRange.start);
+            filterEndDate = new Date(customDateRange.end);
+            filterEndDate.setHours(23, 59, 59, 999);
+          }
           break;
       }
+
+      result = result.filter(o => {
+        const orderDate = new Date(o.createdAt);
+        if (filterEndDate) {
+          return orderDate >= filterStartDate && orderDate <= filterEndDate;
+        }
+        return orderDate >= filterStartDate;
+      });
     }
 
     return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [orders, user?.id, search, statusFilter, dateFilter]);
+  }, [orders, user?.id, search, statusFilter, dateFilter, customDateRange]);
 
   const statusOptions = [
     { value: 'all', label: t('common.all') },
@@ -293,12 +346,57 @@ const History = () => {
     { value: OrderStatus.COMPLETED, label: t('status.completed') },
   ];
 
-  const dateOptions = [
-    { value: 'all', label: t('common.all_time') },
-    { value: 'today', label: t('common.today') },
-    { value: 'week', label: t('common.this_week') },
-    { value: 'month', label: t('common.this_month') },
-  ];
+  // აქტიური ფილტრების chips
+  const activeChips = useMemo(() => {
+    const chips: FilterChip[] = [];
+
+    if (search) {
+      chips.push({ id: 'search', label: t('filters.search'), value: search });
+    }
+    if (statusFilter !== 'all') {
+      const statusLabel = statusOptions.find(s => s.value === statusFilter)?.label || statusFilter;
+      chips.push({ id: 'status', label: t('filters.status'), value: statusLabel });
+    }
+    if (dateFilter !== 'all') {
+      let dateLabel = '';
+      switch (dateFilter) {
+        case 'today': dateLabel = t('filters.today'); break;
+        case 'yesterday': dateLabel = t('filters.yesterday'); break;
+        case 'week': dateLabel = t('filters.last_7_days'); break;
+        case 'month': dateLabel = t('filters.last_30_days'); break;
+        case 'lastMonth': dateLabel = t('filters.last_month'); break;
+        case 'custom': dateLabel = `${customDateRange.start} - ${customDateRange.end}`; break;
+      }
+      chips.push({ id: 'date', label: t('filters.date'), value: dateLabel });
+    }
+
+    return chips;
+  }, [search, statusFilter, dateFilter, customDateRange, t]);
+
+  const handleRemoveChip = useCallback((chipId: string) => {
+    switch (chipId) {
+      case 'search': setSearch(''); break;
+      case 'status': setStatusFilter('all'); break;
+      case 'date':
+        setDateFilter('all');
+        setCustomDateRange({ start: '', end: '' });
+        break;
+    }
+  }, []);
+
+  const handleClearAllFilters = useCallback(() => {
+    setSearch('');
+    setStatusFilter('all');
+    setDateFilter('all');
+    setCustomDateRange({ start: '', end: '' });
+  }, []);
+
+  const handleDateFilterChange = useCallback((preset: DatePreset, customRange?: { start: string; end: string }) => {
+    setDateFilter(preset);
+    if (customRange) {
+      setCustomDateRange(customRange);
+    }
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -314,8 +412,16 @@ const History = () => {
               placeholder={t('history.search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
             />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* სტატუსის ფილტრი */}
@@ -327,28 +433,30 @@ const History = () => {
               className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             >
               {statusOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label} ({statusCounts[opt.value] || 0})
+                </option>
               ))}
             </select>
           </div>
 
           {/* თარიღის ფილტრი */}
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-slate-400" />
-            <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            >
-              {dateOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
+          <DateRangePicker
+            value={dateFilter}
+            onChange={handleDateFilterChange}
+            customRange={customDateRange}
+          />
         </div>
 
+        {/* აქტიური ფილტრების Chips */}
+        <FilterChips
+          chips={activeChips}
+          onRemove={handleRemoveChip}
+          onClearAll={handleClearAllFilters}
+        />
+
         {/* შედეგების რაოდენობა */}
-        <div className="mt-3 text-xs font-medium text-slate-400 dark:text-slate-500">
+        <div className={`mt-3 text-xs font-medium text-slate-400 dark:text-slate-500 ${activeChips.length > 0 ? 'pt-3' : ''}`}>
           {t('history.results_count', { count: filteredOrders.length })}
         </div>
       </Card>
