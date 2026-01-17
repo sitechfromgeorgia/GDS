@@ -21,9 +21,15 @@ export interface User {
   password?: string;
   role: UserRole;
   avatar?: string;
-  isActive?: boolean; 
+  isActive?: boolean;
   phone?: string;
-  locationLink?: string; 
+  locationLink?: string;
+  // Restaurant-specific settings
+  address?: string;
+  workingHours?: string;
+  preferredDeliveryTime?: 'morning' | 'afternoon' | 'evening' | 'any';
+  defaultDriverNote?: string;
+  paymentMethod?: 'cash' | 'transfer' | 'both';
 }
 
 export interface Product {

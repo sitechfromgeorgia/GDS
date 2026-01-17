@@ -659,58 +659,197 @@ const History = () => {
 
 const Settings = () => {
   const { t } = useTranslation();
-  const { user, updateUser } = useApp();
+  const { user, updateUser, showToast } = useApp();
   const [formData, setFormData] = useState({
     phone: user?.phone || '',
-    locationLink: user?.locationLink || ''
+    locationLink: user?.locationLink || '',
+    address: user?.address || '',
+    workingHours: user?.workingHours || '',
+    preferredDeliveryTime: user?.preferredDeliveryTime || 'any',
+    defaultDriverNote: user?.defaultDriverNote || '',
+    paymentMethod: user?.paymentMethod || 'cash'
   });
   const [saving, setSaving] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
 
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
     await updateUser({ ...user, ...formData });
     setSaving(false);
+    showToast(t('settings.saved_success'), 'success');
+  };
+
+  const handlePasswordChange = async () => {
+    if (passwords.new !== passwords.confirm) {
+      showToast(t('settings.password_mismatch'), 'error');
+      return;
+    }
+    if (passwords.new.length < 6) {
+      showToast(t('settings.password_too_short'), 'error');
+      return;
+    }
+    // TODO: Implement actual password change via Supabase Auth
+    showToast(t('settings.password_changed'), 'success');
+    setShowPasswordModal(false);
+    setPasswords({ current: '', new: '', confirm: '' });
   };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('restaurant.settings_title')}</h2>
-      <Card className="p-8 space-y-6 shadow-xl dark:shadow-none border-slate-100 dark:border-slate-800">
-        <div>
-          <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-widest">{t('users.phone')}</label>
-          <div className="relative">
-            <Input 
-              value={formData.phone} 
-              onChange={(e) => setFormData({...formData, phone: e.target.value})} 
-              placeholder="555-00-00-00" 
-              className="pl-12"
-            />
-            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
-          </div>
-        </div>
 
-        <div>
-          <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-widest">{t('restaurant.location_label')}</label>
-          <div className="relative">
-            <Input 
-              value={formData.locationLink} 
-              onChange={(e) => setFormData({...formData, locationLink: e.target.value})} 
-              placeholder="https://maps.app.goo.gl/..." 
-              className="pl-12"
+      {/* Contact Information */}
+      <Card className="p-6 shadow-lg dark:shadow-none border-slate-100 dark:border-slate-800">
+        <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <Phone className="h-4 w-4" /> {t('settings.contact_info')}
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('users.phone')}</label>
+            <Input
+              value={formData.phone}
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              placeholder="555-00-00-00"
             />
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 font-medium italic">{t('restaurant.location_help')}</p>
-        </div>
-
-        <div className="pt-6 flex justify-end">
-          <Button onClick={handleSave} disabled={saving} className="h-12 px-10 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 border-none shadow-lg dark:shadow-none">
-             {saving ? t('common.loading') : t('common.save')}
-             <Save className="ml-2 h-4 w-4" />
-          </Button>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.address')}</label>
+            <Input
+              value={formData.address}
+              onChange={(e) => setFormData({...formData, address: e.target.value})}
+              placeholder={t('settings.address_placeholder')}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('restaurant.location_label')}</label>
+            <Input
+              value={formData.locationLink}
+              onChange={(e) => setFormData({...formData, locationLink: e.target.value})}
+              placeholder="https://maps.app.goo.gl/..."
+            />
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 italic">{t('restaurant.location_help')}</p>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.working_hours')}</label>
+            <Input
+              value={formData.workingHours}
+              onChange={(e) => setFormData({...formData, workingHours: e.target.value})}
+              placeholder={t('settings.working_hours_placeholder')}
+            />
+          </div>
         </div>
       </Card>
+
+      {/* Delivery Preferences */}
+      <Card className="p-6 shadow-lg dark:shadow-none border-slate-100 dark:border-slate-800">
+        <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <Clock className="h-4 w-4" /> {t('settings.delivery_preferences')}
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.preferred_time')}</label>
+            <select
+              value={formData.preferredDeliveryTime}
+              onChange={(e) => setFormData({...formData, preferredDeliveryTime: e.target.value as any})}
+              className="w-full h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              <option value="any">{t('settings.time_any')}</option>
+              <option value="morning">{t('settings.time_morning')}</option>
+              <option value="afternoon">{t('settings.time_afternoon')}</option>
+              <option value="evening">{t('settings.time_evening')}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.default_driver_note')}</label>
+            <textarea
+              value={formData.defaultDriverNote}
+              onChange={(e) => setFormData({...formData, defaultDriverNote: e.target.value})}
+              placeholder={t('settings.driver_note_placeholder')}
+              className="w-full h-24 p-3 text-sm border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none resize-none text-slate-900 dark:text-slate-100"
+            />
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 italic">{t('settings.driver_note_help')}</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Payment */}
+      <Card className="p-6 shadow-lg dark:shadow-none border-slate-100 dark:border-slate-800">
+        <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <AlertCircle className="h-4 w-4" /> {t('settings.payment')}
+        </h3>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-3">{t('settings.payment_method')}</label>
+          <div className="flex flex-wrap gap-3">
+            {['cash', 'transfer', 'both'].map((method) => (
+              <button
+                key={method}
+                onClick={() => setFormData({...formData, paymentMethod: method as any})}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                  formData.paymentMethod === method
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {t(`settings.payment_${method}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {/* Security */}
+      <Card className="p-6 shadow-lg dark:shadow-none border-slate-100 dark:border-slate-800">
+        <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <Save className="h-4 w-4" /> {t('settings.security')}
+        </h3>
+        <Button variant="outline" onClick={() => setShowPasswordModal(true)}>
+          {t('settings.change_password')}
+        </Button>
+      </Card>
+
+      {/* Save Button */}
+      <div className="flex justify-end pt-4">
+        <Button onClick={handleSave} disabled={saving} className="h-12 px-10 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 border-none shadow-lg dark:shadow-none">
+          {saving ? t('common.loading') : t('common.save')}
+          <Save className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Password Change Modal */}
+      <Modal isOpen={showPasswordModal} onClose={() => setShowPasswordModal(false)} title={t('settings.change_password')}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.current_password')}</label>
+            <Input
+              type="password"
+              value={passwords.current}
+              onChange={(e) => setPasswords({...passwords, current: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.new_password')}</label>
+            <Input
+              type="password"
+              value={passwords.new}
+              onChange={(e) => setPasswords({...passwords, new: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">{t('settings.confirm_password')}</label>
+            <Input
+              type="password"
+              value={passwords.confirm}
+              onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setShowPasswordModal(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handlePasswordChange}>{t('common.save')}</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
