@@ -86,28 +86,20 @@ export const LandingPage = () => {
             <Button onClick={() => setIsLoginModalOpen(true)} className="h-16 px-10 bg-emerald-600 hover:bg-emerald-500 border-none rounded-2xl text-lg font-black shadow-2xl shadow-emerald-600/20 transition-all hover:scale-105">
               {t('landing.login_btn')}
             </Button>
-            <Button 
+            <Button
                 onClick={() => login('demo@gds.ge', 'gds2025')}
                 className="h-16 px-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-lg font-bold backdrop-blur-md transition-all hover:scale-105"
             >
-              {t('landing.demo_btn') || 'Live Demo'}
+              {t('landing.demo_btn')}
             </Button>
-            <div className="flex items-center gap-6 px-4">
-               <div className="flex -space-x-3">
-                 {[1,2,3].map(i => <div key={i} className="h-10 w-10 rounded-full border-2 border-[#020617] bg-slate-800" />)}
-               </div>
-               <div className="text-sm font-bold text-slate-400">
-                  <span className="text-white">500+</span> {t('landing.businesses_trust')}
-               </div>
-            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-32">
            {[
-             { icon: ShieldCheck, title: 'უსაფრთხოება', desc: 'Secure data encryption and automated cloud backups' },
-             { icon: Globe, title: 'ლოკალური', desc: 'Customized logistics for the unique Georgian market' },
-             { icon: BarChart3, title: 'ანალიტიკა', desc: 'In-depth business intelligence and sales reporting' }
+             { icon: ShieldCheck, title: t('landing.feature_security'), desc: t('landing.feature_security_desc') },
+             { icon: Globe, title: t('landing.feature_local'), desc: t('landing.feature_local_desc') },
+             { icon: BarChart3, title: t('landing.feature_analytics'), desc: t('landing.feature_analytics_desc') }
            ].map((feat, i) => (
              <Card key={i} className="p-8 bg-white/5 border-white/10 backdrop-blur-sm group hover:bg-white/10 transition-colors">
                <feat.icon className="h-10 w-10 text-emerald-500 mb-6 group-hover:scale-110 transition-transform" />

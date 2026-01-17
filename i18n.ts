@@ -181,11 +181,18 @@ const resources = {
         hero_title_highlight: "Food Supply Chain",
         hero_desc: "The centralized platform for Georgian distributors. Automate orders, manage dynamic pricing, and optimize logistics in real-time.",
         demo_restaurant: "View Restaurant Demo",
+        demo_btn: "Try Demo",
         login_title: "Welcome Back",
         login_subtitle: "Enter your credentials to access the GDS portal",
         login_btn: "Login to Dashboard",
         quick_fill: "Quick Login (Testing Only)",
-        businesses_trust: "Businesses Trust Us"
+        businesses_trust: "Businesses Trust Us",
+        feature_security: "Security",
+        feature_security_desc: "Secure data encryption and automated cloud backups",
+        feature_local: "Local",
+        feature_local_desc: "Customized logistics for the unique Georgian market",
+        feature_analytics: "Analytics",
+        feature_analytics_desc: "In-depth business intelligence and sales reporting"
       },
       driver: {
         current_trip: "Current Trip",
@@ -394,15 +401,22 @@ const resources = {
         completed: "დასრულებულია"
       },
       landing: {
-        hero_title_pre: "გაამარტივე",
+        hero_title_pre: "გაამარტივე შენი",
         hero_title_highlight: "სადისტრიბუციო ჯაჭვი",
         hero_desc: "ცენტრალიზებული პლატფორმა ქართული დისტრიბუტორებისთვის. შეკვეთების ავტომატიზაცია, დინამიური ფასები და ლოჯისტიკის მართვა.",
         demo_restaurant: "რესტორნის დემო",
+        demo_btn: "დემო ვერსია",
         login_title: "მოგესალმებით",
         login_subtitle: "შეიყვანეთ მონაცემები სისტემაში შესასვლელად",
-        login_btn: "პორტალზე შესვლა",
+        login_btn: "შესვლა",
         quick_fill: "სწრაფი შესვლა (ტესტირებისთვის)",
-        businesses_trust: "ბიზნესი გვენდობა"
+        businesses_trust: "ბიზნესი გვენდობა",
+        feature_security: "უსაფრთხოება",
+        feature_security_desc: "მონაცემთა დაშიფვრა და ავტომატური ღრუბლოვანი სარეზერვო ასლები",
+        feature_local: "ლოკალური",
+        feature_local_desc: "ქართული ბაზრისთვის მორგებული ლოჯისტიკა",
+        feature_analytics: "ანალიტიკა",
+        feature_analytics_desc: "ბიზნეს ანალიტიკა და გაყიდვების დეტალური რეპორტები"
       },
       driver: {
         current_trip: "მიმდინარე რეისი",
