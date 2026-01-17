@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GDS Icon Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #1e293b; color: white; }
+    .icon-preview { display: inline-block; margin: 10px; text-align: center; }
+    canvas { border: 1px solid #334155; border-radius: 8px; }
+    button { background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin: 10px; font-size: 16px; }
+    button:hover { background: #059669; }
+    a { color: #10b981; }
+  </style>
+</head>
+<body>
+  <h1>GDS PWA Icon Generator</h1>
+  <p>Click "Generate All" to create icons, then right-click each to save.</p>
+  <button onclick="generateAll()">Generate All Icons</button>
+  <div id="icons"></div>
+
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      canvas.width = size;
+      canvas.height = size;
+
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#10b981');
+      gradient.addColorStop(1, '#059669');
+
+      // Rounded rectangle background
+      const radius = size * 0.1875; // 96/512
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, radius);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Scale factor
+      const s = size / 512;
+
+      // Draw box icon
+      ctx.save();
+      ctx.translate(96 * s, 96 * s);
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 20 * s;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Box shape
+      ctx.beginPath();
+      ctx.moveTo(160 * s, 40 * s);
+      ctx.lineTo(300 * s, 100 * s);
+      ctx.lineTo(300 * s, 220 * s);
+      ctx.lineTo(160 * s, 280 * s);
+      ctx.lineTo(20 * s, 220 * s);
+      ctx.lineTo(20 * s, 100 * s);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fill();
+      ctx.stroke();
+
+      // Center line
+      ctx.beginPath();
+      ctx.moveTo(160 * s, 40 * s);
+      ctx.lineTo(160 * s, 280 * s);
+      ctx.stroke();
+
+      // Top lines
+      ctx.beginPath();
+      ctx.moveTo(20 * s, 100 * s);
+      ctx.lineTo(160 * s, 160 * s);
+      ctx.lineTo(300 * s, 100 * s);
+      ctx.stroke();
+
+      // Arrow up
+      ctx.lineWidth = 24 * s;
+      ctx.beginPath();
+      ctx.moveTo(160 * s, 200 * s);
+      ctx.lineTo(160 * s, 120 * s);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(120 * s, 160 * s);
+      ctx.lineTo(160 * s, 120 * s);
+      ctx.lineTo(200 * s, 160 * s);
+      ctx.stroke();
+
+      ctx.restore();
+
+      // GDS text
+      ctx.fillStyle = 'white';
+      ctx.font = `800 ${80 * s}px Inter, Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('GDS', size / 2, size * 0.86);
+    }
+
+    function generateAll() {
+      const container = document.getElementById('icons');
+      container.innerHTML = '';
+
+      sizes.forEach(size => {
+        const div = document.createElement('div');
+        div.className = 'icon-preview';
+
+        const canvas = document.createElement('canvas');
+        drawIcon(canvas, size);
+
+        const label = document.createElement('p');
+        label.textContent = `${size}x${size}`;
+
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = `icon-${size}x${size}.png`;
+        link.textContent = 'Download';
+        link.style.display = 'block';
+        link.style.marginTop = '5px';
+
+        div.appendChild(canvas);
+        div.appendChild(label);
+        div.appendChild(link);
+        container.appendChild(div);
+      });
+
+      // Also create favicon
+      const faviconDiv = document.createElement('div');
+      faviconDiv.className = 'icon-preview';
+      const faviconCanvas = document.createElement('canvas');
+      drawIcon(faviconCanvas, 32);
+      const faviconLabel = document.createElement('p');
+      faviconLabel.textContent = 'favicon 32x32';
+      const faviconLink = document.createElement('a');
+      faviconLink.href = faviconCanvas.toDataURL('image/png');
+      faviconLink.download = 'favicon.png';
+      faviconLink.textContent = 'Download';
+      faviconLink.style.display = 'block';
+      faviconDiv.appendChild(faviconCanvas);
+      faviconDiv.appendChild(faviconLabel);
+      faviconDiv.appendChild(faviconLink);
+      container.appendChild(faviconDiv);
+    }
+  </script>
+</body>
+</html>
