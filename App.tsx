@@ -509,23 +509,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (isDemo) {
       db.addProduct(p);
       showToast("პროდუქტი დაემატა", "success");
-    } else {
+      refreshData();
+      return;
+    }
+
+    try {
       const supabase = getSupabase();
       if (!supabase) {
         showToast("კავშირის შეცდომა", "error");
         return;
       }
-      // Generate proper UUID for Supabase
-      const productWithUUID = { ...p, id: crypto.randomUUID() };
-      const { error } = await supabase.from("products").insert(productWithUUID);
+      // Prepare product for Supabase - remove undefined values and generate UUID
+      const productForSupabase: Record<string, any> = {
+        id: crypto.randomUUID(),
+        name: p.name,
+        category: p.category,
+        unit: p.unit,
+        image: p.image || '',
+        isActive: p.isActive ?? true,
+        isPromo: p.isPromo ?? false,
+      };
+      // Only add price if it has value
+      if (p.price !== undefined && p.price !== null) {
+        productForSupabase.price = p.price;
+      }
+
+      console.log("Inserting product:", productForSupabase);
+
+      const { data, error } = await supabase.from("products").insert(productForSupabase).select();
+
       if (error) {
         console.error("Product insert error:", error);
         showToast("პროდუქტის დამატება ვერ მოხერხდა: " + error.message, "error");
         return;
       }
+
+      console.log("Product inserted successfully:", data);
       showToast("პროდუქტი დაემატა", "success");
+      refreshData();
+    } catch (err: any) {
+      console.error("Unexpected error adding product:", err);
+      showToast("შეცდომა: " + (err?.message || "უცნობი შეცდომა"), "error");
     }
-    refreshData();
   };
   const updateProduct = async (p: Product) => {
     if (isDemo) db.updateProduct(p);
