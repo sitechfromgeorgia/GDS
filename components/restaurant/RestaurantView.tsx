@@ -422,7 +422,7 @@ const History = () => {
                     {viewingOrder.items.map((item, idx) => (
                       <tr key={idx}>
                         <td className="p-4 font-bold text-slate-900 dark:text-slate-100">{item.productName}</td>
-                        <td className="p-4 text-center font-black text-slate-600 dark:text-slate-400">x{item.quantity}</td>
+                        <td className="p-4 text-center font-black text-slate-600 dark:text-slate-400">x{item.quantity} {item.unit}</td>
                         {showPrices(viewingOrder.status) && (
                           <td className="p-4 text-right font-black text-emerald-600 dark:text-emerald-400">
                             ₾{item.sellPrice ? item.sellPrice.toFixed(2) : '0.00'}
