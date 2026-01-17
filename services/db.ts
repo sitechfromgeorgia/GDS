@@ -217,6 +217,10 @@ class MockDB {
     this.users = this.users.map(u => u.id === id ? { ...u, isActive } : u);
   }
 
+  deleteUser(id: string) {
+    this.users = this.users.filter(u => u.id !== id);
+  }
+
   // Units
   addUnit(unit: string) {
     if (!this.units.includes(unit)) {
