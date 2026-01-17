@@ -154,34 +154,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Restore session on page load
     const restoreSession = async () => {
-      const supabase = getSupabase();
-
-      if (supabase && supabaseInitialized) {
-        try {
-          // Check for existing Supabase session
-          const { data: { session } } = await supabase.auth.getSession();
-
-          if (session?.user) {
-            // User has active Supabase session
-            const { data: profile } = await supabase
-              .from("users")
-              .select("*")
-              .eq("id", session.user.id)
-              .single();
-
-            if (profile) {
-              setUser(profile as User);
-              setIsDemo(false);
-              setLoading(false);
-              return;
-            }
-          }
-        } catch (e) {
-          console.warn("Session restore failed:", e);
-        }
-      }
-
-      // Check for saved demo session
+      // First check for saved demo session (faster, no network)
       const savedSession = localStorage.getItem("gds_session");
       if (savedSession) {
         try {
@@ -191,6 +164,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
             if (demoUser) {
               setIsDemo(true);
               setUser(demoUser);
+              setLoading(false);
+              return;
             }
           }
         } catch (e) {
@@ -199,42 +174,72 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
 
+      // Then check Supabase session
+      if (supabaseInitialized) {
+        const supabase = getSupabase();
+        if (supabase) {
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session?.user) {
+              // User has active Supabase session
+              const { data: profile } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+
+              if (profile) {
+                setUser(profile as User);
+                setIsDemo(false);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch (e) {
+            console.warn("Session restore failed:", e);
+          }
+        }
+      }
+
+      // No session found
       setLoading(false);
     };
 
     restoreSession();
+  }, []);
 
-    // Set up auth state listener for Supabase
+  // Set up Supabase auth state listener in separate effect
+  useEffect(() => {
     const supabase = getSupabase();
-    if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (event === "SIGNED_OUT") {
-            setUser(null);
-            setIsDemo(false);
-            localStorage.removeItem("gds_session");
-          } else if (event === "SIGNED_IN" && session?.user) {
-            // Fetch user profile when signed in
-            const { data: profile } = await supabase
-              .from("users")
-              .select("*")
-              .eq("id", session.user.id)
-              .single();
+    if (!supabase) return;
 
-            if (profile) {
-              setUser(profile as User);
-              setIsDemo(false);
-            }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_OUT") {
+          setUser(null);
+          setIsDemo(false);
+          localStorage.removeItem("gds_session");
+        } else if (event === "SIGNED_IN" && session?.user) {
+          // Fetch user profile when signed in
+          const { data: profile } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
+
+          if (profile) {
+            setUser(profile as User);
+            setIsDemo(false);
           }
         }
-      );
+      }
+    );
 
-      // Cleanup subscription on unmount
-      return () => {
-        subscription?.unsubscribe();
-      };
-    }
-  }, []);
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [config]); // Re-run when config changes (supabase might become available)
 
   const saveConfig = (cfg: AppConfig) => {
     localStorage.setItem("gds_system_config", JSON.stringify(cfg));
