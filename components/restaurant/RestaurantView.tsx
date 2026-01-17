@@ -6,8 +6,12 @@ import { Card, Button, Badge, Input, Modal } from '../ui/Shared';
 import { FilterChips, FilterChip } from '../ui/FilterChips';
 import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { Product, OrderStatus, Order } from '../../types';
-import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X } from 'lucide-react';
+import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, PieChart, Pie, Cell
+} from 'recharts';
 
 const Catalog = () => {
   const { t, i18n } = useTranslation();
@@ -75,13 +79,19 @@ const Catalog = () => {
     setTimeout(() => setSubmitted(false), 3000);
   };
 
-  const filteredProducts = useMemo(() => 
-    products.filter(p => 
+  const filteredProducts = useMemo(() =>
+    products.filter(p =>
       // Ensure product is active and matches search
-      p.isActive !== false && 
+      p.isActive !== false &&
       p.name.toLowerCase().includes(search.toLowerCase())
     ),
     [products, search]
+  );
+
+  // Separate promo products
+  const promoProducts = useMemo(() =>
+    products.filter(p => p.isActive !== false && p.isPromo && p.price),
+    [products]
   );
 
   return (
@@ -110,26 +120,72 @@ const Catalog = () => {
           <h2 className="text-2xl font-bold mb-4 dark:text-slate-100">{t('nav.products')}</h2>
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" />
-            <Input 
-              placeholder={t('common.search')} 
-              className="pl-12 h-12 shadow-md dark:shadow-none border-none dark:bg-slate-900" 
-              value={search} 
+            <Input
+              placeholder={t('common.search')}
+              className="pl-12 h-12 shadow-md dark:shadow-none border-none dark:bg-slate-900"
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
         </div>
-        
+
+        {/* Promo Section */}
+        {promoProducts.length > 0 && !search && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xl">⭐</span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{t('products.promo_title')}</h3>
+              <Badge variant="warning">{t('products.promo')}</Badge>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {promoProducts.map(product => (
+                <Card key={product.id} className="flex items-center p-4 space-x-4 hover:border-amber-300 dark:hover:border-amber-700 transition-all group border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10">
+                  <div className="relative">
+                    <img src={product.image} alt={product.name} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800 group-hover:scale-105 transition-transform" />
+                    <div className="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                      აქცია
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{product.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-amber-600 dark:text-amber-400 font-black text-sm">{product.price}₾</span>
+                      <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">/ {product.unit}</span>
+                    </div>
+                  </div>
+                  <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white border-none shrink-0" onClick={() => addToCart(product)}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* All Products Section */}
+        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">{t('products.all_items')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredProducts.length > 0 ? filteredProducts.map(product => (
-            <Card key={product.id} className="flex items-center p-4 space-x-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all group">
-              <img src={product.image} alt={product.name} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800 group-hover:scale-105 transition-transform" />
+            <Card key={product.id} className={`flex items-center p-4 space-x-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all group ${product.isPromo ? 'border-amber-200 dark:border-amber-800' : ''}`}>
+              <div className="relative">
+                <img src={product.image} alt={product.name} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800 group-hover:scale-105 transition-transform" />
+                {product.isPromo && (
+                  <div className="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                    აქცია
+                  </div>
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{product.name}</h3>
                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] mt-1">
-                  {product.unit} • {t('restaurant.price_tbd')}
+                  {product.unit} • {product.isPromo && product.price ? (
+                    <span className="text-amber-600 dark:text-amber-400">{product.price}₾</span>
+                  ) : (
+                    t('restaurant.price_tbd')
+                  )}
                 </p>
               </div>
-              <Button size="sm" variant="outline" className="border-slate-200 dark:border-slate-800 hover:bg-slate-900 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-900 transition-colors shrink-0" onClick={() => addToCart(product)}>
+              <Button size="sm" variant={product.isPromo ? "primary" : "outline"} className={product.isPromo ? "bg-amber-500 hover:bg-amber-600 text-white border-none shrink-0" : "border-slate-200 dark:border-slate-800 hover:bg-slate-900 dark:hover:bg-slate-100 hover:text-white dark:hover:text-slate-900 transition-colors shrink-0"} onClick={() => addToCart(product)}>
                 <Plus className="h-4 w-4" />
               </Button>
             </Card>
@@ -657,6 +713,373 @@ const History = () => {
   );
 }
 
+// Restaurant Analytics Component
+const RestaurantAnalytics = () => {
+  const { t, i18n } = useTranslation();
+  const { orders, user, theme } = useApp();
+  const [timePeriod, setTimePeriod] = useState<'week' | 'month' | 'year'>('month');
+
+  const isDark = theme === 'dark';
+
+  // Filter orders for this restaurant only
+  const myOrders = useMemo(() => {
+    return orders.filter(o => o.restaurantId === user?.id);
+  }, [orders, user?.id]);
+
+  // Filter by time period
+  const filteredOrders = useMemo(() => {
+    const now = new Date();
+    let startDate = new Date();
+
+    switch (timePeriod) {
+      case 'week':
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setDate(now.getDate() - 30);
+        break;
+      case 'year':
+        startDate.setFullYear(now.getFullYear() - 1);
+        break;
+    }
+
+    return myOrders.filter(o => new Date(o.createdAt) >= startDate);
+  }, [myOrders, timePeriod]);
+
+  // Calculate metrics
+  const metrics = useMemo(() => {
+    const totalSpent = filteredOrders.reduce((acc, o) => acc + (o.totalCost || 0), 0);
+    const totalOrders = filteredOrders.length;
+    const completedOrders = filteredOrders.filter(o => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.DELIVERED).length;
+    const pendingOrders = filteredOrders.filter(o => o.status === OrderStatus.PENDING || o.status === OrderStatus.CONFIRMED).length;
+    const avgOrderValue = totalOrders > 0 ? totalSpent / totalOrders : 0;
+
+    // Previous period comparison
+    const now = new Date();
+    let prevStartDate = new Date();
+    let prevEndDate = new Date();
+
+    switch (timePeriod) {
+      case 'week':
+        prevStartDate.setDate(now.getDate() - 14);
+        prevEndDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        prevStartDate.setDate(now.getDate() - 60);
+        prevEndDate.setDate(now.getDate() - 30);
+        break;
+      case 'year':
+        prevStartDate.setFullYear(now.getFullYear() - 2);
+        prevEndDate.setFullYear(now.getFullYear() - 1);
+        break;
+    }
+
+    const prevOrders = myOrders.filter(o => {
+      const date = new Date(o.createdAt);
+      return date >= prevStartDate && date < prevEndDate;
+    });
+
+    const prevSpent = prevOrders.reduce((acc, o) => acc + (o.totalCost || 0), 0);
+    const spentChange = prevSpent > 0 ? ((totalSpent - prevSpent) / prevSpent) * 100 : 0;
+    const ordersChange = prevOrders.length > 0 ? ((totalOrders - prevOrders.length) / prevOrders.length) * 100 : 0;
+
+    return {
+      totalSpent,
+      totalOrders,
+      completedOrders,
+      pendingOrders,
+      avgOrderValue,
+      spentChange,
+      ordersChange
+    };
+  }, [filteredOrders, myOrders, timePeriod]);
+
+  // Top ordered products
+  const topProducts = useMemo(() => {
+    const productMap: Record<string, { name: string; quantity: number; unit: string }> = {};
+
+    filteredOrders.forEach(order => {
+      order.items.forEach(item => {
+        if (!productMap[item.productId]) {
+          productMap[item.productId] = { name: item.productName, quantity: 0, unit: item.unit };
+        }
+        productMap[item.productId].quantity += item.quantity;
+      });
+    });
+
+    return Object.values(productMap)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+  }, [filteredOrders]);
+
+  // Orders trend data
+  const ordersTrend = useMemo(() => {
+    const days = timePeriod === 'week' ? 7 : timePeriod === 'month' ? 30 : 12;
+    const data: { date: string; orders: number; amount: number }[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      if (timePeriod === 'year') {
+        date.setMonth(date.getMonth() - i);
+      } else {
+        date.setDate(date.getDate() - i);
+      }
+
+      const dateStr = timePeriod === 'year'
+        ? date.toLocaleDateString('ka-GE', { month: 'short' })
+        : date.toLocaleDateString('ka-GE', { day: '2-digit', month: '2-digit' });
+
+      const dayOrders = filteredOrders.filter(o => {
+        const orderDate = new Date(o.createdAt);
+        if (timePeriod === 'year') {
+          return orderDate.getMonth() === date.getMonth() && orderDate.getFullYear() === date.getFullYear();
+        }
+        return orderDate.toDateString() === date.toDateString();
+      });
+
+      data.push({
+        date: dateStr,
+        orders: dayOrders.length,
+        amount: dayOrders.reduce((sum, o) => sum + (o.totalCost || 0), 0)
+      });
+    }
+
+    return data;
+  }, [filteredOrders, timePeriod]);
+
+  // Order status distribution
+  const statusData = useMemo(() => {
+    const statusCounts = {
+      [OrderStatus.PENDING]: 0,
+      [OrderStatus.CONFIRMED]: 0,
+      [OrderStatus.OUT_FOR_DELIVERY]: 0,
+      [OrderStatus.DELIVERED]: 0,
+      [OrderStatus.COMPLETED]: 0
+    };
+
+    filteredOrders.forEach(o => {
+      if (statusCounts[o.status] !== undefined) {
+        statusCounts[o.status]++;
+      }
+    });
+
+    return [
+      { name: t('status.pending'), value: statusCounts[OrderStatus.PENDING], color: '#f59e0b' },
+      { name: t('status.confirmed'), value: statusCounts[OrderStatus.CONFIRMED], color: '#3b82f6' },
+      { name: t('status.out_for_delivery'), value: statusCounts[OrderStatus.OUT_FOR_DELIVERY], color: '#8b5cf6' },
+      { name: t('status.delivered'), value: statusCounts[OrderStatus.DELIVERED], color: '#10b981' },
+      { name: t('status.completed'), value: statusCounts[OrderStatus.COMPLETED], color: '#059669' }
+    ].filter(d => d.value > 0);
+  }, [filteredOrders, t]);
+
+  const StatCard = ({ title, value, icon: Icon, color, change, suffix = '' }: any) => (
+    <Card className="p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{title}</p>
+          <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-2">{value}{suffix}</h3>
+          {change !== undefined && (
+            <div className={`flex items-center gap-1 mt-2 text-xs font-bold ${change >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+              {change >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+              {Math.abs(change).toFixed(1)}% {t('analytics.vs_previous')}
+            </div>
+          )}
+        </div>
+        <div className={`p-3 rounded-xl ${color}`}>
+          <Icon className="h-5 w-5 text-white" />
+        </div>
+      </div>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('nav.analytics')}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('restaurantAnalytics.subtitle')}</p>
+        </div>
+
+        {/* Time Period Selector */}
+        <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+          {(['week', 'month', 'year'] as const).map(period => (
+            <button
+              key={period}
+              onClick={() => setTimePeriod(period)}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                timePeriod === period
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
+            >
+              {t(`analytics.period_${period}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title={t('restaurantAnalytics.totalSpent')}
+          value={`₾${metrics.totalSpent.toFixed(0)}`}
+          icon={DollarSign}
+          color="bg-emerald-500"
+          change={metrics.spentChange}
+        />
+        <StatCard
+          title={t('restaurantAnalytics.totalOrders')}
+          value={metrics.totalOrders}
+          icon={ShoppingBag}
+          color="bg-blue-500"
+          change={metrics.ordersChange}
+        />
+        <StatCard
+          title={t('restaurantAnalytics.avgOrder')}
+          value={`₾${metrics.avgOrderValue.toFixed(0)}`}
+          icon={BarChart3}
+          color="bg-purple-500"
+        />
+        <StatCard
+          title={t('restaurantAnalytics.pendingOrders')}
+          value={metrics.pendingOrders}
+          icon={Clock}
+          color="bg-amber-500"
+        />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Orders Trend Chart */}
+        <Card className="p-6">
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-6 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-emerald-500" />
+            {t('restaurantAnalytics.spendingTrend')}
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={ordersTrend}>
+                <defs>
+                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#e2e8f0'} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b' }}
+                  axisLine={{ stroke: isDark ? '#334155' : '#e2e8f0' }}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b' }}
+                  axisLine={{ stroke: isDark ? '#334155' : '#e2e8f0' }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                    border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`,
+                    borderRadius: '8px'
+                  }}
+                  formatter={(value: number) => [`₾${value.toFixed(2)}`, t('restaurantAnalytics.amount')]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#colorAmount)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Order Status Distribution */}
+        <Card className="p-6">
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-6 flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-blue-500" />
+            {t('analytics.order_status')}
+          </h3>
+          <div className="h-64">
+            {statusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                      border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`,
+                      borderRadius: '8px'
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-400 dark:text-slate-500">
+                {t('restaurantAnalytics.noData')}
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Top Products */}
+      <Card className="p-6">
+        <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-6 flex items-center gap-2">
+          <Package className="h-4 w-4 text-purple-500" />
+          {t('restaurantAnalytics.topProducts')}
+        </h3>
+        {topProducts.length > 0 ? (
+          <div className="space-y-4">
+            {topProducts.map((product, idx) => (
+              <div key={idx} className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-sm font-black text-slate-500 dark:text-slate-400">
+                  {idx + 1}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{product.name}</span>
+                    <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                      {product.quantity} {product.unit}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
+                      style={{ width: `${(product.quantity / topProducts[0].quantity) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-8 text-center text-slate-400 dark:text-slate-500">
+            {t('restaurantAnalytics.noData')}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
+
 const Settings = () => {
   const { t } = useTranslation();
   const { user, updateUser, showToast } = useApp();
@@ -859,6 +1282,7 @@ export const RestaurantDashboard = () => {
     <Routes>
       <Route path="/" element={<Catalog />} />
       <Route path="/history" element={<History />} />
+      <Route path="/analytics" element={<RestaurantAnalytics />} />
       <Route path="/settings" element={<Settings />} />
     </Routes>
   );

@@ -36,7 +36,8 @@ const resources = {
         all_time: "All Time",
         today: "Today",
         this_week: "This Week",
-        this_month: "This Month"
+        this_month: "This Month",
+        view: "View"
       },
       settings: {
         contact_info: "Contact Information",
@@ -153,6 +154,17 @@ const resources = {
         orders: "orders",
         order_status: "Order Status",
         orders_trend: "Orders Trend"
+      },
+      restaurantAnalytics: {
+        subtitle: "Track your orders and spending",
+        totalSpent: "Total Spent",
+        totalOrders: "Total Orders",
+        avgOrder: "Avg. Order",
+        pendingOrders: "In Progress",
+        spendingTrend: "Spending Trend",
+        topProducts: "Most Ordered Products",
+        amount: "Amount",
+        noData: "No data available"
       },
       orders: {
         title: "Incoming Orders",
@@ -308,7 +320,22 @@ const resources = {
         user_created_success: "User created successfully",
         role_admin: "Administrator (Full Access)",
         role_restaurant: "Restaurant (Orders)",
-        role_driver: "Driver (Logistics)"
+        role_driver: "Driver (Logistics)",
+        active: "Active",
+        inactive: "Inactive"
+      },
+      companyDetails: {
+        totalOrders: "Total Orders",
+        activeOrders: "Active Orders",
+        completedOrders: "Completed",
+        totalRevenue: "Total Revenue",
+        totalProfit: "Total Profit",
+        avgOrderValue: "Avg. Order",
+        companyInfo: "Company Information",
+        preferences: "Preferences",
+        recentOrders: "Recent Orders",
+        noOrders: "No orders found",
+        viewOnMap: "View on Map"
       }
     }
   },
@@ -345,7 +372,8 @@ const resources = {
         all_time: "მთლიანი პერიოდი",
         today: "დღეს",
         this_week: "ამ კვირაში",
-        this_month: "ამ თვეში"
+        this_month: "ამ თვეში",
+        view: "ნახვა"
       },
       settings: {
         contact_info: "საკონტაქტო ინფორმაცია",
@@ -463,6 +491,17 @@ const resources = {
         order_status: "შეკვეთის სტატუსი",
         orders_trend: "შეკვეთების დინამიკა"
       },
+      restaurantAnalytics: {
+        subtitle: "თვალყური ადევნე შეკვეთებსა და ხარჯებს",
+        totalSpent: "ჯამური ხარჯი",
+        totalOrders: "სულ შეკვეთები",
+        avgOrder: "საშ. შეკვეთა",
+        pendingOrders: "მუშავდება",
+        spendingTrend: "ხარჯების დინამიკა",
+        topProducts: "ყველაზე შეკვეთილი პროდუქტები",
+        amount: "თანხა",
+        noData: "მონაცემები არ არის"
+      },
       orders: {
         title: "შემოსული შეკვეთები",
         shopping_list_title: "შესასყიდი სია (დადასტურებული)",
@@ -505,7 +544,22 @@ const resources = {
         user_created_success: "მომხმარებელი წარმატებით შეიქმნა",
         role_admin: "ადმინისტრატორი (სრული წვდომა)",
         role_restaurant: "რესტორანი (შეკვეთები)",
-        role_driver: "მძღოლი (ლოჯისტიკა)"
+        role_driver: "მძღოლი (ლოჯისტიკა)",
+        active: "აქტიური",
+        inactive: "არააქტიური"
+      },
+      companyDetails: {
+        totalOrders: "სულ შეკვეთები",
+        activeOrders: "აქტიური",
+        completedOrders: "დასრულებული",
+        totalRevenue: "ჯამური შემოსავალი",
+        totalProfit: "ჯამური მოგება",
+        avgOrderValue: "საშ. შეკვეთა",
+        companyInfo: "კომპანიის ინფორმაცია",
+        preferences: "პრეფერენციები",
+        recentOrders: "ბოლო შეკვეთები",
+        noOrders: "შეკვეთები არ მოიძებნა",
+        viewOnMap: "რუკაზე ნახვა"
       },
       errors: {
         supabase_not_configured: "Supabase არ არის კონფიგურირებული",

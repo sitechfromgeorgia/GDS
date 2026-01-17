@@ -506,8 +506,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addProduct = async (p: Product) => {
-    if (isDemo) db.addProduct(p);
-    else await getSupabase()?.from("products").insert(p);
+    if (isDemo) {
+      db.addProduct(p);
+      showToast("პროდუქტი დაემატა", "success");
+    } else {
+      const supabase = getSupabase();
+      if (!supabase) {
+        showToast("კავშირის შეცდომა", "error");
+        return;
+      }
+      // Generate proper UUID for Supabase
+      const productWithUUID = { ...p, id: crypto.randomUUID() };
+      const { error } = await supabase.from("products").insert(productWithUUID);
+      if (error) {
+        console.error("Product insert error:", error);
+        showToast("პროდუქტის დამატება ვერ მოხერხდა: " + error.message, "error");
+        return;
+      }
+      showToast("პროდუქტი დაემატა", "success");
+    }
     refreshData();
   };
   const updateProduct = async (p: Product) => {

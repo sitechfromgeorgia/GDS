@@ -8,7 +8,11 @@ import { OrderStatus, Order, UserRole, OrderItem } from '../../types';
 import { Check, Truck, Eye, DollarSign, ShoppingBag, Wallet, AlertTriangle, MessageSquare, Clock, Search, Filter, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export const OrderManager = () => {
+interface OrderManagerProps {
+  onCompanyClick?: (restaurantId: string) => void;
+}
+
+export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) => {
   const { t, i18n } = useTranslation();
   const { orders, updateOrderStatus, updateOrderPricing, updateProductCostPrice, users } = useApp();
   const drivers = users.filter(u => u.role === UserRole.DRIVER);
@@ -403,7 +407,12 @@ export const OrderManager = () => {
                 return (
                   <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{order.restaurantName}</div>
+                      <div
+                        className={`text-sm font-bold text-slate-900 dark:text-slate-100 ${onCompanyClick ? 'cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors' : ''}`}
+                        onClick={() => onCompanyClick?.(order.restaurantId)}
+                      >
+                        {order.restaurantName}
+                      </div>
                       <div className="text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase mt-1">#{order.id}</div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">

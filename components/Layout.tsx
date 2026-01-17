@@ -39,6 +39,7 @@ export const Layout = ({ children }: { children?: React.ReactNode }) => {
         return [
           { label: t('nav.orders'), icon: ShoppingCart, path: '/restaurant' },
           { label: t('nav.history'), icon: Package, path: '/restaurant/history' },
+          { label: t('nav.analytics'), icon: TrendingUp, path: '/restaurant/analytics' },
           { label: t('nav.settings'), icon: Settings, path: '/restaurant/settings' },
         ];
       case UserRole.DRIVER:

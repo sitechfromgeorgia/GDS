@@ -1,14 +1,15 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { OrderManager } from './OrderManagement';
 import { ProductManager } from './ProductManagement';
 import { UserManagement } from './UserManagement';
 import { Analytics } from './Analytics';
+import { CompanyDetails } from './CompanyDetails';
 import { useApp } from '../../App';
 import { Card, Badge } from '../ui/Shared';
 import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package, Database } from 'lucide-react';
-import { OrderStatus } from '../../types';
+import { OrderStatus, User, Order } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 const DashboardHome = () => {
@@ -170,12 +171,49 @@ const DashboardHome = () => {
   );
 };
 
+// Wrapper component for Orders with Company Details view
+const OrdersPage = () => {
+  const { users, orders } = useApp();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+
+  const selectedCompany = useMemo(() => {
+    if (!selectedCompanyId) return null;
+    return users.find(u => u.id === selectedCompanyId) || null;
+  }, [selectedCompanyId, users]);
+
+  const handleCompanyClick = (restaurantId: string) => {
+    setSelectedCompanyId(restaurantId);
+  };
+
+  const handleBack = () => {
+    setSelectedCompanyId(null);
+  };
+
+  const handleViewOrder = (order: Order) => {
+    // TODO: Can implement order detail view if needed
+    console.log('View order:', order.id);
+  };
+
+  if (selectedCompany) {
+    return (
+      <CompanyDetails
+        company={selectedCompany}
+        orders={orders}
+        onBack={handleBack}
+        onViewOrder={handleViewOrder}
+      />
+    );
+  }
+
+  return <OrderManager onCompanyClick={handleCompanyClick} />;
+};
+
 export const AdminDashboard = () => {
   return (
     <Routes>
       <Route path="/" element={<DashboardHome />} />
       <Route path="/products" element={<ProductManager />} />
-      <Route path="/orders" element={<OrderManager />} />
+      <Route path="/orders" element={<OrdersPage />} />
       <Route path="/users" element={<UserManagement />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="*" element={<Navigate to="/admin" replace />} />
