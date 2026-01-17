@@ -49,6 +49,119 @@ const INITIAL_ORDERS: Order[] = [
       { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 10, unit: 'კგ' },
       { productId: 'p4', productName: 'Matsoni', quantity: 12, unit: 'ქილა' },
     ]
+  },
+  // Demo user orders
+  {
+    id: 'ord-demo-001',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.COMPLETED,
+    createdAt: new Date(Date.now() - 86400000 * 14).toISOString(),
+    items: [
+      { productId: 'p1', productName: 'Potatoes (Svaneti)', quantity: 50, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 20, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+    ],
+    totalCost: 50 * 1.8 + 20 * 3.5,
+    totalProfit: (50 * 0.6) + (20 * 1.0),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-002',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.COMPLETED,
+    createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
+    items: [
+      { productId: 'p3', productName: 'Sulguni Cheese', quantity: 10, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p4', productName: 'Matsoni', quantity: 24, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+    ],
+    totalCost: 10 * 22 + 24 * 2.5,
+    totalProfit: (10 * 7) + (24 * 1.0),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-003',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.COMPLETED,
+    createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+    items: [
+      { productId: 'p5', productName: 'Flour (Premium)', quantity: 2, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
+      { productId: 'p6', productName: 'Sunflower Oil', quantity: 20, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+    ],
+    totalCost: 2 * 55 + 20 * 4.2,
+    totalProfit: (2 * 10) + (20 * 1.2),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-004',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.COMPLETED,
+    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+    items: [
+      { productId: 'p7', productName: 'Cucumber', quantity: 15, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+      { productId: 'p1', productName: 'Potatoes (Svaneti)', quantity: 30, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+    ],
+    totalCost: 15 * 2.8 + 30 * 1.8,
+    totalProfit: (15 * 1.0) + (30 * 0.6),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-005',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.COMPLETED,
+    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    items: [
+      { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 25, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p3', productName: 'Sulguni Cheese', quantity: 8, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p4', productName: 'Matsoni', quantity: 12, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+    ],
+    totalCost: 25 * 3.5 + 8 * 22 + 12 * 2.5,
+    totalProfit: (25 * 1.0) + (8 * 7) + (12 * 1.0),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-006',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.COMPLETED,
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    items: [
+      { productId: 'p1', productName: 'Potatoes (Svaneti)', quantity: 40, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p6', productName: 'Sunflower Oil', quantity: 15, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+    ],
+    totalCost: 40 * 1.8 + 15 * 4.2,
+    totalProfit: (40 * 0.6) + (15 * 1.2),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-007',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.DELIVERED,
+    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+    items: [
+      { productId: 'p5', productName: 'Flour (Premium)', quantity: 3, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
+      { productId: 'p7', productName: 'Cucumber', quantity: 20, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+    ],
+    totalCost: 3 * 55 + 20 * 2.8,
+    totalProfit: (3 * 10) + (20 * 1.0),
+    driverId: 'u4'
+  },
+  {
+    id: 'ord-demo-008',
+    restaurantId: 'u5',
+    restaurantName: 'Demo User',
+    status: OrderStatus.CONFIRMED,
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    items: [
+      { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 15, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p3', productName: 'Sulguni Cheese', quantity: 5, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+    ],
+    totalCost: 15 * 3.5 + 5 * 22,
+    totalProfit: (15 * 1.0) + (5 * 7)
   }
 ];
 
