@@ -183,7 +183,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
             if (session?.user) {
               // User has active Supabase session
-              const { data: profile } = await supabase
+              const { data: profile, error: profileError } = await supabase
                 .from("users")
                 .select("*")
                 .eq("id", session.user.id)
@@ -191,6 +191,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
               if (profile) {
                 setUser(profile as User);
+                setIsDemo(false);
+                setLoading(false);
+                return;
+              }
+
+              // Profile not found but session exists - create basic user from auth data
+              if (profileError || !profile) {
+                console.warn("Profile not found, using auth data:", profileError);
+                const basicUser: User = {
+                  id: session.user.id,
+                  email: session.user.email || "",
+                  name: session.user.email?.split("@")[0] || "User",
+                  role: UserRole.ADMIN, // Default to admin for now
+                  isActive: true,
+                };
+                setUser(basicUser);
                 setIsDemo(false);
                 setLoading(false);
                 return;
