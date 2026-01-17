@@ -784,14 +784,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       notes,
     };
 
-    // Optimistic update - immediately add to local state
-    setOrders((prev) => [newOrder, ...prev]);
-
     if (isDemo) {
       db.createOrder(user, items, notes);
+      setOrders((prev) => [newOrder, ...prev]);
+      showToast("შეკვეთა წარმატებით გაიგზავნა", "success");
     } else {
-      await getSupabase()?.from("orders").insert(newOrder);
+      const supabase = getSupabase();
+      if (!supabase) {
+        showToast("კავშირის შეცდომა - სცადეთ თავიდან", "error");
+        return;
+      }
+
+      const { error } = await supabase.from("orders").insert(newOrder);
+
+      if (error) {
+        console.error("Order insert error:", error);
+        showToast("შეკვეთის გაგზავნა ვერ მოხერხდა: " + error.message, "error");
+        return;
+      }
+
+      // წარმატებული insert - დაამატე ლოკალურ state-ში
+      setOrders((prev) => [newOrder, ...prev]);
+      showToast("შეკვეთა წარმატებით გაიგზავნა", "success");
     }
+
     refreshData();
   };
   const updateOrderStatus = async (
