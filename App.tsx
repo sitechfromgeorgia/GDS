@@ -130,6 +130,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     const envKey = getEnv("SUPABASE_ANON_KEY");
     const envCompany = getEnv("COMPANY_NAME");
 
+    let supabaseInitialized = false;
+
     if (envUrl && envKey) {
       const envConfig: AppConfig = {
         supabaseUrl: envUrl,
@@ -139,15 +141,99 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       };
       setConfig(envConfig);
       initSupabase(envConfig.supabaseUrl, envConfig.supabaseKey);
+      supabaseInitialized = true;
     } else {
       const savedConfig = localStorage.getItem("gds_system_config");
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig);
         setConfig(parsed);
         initSupabase(parsed.supabaseUrl, parsed.supabaseKey);
+        supabaseInitialized = true;
       }
     }
-    setLoading(false);
+
+    // Restore session on page load
+    const restoreSession = async () => {
+      const supabase = getSupabase();
+
+      if (supabase && supabaseInitialized) {
+        try {
+          // Check for existing Supabase session
+          const { data: { session } } = await supabase.auth.getSession();
+
+          if (session?.user) {
+            // User has active Supabase session
+            const { data: profile } = await supabase
+              .from("users")
+              .select("*")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profile) {
+              setUser(profile as User);
+              setIsDemo(false);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("Session restore failed:", e);
+        }
+      }
+
+      // Check for saved demo session
+      const savedSession = localStorage.getItem("gds_session");
+      if (savedSession) {
+        try {
+          const { email } = JSON.parse(savedSession);
+          if (email === "demo@gds.ge") {
+            const demoUser = db.login(email, "demo");
+            if (demoUser) {
+              setIsDemo(true);
+              setUser(demoUser);
+            }
+          }
+        } catch (e) {
+          console.warn("Local session restore failed:", e);
+          localStorage.removeItem("gds_session");
+        }
+      }
+
+      setLoading(false);
+    };
+
+    restoreSession();
+
+    // Set up auth state listener for Supabase
+    const supabase = getSupabase();
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === "SIGNED_OUT") {
+            setUser(null);
+            setIsDemo(false);
+            localStorage.removeItem("gds_session");
+          } else if (event === "SIGNED_IN" && session?.user) {
+            // Fetch user profile when signed in
+            const { data: profile } = await supabase
+              .from("users")
+              .select("*")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profile) {
+              setUser(profile as User);
+              setIsDemo(false);
+            }
+          }
+        }
+      );
+
+      // Cleanup subscription on unmount
+      return () => {
+        subscription?.unsubscribe();
+      };
+    }
   }, []);
 
   const saveConfig = (cfg: AppConfig) => {
@@ -269,6 +355,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       if (u) {
         setIsDemo(true);
         setUser(u);
+        // Save demo session for persistence
+        localStorage.setItem("gds_session", JSON.stringify({ email: "demo@gds.ge" }));
         return true;
       }
     }
