@@ -45,6 +45,21 @@ const Catalog = () => {
     }).filter(i => i.quantity > 0));
   };
 
+  const setCartQuantity = (productId: string, quantity: number) => {
+    // Round to 1 decimal place for kg units
+    const roundedQty = Math.round(quantity * 10) / 10;
+    if (roundedQty <= 0) {
+      setCart(prev => prev.filter(i => i.product.id !== productId));
+    } else {
+      setCart(prev => prev.map(item =>
+        item.product.id === productId ? { ...item, quantity: roundedQty } : item
+      ));
+    }
+  };
+
+  // Check if unit is weight-based (kg)
+  const isWeightUnit = (unit: string) => unit.toLowerCase() === 'კგ';
+
   const handleOpenConfirm = () => {
     if (cart.length > 0) {
       setIsConfirmModalOpen(true);
@@ -153,21 +168,37 @@ const Catalog = () => {
                       {item.product.unit}
                     </p>
                   </div>
-                  <div className="flex items-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
-                    <button 
-                      onClick={() => updateCartQuantity(item.product.id, -1)}
-                      className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-r border-slate-100 dark:border-slate-700"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="px-3 text-sm font-bold text-slate-900 dark:text-slate-100 min-w-[32px] text-center">{item.quantity}</span>
-                    <button 
-                      onClick={() => updateCartQuantity(item.product.id, 1)}
-                      className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-l border-slate-100 dark:border-slate-700"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  {isWeightUnit(item.product.unit) ? (
+                    // Weight-based input (kg) - decimal input field
+                    <div className="flex items-center gap-2 shrink-0">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        value={item.quantity}
+                        onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
+                        className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                      />
+                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
+                    </div>
+                  ) : (
+                    // Count-based input - +/- buttons
+                    <div className="flex items-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
+                      <button
+                        onClick={() => updateCartQuantity(item.product.id, -1)}
+                        className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-r border-slate-100 dark:border-slate-700"
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                      <span className="px-3 text-sm font-bold text-slate-900 dark:text-slate-100 min-w-[32px] text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateCartQuantity(item.product.id, 1)}
+                        className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-l border-slate-100 dark:border-slate-700"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
               <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
