@@ -29,7 +29,8 @@ const resources = {
         no_phone: "No Phone",
         select_all: "Select All",
         selected: "Selected",
-        invalid_credentials: "Invalid credentials"
+        invalid_credentials: "Invalid credentials",
+        remember_me: "Remember me"
       },
       nav: {
         dashboard: "Dashboard",
@@ -231,7 +232,8 @@ const resources = {
         no_phone: "ნომერი არ არის",
         select_all: "ყველას მონიშვნა",
         selected: "მონიშნულია",
-        invalid_credentials: "მონაცემები არასწორია"
+        invalid_credentials: "მონაცემები არასწორია",
+        remember_me: "დამიმახსოვრე"
       },
       nav: {
         dashboard: "მთავარი",

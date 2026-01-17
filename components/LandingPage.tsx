@@ -31,14 +31,15 @@ export const LandingPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const success = await login(email, password, true);
+    const success = await login(email, password, rememberMe);
     setIsSubmitting(false);
     if (!success) setError(t('common.invalid_credentials'));
   };
@@ -123,6 +124,15 @@ export const LandingPage = () => {
           <div className="space-y-4">
             <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('common.email')}</label><div className="relative"><Input value={email} onChange={e => setEmail(e.target.value)} required type="email" placeholder="admin@gds.ge" className="pl-12" /><Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /></div></div>
             <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('common.password')}</label><div className="relative"><Input value={password} onChange={e => setPassword(e.target.value)} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="pl-12 pr-12" /><Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div></div>
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={e => setRememberMe(e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-slate-600 bg-slate-800 checked:bg-emerald-500 checked:border-emerald-500 cursor-pointer transition-colors focus:ring-2 focus:ring-emerald-500/50"
+              />
+              <span className="text-sm font-medium text-slate-400 group-hover:text-slate-300 transition-colors">{t('common.remember_me')}</span>
+            </label>
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-black text-lg shadow-xl">
             {isSubmitting ? t('common.loading') : t('landing.login_btn')}
