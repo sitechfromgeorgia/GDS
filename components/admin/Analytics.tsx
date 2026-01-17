@@ -35,7 +35,7 @@ const renderActiveShape = (props: any) => {
       <Sector cx={cx} cy={cy} startAngle={startAngle} endAngle={endAngle} innerRadius={outerRadius + 6} outerRadius={outerRadius + 10} fill={fill} />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#334155" className="font-bold text-[10px] dark:fill-slate-300">{`$${value}`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#334155" className="font-bold text-[10px] dark:fill-slate-300">{`₾${value}`}</text>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={15} textAnchor={textAnchor} fill="#94a3b8" className="text-[9px] dark:fill-slate-400">
         {`(${(percent * 100).toFixed(1)}%)`}
       </text>
@@ -111,10 +111,10 @@ export const Analytics = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {[
-          { label: t('admin.total_revenue'), val: `$${metrics.totalSales.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: '#3b82f6' },
-          { label: t('admin.net_profit'), val: `$${metrics.totalProfit.toLocaleString()}`, icon: Target, trend: '+8%', color: '#10b981' },
+          { label: t('admin.total_revenue'), val: `₾${metrics.totalSales.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: '#3b82f6' },
+          { label: t('admin.net_profit'), val: `₾${metrics.totalProfit.toLocaleString()}`, icon: Target, trend: '+8%', color: '#10b981' },
           { label: t('admin.avg_margin'), val: `${metrics.margin.toFixed(1)}%`, icon: Percent, trend: '+1.4%', color: '#ec4899' },
-          { label: t('admin.avg_order'), val: `$${metrics.avgOrder.toFixed(0)}`, icon: ShoppingBag, trend: '-2%', color: '#6366f1' },
+          { label: t('admin.avg_order'), val: `₾${metrics.avgOrder.toFixed(0)}`, icon: ShoppingBag, trend: '-2%', color: '#6366f1' },
           { label: t('admin.partners'), val: metrics.activeRest, icon: Store, trend: '+5%', color: '#f59e0b' },
         ].map((m, i) => (
           <Card key={i} className="p-5 group hover:scale-[1.02] transition-transform border-slate-200 dark:border-slate-800">

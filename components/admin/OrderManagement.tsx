@@ -183,7 +183,7 @@ export const OrderManager = () => {
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 text-sm font-black text-slate-900 dark:text-slate-100">
                             <Wallet className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
-                            {order.totalCost ? `$${order.totalCost.toFixed(2)}` : 'TBD'}
+                            {order.totalCost ? `₾${order.totalCost.toFixed(2)}` : 'TBD'}
                           </div>
                         </div>
                       )}

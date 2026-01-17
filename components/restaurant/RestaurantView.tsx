@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useApp } from '../../App';
 import { Card, Button, Badge, Input, Modal } from '../ui/Shared';
 import { Product, OrderStatus, Order } from '../../types';
-import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye } from 'lucide-react';
+import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const Catalog = () => {
@@ -231,28 +231,136 @@ const History = () => {
   const { t, i18n } = useTranslation();
   const { orders, updateOrderStatus, user, refreshData } = useApp();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<string>('all');
 
   useEffect(() => {
     refreshData();
   }, [refreshData]);
 
-  const myOrders = orders.filter(o => o.restaurantId === user?.id).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
   const showPrices = (status: OrderStatus) => {
       return [OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED, OrderStatus.COMPLETED].includes(status);
   };
 
+  const filteredOrders = useMemo(() => {
+    let result = orders.filter(o => o.restaurantId === user?.id);
+
+    // ძებნა ID-ით ან პროდუქტის სახელით
+    if (search.trim()) {
+      const searchLower = search.toLowerCase();
+      result = result.filter(o =>
+        o.id.toLowerCase().includes(searchLower) ||
+        o.items.some(item => item.productName.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // სტატუსის ფილტრი
+    if (statusFilter !== 'all') {
+      result = result.filter(o => o.status === statusFilter);
+    }
+
+    // თარიღის ფილტრი
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const filterDate = new Date();
+
+      switch (dateFilter) {
+        case 'today':
+          filterDate.setHours(0, 0, 0, 0);
+          result = result.filter(o => new Date(o.createdAt) >= filterDate);
+          break;
+        case 'week':
+          filterDate.setDate(now.getDate() - 7);
+          result = result.filter(o => new Date(o.createdAt) >= filterDate);
+          break;
+        case 'month':
+          filterDate.setMonth(now.getMonth() - 1);
+          result = result.filter(o => new Date(o.createdAt) >= filterDate);
+          break;
+      }
+    }
+
+    return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [orders, user?.id, search, statusFilter, dateFilter]);
+
+  const statusOptions = [
+    { value: 'all', label: t('common.all') },
+    { value: OrderStatus.PENDING, label: t('status.pending') },
+    { value: OrderStatus.CONFIRMED, label: t('status.confirmed') },
+    { value: OrderStatus.OUT_FOR_DELIVERY, label: t('status.out_for_delivery') },
+    { value: OrderStatus.DELIVERED, label: t('status.delivered') },
+    { value: OrderStatus.COMPLETED, label: t('status.completed') },
+  ];
+
+  const dateOptions = [
+    { value: 'all', label: t('common.all_time') },
+    { value: 'today', label: t('common.today') },
+    { value: 'week', label: t('common.this_week') },
+    { value: 'month', label: t('common.this_month') },
+  ];
+
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('nav.history')}</h2>
+
+      {/* ფილტრები და ძებნა */}
+      <Card className="p-4 border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* ძებნა */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder={t('history.search_placeholder')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* სტატუსის ფილტრი */}
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-slate-400" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              {statusOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* თარიღის ფილტრი */}
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-slate-400" />
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            >
+              {dateOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* შედეგების რაოდენობა */}
+        <div className="mt-3 text-xs font-medium text-slate-400 dark:text-slate-500">
+          {t('history.results_count', { count: filteredOrders.length })}
+        </div>
+      </Card>
+
       <div className="space-y-4">
-        {myOrders.length === 0 ? (
+        {filteredOrders.length === 0 ? (
           <Card className="p-16 text-center text-slate-400 dark:text-slate-600">
             <Package className="h-12 w-12 mx-auto mb-4 opacity-20" />
             <p className="font-bold">{t('restaurant.empty_history')}</p>
           </Card>
         ) : (
-          myOrders.map(order => (
+          filteredOrders.map(order => (
             <Card key={order.id} className="p-6 border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex-1">
@@ -270,7 +378,7 @@ const History = () => {
                     <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">{order.items.length} {t('common.items')}</span>
                     {showPrices(order.status) && order.totalCost && (
                        <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
-                         {t('restaurant.total')}: ${order.totalCost.toFixed(2)}
+                         {t('restaurant.total')}: ₾{order.totalCost.toFixed(2)}
                        </span>
                     )}
                   </div>
@@ -317,7 +425,7 @@ const History = () => {
                         <td className="p-4 text-center font-black text-slate-600 dark:text-slate-400">x{item.quantity}</td>
                         {showPrices(viewingOrder.status) && (
                           <td className="p-4 text-right font-black text-emerald-600 dark:text-emerald-400">
-                            ${item.sellPrice ? item.sellPrice.toFixed(2) : '0.00'}
+                            ₾{item.sellPrice ? item.sellPrice.toFixed(2) : '0.00'}
                           </td>
                         )}
                       </tr>
@@ -327,7 +435,7 @@ const History = () => {
                     <tfoot className="bg-slate-900 dark:bg-slate-950 text-white">
                        <tr>
                          <td colSpan={2} className="p-4 text-right font-bold text-xs uppercase tracking-widest">{t('restaurant.total_payable')}</td>
-                         <td className="p-4 text-right font-black text-lg">${viewingOrder.totalCost.toFixed(2)}</td>
+                         <td className="p-4 text-right font-black text-lg">₾{viewingOrder.totalCost.toFixed(2)}</td>
                        </tr>
                     </tfoot>
                   )}

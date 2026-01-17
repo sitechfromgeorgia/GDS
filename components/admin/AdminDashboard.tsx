@@ -86,7 +86,7 @@ const DashboardHome = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard title={t('admin.pending_orders')} value={pendingOrders} icon={ShoppingBag} color="bg-amber-500" />
-        <StatCard title={t('admin.total_revenue')} value={`$${totalSales.toLocaleString()}`} icon={DollarSign} color="bg-emerald-500" />
+        <StatCard title={t('admin.total_revenue')} value={`₾${totalSales.toLocaleString()}`} icon={DollarSign} color="bg-emerald-500" />
         <StatCard title={t('admin.active_restaurants')} value={activeUsers} icon={Users} color="bg-blue-500" />
         <StatCard title={t('admin.active_products')} value={products.filter(p => p.isActive).length} icon={Activity} color="bg-indigo-500" />
       </div>

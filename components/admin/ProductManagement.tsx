@@ -388,7 +388,7 @@ export const ProductManager = () => {
                       {product.isPromo && product.price && (
                         <div className="absolute bottom-3 left-3">
                            <div className="bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-black shadow-lg text-sm">
-                             ${product.price.toFixed(2)}
+                             ₾{product.price.toFixed(2)}
                            </div>
                         </div>
                       )}
@@ -474,7 +474,7 @@ export const ProductManager = () => {
                         </td>
                         <td className="px-6 py-4">
                            {product.isPromo ? (
-                             <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">${product.price?.toFixed(2)}</span>
+                             <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">₾{product.price?.toFixed(2)}</span>
                            ) : (
                              <span className="text-[10px] text-slate-400 italic">Market Price</span>
                            )}
@@ -602,7 +602,7 @@ export const ProductManager = () => {
               {newProduct.isPromo && (
                 <div className="animate-in slide-in-from-top-2">
                    <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-1.5 uppercase tracking-widest">{t('products.price_label')}</label>
-                   <div className="relative"><Input type="number" value={newProduct.price || ''} onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})} placeholder="0.00" className="pl-8" /><span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span></div>
+                   <div className="relative"><Input type="number" value={newProduct.price || ''} onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})} placeholder="0.00" className="pl-8" /><span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₾</span></div>
                 </div>
               )}
            </div>

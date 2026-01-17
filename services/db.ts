@@ -50,7 +50,7 @@ const INITIAL_ORDERS: Order[] = [
       { productId: 'p4', productName: 'Matsoni', quantity: 12, unit: 'ქილა' },
     ]
   },
-  // Demo user orders
+  // Demo user orders - მრავალფეროვანი შეკვეთები სხვადასხვა რაოდენობის პროდუქტებით
   {
     id: 'ord-demo-001',
     restaurantId: 'u5',
@@ -58,11 +58,13 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.COMPLETED,
     createdAt: new Date(Date.now() - 86400000 * 14).toISOString(),
     items: [
-      { productId: 'p1', productName: 'Potatoes (Svaneti)', quantity: 50, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
-      { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 20, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p1', productName: 'კარტოფილი (სვანური)', quantity: 50, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p2', productName: 'პამიდორი (კახური)', quantity: 20, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p3', productName: 'სულგუნი', quantity: 8, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p6', productName: 'მზესუმზირის ზეთი', quantity: 10, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
     ],
-    totalCost: 50 * 1.8 + 20 * 3.5,
-    totalProfit: (50 * 0.6) + (20 * 1.0),
+    totalCost: 50 * 1.8 + 20 * 3.5 + 8 * 22 + 10 * 4.2,
+    totalProfit: (50 * 0.6) + (20 * 1.0) + (8 * 7) + (10 * 1.2),
     driverId: 'u4'
   },
   {
@@ -72,11 +74,12 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.COMPLETED,
     createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
     items: [
-      { productId: 'p3', productName: 'Sulguni Cheese', quantity: 10, unit: 'კგ', costPrice: 15, sellPrice: 22 },
-      { productId: 'p4', productName: 'Matsoni', quantity: 24, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+      { productId: 'p3', productName: 'სულგუნი', quantity: 15, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p4', productName: 'მაწონი', quantity: 36, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+      { productId: 'p5', productName: 'ფქვილი (პრემიუმ)', quantity: 1, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
     ],
-    totalCost: 10 * 22 + 24 * 2.5,
-    totalProfit: (10 * 7) + (24 * 1.0),
+    totalCost: 15 * 22 + 36 * 2.5 + 1 * 55,
+    totalProfit: (15 * 7) + (36 * 1.0) + (1 * 10),
     driverId: 'u4'
   },
   {
@@ -86,11 +89,14 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.COMPLETED,
     createdAt: new Date(Date.now() - 86400000 * 10).toISOString(),
     items: [
-      { productId: 'p5', productName: 'Flour (Premium)', quantity: 2, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
-      { productId: 'p6', productName: 'Sunflower Oil', quantity: 20, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+      { productId: 'p5', productName: 'ფქვილი (პრემიუმ)', quantity: 3, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
+      { productId: 'p6', productName: 'მზესუმზირის ზეთი', quantity: 25, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+      { productId: 'p1', productName: 'კარტოფილი (სვანური)', quantity: 30, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p7', productName: 'კიტრი', quantity: 15, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+      { productId: 'p4', productName: 'მაწონი', quantity: 12, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
     ],
-    totalCost: 2 * 55 + 20 * 4.2,
-    totalProfit: (2 * 10) + (20 * 1.2),
+    totalCost: 3 * 55 + 25 * 4.2 + 30 * 1.8 + 15 * 2.8 + 12 * 2.5,
+    totalProfit: (3 * 10) + (25 * 1.2) + (30 * 0.6) + (15 * 1.0) + (12 * 1.0),
     driverId: 'u4'
   },
   {
@@ -100,11 +106,12 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.COMPLETED,
     createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
     items: [
-      { productId: 'p7', productName: 'Cucumber', quantity: 15, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
-      { productId: 'p1', productName: 'Potatoes (Svaneti)', quantity: 30, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p7', productName: 'კიტრი', quantity: 25, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+      { productId: 'p2', productName: 'პამიდორი (კახური)', quantity: 30, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p1', productName: 'კარტოფილი (სვანური)', quantity: 40, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
     ],
-    totalCost: 15 * 2.8 + 30 * 1.8,
-    totalProfit: (15 * 1.0) + (30 * 0.6),
+    totalCost: 25 * 2.8 + 30 * 3.5 + 40 * 1.8,
+    totalProfit: (25 * 1.0) + (30 * 1.0) + (40 * 0.6),
     driverId: 'u4'
   },
   {
@@ -114,12 +121,15 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.COMPLETED,
     createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
     items: [
-      { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 25, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
-      { productId: 'p3', productName: 'Sulguni Cheese', quantity: 8, unit: 'კგ', costPrice: 15, sellPrice: 22 },
-      { productId: 'p4', productName: 'Matsoni', quantity: 12, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+      { productId: 'p2', productName: 'პამიდორი (კახური)', quantity: 35, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p3', productName: 'სულგუნი', quantity: 12, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p4', productName: 'მაწონი', quantity: 24, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+      { productId: 'p6', productName: 'მზესუმზირის ზეთი', quantity: 15, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+      { productId: 'p7', productName: 'კიტრი', quantity: 20, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+      { productId: 'p1', productName: 'კარტოფილი (სვანური)', quantity: 25, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
     ],
-    totalCost: 25 * 3.5 + 8 * 22 + 12 * 2.5,
-    totalProfit: (25 * 1.0) + (8 * 7) + (12 * 1.0),
+    totalCost: 35 * 3.5 + 12 * 22 + 24 * 2.5 + 15 * 4.2 + 20 * 2.8 + 25 * 1.8,
+    totalProfit: (35 * 1.0) + (12 * 7) + (24 * 1.0) + (15 * 1.2) + (20 * 1.0) + (25 * 0.6),
     driverId: 'u4'
   },
   {
@@ -129,11 +139,13 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.COMPLETED,
     createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
     items: [
-      { productId: 'p1', productName: 'Potatoes (Svaneti)', quantity: 40, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
-      { productId: 'p6', productName: 'Sunflower Oil', quantity: 15, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+      { productId: 'p1', productName: 'კარტოფილი (სვანური)', quantity: 60, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p5', productName: 'ფქვილი (პრემიუმ)', quantity: 2, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
+      { productId: 'p6', productName: 'მზესუმზირის ზეთი', quantity: 20, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
+      { productId: 'p3', productName: 'სულგუნი', quantity: 5, unit: 'კგ', costPrice: 15, sellPrice: 22 },
     ],
-    totalCost: 40 * 1.8 + 15 * 4.2,
-    totalProfit: (40 * 0.6) + (15 * 1.2),
+    totalCost: 60 * 1.8 + 2 * 55 + 20 * 4.2 + 5 * 22,
+    totalProfit: (60 * 0.6) + (2 * 10) + (20 * 1.2) + (5 * 7),
     driverId: 'u4'
   },
   {
@@ -143,11 +155,14 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.DELIVERED,
     createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
     items: [
-      { productId: 'p5', productName: 'Flour (Premium)', quantity: 3, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
-      { productId: 'p7', productName: 'Cucumber', quantity: 20, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+      { productId: 'p5', productName: 'ფქვილი (პრემიუმ)', quantity: 4, unit: 'ტომარა (50კგ)', costPrice: 45, sellPrice: 55 },
+      { productId: 'p7', productName: 'კიტრი', quantity: 30, unit: 'კგ', costPrice: 1.8, sellPrice: 2.8 },
+      { productId: 'p2', productName: 'პამიდორი (კახური)', quantity: 25, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p4', productName: 'მაწონი', quantity: 18, unit: 'ქილა', costPrice: 1.5, sellPrice: 2.5 },
+      { productId: 'p3', productName: 'სულგუნი', quantity: 6, unit: 'კგ', costPrice: 15, sellPrice: 22 },
     ],
-    totalCost: 3 * 55 + 20 * 2.8,
-    totalProfit: (3 * 10) + (20 * 1.0),
+    totalCost: 4 * 55 + 30 * 2.8 + 25 * 3.5 + 18 * 2.5 + 6 * 22,
+    totalProfit: (4 * 10) + (30 * 1.0) + (25 * 1.0) + (18 * 1.0) + (6 * 7),
     driverId: 'u4'
   },
   {
@@ -157,11 +172,13 @@ const INITIAL_ORDERS: Order[] = [
     status: OrderStatus.CONFIRMED,
     createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
     items: [
-      { productId: 'p2', productName: 'Tomatoes (Kakheti)', quantity: 15, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
-      { productId: 'p3', productName: 'Sulguni Cheese', quantity: 5, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p2', productName: 'პამიდორი (კახური)', quantity: 20, unit: 'კგ', costPrice: 2.5, sellPrice: 3.5 },
+      { productId: 'p3', productName: 'სულგუნი', quantity: 10, unit: 'კგ', costPrice: 15, sellPrice: 22 },
+      { productId: 'p1', productName: 'კარტოფილი (სვანური)', quantity: 35, unit: 'კგ', costPrice: 1.2, sellPrice: 1.8 },
+      { productId: 'p6', productName: 'მზესუმზირის ზეთი', quantity: 12, unit: 'ლიტრი', costPrice: 3.0, sellPrice: 4.2 },
     ],
-    totalCost: 15 * 3.5 + 5 * 22,
-    totalProfit: (15 * 1.0) + (5 * 7)
+    totalCost: 20 * 3.5 + 10 * 22 + 35 * 1.8 + 12 * 4.2,
+    totalProfit: (20 * 1.0) + (10 * 7) + (35 * 0.6) + (12 * 1.2)
   }
 ];
 

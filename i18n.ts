@@ -30,7 +30,16 @@ const resources = {
         select_all: "Select All",
         selected: "Selected",
         invalid_credentials: "Invalid credentials",
-        remember_me: "Remember me"
+        remember_me: "Remember me",
+        all: "All",
+        all_time: "All Time",
+        today: "Today",
+        this_week: "This Week",
+        this_month: "This Month"
+      },
+      history: {
+        search_placeholder: "Search by order ID or product...",
+        results_count: "{{count}} orders found"
       },
       nav: {
         dashboard: "Dashboard",
@@ -240,7 +249,16 @@ const resources = {
         select_all: "ყველას მონიშვნა",
         selected: "მონიშნულია",
         invalid_credentials: "მონაცემები არასწორია",
-        remember_me: "დამიმახსოვრე"
+        remember_me: "დამიმახსოვრე",
+        all: "ყველა",
+        all_time: "მთლიანი პერიოდი",
+        today: "დღეს",
+        this_week: "ამ კვირაში",
+        this_month: "ამ თვეში"
+      },
+      history: {
+        search_placeholder: "ძებნა ID-ით ან პროდუქტით...",
+        results_count: "ნაპოვნია {{count}} შეკვეთა"
       },
       nav: {
         dashboard: "მთავარი",
