@@ -224,7 +224,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         setCategories(db.getCategories());
         setUnits(db.getUnits());
       }
-      setOrders([]); // Demo user starts with empty orders or mock orders
+      setOrders(db.getOrders()); // Demo user sees mock orders from db.ts
       setUsers(db.getUsers()); // Demo user only sees itself?
       return;
     }
