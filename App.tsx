@@ -583,12 +583,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const addUser = async (u: User & { password?: string }) => {
     if (isDemo) {
       db.addUser(u);
+      showToast(t("users.user_created_success"), "success");
     } else {
       const supabase = getSupabase();
       if (!supabase) {
         showToast(t("errors.supabase_not_configured"), "error");
         return;
       }
+
+      console.log("=== Starting user creation ===");
+      console.log("Email:", u.email);
+      console.log("Name:", u.name);
+      console.log("Role:", u.role);
+      console.log("Password provided:", !!u.password);
 
       // Step 1: Create user in Supabase Auth
       // The database trigger will automatically create profile in public.users
@@ -603,6 +610,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       });
 
+      console.log("Auth response:", { authData, authError });
+
       if (authError) {
         console.error("Auth user creation failed:", authError);
         showToast(authError.message || t("errors.user_creation_failed"), "error");
@@ -610,29 +619,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       if (!authData.user) {
+        console.error("No user in auth response");
         showToast(t("errors.user_creation_failed"), "error");
         return;
       }
 
+      console.log("Auth user created successfully:", authData.user.id);
+
       // Step 2: Update the profile with additional fields (trigger already created basic profile)
       // Small delay to ensure trigger has completed
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from("users")
         .update({
           phone: u.phone || null,
           locationLink: u.locationLink || null,
           avatar: u.avatar || null,
         })
-        .eq("id", authData.user.id);
+        .eq("id", authData.user.id)
+        .select();
+
+      console.log("Profile update response:", { updateData, updateError });
 
       if (updateError) {
-        console.warn("Profile update failed (non-critical):", updateError);
-        // Don't return error - user was still created successfully
+        console.warn("Profile update failed:", updateError);
       }
 
       showToast(t("users.user_created_success"), "success");
+      console.log("=== User creation completed ===");
     }
     refreshData();
   };
