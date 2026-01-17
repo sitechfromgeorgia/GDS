@@ -769,7 +769,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!user) return;
 
     const newOrder: Order = {
-      id: `ord-${Date.now()}`,
+      id: crypto.randomUUID(),
       restaurantId: user.id,
       restaurantName: user.name,
       status: OrderStatus.PENDING,
