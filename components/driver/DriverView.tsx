@@ -87,50 +87,52 @@ export const DriverDashboard = () => {
                   </div>
 
                   {/* Products Section */}
-                  <div className="mb-4">
-                    <button
-                      onClick={() => toggleOrderExpanded(order.id)}
-                      className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-blue-500 dark:text-blue-400" />
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                          {t('driver.products')}
-                        </span>
-                        <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                          {order.items.length}
-                        </span>
-                      </div>
-                      {expandedOrders.has(order.id) ? (
-                        <ChevronUp className="h-4 w-4 text-slate-400" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-slate-400" />
-                      )}
-                    </button>
+                  {order.items && order.items.length > 0 && (
+                    <div className="mb-4">
+                      <button
+                        onClick={() => toggleOrderExpanded(order.id)}
+                        className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-[0.98]"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                            {t('driver.products')}
+                          </span>
+                          <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                            {order.items.length}
+                          </span>
+                        </div>
+                        {expandedOrders.has(order.id) ? (
+                          <ChevronUp className="h-4 w-4 text-slate-400" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-slate-400" />
+                        )}
+                      </button>
 
-                    {expandedOrders.has(order.id) && (
-                      <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
-                        {order.items.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800 last:border-0"
-                          >
-                            <span className="font-medium text-sm text-slate-700 dark:text-slate-300 truncate flex-1 pr-3">
-                              {item.productName}
-                            </span>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="font-black text-blue-600 dark:text-blue-400 text-sm">
-                                {item.quantity}
+                      {expandedOrders.has(order.id) && (
+                        <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                          {order.items.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex justify-between items-center py-2.5 border-b border-slate-50 dark:border-slate-800 last:border-0"
+                            >
+                              <span className="font-medium text-sm text-slate-700 dark:text-slate-300 truncate flex-1 pr-3">
+                                {item.productName}
                               </span>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase">
-                                {item.unit}
-                              </span>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className="font-black text-blue-600 dark:text-blue-400 text-sm tabular-nums">
+                                  {item.quantity}
+                                </span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                                  {item.unit}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <Button 

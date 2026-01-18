@@ -67,15 +67,15 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
 export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: React.ReactNode }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col scale-100 animate-in zoom-in-95 duration-200 border border-white/20 dark:border-slate-800">
-        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-800">
-          <h3 className="text-xl font-bold text-slate-950 dark:text-slate-100 tracking-tight">{title}</h3>
-          <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col scale-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border-t sm:border border-white/20 dark:border-slate-800">
+        <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-950 dark:text-slate-100 tracking-tight truncate pr-2">{title}</h3>
+          <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shrink-0">
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-6 overflow-y-auto">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {children}
         </div>
       </div>

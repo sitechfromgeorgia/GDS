@@ -488,14 +488,62 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
       </div>
 
       {/* Details/Pricing Modal */}
-      <Modal 
-        isOpen={!!selectedOrder} 
-        onClose={() => setSelectedOrder(null)} 
-        title={pricingMode ? `${t('orders.modal_pricing_title')}: ${selectedOrder?.restaurantName}` : `${t('orders.modal_details_title')}: ${selectedOrder?.id}`}
+      <Modal
+        isOpen={!!selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+        title={pricingMode ? `${t('orders.modal_pricing_title')}` : `${t('orders.modal_details_title')}`}
       >
         {selectedOrder && (
-          <div className="space-y-6">
-            <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800">
+          <div className="space-y-4 sm:space-y-6">
+            {/* Restaurant name badge */}
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-slate-500 dark:text-slate-400">{t('filters.restaurant')}:</span>
+              <span className="font-bold text-slate-900 dark:text-slate-100">{selectedOrder.restaurantName}</span>
+            </div>
+
+            {/* Mobile: Card-based layout, Desktop: Table */}
+            <div className="space-y-3 sm:hidden">
+              {(pricingMode ? priceEdits : selectedOrder.items).map((item, idx) => (
+                <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{item.productName}</div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">{item.unit}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="font-black text-blue-600 dark:text-blue-400">x{item.quantity}</span>
+                    </div>
+                  </div>
+                  {pricingMode && (
+                    <div className="flex items-center gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+                      <div className="flex-1">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">{t('orders.cost')}</div>
+                        {item.costPrice ? (
+                          <span className="text-slate-600 dark:text-slate-400 font-medium text-sm">{item.costPrice}₾</span>
+                        ) : (
+                          <span className="text-amber-500 text-xs font-medium">—</span>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">{t('orders.sell')}</div>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          inputMode="decimal"
+                          className="w-full h-9 text-sm"
+                          placeholder="0.00"
+                          value={item.sellPrice || ''}
+                          onChange={(e) => handlePriceChange(idx, 'sellPrice', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: Table layout */}
+            <div className="hidden sm:block overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800">
                <table className="min-w-full text-sm">
                  <thead className="bg-slate-50 dark:bg-slate-800">
                    <tr>
@@ -523,12 +571,14 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                              {item.costPrice ? (
                                <span className="text-slate-600 dark:text-slate-400 font-medium">{item.costPrice}</span>
                              ) : (
-                               <span className="text-amber-500 text-xs font-medium">არ არის</span>
+                               <span className="text-amber-500 text-xs font-medium">—</span>
                              )}
                            </td>
                            <td className="p-4">
                              <Input
-                               type="number" step="0.1" className="w-20 h-9 p-2 border-emerald-200 dark:border-emerald-900"
+                               type="number"
+                               step="0.1"
+                               className="w-24 h-9 p-2"
                                value={item.sellPrice || ''}
                                onChange={(e) => handlePriceChange(idx, 'sellPrice', e.target.value)}
                              />
@@ -542,9 +592,9 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
             </div>
 
             {pricingMode ? (
-              <div className="pt-4 flex justify-end gap-3">
-                 <Button variant="outline" onClick={() => setSelectedOrder(null)}>{t('common.cancel')}</Button>
-                 <Button onClick={savePricing} className="bg-slate-900 dark:bg-slate-100 dark:text-slate-900 px-8 border-none">{t('orders.save_pricing')}</Button>
+              <div className="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+                 <Button variant="outline" onClick={() => setSelectedOrder(null)} className="w-full sm:w-auto">{t('common.cancel')}</Button>
+                 <Button onClick={savePricing} className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 dark:text-slate-900 sm:px-8 border-none">{t('orders.save_pricing')}</Button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -552,18 +602,18 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                 {selectedOrder.status === OrderStatus.CONFIRMED && (
                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                     <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">{t('orders.assign_driver')}</p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {drivers.map(driver => (
-                        <button 
-                          key={driver.id} 
+                        <button
+                          key={driver.id}
                           onClick={() => handleAssignDriver(driver.id)}
-                          className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${
-                            selectedOrder.driverId === driver.id 
-                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                          className={`p-3 rounded-xl border-2 transition-all flex items-center gap-3 active:scale-[0.98] ${
+                            selectedOrder.driverId === driver.id
+                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
                             : 'border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
                         >
-                           <div className="h-8 w-8 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center text-[10px] font-black">
+                           <div className="h-8 w-8 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center text-[10px] font-black shrink-0">
                              {driver.name.charAt(0)}
                            </div>
                            <span className="text-sm font-bold truncate dark:text-slate-200">{driver.name}</span>
@@ -573,7 +623,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                   </div>
                 )}
                 <div className="flex justify-end">
-                   <Button variant="secondary" onClick={() => setSelectedOrder(null)}>{t('common.close')}</Button>
+                   <Button variant="secondary" onClick={() => setSelectedOrder(null)} className="w-full sm:w-auto">{t('common.close')}</Button>
                 </div>
               </div>
             )}
