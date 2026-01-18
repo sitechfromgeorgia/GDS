@@ -199,7 +199,8 @@ const resources = {
         corrected: "Corrected",
         save_changes: "Save Changes",
         edit_warning: "You can edit this order until it is confirmed by admin",
-        order_updated: "Order updated successfully"
+        order_updated: "Order updated successfully",
+        notes: "Notes"
       },
       products: {
         subtitle: "Manage product catalog and units",
@@ -308,7 +309,8 @@ const resources = {
         delivered: "Delivered",
         today_history: "Today's History",
         delivered_at: "Delivered",
-        products: "Products"
+        products: "Products",
+        notes: "Note from restaurant"
       },
       errors: {
         supabase_not_configured: "Supabase is not configured",
@@ -542,7 +544,8 @@ const resources = {
         corrected: "დაკორექტირდა",
         save_changes: "ცვლილებების შენახვა",
         edit_warning: "შეკვეთის რედაქტირება შეგიძლიათ სანამ ადმინი დაადასტურებს",
-        order_updated: "შეკვეთა განახლდა"
+        order_updated: "შეკვეთა განახლდა",
+        notes: "შენიშვნა"
       },
       users: {
         title: "მომხმარებლების მართვა",
@@ -686,7 +689,8 @@ const resources = {
         delivered: "მიტანილია",
         today_history: "დღევანდელი ისტორია",
         delivered_at: "ჩაბარდა",
-        products: "პროდუქცია"
+        products: "პროდუქცია",
+        notes: "შენიშვნა რესტორნიდან"
       }
     }
   }

@@ -536,6 +536,19 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
               <span className="font-bold text-slate-900 dark:text-slate-100">{selectedOrder.restaurantName}</span>
             </div>
 
+            {/* Order Notes */}
+            {selectedOrder.notes && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <MessageSquare className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-1">{t('orders.notes')}</p>
+                    <p className="text-sm text-amber-800 dark:text-amber-300 whitespace-pre-wrap">{selectedOrder.notes}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Mobile: Card-based layout, Desktop: Table */}
             <div className="space-y-3 sm:hidden">
               {(editMode ? editItems : pricingMode ? priceEdits : selectedOrder.items).map((item, idx) => (

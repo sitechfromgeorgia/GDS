@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../App';
 import { Card, Button, Badge } from '../ui/Shared';
-import { MapPin, Phone, CheckCircle, Navigation, Clock, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Phone, CheckCircle, Navigation, Clock, Package, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
 import { OrderStatus } from '../../types';
 import { useTranslation } from 'react-i18next';
 
@@ -85,6 +85,19 @@ export const DriverDashboard = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Order Notes */}
+                  {order.notes && (
+                    <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <MessageSquare className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-1">{t('driver.notes')}</p>
+                          <p className="text-sm text-amber-800 dark:text-amber-300 whitespace-pre-wrap">{order.notes}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Products Section */}
                   {order.items && order.items.length > 0 && (
