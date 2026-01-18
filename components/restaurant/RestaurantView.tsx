@@ -6,7 +6,7 @@ import { Card, Button, Badge, Input, Modal } from '../ui/Shared';
 import { FilterChips, FilterChip } from '../ui/FilterChips';
 import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { Product, OrderStatus, Order } from '../../types';
-import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight, Edit3, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -318,13 +318,53 @@ const Catalog = () => {
 
 const History = () => {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrderStatus, user, users, refreshData } = useApp();
+  const { orders, updateOrderStatus, updateOrderItems, user, users, refreshData } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [viewingDriver, setViewingDriver] = useState<Order | null>(null);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [editItems, setEditItems] = useState<{ productId: string; productName: string; quantity: number; unit: string }[]>([]);
 
   // მძღოლის პოვნა ID-ით
   const getDriver = (driverId?: string) => users.find(u => u.id === driverId);
+
+  // შეკვეთის რედაქტირების დაწყება
+  const handleStartEdit = (order: Order) => {
+    setEditingOrder(order);
+    setEditItems(order.items.map(item => ({
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      unit: item.unit
+    })));
+  };
+
+  // რაოდენობის შეცვლა
+  const handleEditQuantityChange = (productId: string, newQuantity: number) => {
+    setEditItems(prev => prev.map(item =>
+      item.productId === productId
+        ? { ...item, quantity: Math.max(0.1, newQuantity) }
+        : item
+    ));
+  };
+
+  // რედაქტირების შენახვა
+  const handleSaveEdit = () => {
+    if (editingOrder) {
+      const updatedItems = editingOrder.items.map(item => {
+        const editItem = editItems.find(e => e.productId === item.productId);
+        return editItem ? { ...item, quantity: editItem.quantity } : item;
+      });
+      updateOrderItems(editingOrder.id, updatedItems);
+      setEditingOrder(null);
+      setEditItems([]);
+    }
+  };
+
+  // შემოწმება აქვს თუ არა შეკვეთას კორექციები
+  const hasCorrections = (order: Order) => {
+    return order.items.some(item => item.originalQuantity !== undefined && item.originalQuantity !== item.quantity);
+  };
 
   // URL-დან ფილტრების წაკითხვა
   const [search, setSearch] = useState(searchParams.get('search') || '');
@@ -560,17 +600,23 @@ const History = () => {
           </Card>
         ) : (
           filteredOrders.map(order => (
-            <Card key={order.id} className="p-6 border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
+            <Card key={order.id} className={`p-6 border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow ${hasCorrections(order) ? 'border-l-4 border-l-orange-500' : ''}`}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center flex-wrap gap-2">
                     <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">#{order.id}</h3>
                     <Badge variant={
-                      order.status === OrderStatus.COMPLETED ? 'success' : 
+                      order.status === OrderStatus.COMPLETED ? 'success' :
                       order.status === OrderStatus.PENDING ? 'warning' : 'default'
                     }>
                       {t(`status.${order.status.toLowerCase().replace(/ /g, '_')}` as any)}
                     </Badge>
+                    {hasCorrections(order) && (
+                      <Badge variant="warning" className="border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        {t('orders.corrected')}
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
                   <div className="mt-3 flex items-center gap-6">
@@ -582,10 +628,15 @@ const History = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                   <Button variant="outline" size="sm" onClick={() => setViewingOrder(order)} className="flex-1 sm:flex-none">
                     <Eye className="h-4 w-4 mr-2" /> {t('restaurant.details')}
                   </Button>
+                  {order.status === OrderStatus.PENDING && (
+                    <Button variant="outline" size="sm" onClick={() => handleStartEdit(order)} className="flex-1 sm:flex-none border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                      <Edit3 className="h-4 w-4 mr-2" /> {t('common.edit')}
+                    </Button>
+                  )}
                   {order.status === OrderStatus.OUT_FOR_DELIVERY && order.driverId && (
                     <Button variant="outline" size="sm" onClick={() => setViewingDriver(order)} className="flex-1 sm:flex-none border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                       <Phone className="h-4 w-4 mr-2" /> {t('restaurant.driver')}
@@ -624,9 +675,16 @@ const History = () => {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {viewingOrder.items.map((item, idx) => (
-                      <tr key={idx}>
+                      <tr key={idx} className={item.originalQuantity !== undefined && item.originalQuantity !== item.quantity ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}>
                         <td className="p-4 font-bold text-slate-900 dark:text-slate-100">{item.productName}</td>
-                        <td className="p-4 text-center font-black text-slate-600 dark:text-slate-400">x{item.quantity} {item.unit}</td>
+                        <td className="p-4 text-center">
+                          <span className="font-black text-slate-600 dark:text-slate-400">x{item.quantity} {item.unit}</span>
+                          {item.originalQuantity !== undefined && item.originalQuantity !== item.quantity && (
+                            <div className="text-[10px] text-orange-600 dark:text-orange-400 mt-1 font-bold">
+                              {t('orders.was')}: {item.originalQuantity} {item.unit}
+                            </div>
+                          )}
+                        </td>
                         {showPrices(viewingOrder.status) && (
                           <td className="p-4 text-right font-black text-emerald-600 dark:text-emerald-400">
                             ₾{item.sellPrice ? item.sellPrice.toFixed(2) : '0.00'}
@@ -708,6 +766,58 @@ const History = () => {
             </div>
           );
         })()}
+      </Modal>
+
+      {/* Edit Order Modal */}
+      <Modal
+        isOpen={!!editingOrder}
+        onClose={() => { setEditingOrder(null); setEditItems([]); }}
+        title={t('orders.modal_edit_title')}
+      >
+        {editingOrder && (
+          <div className="space-y-6">
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl">
+              <p className="text-xs text-amber-800 dark:text-amber-200 font-medium flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                {t('orders.edit_warning')}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {editItems.map((item) => (
+                <div key={item.productId} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1 min-w-0 pr-4">
+                      <div className="font-bold text-slate-900 dark:text-slate-100">{item.productName}</div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">{item.unit}</div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        inputMode="decimal"
+                        className="w-20 h-10 text-center font-black"
+                        value={item.quantity}
+                        onChange={(e) => handleEditQuantityChange(item.productId, parseFloat(e.target.value) || 0)}
+                      />
+                      <span className="text-xs font-bold text-slate-400">{item.unit}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
+              <Button variant="outline" onClick={() => { setEditingOrder(null); setEditItems([]); }} className="w-full sm:w-auto">
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleSaveEdit} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white border-none">
+                {t('orders.save_changes')}
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

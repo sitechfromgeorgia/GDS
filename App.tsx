@@ -83,6 +83,7 @@ interface AppContextType {
   ) => Promise<void>;
   updateOrderPricing: (id: string, items: any[]) => Promise<void>;
   updateProductCostPrice: (productId: string, costPrice: number) => Promise<void>;
+  updateOrderItems: (id: string, items: OrderItem[], correctedBy?: string) => Promise<void>;
   showToast: (message: string, type?: ToastType["type"]) => void;
   isDemo: boolean;
 }
@@ -506,6 +507,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addProduct = async (p: Product) => {
+    console.log("addProduct called with:", p);
+    console.log("isDemo:", isDemo);
+
     if (isDemo) {
       db.addProduct(p);
       showToast("პროდუქტი დაემატა", "success");
@@ -916,6 +920,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast(`თვითღირებულება განახლდა: ${costPrice}₾`, "success");
   };
 
+  // Update order items (for editing orders - by admin or restaurant)
+  const updateOrderItems = async (id: string, items: OrderItem[], correctedBy?: string) => {
+    // Recalculate totals
+    const totalCost = items.reduce(
+      (acc, i) => acc + (i.sellPrice || 0) * i.quantity,
+      0,
+    );
+    const totalProfit = items.reduce(
+      (acc, i) =>
+        acc + ((i.sellPrice || 0) - (i.costPrice || 0)) * i.quantity,
+      0,
+    );
+
+    // Add correction info if admin is editing
+    const updatedItems = correctedBy ? items.map(item => ({
+      ...item,
+      correctedBy: item.originalQuantity !== undefined ? correctedBy : item.correctedBy,
+      correctedAt: item.originalQuantity !== undefined ? new Date().toISOString() : item.correctedAt
+    })) : items;
+
+    if (isDemo) {
+      db.updateOrderPricing(id, updatedItems);
+    } else {
+      await getSupabase()
+        ?.from("orders")
+        .update({
+          items: updatedItems,
+          totalCost: totalCost > 0 ? totalCost : undefined,
+          totalProfit: totalProfit > 0 ? totalProfit : undefined
+        })
+        .eq("id", id);
+    }
+    refreshData();
+    showToast(t("orders.order_updated"), "success");
+  };
+
   if (loading)
     return (
       <div className="h-screen flex items-center justify-center">
@@ -960,6 +1000,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         updateOrderStatus,
         updateOrderPricing,
         updateProductCostPrice,
+        updateOrderItems,
         showToast,
       }}
     >

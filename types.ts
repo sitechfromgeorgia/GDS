@@ -51,6 +51,10 @@ export interface OrderItem {
   unit: string;
   costPrice?: number;
   sellPrice?: number;
+  // Original values before admin correction (for tracking changes)
+  originalQuantity?: number;
+  correctedBy?: string;
+  correctedAt?: string;
 }
 
 export interface Order {

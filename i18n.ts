@@ -193,7 +193,13 @@ const resources = {
         assign_driver: "Assign Driver",
         pricing_required: "Pricing Required",
         cost: "Cost",
-        sell: "Sell"
+        sell: "Sell",
+        modal_edit_title: "Edit Order",
+        was: "was",
+        corrected: "Corrected",
+        save_changes: "Save Changes",
+        edit_warning: "You can edit this order until it is confirmed by admin",
+        order_updated: "Order updated successfully"
       },
       products: {
         subtitle: "Manage product catalog and units",
@@ -530,7 +536,13 @@ const resources = {
         assign_driver: "მძღოლის დანიშვნა",
         pricing_required: "ფასები შესაყვანია",
         cost: "თვითღირ.",
-        sell: "გასაყიდი"
+        sell: "გასაყიდი",
+        modal_edit_title: "შეკვეთის რედაქტირება",
+        was: "იყო",
+        corrected: "დაკორექტირდა",
+        save_changes: "ცვლილებების შენახვა",
+        edit_warning: "შეკვეთის რედაქტირება შეგიძლიათ სანამ ადმინი დაადასტურებს",
+        order_updated: "შეკვეთა განახლდა"
       },
       users: {
         title: "მომხმარებლების მართვა",

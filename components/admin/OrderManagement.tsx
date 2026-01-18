@@ -5,7 +5,7 @@ import { Button, Input, Card, Badge, Modal } from '../ui/Shared';
 import { FilterChips, FilterChip } from '../ui/FilterChips';
 import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { OrderStatus, Order, UserRole, OrderItem } from '../../types';
-import { Check, Truck, Eye, DollarSign, ShoppingBag, Wallet, AlertTriangle, MessageSquare, Clock, Search, Filter, X } from 'lucide-react';
+import { Check, Truck, Eye, DollarSign, ShoppingBag, Wallet, AlertTriangle, MessageSquare, Clock, Search, Filter, X, Edit3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface OrderManagerProps {
@@ -14,12 +14,14 @@ interface OrderManagerProps {
 
 export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) => {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrderStatus, updateOrderPricing, updateProductCostPrice, users } = useApp();
+  const { orders, updateOrderStatus, updateOrderPricing, updateProductCostPrice, updateOrderItems, users, user } = useApp();
   const drivers = users.filter(u => u.role === UserRole.DRIVER);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [pricingMode, setPricingMode] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [priceEdits, setPriceEdits] = useState<OrderItem[]>([]);
+  const [editItems, setEditItems] = useState<OrderItem[]>([]);
 
   // Filter State
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -217,16 +219,44 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
     }
   }, []);
 
-  const handleOpenOrder = (order: Order, mode: 'view' | 'pricing') => {
+  const handleOpenOrder = (order: Order, mode: 'view' | 'pricing' | 'edit') => {
     setSelectedOrder(order);
     setPricingMode(mode === 'pricing');
+    setEditMode(mode === 'edit');
     if (mode === 'pricing') {
       setPriceEdits(order.items.map(item => ({
         ...item,
         costPrice: item.costPrice || 0,
         sellPrice: item.sellPrice || 0
-      }))); 
+      })));
     }
+    if (mode === 'edit') {
+      setEditItems(order.items.map(item => ({ ...item })));
+    }
+  };
+
+  const handleEditQuantityChange = (index: number, newQuantity: number) => {
+    const newItems = [...editItems];
+    const originalQty = newItems[index].originalQuantity ?? newItems[index].quantity;
+    newItems[index] = {
+      ...newItems[index],
+      quantity: newQuantity,
+      originalQuantity: originalQty !== newQuantity ? originalQty : undefined
+    };
+    setEditItems(newItems);
+  };
+
+  const saveOrderEdit = () => {
+    if (selectedOrder && user) {
+      updateOrderItems(selectedOrder.id, editItems, user.name);
+      setSelectedOrder(null);
+      setEditMode(false);
+    }
+  };
+
+  // Check if order can be edited by admin (not delivered and not completed)
+  const canAdminEdit = (order: Order) => {
+    return order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.COMPLETED;
   };
 
   const handlePriceChange = (index: number, field: 'costPrice' | 'sellPrice', value: string) => {
@@ -473,6 +503,11 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                             <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
                            </Button>
                         )}
+                        {canAdminEdit(order) && (
+                          <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'edit')} className="w-full sm:w-auto border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                            <Edit3 className="h-3 w-3 mr-1" /> {t('common.edit')}
+                          </Button>
+                        )}
                         <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="w-full sm:w-auto text-slate-400 dark:text-slate-500">
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -487,11 +522,11 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
         </div>
       </div>
 
-      {/* Details/Pricing Modal */}
+      {/* Details/Pricing/Edit Modal */}
       <Modal
         isOpen={!!selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-        title={pricingMode ? `${t('orders.modal_pricing_title')}` : `${t('orders.modal_details_title')}`}
+        onClose={() => { setSelectedOrder(null); setEditMode(false); }}
+        title={editMode ? t('orders.modal_edit_title') : pricingMode ? t('orders.modal_pricing_title') : t('orders.modal_details_title')}
       >
         {selectedOrder && (
           <div className="space-y-4 sm:space-y-6">
@@ -503,7 +538,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
 
             {/* Mobile: Card-based layout, Desktop: Table */}
             <div className="space-y-3 sm:hidden">
-              {(pricingMode ? priceEdits : selectedOrder.items).map((item, idx) => (
+              {(editMode ? editItems : pricingMode ? priceEdits : selectedOrder.items).map((item, idx) => (
                 <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex-1 min-w-0 pr-2">
@@ -511,7 +546,23 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                       <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">{item.unit}</div>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="font-black text-blue-600 dark:text-blue-400">x{item.quantity}</span>
+                      {editMode ? (
+                        <Input
+                          type="number"
+                          step="0.1"
+                          inputMode="decimal"
+                          className="w-20 h-9 text-sm text-center font-black"
+                          value={item.quantity}
+                          onChange={(e) => handleEditQuantityChange(idx, parseFloat(e.target.value) || 0)}
+                        />
+                      ) : (
+                        <span className="font-black text-blue-600 dark:text-blue-400">x{item.quantity}</span>
+                      )}
+                      {item.originalQuantity !== undefined && item.originalQuantity !== item.quantity && (
+                        <div className="text-[10px] text-orange-500 dark:text-orange-400 mt-1">
+                          {t('orders.was')}: {item.originalQuantity}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {pricingMode && (
@@ -558,13 +609,30 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                    </tr>
                  </thead>
                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                   {(pricingMode ? priceEdits : selectedOrder.items).map((item, idx) => (
+                   {(editMode ? editItems : pricingMode ? priceEdits : selectedOrder.items).map((item, idx) => (
                      <tr key={idx}>
                        <td className="p-4">
                          <div className="font-bold text-slate-900 dark:text-slate-100">{item.productName}</div>
                          <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">{item.unit}</div>
                        </td>
-                       <td className="p-4 text-center font-black text-slate-600 dark:text-slate-400">x{item.quantity}</td>
+                       <td className="p-4 text-center">
+                         {editMode ? (
+                           <Input
+                             type="number"
+                             step="0.1"
+                             className="w-24 h-9 p-2 text-center font-black"
+                             value={item.quantity}
+                             onChange={(e) => handleEditQuantityChange(idx, parseFloat(e.target.value) || 0)}
+                           />
+                         ) : (
+                           <span className="font-black text-slate-600 dark:text-slate-400">x{item.quantity}</span>
+                         )}
+                         {item.originalQuantity !== undefined && item.originalQuantity !== item.quantity && (
+                           <div className="text-[10px] text-orange-500 dark:text-orange-400 mt-1">
+                             {t('orders.was')}: {item.originalQuantity}
+                           </div>
+                         )}
+                       </td>
                        {pricingMode && (
                          <>
                            <td className="p-4">
@@ -591,7 +659,12 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                </table>
             </div>
 
-            {pricingMode ? (
+            {editMode ? (
+              <div className="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+                 <Button variant="outline" onClick={() => { setSelectedOrder(null); setEditMode(false); }} className="w-full sm:w-auto">{t('common.cancel')}</Button>
+                 <Button onClick={saveOrderEdit} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white sm:px-8 border-none">{t('orders.save_changes')}</Button>
+              </div>
+            ) : pricingMode ? (
               <div className="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
                  <Button variant="outline" onClick={() => setSelectedOrder(null)} className="w-full sm:w-auto">{t('common.cancel')}</Button>
                  <Button onClick={savePricing} className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 dark:text-slate-900 sm:px-8 border-none">{t('orders.save_pricing')}</Button>
