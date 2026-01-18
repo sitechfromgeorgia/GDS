@@ -318,8 +318,8 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
         </div>
 
         {/* Filter Bar */}
-        <Card className="p-4 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <Card className="p-3 sm:p-4 mb-6">
+          <div className="flex flex-col gap-3">
             {/* Search */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -339,41 +339,44 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
               )}
             </div>
 
-            {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-slate-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-              >
-                <option value="All">{t('orders.all_statuses')} ({statusCounts['All'] || 0})</option>
-                {Object.values(OrderStatus).map(s => (
-                  <option key={s} value={s}>{getStatusLabel(s)} ({statusCounts[s] || 0})</option>
-                ))}
-              </select>
+            {/* Filters Row - stack on mobile, horizontal on tablet+ */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              {/* Status Filter */}
+              <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                <Filter className="h-4 w-4 text-slate-400 shrink-0" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="flex-1 sm:flex-initial h-10 sm:h-11 px-3 sm:px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                >
+                  <option value="All">{t('orders.all_statuses')} ({statusCounts['All'] || 0})</option>
+                  {Object.values(OrderStatus).map(s => (
+                    <option key={s} value={s}>{getStatusLabel(s)} ({statusCounts[s] || 0})</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Restaurant Filter */}
+              {restaurants.length > 0 && (
+                <select
+                  value={restaurantFilter}
+                  onChange={(e) => setRestaurantFilter(e.target.value)}
+                  className="h-10 sm:h-11 px-3 sm:px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                >
+                  <option value="all">{t('filters.all_restaurants')}</option>
+                  {restaurants.map(r => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
+              )}
+
+              {/* Date Filter */}
+              <DateRangePicker
+                value={dateFilter}
+                onChange={handleDateFilterChange}
+                customRange={customDateRange}
+              />
             </div>
-
-            {/* Restaurant Filter */}
-            {restaurants.length > 0 && (
-              <select
-                value={restaurantFilter}
-                onChange={(e) => setRestaurantFilter(e.target.value)}
-                className="h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-              >
-                <option value="all">{t('filters.all_restaurants')}</option>
-                {restaurants.map(r => (
-                  <option key={r.id} value={r.id}>{r.name}</option>
-                ))}
-              </select>
-            )}
-
-            {/* Date Filter */}
-            <DateRangePicker
-              value={dateFilter}
-              onChange={handleDateFilterChange}
-              customRange={customDateRange}
-            />
           </div>
 
           {/* Active Filter Chips */}
@@ -389,24 +392,25 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
           </div>
         </Card>
 
-        <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-100 dark:shadow-none rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
-            <thead className="bg-slate-50/50 dark:bg-slate-800/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_id_restaurant')}</th>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_status')}</th>
-                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_financials')}</th>
-                <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
-              {filteredOrders.map((order) => {
-                const assignedDriver = users.find(u => u.id === order.driverId);
-                const needsPricing = order.status === OrderStatus.CONFIRMED && (!order.totalCost || order.totalCost === 0);
+        <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-100 dark:shadow-none rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800" style={{ minWidth: '640px' }}>
+              <thead className="bg-slate-50/50 dark:bg-slate-800/50">
+                <tr>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_id_restaurant')}</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_status')}</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_financials')}</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_actions')}</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+                {filteredOrders.map((order) => {
+                  const assignedDriver = users.find(u => u.id === order.driverId);
+                  const needsPricing = order.status === OrderStatus.CONFIRMED && (!order.totalCost || order.totalCost === 0);
 
-                return (
-                  <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="px-6 py-5 whitespace-nowrap">
+                  return (
+                    <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="px-3 sm:px-6 py-3 sm:py-5">
                       <div
                         className={`text-sm font-bold text-slate-900 dark:text-slate-100 ${onCompanyClick ? 'cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors' : ''}`}
                         onClick={() => onCompanyClick?.(order.restaurantId)}
@@ -415,7 +419,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                       </div>
                       <div className="text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase mt-1">#{order.id}</div>
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-5">
                       <div className="flex flex-col gap-1.5">
                         <Badge variant={
                           order.status === OrderStatus.PENDING ? 'warning' :
@@ -432,7 +436,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-5">
                       {needsPricing ? (
                         <div className="flex items-center gap-1.5 text-xs font-bold text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg border border-amber-100 dark:border-amber-900/50">
                           <AlertTriangle className="h-3.5 w-3.5" />
@@ -447,36 +451,39 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      {order.status === OrderStatus.PENDING && (
-                        <Button size="sm" onClick={() => updateOrderStatus(order.id, OrderStatus.CONFIRMED)} className="bg-emerald-600 hover:bg-emerald-700 text-white border-none">
-                          <Check className="h-3 w-3 mr-1" /> {t('common.confirm')}
+                    <td className="px-3 sm:px-6 py-3 sm:py-5 text-right text-sm font-medium">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-1.5 sm:gap-2">
+                        {order.status === OrderStatus.PENDING && (
+                          <Button size="sm" onClick={() => updateOrderStatus(order.id, OrderStatus.CONFIRMED)} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white border-none">
+                            <Check className="h-3 w-3 mr-1" /> {t('common.confirm')}
+                          </Button>
+                        )}
+                        {order.status === OrderStatus.CONFIRMED && (
+                          <Button size="sm" variant={needsPricing ? "primary" : "secondary"} onClick={() => handleOpenOrder(order, 'pricing')} className="w-full sm:w-auto">
+                            <DollarSign className="h-3 w-3 mr-1" /> {t('common.price')}
+                          </Button>
+                        )}
+                        {order.status === OrderStatus.CONFIRMED && !needsPricing && (
+                           <Button size="sm" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white border-none" onClick={() => handleOpenOrder(order, 'view')}>
+                            <Truck className="h-3 w-3 mr-1" /> {t('common.assign')}
+                           </Button>
+                        )}
+                        {order.status === OrderStatus.OUT_FOR_DELIVERY && (
+                           <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')} className="w-full sm:w-auto">
+                            <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
+                           </Button>
+                        )}
+                        <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="w-full sm:w-auto text-slate-400 dark:text-slate-500">
+                          <Eye className="h-4 w-4" />
                         </Button>
-                      )}
-                      {order.status === OrderStatus.CONFIRMED && (
-                        <Button size="sm" variant={needsPricing ? "primary" : "secondary"} onClick={() => handleOpenOrder(order, 'pricing')}>
-                          <DollarSign className="h-3 w-3 mr-1" /> {t('common.price')}
-                        </Button>
-                      )}
-                      {order.status === OrderStatus.CONFIRMED && !needsPricing && (
-                         <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white border-none" onClick={() => handleOpenOrder(order, 'view')}>
-                          <Truck className="h-3 w-3 mr-1" /> {t('common.assign')}
-                         </Button>
-                      )}
-                      {order.status === OrderStatus.OUT_FOR_DELIVERY && (
-                         <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')}>
-                          <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
-                         </Button>
-                      )}
-                      <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="text-slate-400 dark:text-slate-500">
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      </div>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

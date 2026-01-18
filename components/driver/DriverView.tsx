@@ -1,17 +1,30 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../App';
 import { Card, Button, Badge } from '../ui/Shared';
-import { MapPin, Phone, CheckCircle, Navigation, Clock } from 'lucide-react';
+import { MapPin, Phone, CheckCircle, Navigation, Clock, Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { OrderStatus } from '../../types';
 import { useTranslation } from 'react-i18next';
 
 export const DriverDashboard = () => {
   const { t } = useTranslation();
   const { orders, updateOrderStatus, user, users } = useApp();
-  
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+
   const myDeliveries = orders.filter(o => o.driverId === user?.id && o.status === OrderStatus.OUT_FOR_DELIVERY);
   const history = orders.filter(o => o.driverId === user?.id && (o.status === OrderStatus.DELIVERED || o.status === OrderStatus.COMPLETED));
+
+  const toggleOrderExpanded = (orderId: string) => {
+    setExpandedOrders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
+  };
 
   const handleNavigation = (link?: string) => {
     if (!link) return;
@@ -54,7 +67,7 @@ export const DriverDashboard = () => {
                     <Badge variant="warning" className="px-3 py-1">{t('driver.on_the_way')}</Badge>
                   </div>
                   
-                  <div className="space-y-3 mb-6 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="space-y-3 mb-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-start">
                       <MapPin className="h-5 w-5 mr-3 shrink-0 text-blue-500 dark:text-blue-400 mt-0.5" />
                       <div className="flex-1 min-w-0">
@@ -71,6 +84,52 @@ export const DriverDashboard = () => {
                          <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">{restaurant?.phone || t('driver.no_phone')}</p>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Products Section */}
+                  <div className="mb-4">
+                    <button
+                      onClick={() => toggleOrderExpanded(order.id)}
+                      className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                          {t('driver.products')}
+                        </span>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                          {order.items.length}
+                        </span>
+                      </div>
+                      {expandedOrders.has(order.id) ? (
+                        <ChevronUp className="h-4 w-4 text-slate-400" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                      )}
+                    </button>
+
+                    {expandedOrders.has(order.id) && (
+                      <div className="mt-2 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
+                        {order.items.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800 last:border-0"
+                          >
+                            <span className="font-medium text-sm text-slate-700 dark:text-slate-300 truncate flex-1 pr-3">
+                              {item.productName}
+                            </span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="font-black text-blue-600 dark:text-blue-400 text-sm">
+                                {item.quantity}
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase">
+                                {item.unit}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-4">

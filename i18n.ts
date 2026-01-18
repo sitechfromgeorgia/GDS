@@ -301,7 +301,8 @@ const resources = {
         call: "Call",
         delivered: "Delivered",
         today_history: "Today's History",
-        delivered_at: "Delivered"
+        delivered_at: "Delivered",
+        products: "Products"
       },
       errors: {
         supabase_not_configured: "Supabase is not configured",
@@ -672,7 +673,8 @@ const resources = {
         call: "დარეკვა",
         delivered: "მიტანილია",
         today_history: "დღევანდელი ისტორია",
-        delivered_at: "ჩაბარდა"
+        delivered_at: "ჩაბარდა",
+        products: "პროდუქცია"
       }
     }
   }

@@ -69,15 +69,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 h-11 px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-sm font-medium text-slate-900 dark:text-slate-100 hover:border-slate-200 dark:hover:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+        className="flex items-center gap-2 h-10 sm:h-11 px-3 sm:px-4 rounded-lg border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 hover:border-slate-200 dark:hover:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all w-full sm:w-auto"
       >
-        <Calendar className="h-4 w-4 text-slate-400" />
-        <span className="max-w-[150px] truncate">{getDisplayLabel()}</span>
-        <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
+        <span className="flex-1 sm:flex-initial max-w-[120px] sm:max-w-[150px] truncate text-left">{getDisplayLabel()}</span>
+        <ChevronDown className={`h-4 w-4 text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full left-0 right-0 sm:left-auto sm:right-auto mt-2 w-full sm:w-72 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Preset Options */}
           <div className="p-2">
             <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3 py-2">
