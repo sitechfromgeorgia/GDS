@@ -278,7 +278,7 @@ const resources = {
       landing: {
         hero_title_pre: "Streamline Your",
         hero_title_highlight: "Food Supply Chain",
-        hero_desc: "The centralized platform for Georgian distributors. Automate orders, manage dynamic pricing, and optimize logistics in real-time.",
+        hero_desc: "Supplying your business is our job. Quality products, timely delivery, digital convenience.",
         demo_restaurant: "View Restaurant Demo",
         demo_btn: "Try Demo",
         login_title: "Welcome Back",
@@ -658,7 +658,7 @@ const resources = {
       landing: {
         hero_title_pre: "გაამარტივე შენი",
         hero_title_highlight: "სადისტრიბუციო ჯაჭვი",
-        hero_desc: "ცენტრალიზებული პლატფორმა ქართული დისტრიბუტორებისთვის. შეკვეთების ავტომატიზაცია, დინამიური ფასები და ლოჯისტიკის მართვა.",
+        hero_desc: "თქვენი ბიზნესის მომარაგება - ჩვენი საქმეა. ხარისხიანი პროდუქტები, დროული მიწოდება, ციფრული კომფორტი.",
         demo_restaurant: "რესტორნის დემო",
         demo_btn: "დემო ვერსია",
         login_title: "მოგესალმებით",

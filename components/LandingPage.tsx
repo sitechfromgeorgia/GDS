@@ -51,7 +51,7 @@ export const LandingPage = () => {
       <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#020617]/40 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           <div className="flex items-center gap-3 font-black text-2xl tracking-tighter uppercase">
-            <div className="bg-emerald-500 p-2 rounded-xl shadow-lg shadow-emerald-500/20"><Truck className="h-6 w-6 text-white" /></div>
+            <img src="/icons/Logo.png" alt="Greenland77" className="h-12 w-12 rounded-xl" />
             <span>{config?.companyName || 'GDS'}</span>
           </div>
           <div className="flex items-center gap-4">
