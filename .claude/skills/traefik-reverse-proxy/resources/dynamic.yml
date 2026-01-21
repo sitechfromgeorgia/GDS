@@ -1,0 +1,50 @@
+http:
+  middlewares:
+    # Security headers middleware
+    secure-headers:
+      headers:
+        stsSeconds: 31536000
+        stsPreload: true
+        contentTypeNosniff: true
+        frameDeny: true
+        browserXssFilter: true
+        contentSecurityPolicy: "default-src 'self'; script-src 'self'; object-src 'none';"
+        referrerPolicy: "no-referrer-when-downgrade"
+        permissionsPolicy: "geolocation=(), microphone=()"
+
+    # Basic auth for dashboard
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "admin:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/"  # admin:password
+        realm: "Traefik Dashboard"
+        removeHeader: true
+
+    # Rate limiting
+    rate-limit:
+      rateLimit:
+        average: 100
+        period: 1s
+        burst: 200
+        sourceCriterion:
+          ipStrategy:
+            depth: 2
+
+    # Secure chain: headers + rate limit
+    secured-chain:
+      chain:
+        middlewares:
+          - secure-headers
+          - rate-limit
+
+  routers:
+    # Traefik Dashboard (requires HTTPS)
+    traefik-dashboard:
+      rule: "Host(`traefik.example.com`)"
+      service: api@internal
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - dashboard-auth

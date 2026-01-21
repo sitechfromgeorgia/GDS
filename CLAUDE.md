@@ -116,9 +116,45 @@ Runtime env injection via `docker-entrypoint.sh`.
 - **Units**: კგ, ცალი, ქილა, ტომარა, ლიტრი, კონა, შეკვრა, ბოთლი
 - **Categories**: ბოსტნეული, ხილი, რძის პროდუქტები, ხორცი, თევზი, მარცვლეული, etc.
 
+## MCP Servers (Claude Code)
+
+ამ პროექტზე მუშაობისას გამოიყენე **მხოლოდ** შემდეგი MCP სერვერები:
+
+| MCP Server | აღწერა | გამოყენება |
+|------------|--------|------------|
+| **greenland-distribution-supabase** | GDS პროექტის Supabase | ✅ გამოიყენე |
+| **chrome-devtools** | Chrome DevTools კონტროლი | ✅ გამოიყენე |
+
+### ⚠️ არ გამოიყენო:
+
+- **mobiline-store-supabase** - ეს სხვა პროექტის (Mobiline Store) Supabase-ია, GDS-თან არანაირი კავშირი არ აქვს!
+
+### GDS Supabase ტაბულები:
+
+```
+public.products      - პროდუქტები
+public.categories    - კატეგორიები
+public.units         - საზომი ერთეულები
+public.orders        - შეკვეთები
+public.users         - მომხმარებლები
+public.profiles      - პროფილები (role-based)
+public.stores        - მაღაზიები/რესტორნები
+public.store_products - მაღაზია-პროდუქტების კავშირი
+public.notifications - შეტყობინებები
+public.price_history - ფასების ისტორია
+public.audit_log     - აუდიტი
+```
+
 ## Notes
 
 - No formal test suite configured
 - Hash-based routing (`/#/path`) for SPA compatibility
 - TypeScript strict mode - fix type errors before committing
 - Dark mode persisted to localStorage (`gds_theme`)
+
+## არ გვჭირდება / Out of Scope
+
+- **GPS Tracking** - მძღოლების GPS tracking არ არის საჭირო
+- **ETA Calculation** - მისვლის დროის გამოთვლა არ გვჭირდება
+- **Geofencing** - გეოლოკაციური შეტყობინებები არ არის საჭირო
+- **real-time-logistics-orchestrator** სქილი - არ გამოიყენო

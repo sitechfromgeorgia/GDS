@@ -1,0 +1,11 @@
+feedback_id,source,date,user_segment,feedback_text,rating,category,metadata
+FB001,NPS Survey,2025-01-15,Power User,"Love the new export feature! Makes my workflow so much faster.",9,Features - Positive,user_id=U12345;version=2.1
+FB002,App Store Review,2025-01-16,New User,App crashes every time I try to upload a file. Very frustrating.,2,Performance - Bug,platform=iOS;version=2.0.5
+FB003,Support Ticket,2025-01-17,Regular User,Can't figure out how to share documents with my team. Documentation is unclear.,4,Usability - Navigation,ticket_id=T9876
+FB004,User Interview,2025-01-18,Enterprise User,Pricing is too high for small teams. Would recommend a middle tier.,5,Pricing,company_size=50;tier=Trial
+FB005,In-app Feedback,2025-01-19,Free User,Would love dark mode! I work late at night and the bright interface hurts my eyes.,7,Design - Feature Request,device=Desktop
+FB006,NPS Survey,2025-01-20,Churned User,Switched to Competitor X because they have API access. Miss some features but API was essential.,3,Integrations,churn_date=2025-01-10
+FB007,App Store Review,2025-01-21,Power User,Best tool in the market! Customer support is exceptional.,10,Support - Positive,platform=Android
+FB008,Support Ticket,2025-01-22,New User,Onboarding was confusing. Had no idea what to do after signing up.,4,Onboarding,days_since_signup=2
+FB009,User Interview,2025-01-23,Regular User,Export to PDF works but quality is poor. Text looks blurry.,6,Performance - Quality,usage_frequency=Daily
+FB010,In-app Feedback,2025-01-24,Regular User,Mobile app is missing key features. Can't do half the things I can on desktop.,5,Mobile - Feature Parity,platform=iOS
