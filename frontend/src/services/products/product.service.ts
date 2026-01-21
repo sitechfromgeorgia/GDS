@@ -11,7 +11,7 @@ export class ProductService {
   async getProducts(filters: ProductFilterInput = {}) {
     let query = this.supabase
       .from('products')
-      .select('*')
+      .select('*, image_url:image')
       .eq('is_active', true)
       .eq('is_available', true)
       .order('name', { ascending: true })
@@ -46,7 +46,7 @@ export class ProductService {
   async getProductsByCategory(category: string) {
     const { data, error } = await this.supabase
       .from('products')
-      .select('*')
+      .select('*, image_url:image')
       .eq('category', category)
       .eq('is_active', true)
       .eq('is_available', true)
@@ -80,7 +80,7 @@ export class ProductService {
   async getProductById(productId: string) {
     const { data, error } = await this.supabase
       .from('products')
-      .select('*')
+      .select('*, image_url:image')
       .eq('id', productId)
       .eq('is_active', true)
       .eq('is_available', true)
@@ -143,7 +143,7 @@ export class ProductService {
 
     let query = this.supabase
       .from('products')
-      .select('*', { count: 'exact' })
+      .select('*, image_url:image', { count: 'exact' })
       .eq('is_active', true)
       .eq('is_available', true)
       .order('name', { ascending: true })
@@ -207,7 +207,7 @@ export class ProductService {
   async searchProducts(query: string, limit: number = 10) {
     const { data, error } = await this.supabase
       .from('products')
-      .select('id, name, price, unit, image_url')
+      .select('id, name, price, unit, image_url:image')
       .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
       .eq('is_active', true)
       .eq('is_available', true)

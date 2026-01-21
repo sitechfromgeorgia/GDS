@@ -51,11 +51,11 @@ ENV SENTRY_ORG=$SENTRY_ORG
 ENV SENTRY_PROJECT=$SENTRY_PROJECT
 
 # Copy logo restoration script and generation script explicitly
-COPY restore_logo.js ./
-COPY generate-pwa-assets.js ./
+COPY restore_logo.cjs ./
+COPY generate-pwa-assets.cjs ./
 
 # Restore logo and generate assets before build
-RUN node restore_logo.js && node generate-pwa-assets.js
+RUN node restore_logo.cjs && node generate-pwa-assets.cjs
 
 # Build the application
 RUN npm run build

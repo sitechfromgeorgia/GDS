@@ -29,12 +29,12 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 # Copy logo restoration script and generation script explicitly if not in .
-COPY restore_logo.js ./
-COPY generate-pwa-assets.js ./
+COPY restore_logo.cjs ./
+COPY generate-pwa-assets.cjs ./
 
 # Build the application (React 19 + Next.js 15)
 # Note: npm run build:docker maps to 'next build', so we update package.json's build:docker or just use build
-RUN node restore_logo.js && node generate-pwa-assets.js && npm run build:docker
+RUN node restore_logo.cjs && node generate-pwa-assets.cjs && npm run build:docker
 
 # Stage 2: Runner
 FROM node:22-alpine AS runner
@@ -54,6 +54,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/scripts ./scripts
 
 # Set correct permissions
 USER nextjs

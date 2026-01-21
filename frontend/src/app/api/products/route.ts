@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 
   const supabase = await createClient()
 
-  let query = supabase.from('products').select('*').eq('is_active', true).order('name')
+  let query = supabase.from('products').select('*, image_url:image').eq('is_active', true).order('name')
 
   if (category && category !== 'all') {
     query = query.eq('category', category)

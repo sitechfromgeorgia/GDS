@@ -84,15 +84,84 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const resizeImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.src = URL.createObjectURL(file)
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_WIDTH = 800
+        const MAX_HEIGHT = 800
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width
+            width = MAX_WIDTH
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height
+            height = MAX_HEIGHT
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const resizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              })
+              resolve(resizedFile)
+            } else {
+              reject(new Error('Canvas to Blob failed'))
+            }
+          },
+          'image/jpeg',
+          0.7 // 70% quality
+        )
+      }
+      img.onerror = (error) => reject(error)
+    })
+  }
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
+      try {
+        const resizedFile = await resizeImage(file)
+        
+        if (resizedFile.size > 500 * 1024) {
+             toast({
+              title: 'შეცდომა',
+              description: 'დაპატარავების შემდეგაც სურათის ზომა აღემატება 500KB-ს',
+              variant: 'destructive',
+            })
+            event.target.value = ''
+            return
+        }
+
+        setImageFile(resizedFile)
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string)
+        }
+        reader.readAsDataURL(resizedFile)
+      } catch (error) {
+        console.error('Image resize failed:', error)
+          toast({
+          title: 'შეცდომა',
+          description: 'სურათის დამუშავება ვერ მოხერხდა',
+          variant: 'destructive',
+        })
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -169,6 +238,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
       const productData = {
         ...formData,
         image_url: imageUrl,
+        image: imageUrl, // Compatibility with DB column
         updated_at: new Date().toISOString(),
       }
 
@@ -186,6 +256,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
           stock_quantity: productData.stock_quantity || 0,
           min_stock_level: productData.min_stock_level || 0,
           image_url: imageUrl,
+          image: imageUrl,
           tags: productData.tags,
           is_active: productData.is_active,
         }
@@ -215,6 +286,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
           stock_quantity: productData.stock_quantity || 0,
           min_stock_level: productData.min_stock_level || 0,
           image_url: imageUrl,
+          image: imageUrl,
           tags: productData.tags,
           is_active: productData.is_active || true,
           created_at: new Date().toISOString(),
@@ -339,7 +411,7 @@ export function ProductForm({ product, onClose }: ProductFormProps) {
                         aria-label="ატვირთეთ პროდუქტის სურათი"
                       />
                     </Label>
-                    <p className="text-xs text-muted-foreground">PNG, JPG, JPEG (მაქს. 5MB)</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, JPEG (მაქს. 500KB)</p>
                   </div>
                 </div>
               )}

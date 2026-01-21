@@ -58,7 +58,7 @@ export class CartService {
           name,
           category,
           unit,
-          image_url,
+          image_url:image,
           is_active
         )
       `

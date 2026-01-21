@@ -59,7 +59,7 @@ export function ProductTable({ searchTerm, categoryFilter, onEditProduct }: Prod
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true)
-      let query = supabase.from('products').select('*', { count: 'exact' })
+      let query = supabase.from('products').select('*, image_url:image', { count: 'exact' })
 
       // Apply search filter
       if (searchTerm) {

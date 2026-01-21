@@ -95,7 +95,7 @@ export function OrderManagementClient({ user, role }: OrderManagementClientProps
           driver:profiles!orders_driver_id_fkey(full_name, phone),
           items:order_items(
             *,
-            product:products(name, image_url)
+            product:products(name, image_url:image)
           )
         `
         )

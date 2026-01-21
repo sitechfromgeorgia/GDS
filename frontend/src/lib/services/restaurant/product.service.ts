@@ -17,7 +17,7 @@ export class ProductService {
   private supabase = createBrowserClient()
 
   async getProducts(category?: string): Promise<Product[]> {
-    let query = this.supabase.from('products').select('*').eq('is_active', true).order('name')
+    let query = this.supabase.from('products').select('*, image_url:image').eq('is_active', true).order('name')
 
     if (category && category !== 'all') {
       query = query.eq('category', category)
@@ -36,7 +36,7 @@ export class ProductService {
   async searchProducts(searchTerm: string): Promise<Product[]> {
     const { data, error } = await this.supabase
       .from('products')
-      .select('*')
+      .select('*, image_url:image')
       .eq('is_active', true)
       .ilike('name', `%${searchTerm}%`)
       .order('name')
