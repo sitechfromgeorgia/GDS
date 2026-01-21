@@ -1034,62 +1034,123 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     status: OrderStatus,
     driver?: string,
   ) => {
+    // Optimistic update
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === id
+          ? { ...order, status, ...(driver ? { driverId: driver } : {}) }
+          : order
+      )
+    );
+
     if (isDemo) {
       db.updateOrderStatus(id, status, driver);
     } else {
       const updates: { status: OrderStatus; driverId?: string } = { status };
       if (driver) updates.driverId = driver;
-      await getSupabase()?.from("orders").update(updates).eq("id", id);
+      const { error } = await getSupabase()?.from("orders").update(updates).eq("id", id) || {};
+
+      if (error) {
+        refreshOrders(); // Rollback on error
+        showToast("სტატუსის შეცვლა ვერ მოხერხდა", "error");
+        return;
+      }
     }
-    refreshData();
   };
   const updateOrderPricing = async (id: string, items: OrderItem[]) => {
+    const totalCost = items.reduce(
+      (acc, i) => acc + (i.sellPrice || 0) * i.quantity,
+      0,
+    );
+    const totalProfit = items.reduce(
+      (acc, i) =>
+        acc + ((i.sellPrice || 0) - (i.costPrice || 0)) * i.quantity,
+      0,
+    );
+
+    // Optimistic update
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === id ? { ...order, items, totalCost, totalProfit } : order
+      )
+    );
+
     if (isDemo) {
       db.updateOrderPricing(id, items);
     } else {
-      const totalCost = items.reduce(
-        (acc, i) => acc + (i.sellPrice || 0) * i.quantity,
-        0,
-      );
-      const totalProfit = items.reduce(
-        (acc, i) =>
-          acc + ((i.sellPrice || 0) - (i.costPrice || 0)) * i.quantity,
-        0,
-      );
-      await getSupabase()
+      const { error } = await getSupabase()
         ?.from("orders")
         .update({ items, totalCost, totalProfit })
-        .eq("id", id);
+        .eq("id", id) || {};
+
+      if (error) {
+        refreshOrders(); // Rollback on error
+        showToast("ფასების შენახვა ვერ მოხერხდა", "error");
+        return;
+      }
     }
-    refreshData();
+    showToast(t("orders.order_updated"), "success");
   };
 
   // Update costPrice for a product across all CONFIRMED orders
   const updateProductCostPrice = async (productId: string, costPrice: number) => {
     const confirmedOrders = orders.filter(o => o.status === OrderStatus.CONFIRMED);
+    const ordersToUpdate = confirmedOrders.filter(order =>
+      order.items.some(item => item.productId === productId)
+    );
 
-    for (const order of confirmedOrders) {
-      const hasProduct = order.items.some(item => item.productId === productId);
-      if (!hasProduct) continue;
+    if (ordersToUpdate.length === 0) {
+      showToast(`თვითღირებულება განახლდა: ${costPrice}₾`, "success");
+      return;
+    }
 
-      const updatedItems = order.items.map(item =>
-        item.productId === productId
-          ? { ...item, costPrice }
-          : item
-      );
+    // Optimistic update - update UI immediately
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.status !== OrderStatus.CONFIRMED) return order;
+        const hasProduct = order.items.some(item => item.productId === productId);
+        if (!hasProduct) return order;
 
-      if (isDemo) {
+        return {
+          ...order,
+          items: order.items.map(item =>
+            item.productId === productId ? { ...item, costPrice } : item
+          ),
+        };
+      })
+    );
+
+    showToast(`თვითღირებულება განახლდა: ${costPrice}₾`, "success");
+
+    // Background update to database
+    if (isDemo) {
+      ordersToUpdate.forEach((order) => {
+        const updatedItems = order.items.map(item =>
+          item.productId === productId ? { ...item, costPrice } : item
+        );
         db.updateOrderPricing(order.id, updatedItems);
-      } else {
-        await getSupabase()
+      });
+    } else {
+      // Update all orders in parallel (not sequentially)
+      const updatePromises = ordersToUpdate.map((order) => {
+        const updatedItems = order.items.map(item =>
+          item.productId === productId ? { ...item, costPrice } : item
+        );
+        return getSupabase()
           ?.from("orders")
           .update({ items: updatedItems })
           .eq("id", order.id);
+      });
+
+      // Wait for all updates in parallel
+      const results = await Promise.allSettled(updatePromises);
+      const failures = results.filter(r => r.status === "rejected");
+      if (failures.length > 0) {
+        console.warn("Some cost price updates failed:", failures);
+        // Refresh to sync with server state on error
+        refreshOrders();
       }
     }
-
-    refreshData();
-    showToast(`თვითღირებულება განახლდა: ${costPrice}₾`, "success");
   };
 
   // Update order items (for editing orders - by admin or restaurant)
@@ -1112,19 +1173,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       correctedAt: item.originalQuantity !== undefined ? new Date().toISOString() : item.correctedAt
     })) : items;
 
+    // Optimistic update
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === id
+          ? {
+              ...order,
+              items: updatedItems,
+              totalCost: totalCost > 0 ? totalCost : order.totalCost,
+              totalProfit: totalProfit > 0 ? totalProfit : order.totalProfit,
+            }
+          : order
+      )
+    );
+
     if (isDemo) {
       db.updateOrderPricing(id, updatedItems);
     } else {
-      await getSupabase()
+      const { error } = await getSupabase()
         ?.from("orders")
         .update({
           items: updatedItems,
           totalCost: totalCost > 0 ? totalCost : undefined,
           totalProfit: totalProfit > 0 ? totalProfit : undefined
         })
-        .eq("id", id);
+        .eq("id", id) || {};
+
+      if (error) {
+        refreshOrders(); // Rollback on error
+        showToast("შეკვეთის განახლება ვერ მოხერხდა", "error");
+        return;
+      }
     }
-    refreshData();
     showToast(t("orders.order_updated"), "success");
   };
 
