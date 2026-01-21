@@ -424,13 +424,13 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
 
         <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-100 dark:shadow-none rounded-2xl border border-slate-200 dark:border-slate-800">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800" style={{ minWidth: '640px' }}>
+            <table className="w-full divide-y divide-slate-100 dark:divide-slate-800">
               <thead className="bg-slate-50/50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_id_restaurant')}</th>
-                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_status')}</th>
-                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_financials')}</th>
-                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{t('orders.table_actions')}</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[30%]">{t('orders.table_id_restaurant')}</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[15%]">{t('orders.table_status')}</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[15%]">{t('orders.table_financials')}</th>
+                  <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[40%]">{t('orders.table_actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
@@ -440,84 +440,83 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
 
                   return (
                     <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="px-3 sm:px-6 py-3 sm:py-5">
-                      <div
-                        className={`text-sm font-bold text-slate-900 dark:text-slate-100 ${onCompanyClick ? 'cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors' : ''}`}
-                        onClick={() => onCompanyClick?.(order.restaurantId)}
-                      >
-                        {order.restaurantName}
-                      </div>
-                      <div className="text-[11px] text-slate-400 dark:text-slate-500 font-bold uppercase mt-1">#{order.id}</div>
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-5">
-                      <div className="flex flex-col gap-1.5">
-                        <Badge variant={
-                          order.status === OrderStatus.PENDING ? 'warning' :
-                          order.status === OrderStatus.CONFIRMED ? 'default' :
-                          order.status === OrderStatus.COMPLETED ? 'success' : 'outline'
-                        }>
-                          {getStatusLabel(order.status)}
-                        </Badge>
-                        {assignedDriver && (
-                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">
-                            <Truck className="h-3 w-3" />
-                            {assignedDriver.name}
+                      <td className="px-4 py-4">
+                        <div
+                          className={`text-sm font-bold text-slate-900 dark:text-slate-100 ${onCompanyClick ? 'cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors' : ''}`}
+                          onClick={() => onCompanyClick?.(order.restaurantId)}
+                        >
+                          {order.restaurantName}
+                        </div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-1 truncate max-w-[200px]">#{order.id.substring(0, 8).toUpperCase()}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col gap-1.5">
+                          <Badge variant={
+                            order.status === OrderStatus.PENDING ? 'warning' :
+                            order.status === OrderStatus.CONFIRMED ? 'default' :
+                            order.status === OrderStatus.COMPLETED ? 'success' : 'outline'
+                          }>
+                            {getStatusLabel(order.status)}
+                          </Badge>
+                          {assignedDriver && (
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase">
+                              <Truck className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{assignedDriver.name}</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        {needsPricing ? (
+                          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg border border-amber-100 dark:border-amber-900/50 whitespace-nowrap">
+                            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                            <span className="hidden sm:inline">{t('orders.pricing_required')}</span>
+                            <span className="sm:hidden">!</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-sm font-black text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                            <Wallet className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                            {order.totalCost ? `₾${order.totalCost.toFixed(2)}` : '—'}
                           </div>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-5">
-                      {needsPricing ? (
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg border border-amber-100 dark:border-amber-900/50">
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                          {t('orders.pricing_required')}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                          {order.status === OrderStatus.PENDING && (
+                            <Button size="sm" onClick={() => updateOrderStatus(order.id, OrderStatus.CONFIRMED)} className="bg-emerald-600 hover:bg-emerald-700 text-white border-none whitespace-nowrap">
+                              <Check className="h-3 w-3 mr-1" /> {t('common.confirm')}
+                            </Button>
+                          )}
+                          {order.status === OrderStatus.CONFIRMED && (
+                            <Button size="sm" variant={needsPricing ? "primary" : "secondary"} onClick={() => handleOpenOrder(order, 'pricing')} className="whitespace-nowrap">
+                              <DollarSign className="h-3 w-3 mr-1" /> {t('common.price')}
+                            </Button>
+                          )}
+                          {order.status === OrderStatus.CONFIRMED && !needsPricing && (
+                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white border-none whitespace-nowrap" onClick={() => handleOpenOrder(order, 'view')}>
+                              <Truck className="h-3 w-3 mr-1" /> {t('common.assign')}
+                            </Button>
+                          )}
+                          {order.status === OrderStatus.OUT_FOR_DELIVERY && (
+                            <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')} className="whitespace-nowrap">
+                              <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
+                            </Button>
+                          )}
+                          {canAdminEdit(order) && (
+                            <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'edit')} className="border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 whitespace-nowrap">
+                              <Edit3 className="h-3 w-3 mr-1" /> {t('common.edit')}
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="text-slate-400 dark:text-slate-500 px-2">
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </div>
-                      ) : (
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5 text-sm font-black text-slate-900 dark:text-slate-100">
-                            <Wallet className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
-                            {order.totalCost ? `₾${order.totalCost.toFixed(2)}` : 'TBD'}
-                          </div>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-3 sm:px-6 py-3 sm:py-5 text-right text-sm font-medium">
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-1.5 sm:gap-2">
-                        {order.status === OrderStatus.PENDING && (
-                          <Button size="sm" onClick={() => updateOrderStatus(order.id, OrderStatus.CONFIRMED)} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white border-none">
-                            <Check className="h-3 w-3 mr-1" /> {t('common.confirm')}
-                          </Button>
-                        )}
-                        {order.status === OrderStatus.CONFIRMED && (
-                          <Button size="sm" variant={needsPricing ? "primary" : "secondary"} onClick={() => handleOpenOrder(order, 'pricing')} className="w-full sm:w-auto">
-                            <DollarSign className="h-3 w-3 mr-1" /> {t('common.price')}
-                          </Button>
-                        )}
-                        {order.status === OrderStatus.CONFIRMED && !needsPricing && (
-                           <Button size="sm" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white border-none" onClick={() => handleOpenOrder(order, 'view')}>
-                            <Truck className="h-3 w-3 mr-1" /> {t('common.assign')}
-                           </Button>
-                        )}
-                        {order.status === OrderStatus.OUT_FOR_DELIVERY && (
-                           <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')} className="w-full sm:w-auto">
-                            <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
-                           </Button>
-                        )}
-                        {canAdminEdit(order) && (
-                          <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'edit')} className="w-full sm:w-auto border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                            <Edit3 className="h-3 w-3 mr-1" /> {t('common.edit')}
-                          </Button>
-                        )}
-                        <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="w-full sm:w-auto text-slate-400 dark:text-slate-500">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
