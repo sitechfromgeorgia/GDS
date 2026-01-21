@@ -4,6 +4,7 @@ import React, {
   createContext,
   useContext,
   useCallback,
+  useMemo,
 } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import {
@@ -391,10 +392,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         if (oRes.data) setOrders(oRes.data as any);
         if (uRes.data) setUsers(uRes.data as User[]);
 
-        // Load units/categories if they exist in DB, otherwise use defaults
-        // For now using DB defaults as they might not be in Supabase yet
-        setUnits(db.getUnits());
-        setCategories(db.getCategories());
+        // Load units/categories from Supabase
+        const { data: unitsData } = await supabase.from("units").select("*");
+        if (unitsData && unitsData.length > 0) {
+          setUnits(unitsData.map((u: any) => u.name));
+        } else {
+          setUnits(db.getUnits()); // Fallback to mock data
+        }
+
+        const { data: categoriesData } = await supabase.from("categories").select("*");
+        if (categoriesData && categoriesData.length > 0) {
+          setCategories(categoriesData.map((c: any) => c.name));
+        } else {
+          setCategories(db.getCategories()); // Fallback to mock data
+        }
       } catch (e) {
         console.warn("Supabase sync failed");
       }
@@ -614,12 +625,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addUnit = async (unit: string) => {
+    // Optimistic update - add immediately to UI
+    setUnits(prev => [...prev, unit]);
+
     if (isDemo) {
       db.addUnit(unit);
     } else {
-      await getSupabase()?.from("units").insert({ name: unit });
+      const { error } = await getSupabase()?.from("units").insert({ name: unit }) || {};
+      if (error) {
+        // Rollback on error
+        setUnits(prev => prev.filter(u => u !== unit));
+        showToast("ერთეულის დამატება ვერ მოხერხდა", "error");
+        return;
+      }
     }
-    refreshData();
+    showToast("ერთეული დაემატა", "success");
   };
   const updateUnit = async (oldUnit: string, newUnit: string) => {
     if (isDemo) {
@@ -641,12 +661,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addCategory = async (category: string) => {
+    // Optimistic update - add immediately to UI
+    setCategories(prev => [...prev, category]);
+
     if (isDemo) {
       db.addCategory(category);
     } else {
-      await getSupabase()?.from("categories").insert({ name: category });
+      const { error } = await getSupabase()?.from("categories").insert({ name: category }) || {};
+      if (error) {
+        // Rollback on error
+        setCategories(prev => prev.filter(c => c !== category));
+        showToast("კატეგორიის დამატება ვერ მოხერხდა", "error");
+        return;
+      }
     }
-    refreshData();
+    showToast("კატეგორია დაემატა", "success");
   };
   const updateCategory = async (oldCategory: string, newCategory: string) => {
     if (isDemo) {
@@ -956,6 +985,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast(t("orders.order_updated"), "success");
   };
 
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    user,
+    users,
+    products,
+    orders,
+    units,
+    categories,
+    theme,
+    config,
+    isDemo,
+    toggleTheme,
+    login,
+    logout,
+    refreshData,
+    saveConfig,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    toggleProductStatus,
+    toggleProductPromo,
+    bulkProductAction,
+    addUnit,
+    updateUnit,
+    deleteUnit,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    addUser,
+    updateUser,
+    updateUserStatus,
+    deleteUser,
+    createOrder,
+    updateOrderStatus,
+    updateOrderPricing,
+    updateProductCostPrice,
+    updateOrderItems,
+    showToast,
+  }), [
+    user, users, products, orders, units, categories, theme, config, isDemo,
+    toggleTheme, login, logout, refreshData, saveConfig,
+    addProduct, updateProduct, deleteProduct, toggleProductStatus, toggleProductPromo, bulkProductAction,
+    addUnit, updateUnit, deleteUnit, addCategory, updateCategory, deleteCategory,
+    addUser, updateUser, updateUserStatus, deleteUser,
+    createOrder, updateOrderStatus, updateOrderPricing, updateProductCostPrice, updateOrderItems,
+    showToast
+  ]);
+
   if (loading)
     return (
       <div className="h-screen flex items-center justify-center">
@@ -964,46 +1041,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
   return (
-    <AppContext.Provider
-      value={{
-        user,
-        users,
-        products,
-        orders,
-        units,
-        categories,
-        theme,
-        config,
-        isDemo,
-        toggleTheme,
-        login,
-        logout,
-        refreshData,
-        saveConfig,
-        addProduct,
-        updateProduct,
-        deleteProduct,
-        toggleProductStatus,
-        toggleProductPromo,
-        bulkProductAction,
-        addUnit,
-        updateUnit,
-        deleteUnit,
-        addCategory,
-        updateCategory,
-        deleteCategory,
-        addUser,
-        updateUser,
-        updateUserStatus,
-        deleteUser,
-        createOrder,
-        updateOrderStatus,
-        updateOrderPricing,
-        updateProductCostPrice,
-        updateOrderItems,
-        showToast,
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
       <div className="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none">
         {toasts.map((t: ToastType) => (
