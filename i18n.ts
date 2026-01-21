@@ -37,7 +37,8 @@ const resources = {
         today: "Today",
         this_week: "This Week",
         this_month: "This Month",
-        view: "View"
+        view: "View",
+        remove: "Remove"
       },
       settings: {
         contact_info: "Contact Information",
@@ -382,7 +383,8 @@ const resources = {
         today: "დღეს",
         this_week: "ამ კვირაში",
         this_month: "ამ თვეში",
-        view: "ნახვა"
+        view: "ნახვა",
+        remove: "წაშლა"
       },
       settings: {
         contact_info: "საკონტაქტო ინფორმაცია",
