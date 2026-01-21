@@ -253,28 +253,30 @@ export const UserManagement = () => {
                       {user.isActive !== false ? 'Active' : 'Stopped'}
                     </Badge>
                   </td>
-                  <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <Button size="sm" variant="secondary" onClick={() => handleOpenEdit(user)} className="h-9 w-9 p-0">
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={user.isActive !== false ? 'outline' : 'primary'}
-                      className={`h-9 w-9 p-0 ${user.isActive !== false ? 'text-amber-500 border-amber-100 hover:bg-amber-50 dark:border-amber-900 dark:hover:bg-amber-900/20' : ''}`}
-                      onClick={() => toggleStatus(user.id, user.isActive)}
-                      title={user.isActive !== false ? 'გათიშვა' : 'ჩართვა'}
-                    >
-                      <Power className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-9 w-9 p-0 text-red-500 border-red-100 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
-                      onClick={() => handleOpenDeleteModal(user)}
-                      title="წაშლა"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end gap-1 sm:gap-2 flex-nowrap">
+                      <Button size="sm" variant="secondary" onClick={() => handleOpenEdit(user)} className="h-9 w-9 p-0">
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={user.isActive !== false ? 'outline' : 'primary'}
+                        className={`h-9 w-9 p-0 ${user.isActive !== false ? 'text-amber-500 border-amber-100 hover:bg-amber-50 dark:border-amber-900 dark:hover:bg-amber-900/20' : ''}`}
+                        onClick={() => toggleStatus(user.id, user.isActive)}
+                        title={user.isActive !== false ? 'გათიშვა' : 'ჩართვა'}
+                      >
+                        <Power className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-9 w-9 p-0 text-red-500 border-red-100 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
+                        onClick={() => handleOpenDeleteModal(user)}
+                        title="წაშლა"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

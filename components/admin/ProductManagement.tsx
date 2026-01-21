@@ -417,7 +417,7 @@ export const ProductManager = () => {
       {activeTab === 'catalog' ? (
         <>
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-24">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6 pb-24">
               {filteredAndSortedProducts.map((product, index) => {
                 const isSelected = selectedIds.includes(product.id);
                 const orderCount = productOrderFrequency[product.id] || 0;
@@ -557,10 +557,12 @@ export const ProductManager = () => {
                             {product.isActive ? t('common.active') : t('common.inactive')}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-right space-x-2">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-1.5 flex-nowrap">
                            <button onClick={() => handleOpenEdit(product)} className="p-1.5 text-slate-400 hover:text-blue-500 transition-colors" title="Edit"><Edit2 className="h-4 w-4" /></button>
                            <button onClick={() => toggleProductStatus(product.id)} className={`p-1.5 transition-colors ${product.isActive ? 'text-emerald-500 hover:text-red-500' : 'text-red-400 hover:text-emerald-500'}`} title="Status"><Power className="h-4 w-4" /></button>
                            <button onClick={() => handleDeleteProductClick(product)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -653,7 +655,7 @@ export const ProductManager = () => {
               <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-1.5 uppercase tracking-widest">{t('products.name_label')}</label>
               <Input value={newProduct.name} onChange={(e) => setNewProduct({...newProduct, name: e.target.value})} placeholder={t('products.product_placeholder')} />
            </div>
-           <div className="grid grid-cols-2 gap-4">
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-1.5 uppercase tracking-widest">{t('products.category_label')}</label>
                 <select className="w-full h-11 border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 rounded-lg px-3 text-sm font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none dark:text-slate-100" value={newProduct.category} onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}>

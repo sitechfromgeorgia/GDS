@@ -67,6 +67,16 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
     return Object.values(summary);
   }, [orders]);
 
+  // Calculate total purchase cost for shopping list
+  const totalPurchaseCost = useMemo(() => {
+    return shoppingList.reduce((sum, item) => {
+      if (item.costPrice) {
+        return sum + (item.quantity * item.costPrice);
+      }
+      return sum;
+    }, 0);
+  }, [shoppingList]);
+
   // State for cost price inputs in shopping list
   const [costPriceInputs, setCostPriceInputs] = useState<Record<string, string>>({});
 
@@ -290,7 +300,15 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{t('orders.shopping_list_subtitle')}</p>
           </div>
-          <Badge variant="outline">{shoppingList.length} {t('common.items')}</Badge>
+          <div className="flex items-center gap-3">
+            {totalPurchaseCost > 0 && (
+              <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                <Wallet className="h-3 w-3 mr-1" />
+                {totalPurchaseCost.toFixed(2)}₾
+              </Badge>
+            )}
+            <Badge variant="outline">{shoppingList.length} {t('common.items')}</Badge>
+          </div>
         </div>
         {shoppingList.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -327,8 +345,11 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                   </Button>
                 </div>
                 {item.costPrice && (
-                  <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
-                    ✓ {t('orders.cost')}: {item.costPrice}₾
+                  <div className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium flex items-center justify-between">
+                    <span>✓ {t('orders.cost')}: {item.costPrice}₾</span>
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">
+                      = {(item.quantity * item.costPrice).toFixed(2)}₾
+                    </span>
                   </div>
                 )}
               </div>
@@ -424,13 +445,13 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
 
         <div className="bg-white dark:bg-slate-900 shadow-xl shadow-slate-100 dark:shadow-none rounded-2xl border border-slate-200 dark:border-slate-800">
           <div className="overflow-x-auto">
-            <table className="w-full divide-y divide-slate-100 dark:divide-slate-800">
+            <table className="w-full divide-y divide-slate-100 dark:divide-slate-800 table-auto">
               <thead className="bg-slate-50/50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[30%]">{t('orders.table_id_restaurant')}</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[15%]">{t('orders.table_status')}</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[15%]">{t('orders.table_financials')}</th>
-                  <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] w-[40%]">{t('orders.table_actions')}</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">{t('orders.table_id_restaurant')}</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_status')}</th>
+                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_financials')}</th>
+                  <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
@@ -480,31 +501,31 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                      <td className="px-4 py-4 min-w-[180px] md:min-w-[280px]">
+                        <div className="flex items-center justify-end gap-1.5 flex-nowrap">
                           {order.status === OrderStatus.PENDING && (
-                            <Button size="sm" onClick={() => updateOrderStatus(order.id, OrderStatus.CONFIRMED)} className="bg-emerald-600 hover:bg-emerald-700 text-white border-none whitespace-nowrap">
-                              <Check className="h-3 w-3 mr-1" /> {t('common.confirm')}
+                            <Button size="sm" onClick={() => updateOrderStatus(order.id, OrderStatus.CONFIRMED)} className="bg-emerald-600 hover:bg-emerald-700 text-white border-none whitespace-nowrap px-2">
+                              <Check className="h-3 w-3 shrink-0" /> <span className="hidden lg:inline ml-1">{t('common.confirm')}</span>
                             </Button>
                           )}
                           {order.status === OrderStatus.CONFIRMED && (
-                            <Button size="sm" variant={needsPricing ? "primary" : "secondary"} onClick={() => handleOpenOrder(order, 'pricing')} className="whitespace-nowrap">
-                              <DollarSign className="h-3 w-3 mr-1" /> {t('common.price')}
+                            <Button size="sm" variant={needsPricing ? "primary" : "secondary"} onClick={() => handleOpenOrder(order, 'pricing')} className="whitespace-nowrap px-2">
+                              <DollarSign className="h-3 w-3 shrink-0" /> <span className="hidden lg:inline ml-1">{t('common.price')}</span>
                             </Button>
                           )}
                           {order.status === OrderStatus.CONFIRMED && !needsPricing && (
-                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white border-none whitespace-nowrap" onClick={() => handleOpenOrder(order, 'view')}>
-                              <Truck className="h-3 w-3 mr-1" /> {t('common.assign')}
+                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white border-none whitespace-nowrap px-2" onClick={() => handleOpenOrder(order, 'view')}>
+                              <Truck className="h-3 w-3 shrink-0" /> <span className="hidden lg:inline ml-1">{t('common.assign')}</span>
                             </Button>
                           )}
                           {order.status === OrderStatus.OUT_FOR_DELIVERY && (
-                            <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')} className="whitespace-nowrap">
-                              <Eye className="h-3 w-3 mr-1" /> {t('common.details')}
+                            <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'view')} className="whitespace-nowrap px-2">
+                              <Eye className="h-3 w-3 shrink-0" /> <span className="hidden lg:inline ml-1">{t('common.details')}</span>
                             </Button>
                           )}
                           {canAdminEdit(order) && (
-                            <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'edit')} className="border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 whitespace-nowrap">
-                              <Edit3 className="h-3 w-3 mr-1" /> {t('common.edit')}
+                            <Button size="sm" variant="outline" onClick={() => handleOpenOrder(order, 'edit')} className="border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 whitespace-nowrap px-2">
+                              <Edit3 className="h-3 w-3 shrink-0" /> <span className="hidden lg:inline ml-1">{t('common.edit')}</span>
                             </Button>
                           )}
                           <Button size="sm" variant="ghost" onClick={() => handleOpenOrder(order, 'view')} className="text-slate-400 dark:text-slate-500 px-2">

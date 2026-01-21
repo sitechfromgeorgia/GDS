@@ -361,7 +361,7 @@ export const Analytics = () => {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {[
           { label: t('admin.total_revenue'), val: `₾${metrics.totalSales.toLocaleString()}`, icon: DollarSign, trend: metrics.salesTrend, color: '#3b82f6' },
           { label: t('admin.net_profit'), val: `₾${metrics.totalProfit.toLocaleString()}`, icon: Target, trend: metrics.profitTrend, color: '#10b981' },

@@ -42,11 +42,15 @@ const Catalog = () => {
   const updateCartQuantity = (productId: string, delta: number) => {
     setCart(prev => prev.map(item => {
       if (item.product.id === productId) {
-        const newQty = Math.max(0, item.quantity + delta);
+        const newQty = Math.max(1, item.quantity + delta); // მინიმუმ 1, არ იშლება ავტომატურად
         return { ...item, quantity: newQty };
       }
       return item;
-    }).filter(i => i.quantity > 0));
+    }));
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(i => i.product.id !== productId));
   };
 
   const setCartQuantity = (productId: string, quantity: number) => {
@@ -242,22 +246,38 @@ const Catalog = () => {
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                       />
                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
+                      <button
+                        onClick={() => removeFromCart(item.product.id)}
+                        className="p-1.5 ml-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                        title={t('common.remove')}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
                     </div>
                   ) : (
                     // Count-based input - +/- buttons
-                    <div className="flex items-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
+                    <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <button
+                          onClick={() => updateCartQuantity(item.product.id, -1)}
+                          className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-r border-slate-100 dark:border-slate-700"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="px-3 text-sm font-bold text-slate-900 dark:text-slate-100 min-w-[32px] text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateCartQuantity(item.product.id, 1)}
+                          className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-l border-slate-100 dark:border-slate-700"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                       <button
-                        onClick={() => updateCartQuantity(item.product.id, -1)}
-                        className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-r border-slate-100 dark:border-slate-700"
+                        onClick={() => removeFromCart(item.product.id)}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                        title={t('common.remove')}
                       >
-                        <Minus className="h-3.5 w-3.5" />
-                      </button>
-                      <span className="px-3 text-sm font-bold text-slate-900 dark:text-slate-100 min-w-[32px] text-center">{item.quantity}</span>
-                      <button
-                        onClick={() => updateCartQuantity(item.product.id, 1)}
-                        className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-l border-slate-100 dark:border-slate-700"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
+                        <X className="h-4 w-4" />
                       </button>
                     </div>
                   )}
@@ -1036,7 +1056,7 @@ const RestaurantAnalytics = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <StatCard
           title={t('restaurantAnalytics.totalSpent')}
           value={`₾${metrics.totalSpent.toFixed(0)}`}
