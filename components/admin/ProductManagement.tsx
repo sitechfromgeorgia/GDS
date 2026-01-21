@@ -145,14 +145,52 @@ export const ProductManager = () => {
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Helper function to resize image before storing
+  const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Convert to JPEG at 70% quality
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        URL.revokeObjectURL(img.src);
+        resolve(dataUrl);
+      };
+      img.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewProduct(prev => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const resizedDataUrl = await resizeImage(file);
+        setNewProduct(prev => ({ ...prev, image: resizedDataUrl }));
+      } catch (error) {
+        console.error('Image resize failed:', error);
+      }
     }
   };
 

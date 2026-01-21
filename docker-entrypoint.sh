@@ -46,4 +46,13 @@ chmod 644 "$ROOT_DIR/config.js"
 
 echo "Runtime env injection complete."
 
+# Run Image Migration Script
+if [ -f "/app/scripts/optimize-images.cjs" ]; then
+    echo "Starting image migration..."
+    # Execute script with env vars (which are set in Docker/Shell)
+    node /app/scripts/optimize-images.cjs || echo "WARNING: Image migration failed, but continuing deployment..."
+else
+    echo "No image migration script found."
+fi
+
 exec "$@"

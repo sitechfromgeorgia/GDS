@@ -28,11 +28,16 @@ RUN npm run build
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-# Install wget for health checks
-RUN apk add --no-cache wget
+# Install wget for health checks and Node.js for migration script
+RUN apk add --no-cache wget nodejs npm
 
 # Copy built assets from builder stage
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy node_modules and scripts for migration
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/scripts /app/scripts
+COPY --from=build /app/package.json /app/package.json
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
