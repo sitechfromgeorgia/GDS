@@ -138,9 +138,9 @@ export const LanguageSwitcher = () => {
 // Theme Toggle
 export const ThemeToggle = () => {
   const { theme, toggleTheme } = useApp();
-  
+
   return (
-    <button 
+    <button
       onClick={toggleTheme}
       className="flex items-center justify-center p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
     >
@@ -148,3 +148,84 @@ export const ThemeToggle = () => {
     </button>
   );
 };
+
+// Skeleton Base
+const SkeletonBase = ({ className = '' }: { className?: string }) => (
+  <div className={`animate-pulse bg-slate-200 dark:bg-slate-700 rounded ${className}`} />
+);
+
+// Product Card Skeleton
+export const ProductCardSkeleton = () => (
+  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+    <div className="flex items-start gap-4">
+      <SkeletonBase className="h-16 w-16 rounded-xl shrink-0" />
+      <div className="flex-1 space-y-2">
+        <SkeletonBase className="h-4 w-3/4" />
+        <SkeletonBase className="h-3 w-1/2" />
+        <SkeletonBase className="h-3 w-1/3" />
+      </div>
+    </div>
+  </div>
+);
+
+// Order Row Skeleton
+export const OrderRowSkeleton = () => (
+  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <SkeletonBase className="h-10 w-10 rounded-full" />
+        <div className="space-y-2">
+          <SkeletonBase className="h-4 w-32" />
+          <SkeletonBase className="h-3 w-24" />
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <SkeletonBase className="h-6 w-20 rounded-full" />
+        <SkeletonBase className="h-8 w-8 rounded-lg" />
+      </div>
+    </div>
+  </div>
+);
+
+// Stat Card Skeleton
+export const StatCardSkeleton = () => (
+  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+    <div className="flex items-center justify-between">
+      <div className="space-y-2">
+        <SkeletonBase className="h-3 w-20" />
+        <SkeletonBase className="h-8 w-16" />
+      </div>
+      <SkeletonBase className="h-12 w-12 rounded-xl" />
+    </div>
+  </div>
+);
+
+// Table Skeleton
+export const TableSkeleton = ({ rows = 5 }: { rows?: number }) => (
+  <div className="space-y-3">
+    {Array.from({ length: rows }).map((_, i) => (
+      <OrderRowSkeleton key={i} />
+    ))}
+  </div>
+);
+
+// Product Grid Skeleton
+export const ProductGridSkeleton = ({ count = 8 }: { count?: number }) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    {Array.from({ length: count }).map((_, i) => (
+      <ProductCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
+// Dashboard Skeleton (for lazy loading)
+export const DashboardSkeleton = () => (
+  <div className="p-6 space-y-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <StatCardSkeleton key={i} />
+      ))}
+    </div>
+    <TableSkeleton rows={5} />
+  </div>
+);

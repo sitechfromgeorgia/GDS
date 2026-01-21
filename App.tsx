@@ -45,7 +45,11 @@ interface AppContextType {
   categories: string[];
   theme: "light" | "dark";
   config: AppConfig | null;
+  isLoadingData: boolean;
   toggleTheme: () => void;
+  refreshProducts: () => Promise<void>;
+  refreshOrders: () => Promise<void>;
+  refreshUsers: () => Promise<void>;
   login: (
     email: string,
     password?: string,
@@ -114,6 +118,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const [units, setUnits] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
   // Helper: Promise with timeout to prevent hanging
@@ -330,85 +335,167 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     else root.classList.remove("dark");
   }, [theme]);
 
+  // Targeted refresh functions - refresh only specific data
+  const refreshProducts = useCallback(async () => {
+    const supabase = getSupabase();
+    if (isDemo) {
+      if (supabase) {
+        const { data } = await supabase.from("products").select("*");
+        if (data) setProducts(data as Product[]);
+        else setProducts(db.getProducts());
+      } else {
+        setProducts(db.getProducts());
+      }
+    } else if (supabase) {
+      const { data } = await supabase.from("products").select("*");
+      if (data) setProducts(data as Product[]);
+    }
+  }, [isDemo]);
+
+  const refreshOrders = useCallback(async () => {
+    const supabase = getSupabase();
+    if (isDemo) {
+      setOrders(db.getOrders());
+    } else if (supabase) {
+      const { data } = await supabase
+        .from("orders")
+        .select("*")
+        .order("createdAt", { ascending: false });
+      if (data) setOrders(data as any);
+    }
+  }, [isDemo]);
+
+  const refreshUsers = useCallback(async () => {
+    const supabase = getSupabase();
+    if (isDemo) {
+      setUsers(db.getUsers());
+    } else if (supabase) {
+      const { data } = await supabase.from("users").select("*");
+      if (data) setUsers(data as User[]);
+    }
+  }, [isDemo]);
+
   const refreshData = useCallback(async () => {
     const supabase = getSupabase();
+    setIsLoadingData(true);
 
-    // Always load local mock data for fallback or initial state if needed, but prioritize Supabase
-    // If we are in DEMO mode, we might want to show Supabase products but keep local orders?
-    // User requirement: "Demo for restaurant must see REAL products"
+    try {
+      if (isDemo) {
+        // Demo mode: Real products from Supabase, mock orders
+        if (supabase) {
+          try {
+            // Use Promise.allSettled for error isolation
+            const results = await Promise.allSettled([
+              supabase.from("products").select("*"),
+              supabase.from("categories").select("*"),
+              supabase.from("units").select("*"),
+            ]);
 
-    if (isDemo) {
-      // For Demo user:
-      // 1. Get Products from Supabase (Real data)
-      // 2. Keep Orders local (Mock)
-      // 3. User is Mock
-      if (supabase) {
-        try {
-          const { data: realProducts, error } = await supabase
-            .from("products")
-            .select("*");
-          if (realProducts && !error) setProducts(realProducts as Product[]);
-          else setProducts(db.getProducts());
+            // Products
+            if (results[0].status === "fulfilled" && results[0].value.data) {
+              setProducts(results[0].value.data as Product[]);
+            } else {
+              setProducts(db.getProducts());
+            }
 
-          const { data: realCategories } = await supabase
-            .from("categories")
-            .select("*");
-          if (realCategories && realCategories.length > 0)
-            setCategories(realCategories.map((c: any) => c.name));
-          else setCategories(db.getCategories());
+            // Categories
+            if (results[1].status === "fulfilled") {
+              const catData = (results[1].value as any)?.data;
+              if (catData?.length > 0) {
+                setCategories(catData.map((c: any) => c.name));
+              } else {
+                setCategories(db.getCategories());
+              }
+            } else {
+              setCategories(db.getCategories());
+            }
 
-          const { data: realUnits } = await supabase.from("units").select("*");
-          if (realUnits && realUnits.length > 0)
-            setUnits(realUnits.map((u: any) => u.name));
-          else setUnits(db.getUnits());
-        } catch (e) {
-          console.warn("Demo sync failed, using mock", e);
+            // Units
+            if (results[2].status === "fulfilled") {
+              const unitData = (results[2].value as any)?.data;
+              if (unitData?.length > 0) {
+                setUnits(unitData.map((u: any) => u.name));
+              } else {
+                setUnits(db.getUnits());
+              }
+            } else {
+              setUnits(db.getUnits());
+            }
+          } catch (e) {
+            console.warn("Demo sync failed, using mock", e);
+            setProducts(db.getProducts());
+            setCategories(db.getCategories());
+            setUnits(db.getUnits());
+          }
+        } else {
           setProducts(db.getProducts());
           setCategories(db.getCategories());
           setUnits(db.getUnits());
         }
-      } else {
-        setProducts(db.getProducts());
-        setCategories(db.getCategories());
-        setUnits(db.getUnits());
+        setOrders(db.getOrders());
+        setUsers(db.getUsers());
+        return;
       }
-      setOrders(db.getOrders()); // Demo user sees mock orders from db.ts
-      setUsers(db.getUsers()); // Demo user only sees itself?
-      return;
-    }
 
-    if (supabase && user) {
-      try {
-        const [pRes, oRes, uRes] = await Promise.all([
+      // Production mode: All data from Supabase with error isolation
+      if (supabase && user) {
+        const results = await Promise.allSettled([
           supabase.from("products").select("*"),
-          supabase
-            .from("orders")
-            .select("*")
-            .order("createdAt", { ascending: false }),
+          supabase.from("orders").select("*").order("createdAt", { ascending: false }),
           supabase.from("users").select("*"),
+          supabase.from("units").select("*"),
+          supabase.from("categories").select("*"),
         ]);
 
-        if (pRes.data) setProducts(pRes.data as Product[]);
-        if (oRes.data) setOrders(oRes.data as any);
-        if (uRes.data) setUsers(uRes.data as User[]);
-
-        // Load units/categories from Supabase
-        const { data: unitsData } = await supabase.from("units").select("*");
-        if (unitsData && unitsData.length > 0) {
-          setUnits(unitsData.map((u: any) => u.name));
-        } else {
-          setUnits(db.getUnits()); // Fallback to mock data
+        // Products
+        if (results[0].status === "fulfilled" && results[0].value.data) {
+          setProducts(results[0].value.data as Product[]);
         }
 
-        const { data: categoriesData } = await supabase.from("categories").select("*");
-        if (categoriesData && categoriesData.length > 0) {
-          setCategories(categoriesData.map((c: any) => c.name));
-        } else {
-          setCategories(db.getCategories()); // Fallback to mock data
+        // Orders
+        if (results[1].status === "fulfilled" && results[1].value.data) {
+          setOrders(results[1].value.data as any);
         }
-      } catch (e) {
-        console.warn("Supabase sync failed");
+
+        // Users
+        if (results[2].status === "fulfilled" && results[2].value.data) {
+          setUsers(results[2].value.data as User[]);
+        }
+
+        // Units
+        if (results[3].status === "fulfilled") {
+          const unitData = (results[3].value as any)?.data;
+          if (unitData?.length > 0) {
+            setUnits(unitData.map((u: any) => u.name));
+          } else {
+            setUnits(db.getUnits());
+          }
+        } else {
+          setUnits(db.getUnits());
+        }
+
+        // Categories
+        if (results[4].status === "fulfilled") {
+          const catData = (results[4].value as any)?.data;
+          if (catData?.length > 0) {
+            setCategories(catData.map((c: any) => c.name));
+          } else {
+            setCategories(db.getCategories());
+          }
+        } else {
+          setCategories(db.getCategories());
+        }
+
+        // Log any failures for debugging
+        results.forEach((result, idx) => {
+          if (result.status === "rejected") {
+            const tables = ["products", "orders", "users", "units", "categories"];
+            console.warn(`Failed to fetch ${tables[idx]}:`, result.reason);
+          }
+        });
       }
+    } finally {
+      setIsLoadingData(false);
     }
   }, [isDemo, user]);
 
@@ -578,50 +665,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshData();
   };
   const toggleProductStatus = async (id: string) => {
+    const product = products.find((p: Product) => p.id === id);
+    if (!product) return;
+
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p))
+    );
+
     if (isDemo) {
       db.toggleProductStatus(id);
     } else {
-      const product = products.find((p: Product) => p.id === id);
-      if (product) {
-        await getSupabase()
-          ?.from("products")
-          .update({ isActive: !product.isActive })
-          .eq("id", id);
+      const { error } = await getSupabase()
+        ?.from("products")
+        .update({ isActive: !product.isActive })
+        .eq("id", id) || {};
+      if (error) {
+        // Rollback on error
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, isActive: product.isActive } : p))
+        );
+        showToast("სტატუსის შეცვლა ვერ მოხერხდა", "error");
       }
     }
-    refreshData();
   };
+
   const toggleProductPromo = async (id: string) => {
+    const product = products.find((p: Product) => p.id === id);
+    if (!product) return;
+
+    const nextPromo = !product.isPromo;
+
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, isPromo: nextPromo } : p
+      )
+    );
+
     if (isDemo) {
       db.toggleProductPromo(id);
     } else {
-      const product = products.find((p: Product) => p.id === id);
-      if (product) {
-        const nextPromo = !product.isPromo;
-        await getSupabase()
-          ?.from("products")
-          .update({
-            isPromo: nextPromo,
-            price: nextPromo ? product.price : null,
-          })
-          .eq("id", id);
+      const { error } = await getSupabase()
+        ?.from("products")
+        .update({
+          isPromo: nextPromo,
+          price: nextPromo ? product.price : null,
+        })
+        .eq("id", id) || {};
+      if (error) {
+        // Rollback on error
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, isPromo: product.isPromo } : p))
+        );
+        showToast("პრომო სტატუსის შეცვლა ვერ მოხერხდა", "error");
       }
     }
-    refreshData();
   };
+
   const bulkProductAction = async (
     ids: string[],
     updates: Partial<Product>,
   ) => {
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) => (ids.includes(p.id) ? { ...p, ...updates } : p))
+    );
+
     if (isDemo) {
       db.bulkUpdateProducts(ids, updates);
     } else {
-      // Supabase doesn't support bulk update with IN, so update each
-      for (const id of ids) {
-        await getSupabase()?.from("products").update(updates).eq("id", id);
+      // Use .in() for single query instead of N queries
+      const { error } = await getSupabase()
+        ?.from("products")
+        .update(updates)
+        .in("id", ids) || {};
+      if (error) {
+        // Rollback on error
+        refreshProducts();
+        showToast("ბულკ განახლება ვერ მოხერხდა", "error");
       }
     }
-    refreshData();
   };
 
   const addUnit = async (unit: string) => {
@@ -642,22 +766,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast("ერთეული დაემატა", "success");
   };
   const updateUnit = async (oldUnit: string, newUnit: string) => {
+    // Optimistic update
+    setUnits((prev) => prev.map((u) => (u === oldUnit ? newUnit : u)));
+    setProducts((prev) =>
+      prev.map((p) => (p.unit === oldUnit ? { ...p, unit: newUnit } : p))
+    );
+
     if (isDemo) {
       db.updateUnit(oldUnit, newUnit);
     } else {
       await getSupabase()?.from("units").update({ name: newUnit }).eq("name", oldUnit);
-      // Also update products using this unit
       await getSupabase()?.from("products").update({ unit: newUnit }).eq("unit", oldUnit);
     }
-    refreshData();
+    showToast("ერთეული განახლდა", "success");
   };
+
   const deleteUnit = async (unit: string) => {
+    // Optimistic update
+    setUnits((prev) => prev.filter((u) => u !== unit));
+
     if (isDemo) {
       db.deleteUnit(unit);
     } else {
       await getSupabase()?.from("units").delete().eq("name", unit);
     }
-    refreshData();
+    showToast("ერთეული წაიშალა", "success");
   };
 
   const addCategory = async (category: string) => {
@@ -678,21 +811,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast("კატეგორია დაემატა", "success");
   };
   const updateCategory = async (oldCategory: string, newCategory: string) => {
+    // Optimistic update
+    setCategories((prev) => prev.map((c) => (c === oldCategory ? newCategory : c)));
+    setProducts((prev) =>
+      prev.map((p) => (p.category === oldCategory ? { ...p, category: newCategory } : p))
+    );
+
     if (isDemo) {
       db.updateCategory(oldCategory, newCategory);
     } else {
       await getSupabase()?.from("categories").update({ name: newCategory }).eq("name", oldCategory);
-      // Also update products using this category
       await getSupabase()?.from("products").update({ category: newCategory }).eq("category", oldCategory);
     }
-    refreshData();
+    showToast("კატეგორია განახლდა", "success");
   };
+
   const deleteCategory = async (category: string) => {
+    // Optimistic update
+    setCategories((prev) => prev.filter((c) => c !== category));
+
     if (isDemo) {
       db.deleteCategory(category);
     } else {
       await getSupabase()?.from("categories").delete().eq("name", category);
     }
+    showToast("კატეგორია წაიშალა", "success");
     refreshData();
   };
 
@@ -996,10 +1139,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     theme,
     config,
     isDemo,
+    isLoadingData,
     toggleTheme,
     login,
     logout,
     refreshData,
+    refreshProducts,
+    refreshOrders,
+    refreshUsers,
     saveConfig,
     addProduct,
     updateProduct,
@@ -1024,8 +1171,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     updateOrderItems,
     showToast,
   }), [
-    user, users, products, orders, units, categories, theme, config, isDemo,
-    toggleTheme, login, logout, refreshData, saveConfig,
+    user, users, products, orders, units, categories, theme, config, isDemo, isLoadingData,
+    toggleTheme, login, logout, refreshData, refreshProducts, refreshOrders, refreshUsers, saveConfig,
     addProduct, updateProduct, deleteProduct, toggleProductStatus, toggleProductPromo, bulkProductAction,
     addUnit, updateUnit, deleteUnit, addCategory, updateCategory, deleteCategory,
     addUser, updateUser, updateUserStatus, deleteUser,

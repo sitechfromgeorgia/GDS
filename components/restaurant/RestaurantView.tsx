@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Routes, Route, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../App';
-import { Card, Button, Badge, Input, Modal } from '../ui/Shared';
+import { Card, Button, Badge, Input, Modal, ProductGridSkeleton } from '../ui/Shared';
 import { FilterChips, FilterChip } from '../ui/FilterChips';
 import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { Product, OrderStatus, Order } from '../../types';
@@ -15,7 +15,7 @@ import {
 
 const Catalog = () => {
   const { t, i18n } = useTranslation();
-  const { products, createOrder, user, orders, refreshData } = useApp();
+  const { products, createOrder, user, orders, refreshData, isLoadingData } = useApp();
   const [cart, setCart] = useState<{ product: Product, quantity: number }[]>([]);
   const [search, setSearch] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
@@ -164,8 +164,14 @@ const Catalog = () => {
 
         {/* All Products Section */}
         <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">{t('products.all_items')}</h3>
+
+        {/* Loading Skeleton */}
+        {isLoadingData && products.length === 0 && (
+          <ProductGridSkeleton count={8} />
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredProducts.length > 0 ? filteredProducts.map(product => (
+          {!isLoadingData && filteredProducts.length > 0 ? filteredProducts.map(product => (
             <Card key={product.id} className={`flex items-center p-4 space-x-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all group ${product.isPromo ? 'border-amber-200 dark:border-amber-800' : ''}`}>
               <div className="relative">
                 <img src={product.image} alt={product.name} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800 group-hover:scale-105 transition-transform" />
