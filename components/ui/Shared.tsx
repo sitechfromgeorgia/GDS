@@ -1,7 +1,6 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Sun, Moon, CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { Globe, Sun, Moon, CheckCircle2, AlertCircle, Info, AlertTriangle, X, LucideIcon } from 'lucide-react';
 import { useApp } from '../../App';
 
 // Button
@@ -63,16 +62,110 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
   }
 );
 
-// Modal
+// Modal with Accessibility (ARIA, Focus Trap, Keyboard Navigation)
 export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; onClose: () => void; title: string; children?: React.ReactNode }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousActiveElement = useRef<Element | null>(null);
+
+  // Generate unique IDs for ARIA
+  const titleId = useRef(`modal-title-${Math.random().toString(36).substr(2, 9)}`);
+
+  // Handle Escape key
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+
+    // Focus trap - Tab key handling
+    if (e.key === 'Tab' && modalRef.current) {
+      const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    }
+  }, [onClose]);
+
+  // Handle backdrop click
+  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Store previously focused element
+      previousActiveElement.current = document.activeElement;
+
+      // Add keyboard listener
+      document.addEventListener('keydown', handleKeyDown);
+
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+
+      // Focus the close button after a short delay (for animation)
+      setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 100);
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = '';
+
+        // Restore focus to previous element
+        if (previousActiveElement.current instanceof HTMLElement) {
+          previousActiveElement.current.focus();
+        }
+      };
+    }
+  }, [isOpen, handleKeyDown]);
+
   if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col scale-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border-t sm:border border-white/20 dark:border-slate-800">
+    <div
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200"
+      role="presentation"
+      onClick={handleBackdropClick}
+      aria-hidden="false"
+    >
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId.current}
+        className="bg-white dark:bg-slate-900 w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col scale-100 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 border-t sm:border border-white/20 dark:border-slate-800"
+      >
         <div className="flex justify-between items-center px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-950 dark:text-slate-100 tracking-tight truncate pr-2">{title}</h3>
-          <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shrink-0">
-            <X className="h-5 w-5" />
+          <h2
+            id={titleId.current}
+            className="text-lg sm:text-xl font-bold text-slate-950 dark:text-slate-100 tracking-tight truncate pr-2"
+          >
+            {title}
+          </h2>
+          <button
+            ref={closeButtonRef}
+            onClick={onClose}
+            aria-label="მოდალის დახურვა"
+            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shrink-0 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
         <div className="p-4 sm:p-6 overflow-y-auto flex-1">
@@ -186,6 +279,37 @@ export const OrderRowSkeleton = () => (
     </div>
   </div>
 );
+
+// Memoized StatCard Component
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+  color: string;
+  change?: number;
+  suffix?: string;
+}
+
+export const StatCard = memo(({ title, value, icon: Icon, color, change, suffix = '' }: StatCardProps) => (
+  <Card className="p-6">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{value}{suffix}</h3>
+        {change !== undefined && (
+          <p className={`text-xs mt-1 font-medium ${change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {change >= 0 ? '+' : ''}{change.toFixed(1)}%
+          </p>
+        )}
+      </div>
+      <div className={`p-3 rounded-full ${color}`}>
+        <Icon className="h-6 w-6 text-white" />
+      </div>
+    </div>
+  </Card>
+));
+
+StatCard.displayName = 'StatCard';
 
 // Stat Card Skeleton
 export const StatCardSkeleton = () => (

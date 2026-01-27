@@ -8,9 +8,17 @@ import { Analytics } from './Analytics';
 import { CompanyDetails } from './CompanyDetails';
 import { useApp } from '../../App';
 import { Card, Badge } from '../ui/Shared';
-import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package, Database } from 'lucide-react';
+import { ShoppingBag, DollarSign, Users, Activity, TrendingUp, Package, Database, LucideIcon } from 'lucide-react';
 import { OrderStatus, User, Order } from '../../types';
 import { useTranslation } from 'react-i18next';
+
+// StatCard props interface
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+  color: string;
+}
 
 const DashboardHome = () => {
   const { orders, products, users, isDemo } = useApp();
@@ -38,7 +46,7 @@ const DashboardHome = () => {
       .slice(0, 5);
   }, [orders]);
 
-  const StatCard = ({ title, value, icon: Icon, color }: any) => (
+  const StatCard = ({ title, value, icon: Icon, color }: StatCardProps) => (
     <Card className="p-6">
       <div className="flex items-center justify-between">
         <div>

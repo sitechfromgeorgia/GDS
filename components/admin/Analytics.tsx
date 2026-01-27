@@ -17,9 +17,25 @@ import { OrderStatus } from '../../types';
 
 type TimePeriod = 'today' | 'week' | 'month' | 'year';
 
-const renderActiveShape = (props: any) => {
+// Props interface for Recharts active shape renderer
+interface ActiveShapeProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+  payload: { name: string };
+  percent: number;
+  value: number;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const renderActiveShape = (props: any): React.ReactElement => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props as ActiveShapeProps;
   const RADIAN = Math.PI / 180;
-  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
   const sin = Math.sin(-RADIAN * midAngle);
   const cos = Math.cos(-RADIAN * midAngle);
   const sx = cx + (outerRadius + 10) * cos;

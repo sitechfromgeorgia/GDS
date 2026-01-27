@@ -6,7 +6,7 @@ import { Card, Button, Badge, Input, Modal, ProductGridSkeleton } from '../ui/Sh
 import { FilterChips, FilterChip } from '../ui/FilterChips';
 import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { Product, OrderStatus, Order } from '../../types';
-import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight, Edit3, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight, Edit3, AlertTriangle, LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -1008,7 +1008,7 @@ const RestaurantAnalytics = () => {
     ].filter(d => d.value > 0);
   }, [filteredOrders, t]);
 
-  const StatCard = ({ title, value, icon: Icon, color, change, suffix = '' }: any) => (
+  const StatCard = ({ title, value, icon: Icon, color, change, suffix = '' }: { title: string; value: string | number; icon: LucideIcon; color: string; change?: number; suffix?: string }) => (
     <Card className="p-5">
       <div className="flex items-start justify-between">
         <div>

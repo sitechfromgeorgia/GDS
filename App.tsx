@@ -25,6 +25,7 @@ import { RestaurantDashboard } from "./components/restaurant/RestaurantView";
 import { DriverDashboard } from "./components/driver/DriverView";
 import { SetupPage } from "./components/SetupPage";
 import { Toast } from "./components/ui/Shared";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import "./i18n";
 import { useTranslation } from "react-i18next";
@@ -86,7 +87,7 @@ interface AppContextType {
     status: OrderStatus,
     driverId?: string,
   ) => Promise<void>;
-  updateOrderPricing: (id: string, items: any[]) => Promise<void>;
+  updateOrderPricing: (id: string, items: OrderItem[]) => Promise<void>;
   updateProductCostPrice: (productId: string, costPrice: number) => Promise<void>;
   updateOrderItems: (id: string, items: OrderItem[], correctedBy?: string) => Promise<void>;
   showToast: (message: string, type?: ToastType["type"]) => void;
@@ -136,14 +137,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Helper: Fetch user profile with timeout
-  const fetchUserProfile = async (userId: string, supabase: any): Promise<User | null> => {
+  const fetchUserProfile = async (userId: string, supabase: NonNullable<ReturnType<typeof getSupabase>>): Promise<User | null> => {
     try {
+      const query = supabase.from("users").select("*").eq("id", userId).single();
       const result = await promiseWithTimeout(
-        supabase.from("users").select("*").eq("id", userId).single(),
+        Promise.resolve(query),
         8000,
         "Profile load timeout"
       );
-      return (result as any)?.data as User | null;
+      return (result as { data: User | null })?.data ?? null;
     } catch (e) {
       console.warn("Profile fetch failed:", e);
       return null;
@@ -337,43 +339,90 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Targeted refresh functions - refresh only specific data
   const refreshProducts = useCallback(async () => {
-    const supabase = getSupabase();
-    if (isDemo) {
-      if (supabase) {
-        const { data } = await supabase.from("products").select("*");
+    try {
+      const supabase = getSupabase();
+      if (isDemo) {
+        if (supabase) {
+          const { data, error } = await supabase.from("products").select("*");
+          if (error) {
+            console.error("Failed to refresh products:", error);
+            setProducts(db.getProducts());
+            return;
+          }
+          if (data) setProducts(data as Product[]);
+          else setProducts(db.getProducts());
+        } else {
+          setProducts(db.getProducts());
+        }
+      } else if (supabase) {
+        const { data, error } = await supabase.from("products").select("*");
+        if (error) {
+          console.error("Failed to refresh products:", error);
+          showToast("პროდუქტების ჩატვირთვა ვერ მოხერხდა", "error");
+          return;
+        }
         if (data) setProducts(data as Product[]);
-        else setProducts(db.getProducts());
-      } else {
-        setProducts(db.getProducts());
       }
-    } else if (supabase) {
-      const { data } = await supabase.from("products").select("*");
-      if (data) setProducts(data as Product[]);
+    } catch (error) {
+      console.error("Unexpected error refreshing products:", error);
+      if (isDemo) {
+        setProducts(db.getProducts());
+      } else {
+        showToast("პროდუქტების ჩატვირთვა ვერ მოხერხდა", "error");
+      }
     }
-  }, [isDemo]);
+  }, [isDemo, showToast]);
 
   const refreshOrders = useCallback(async () => {
-    const supabase = getSupabase();
-    if (isDemo) {
-      setOrders(db.getOrders());
-    } else if (supabase) {
-      const { data } = await supabase
-        .from("orders")
-        .select("*")
-        .order("createdAt", { ascending: false });
-      if (data) setOrders(data as any);
+    try {
+      const supabase = getSupabase();
+      if (isDemo) {
+        setOrders(db.getOrders());
+      } else if (supabase) {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("*")
+          .order("createdAt", { ascending: false });
+        if (error) {
+          console.error("Failed to refresh orders:", error);
+          showToast("შეკვეთების ჩატვირთვა ვერ მოხერხდა", "error");
+          return;
+        }
+        if (data) setOrders(data as Order[]);
+      }
+    } catch (error) {
+      console.error("Unexpected error refreshing orders:", error);
+      if (isDemo) {
+        setOrders(db.getOrders());
+      } else {
+        showToast("შეკვეთების ჩატვირთვა ვერ მოხერხდა", "error");
+      }
     }
-  }, [isDemo]);
+  }, [isDemo, showToast]);
 
   const refreshUsers = useCallback(async () => {
-    const supabase = getSupabase();
-    if (isDemo) {
-      setUsers(db.getUsers());
-    } else if (supabase) {
-      const { data } = await supabase.from("users").select("*");
-      if (data) setUsers(data as User[]);
+    try {
+      const supabase = getSupabase();
+      if (isDemo) {
+        setUsers(db.getUsers());
+      } else if (supabase) {
+        const { data, error } = await supabase.from("users").select("*");
+        if (error) {
+          console.error("Failed to refresh users:", error);
+          showToast("მომხმარებლების ჩატვირთვა ვერ მოხერხდა", "error");
+          return;
+        }
+        if (data) setUsers(data as User[]);
+      }
+    } catch (error) {
+      console.error("Unexpected error refreshing users:", error);
+      if (isDemo) {
+        setUsers(db.getUsers());
+      } else {
+        showToast("მომხმარებლების ჩატვირთვა ვერ მოხერხდა", "error");
+      }
     }
-  }, [isDemo]);
+  }, [isDemo, showToast]);
 
   const refreshData = useCallback(async () => {
     const supabase = getSupabase();
@@ -400,9 +449,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
             // Categories
             if (results[1].status === "fulfilled") {
-              const catData = (results[1].value as any)?.data;
-              if (catData?.length > 0) {
-                setCategories(catData.map((c: any) => c.name));
+              const catData = (results[1].value as { data: Array<{ name: string }> | null })?.data;
+              if (catData?.length && catData.length > 0) {
+                setCategories(catData.map((c) => c.name));
               } else {
                 setCategories(db.getCategories());
               }
@@ -412,9 +461,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
             // Units
             if (results[2].status === "fulfilled") {
-              const unitData = (results[2].value as any)?.data;
-              if (unitData?.length > 0) {
-                setUnits(unitData.map((u: any) => u.name));
+              const unitData = (results[2].value as { data: Array<{ name: string }> | null })?.data;
+              if (unitData?.length && unitData.length > 0) {
+                setUnits(unitData.map((u) => u.name));
               } else {
                 setUnits(db.getUnits());
               }
@@ -464,9 +513,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Units
         if (results[3].status === "fulfilled") {
-          const unitData = (results[3].value as any)?.data;
-          if (unitData?.length > 0) {
-            setUnits(unitData.map((u: any) => u.name));
+          const unitData = (results[3].value as { data: Array<{ name: string }> | null })?.data;
+          if (unitData?.length && unitData.length > 0) {
+            setUnits(unitData.map((u) => u.name));
           } else {
             setUnits(db.getUnits());
           }
@@ -476,9 +525,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Categories
         if (results[4].status === "fulfilled") {
-          const catData = (results[4].value as any)?.data;
-          if (catData?.length > 0) {
-            setCategories(catData.map((c: any) => c.name));
+          const catData = (results[4].value as { data: Array<{ name: string }> | null })?.data;
+          if (catData?.length && catData.length > 0) {
+            setCategories(catData.map((c) => c.name));
           } else {
             setCategories(db.getCategories());
           }
@@ -510,37 +559,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     const supabase = getSupabase();
     if (!supabase) return;
 
-    const channel = supabase
-      .channel('orders-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders' },
-        (payload) => {
-          console.log('Realtime order update:', payload.eventType);
-          if (payload.eventType === 'INSERT') {
-            const newOrder = payload.new as Order;
-            setOrders((prev) => {
-              // Avoid duplicates (optimistic update may have added it already)
-              if (prev.some((o) => o.id === newOrder.id)) return prev;
-              return [newOrder, ...prev];
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedOrder = payload.new as Order;
-            setOrders((prev) =>
-              prev.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
-            );
-          } else if (payload.eventType === 'DELETE') {
-            const deletedOrder = payload.old as Order;
-            setOrders((prev) => prev.filter((o) => o.id !== deletedOrder.id));
+    let retryCount = 0;
+    const maxRetries = 5;
+    let retryTimeout: NodeJS.Timeout | null = null;
+
+    const subscribeToOrders = () => {
+      const channel = supabase
+        .channel('orders-realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'orders' },
+          (payload) => {
+            console.log('Realtime order update:', payload.eventType);
+            if (payload.eventType === 'INSERT') {
+              const newOrder = payload.new as Order;
+              setOrders((prev) => {
+                // Check if order already exists (from optimistic update)
+                const existingIndex = prev.findIndex((o) => o.id === newOrder.id);
+                if (existingIndex !== -1) {
+                  // Order exists - replace with server version (more authoritative)
+                  const updated = [...prev];
+                  updated[existingIndex] = newOrder;
+                  return updated;
+                }
+                // New order - add to beginning
+                return [newOrder, ...prev];
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              const updatedOrder = payload.new as Order;
+              setOrders((prev) => {
+                const existingIndex = prev.findIndex((o) => o.id === updatedOrder.id);
+                if (existingIndex === -1) {
+                  // Order doesn't exist locally - add it
+                  return [updatedOrder, ...prev];
+                }
+                // Update existing order
+                const updated = [...prev];
+                updated[existingIndex] = updatedOrder;
+                return updated;
+              });
+            } else if (payload.eventType === 'DELETE') {
+              const deletedOrder = payload.old as Order;
+              setOrders((prev) => prev.filter((o) => o.id !== deletedOrder.id));
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe((status, err) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('Realtime orders subscription active');
+            retryCount = 0; // Reset retry count on successful connection
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || err) {
+            console.error('Realtime subscription error:', status, err);
+
+            // Attempt to retry with exponential backoff
+            if (retryCount < maxRetries) {
+              retryCount++;
+              const delay = Math.min(1000 * Math.pow(2, retryCount), 30000); // Max 30s
+              console.log(`Retrying realtime connection in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
+
+              retryTimeout = setTimeout(() => {
+                supabase.removeChannel(channel);
+                subscribeToOrders();
+              }, delay);
+            } else {
+              console.error('Max realtime retries reached, giving up');
+              showToast("რეალთაიმ კავშირი დაიკარგა - განაახლეთ გვერდი", "warning");
+            }
+          } else if (status === 'CLOSED') {
+            console.log('Realtime channel closed');
+          }
+        });
+
+      return channel;
+    };
+
+    const channel = subscribeToOrders();
 
     return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
       supabase.removeChannel(channel);
     };
-  }, [isDemo, user]);
+  }, [isDemo, user, showToast]);
 
   const login = async (
     email: string,
@@ -649,9 +748,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Product inserted successfully:", data);
       showToast("პროდუქტი დაემატა", "success");
       refreshData();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Unexpected error adding product:", err);
-      showToast("შეცდომა: " + (err?.message || "უცნობი შეცდომა"), "error");
+      const errorMessage = err instanceof Error ? err.message : "უცნობი შეცდომა";
+      showToast("შეცდომა: " + errorMessage, "error");
     }
   };
   const updateProduct = async (p: Product) => {
@@ -766,6 +866,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast("ერთეული დაემატა", "success");
   };
   const updateUnit = async (oldUnit: string, newUnit: string) => {
+    // Store original values for rollback
+    const originalUnits = [...units];
+    const originalProducts = [...products];
+
     // Optimistic update
     setUnits((prev) => prev.map((u) => (u === oldUnit ? newUnit : u)));
     setProducts((prev) =>
@@ -774,23 +878,92 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (isDemo) {
       db.updateUnit(oldUnit, newUnit);
-    } else {
-      await getSupabase()?.from("units").update({ name: newUnit }).eq("name", oldUnit);
-      await getSupabase()?.from("products").update({ unit: newUnit }).eq("unit", oldUnit);
+      showToast("ერთეული განახლდა", "success");
+      return;
     }
-    showToast("ერთეული განახლდა", "success");
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      // Rollback on error
+      setUnits(originalUnits);
+      setProducts(originalProducts);
+      showToast("კავშირის შეცდომა", "error");
+      return;
+    }
+
+    try {
+      // Step 1: Update units table
+      const { error: unitsError } = await supabase
+        .from("units")
+        .update({ name: newUnit })
+        .eq("name", oldUnit);
+
+      if (unitsError) {
+        throw new Error(`Units update failed: ${unitsError.message}`);
+      }
+
+      // Step 2: Update products table
+      const { error: productsError } = await supabase
+        .from("products")
+        .update({ unit: newUnit })
+        .eq("unit", oldUnit);
+
+      if (productsError) {
+        // Rollback: revert units table change
+        console.error("Products update failed, rolling back units:", productsError);
+        await supabase.from("units").update({ name: oldUnit }).eq("name", newUnit);
+
+        // Rollback local state
+        setUnits(originalUnits);
+        setProducts(originalProducts);
+        showToast("ერთეულის განახლება ვერ მოხერხდა", "error");
+        return;
+      }
+
+      showToast("ერთეული განახლდა", "success");
+    } catch (error) {
+      console.error("Unexpected error updating unit:", error);
+      // Rollback local state
+      setUnits(originalUnits);
+      setProducts(originalProducts);
+      showToast("ერთეულის განახლება ვერ მოხერხდა", "error");
+    }
   };
 
   const deleteUnit = async (unit: string) => {
+    // Store original for rollback
+    const originalUnits = [...units];
+
     // Optimistic update
     setUnits((prev) => prev.filter((u) => u !== unit));
 
     if (isDemo) {
       db.deleteUnit(unit);
-    } else {
-      await getSupabase()?.from("units").delete().eq("name", unit);
+      showToast("ერთეული წაიშალა", "success");
+      return;
     }
-    showToast("ერთეული წაიშალა", "success");
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      setUnits(originalUnits);
+      showToast("კავშირის შეცდომა", "error");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("units").delete().eq("name", unit);
+
+      if (error) {
+        throw error;
+      }
+
+      showToast("ერთეული წაიშალა", "success");
+    } catch (error) {
+      console.error("Failed to delete unit:", error);
+      // Rollback local state
+      setUnits(originalUnits);
+      showToast("ერთეულის წაშლა ვერ მოხერხდა", "error");
+    }
   };
 
   const addCategory = async (category: string) => {
@@ -811,6 +984,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast("კატეგორია დაემატა", "success");
   };
   const updateCategory = async (oldCategory: string, newCategory: string) => {
+    // Store original values for rollback
+    const originalCategories = [...categories];
+    const originalProducts = [...products];
+
     // Optimistic update
     setCategories((prev) => prev.map((c) => (c === oldCategory ? newCategory : c)));
     setProducts((prev) =>
@@ -819,24 +996,92 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (isDemo) {
       db.updateCategory(oldCategory, newCategory);
-    } else {
-      await getSupabase()?.from("categories").update({ name: newCategory }).eq("name", oldCategory);
-      await getSupabase()?.from("products").update({ category: newCategory }).eq("category", oldCategory);
+      showToast("კატეგორია განახლდა", "success");
+      return;
     }
-    showToast("კატეგორია განახლდა", "success");
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      // Rollback on error
+      setCategories(originalCategories);
+      setProducts(originalProducts);
+      showToast("კავშირის შეცდომა", "error");
+      return;
+    }
+
+    try {
+      // Step 1: Update categories table
+      const { error: categoriesError } = await supabase
+        .from("categories")
+        .update({ name: newCategory })
+        .eq("name", oldCategory);
+
+      if (categoriesError) {
+        throw new Error(`Categories update failed: ${categoriesError.message}`);
+      }
+
+      // Step 2: Update products table
+      const { error: productsError } = await supabase
+        .from("products")
+        .update({ category: newCategory })
+        .eq("category", oldCategory);
+
+      if (productsError) {
+        // Rollback: revert categories table change
+        console.error("Products update failed, rolling back categories:", productsError);
+        await supabase.from("categories").update({ name: oldCategory }).eq("name", newCategory);
+
+        // Rollback local state
+        setCategories(originalCategories);
+        setProducts(originalProducts);
+        showToast("კატეგორიის განახლება ვერ მოხერხდა", "error");
+        return;
+      }
+
+      showToast("კატეგორია განახლდა", "success");
+    } catch (error) {
+      console.error("Unexpected error updating category:", error);
+      // Rollback local state
+      setCategories(originalCategories);
+      setProducts(originalProducts);
+      showToast("კატეგორიის განახლება ვერ მოხერხდა", "error");
+    }
   };
 
   const deleteCategory = async (category: string) => {
+    // Store original for rollback
+    const originalCategories = [...categories];
+
     // Optimistic update
     setCategories((prev) => prev.filter((c) => c !== category));
 
     if (isDemo) {
       db.deleteCategory(category);
-    } else {
-      await getSupabase()?.from("categories").delete().eq("name", category);
+      showToast("კატეგორია წაიშალა", "success");
+      return;
     }
-    showToast("კატეგორია წაიშალა", "success");
-    refreshData();
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      setCategories(originalCategories);
+      showToast("კავშირის შეცდომა", "error");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("categories").delete().eq("name", category);
+
+      if (error) {
+        throw error;
+      }
+
+      showToast("კატეგორია წაიშალა", "success");
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      // Rollback local state
+      setCategories(originalCategories);
+      showToast("კატეგორიის წაშლა ვერ მოხერხდა", "error");
+    }
   };
 
   const addUser = async (u: User & { password?: string }) => {
@@ -1281,14 +1526,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export default function App() {
   return (
-    <AppProvider>
-      <HashRouter>
-        <Routes>
-          <Route path="/setup" element={<SetupPage />} />
-          <Route path="/*" element={<AppLoader />} />
-        </Routes>
-      </HashRouter>
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/setup" element={<SetupPage />} />
+            <Route path="/*" element={<AppLoader />} />
+          </Routes>
+        </HashRouter>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 
