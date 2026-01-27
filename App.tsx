@@ -562,14 +562,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     let retryCount = 0;
     const maxRetries = 5;
     let retryTimeout: NodeJS.Timeout | null = null;
+    let hasShownError = false; // Prevent multiple error toasts
+    let isUnmounting = false;
 
     const subscribeToOrders = () => {
+      if (isUnmounting) return null;
+
       const channel = supabase
         .channel('orders-realtime')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'orders' },
           (payload) => {
+            if (isUnmounting) return;
             console.log('Realtime order update:', payload.eventType);
             if (payload.eventType === 'INSERT') {
               const newOrder = payload.new as Order;
@@ -605,9 +610,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         )
         .subscribe((status, err) => {
+          if (isUnmounting) return;
+
           if (status === 'SUBSCRIBED') {
             console.log('Realtime orders subscription active');
             retryCount = 0; // Reset retry count on successful connection
+            hasShownError = false; // Reset error flag on success
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || err) {
             console.error('Realtime subscription error:', status, err);
 
@@ -618,10 +626,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
               console.log(`Retrying realtime connection in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
 
               retryTimeout = setTimeout(() => {
-                supabase.removeChannel(channel);
-                subscribeToOrders();
+                if (!isUnmounting) {
+                  supabase.removeChannel(channel);
+                  subscribeToOrders();
+                }
               }, delay);
-            } else {
+            } else if (!hasShownError) {
+              // Only show error toast once
+              hasShownError = true;
               console.error('Max realtime retries reached, giving up');
               showToast("რეალთაიმ კავშირი დაიკარგა - განაახლეთ გვერდი", "warning");
             }
@@ -636,8 +648,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     const channel = subscribeToOrders();
 
     return () => {
+      isUnmounting = true;
       if (retryTimeout) clearTimeout(retryTimeout);
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [isDemo, user, showToast]);
 
