@@ -720,6 +720,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     console.log("addProduct called with:", p);
     console.log("isDemo:", isDemo);
 
+    // Auto-create category if it doesn't exist
+    if (p.category && !categories.includes(p.category)) {
+      console.log("Auto-creating new category:", p.category);
+      await addCategory(p.category);
+    }
+
     if (isDemo) {
       db.addProduct(p);
       showToast("პროდუქტი დაემატა", "success");
@@ -746,6 +752,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       // Only add price if it has value
       if (p.price !== undefined && p.price !== null) {
         productForSupabase.price = p.price;
+      }
+      // Only add description if it has value
+      if (p.description) {
+        productForSupabase.description = p.description;
       }
 
       console.log("Inserting product:", productForSupabase);

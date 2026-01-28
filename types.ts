@@ -42,6 +42,7 @@ export interface Product {
   isPromo?: boolean;
   price?: number;
   viewCount?: number;
+  description?: string;
 }
 
 export interface OrderItem {

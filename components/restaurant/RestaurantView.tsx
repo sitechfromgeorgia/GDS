@@ -188,6 +188,9 @@ const Catalog = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{product.name}</h3>
+                    {product.description && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{product.description}</p>
+                    )}
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-amber-600 dark:text-amber-400 font-black text-sm">{product.price}₾</span>
                       <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">/ {product.unit}</span>
@@ -223,6 +226,9 @@ const Catalog = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{product.name}</h3>
+                {product.description && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{product.description}</p>
+                )}
                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.1em] mt-1">
                   {product.unit} • {product.isPromo && product.price ? (
                     <span className="text-amber-600 dark:text-amber-400">{product.price}₾</span>

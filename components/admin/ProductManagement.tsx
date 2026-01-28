@@ -42,7 +42,7 @@ export const ProductManager = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [newProduct, setNewProduct] = useState<Partial<Product>>({ name: '', category: '', unit: '', image: '', isPromo: false, price: undefined });
+  const [newProduct, setNewProduct] = useState<Partial<Product>>({ name: '', category: '', unit: '', image: '', isPromo: false, price: undefined, description: '' });
   const [error, setError] = useState<string | null>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -196,13 +196,14 @@ export const ProductManager = () => {
 
   const handleOpenCreate = () => {
     setEditingProduct(null);
-    setNewProduct({ 
-      name: '', 
-      category: categories[0] || '', 
-      unit: units[0] || '', 
+    setNewProduct({
+      name: '',
+      category: categories[0] || '',
+      unit: units[0] || '',
       image: '',
       isPromo: false,
-      price: undefined
+      price: undefined,
+      description: ''
     });
     setError(null);
     setIsModalOpen(true);
@@ -654,6 +655,15 @@ export const ProductManager = () => {
            <div>
               <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-1.5 uppercase tracking-widest">{t('products.name_label')}</label>
               <Input value={newProduct.name} onChange={(e) => setNewProduct({...newProduct, name: e.target.value})} placeholder={t('products.product_placeholder')} />
+           </div>
+           <div>
+              <label className="block text-xs font-black text-slate-400 dark:text-slate-500 mb-1.5 uppercase tracking-widest">{t('products.description')}</label>
+              <textarea
+                value={newProduct.description || ''}
+                onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                placeholder={t('products.description_placeholder')}
+                className="w-full h-20 border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none dark:text-slate-100 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+              />
            </div>
            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

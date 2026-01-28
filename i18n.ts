@@ -240,7 +240,9 @@ const resources = {
         delete_confirm_desc: "You are about to delete <b>{{name}}</b>. This action is irreversible and may affect existing data.",
         unit_placeholder: "e.g. kg, liter, box",
         category_placeholder: "e.g. Vegetables, Meat",
-        product_placeholder: "e.g. Svaneti Potatoes"
+        product_placeholder: "e.g. Svaneti Potatoes",
+        description: "Description",
+        description_placeholder: "Product description (optional)"
       },
       restaurant: {
         cart_title: "Cart",
@@ -623,7 +625,9 @@ const resources = {
         delete_confirm_desc: "თქვენ აპირებთ წაშალოთ <b>{{name}}</b>. ეს მოქმედება შეუქცევადია და შესაძლოა გავლენა იქონიოს არსებულ მონაცემებზე.",
         unit_placeholder: "მაგ. კგ, ლიტრი, ყუთი",
         category_placeholder: "მაგ. ბოსტნეული, ხორცი",
-        product_placeholder: "მაგ. სვანური კარტოფილი"
+        product_placeholder: "მაგ. სვანური კარტოფილი",
+        description: "აღწერა",
+        description_placeholder: "პროდუქტის აღწერა (არასავალდებულო)"
       },
       restaurant: {
         cart_title: "კალათა",
