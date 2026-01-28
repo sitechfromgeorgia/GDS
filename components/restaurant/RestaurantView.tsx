@@ -67,7 +67,7 @@ const Catalog = () => {
 
   const addToCart = (product: Product) => {
     const isKg = product.unit.toLowerCase() === 'კგ';
-    const defaultQty = isKg ? 0.1 : 1;
+    const defaultQty = 1; // Default 1 კგ ან 1 ცალი (მინიმუმი რჩება 0.1 კგ-სთვის)
     const increment = isKg ? 0.1 : 1;
 
     setCart(prev => {
@@ -350,6 +350,7 @@ const Catalog = () => {
                         inputMode="decimal"
                         value={item.quantity}
                         onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
+                        onFocus={(e) => e.target.select()}
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                       />
                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
@@ -462,6 +463,7 @@ const Catalog = () => {
                         inputMode="decimal"
                         value={item.quantity}
                         onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
+                        onFocus={(e) => e.target.select()}
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                       />
                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
