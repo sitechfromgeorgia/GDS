@@ -498,7 +498,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                           </div>
                         ) : (
                           <span className="text-sm font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                            {order.totalCost && order.totalProfit !== undefined ? `₾${(order.totalCost - order.totalProfit).toFixed(2)}` : '—'}
+                            {order.totalCost != null && order.totalProfit != null ? `₾${(order.totalCost - order.totalProfit).toFixed(2)}` : '—'}
                           </span>
                         )}
                       </td>
@@ -515,8 +515,8 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                         {needsPricing ? (
                           <span className="text-slate-400">—</span>
                         ) : (
-                          <span className={`text-sm font-black whitespace-nowrap ${order.totalProfit && order.totalProfit > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
-                            {order.totalProfit !== undefined ? `₾${order.totalProfit.toFixed(2)}` : '—'}
+                          <span className={`text-sm font-black whitespace-nowrap ${order.totalProfit != null && order.totalProfit > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                            {order.totalProfit != null ? `₾${order.totalProfit.toFixed(2)}` : '—'}
                           </span>
                         )}
                       </td>

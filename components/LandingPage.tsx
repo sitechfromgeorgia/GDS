@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../App';
 import { Button, LanguageSwitcher, Modal, Input, ThemeToggle, Card } from './ui/Shared';
-import { Truck, LogIn, Lock, Mail, Eye, EyeOff, AlertCircle, Zap, ShieldCheck, Globe, BarChart3, Award, BadgePercent, Scale, Sparkles } from 'lucide-react';
+import { Truck, LogIn, Lock, Mail, Eye, EyeOff, AlertCircle, ShieldCheck, Globe, BarChart3, Award, BadgePercent, Scale, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { COMPANY, DEMO, getPhoneLink, getEmailLink } from '../config';
 
@@ -66,11 +66,6 @@ export const LandingPage = () => {
 
       <main className="relative z-10 pt-40 pb-20 px-6 max-w-7xl mx-auto">
         <div className="max-w-4xl">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-8">
-            <Zap className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="text-[10px] font-black text-emerald-400 tracking-[0.2em] uppercase">SYSTEM VERSION 2.0 LIVE</span>
-          </div>
-          
           <h1 className="text-[clamp(2.5rem,8vw,5rem)] font-black leading-[1.05] tracking-tight mb-8 uppercase">
             {t('landing.hero_title_pre')}<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-emerald-200">
