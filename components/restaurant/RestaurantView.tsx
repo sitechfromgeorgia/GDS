@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Routes, Route, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../App';
 import { Card, Button, Badge, Input, Modal, ProductGridSkeleton } from '../ui/Shared';
@@ -15,18 +15,14 @@ import {
 
 const Catalog = () => {
   const { t, i18n } = useTranslation();
-  const { products, createOrder, user, orders, refreshData, isLoadingData, categories } = useApp();
+  const { products, createOrder, user, orders, refreshData, isLoadingData } = useApp();
   const [cart, setCart] = useState<{ product: Product, quantity: number }[]>([]);
   const [search, setSearch] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const cartRef = useRef<HTMLDivElement>(null);
-
-  const scrollToCart = useCallback(() => {
-    cartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
   // Refresh data on mount to ensure catalog is populated
   useEffect(() => {
@@ -105,6 +101,12 @@ const Catalog = () => {
     [products]
   );
 
+  // Get unique categories from active products
+  const productCategories = useMemo(() => {
+    const cats = new Set(products.filter(p => p.isActive !== false && p.category).map(p => p.category));
+    return Array.from(cats).sort();
+  }, [products]);
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-120px)]">
       <div className="flex-1 overflow-y-auto pr-2 pb-10">
@@ -151,7 +153,7 @@ const Catalog = () => {
             >
               {t('restaurant.category_all')}
             </button>
-            {categories.map(category => (
+            {productCategories.map(category => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
@@ -243,7 +245,7 @@ const Catalog = () => {
       </div>
 
       {/* Cart Sidebar */}
-      <div ref={cartRef} className="w-full lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full lg:sticky lg:top-4 overflow-hidden transition-colors">
+      <div className="w-full lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full lg:sticky lg:top-4 overflow-hidden transition-colors">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
           <h3 className="font-bold text-lg flex items-center text-slate-900 dark:text-slate-100">
             <ShoppingCart className="mr-3 h-5 w-5 text-emerald-600 dark:text-emerald-400" /> {t('restaurant.cart_title')}
@@ -347,7 +349,7 @@ const Catalog = () => {
       {/* Cart FAB - Mobile Only */}
       {cart.length > 0 && (
         <button
-          onClick={scrollToCart}
+          onClick={() => setIsCartModalOpen(true)}
           className="lg:hidden fixed bottom-6 right-6 z-50 bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-full shadow-2xl transition-all active:scale-95"
           aria-label={t('restaurant.view_cart')}
         >
@@ -357,6 +359,99 @@ const Catalog = () => {
           </span>
         </button>
       )}
+
+      {/* Cart Bottom Sheet Modal - Mobile */}
+      <Modal
+        isOpen={isCartModalOpen}
+        onClose={() => setIsCartModalOpen(false)}
+        title={t('restaurant.cart_title')}
+      >
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+          {cart.length === 0 ? (
+            <div className="text-center py-8">
+              <Package className="h-12 w-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+              <p className="text-slate-400 dark:text-slate-500 font-bold">{t('restaurant.empty_cart')}</p>
+            </div>
+          ) : (
+            <>
+              {cart.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex-1 mr-4 min-w-0">
+                    <p className="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{item.product.name}</p>
+                    <p className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase mt-0.5">
+                      {item.product.unit}
+                    </p>
+                  </div>
+                  {isWeightUnit(item.product.unit) ? (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0.1"
+                        value={item.quantity}
+                        onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
+                        className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                      />
+                      <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
+                      <button
+                        onClick={() => removeFromCart(item.product.id)}
+                        className="p-1.5 ml-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                        <button
+                          onClick={() => updateCartQuantity(item.product.id, -1)}
+                          className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-r border-slate-100 dark:border-slate-700"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="px-3 text-sm font-bold text-slate-900 dark:text-slate-100 min-w-[32px] text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateCartQuantity(item.product.id, 1)}
+                          className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors border-l border-slate-100 dark:border-slate-700"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(item.product.id)}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <MessageSquare className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                  <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('restaurant.notes')}</span>
+                </div>
+                <textarea
+                  className="w-full h-20 p-3 text-sm border-2 border-slate-100 dark:border-slate-800 bg-transparent rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all resize-none placeholder:text-slate-300 dark:placeholder:text-slate-700 font-medium text-slate-900 dark:text-slate-100"
+                  placeholder={t('restaurant.notes_placeholder')}
+                  value={orderNotes}
+                  onChange={(e) => setOrderNotes(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+        </div>
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <Button
+            className="w-full h-12 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-900 shadow-lg dark:shadow-none border-none font-bold"
+            disabled={cart.length === 0}
+            onClick={() => { setIsCartModalOpen(false); handleOpenConfirm(); }}
+          >
+            {t('restaurant.checkout_btn')}
+          </Button>
+        </div>
+      </Modal>
 
       <Modal
         isOpen={isConfirmModalOpen}
