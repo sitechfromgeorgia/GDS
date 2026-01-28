@@ -1315,9 +1315,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       db.updateOrderStatus(id, status, driver);
       showToast("სტატუსი განახლდა", "success");
     } else {
+      const supabase = getSupabase();
+      if (!supabase) {
+        refreshOrders(); // Rollback
+        showToast("სტატუსის შეცვლა ვერ მოხერხდა", "error");
+        return;
+      }
+
       const updates: { status: OrderStatus; driverId?: string } = { status };
       if (driver) updates.driverId = driver;
-      const { error } = await getSupabase()?.from("orders").update(updates).eq("id", id) || {};
+
+      const { error } = await supabase.from("orders").update(updates).eq("id", id);
 
       if (error) {
         refreshOrders(); // Rollback on error
