@@ -338,6 +338,7 @@ const Catalog = () => {
                         type="number"
                         step="0.1"
                         min="0.1"
+                        inputMode="decimal"
                         value={item.quantity}
                         onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
@@ -449,6 +450,7 @@ const Catalog = () => {
                         type="number"
                         step="0.1"
                         min="0.1"
+                        inputMode="decimal"
                         value={item.quantity}
                         onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"

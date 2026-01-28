@@ -553,6 +553,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [user, isDemo, refreshData]);
 
   // Realtime subscription for orders - enables live updates between restaurant and admin
+  // Realtime subscription for orders
   useEffect(() => {
     if (isDemo || !user) return;
 
@@ -560,9 +561,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!supabase) return;
 
     let retryCount = 0;
-    const maxRetries = 5;
+    const maxRetries = 12; // Increased from 5 for better resilience
     let retryTimeout: NodeJS.Timeout | null = null;
-    let hasShownError = false; // Prevent multiple error toasts
+    let hasShownError = false;
     let isUnmounting = false;
 
     const subscribeToOrders = () => {
@@ -579,15 +580,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
             if (payload.eventType === 'INSERT') {
               const newOrder = payload.new as Order;
               setOrders((prev) => {
-                // Check if order already exists (from optimistic update)
                 const existingIndex = prev.findIndex((o) => o.id === newOrder.id);
                 if (existingIndex !== -1) {
-                  // Order exists - replace with server version (more authoritative)
                   const updated = [...prev];
                   updated[existingIndex] = newOrder;
                   return updated;
                 }
-                // New order - add to beginning
                 return [newOrder, ...prev];
               });
             } else if (payload.eventType === 'UPDATE') {
@@ -595,10 +593,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
               setOrders((prev) => {
                 const existingIndex = prev.findIndex((o) => o.id === updatedOrder.id);
                 if (existingIndex === -1) {
-                  // Order doesn't exist locally - add it
                   return [updatedOrder, ...prev];
                 }
-                // Update existing order
                 const updated = [...prev];
                 updated[existingIndex] = updatedOrder;
                 return updated;
@@ -614,15 +610,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
           if (status === 'SUBSCRIBED') {
             console.log('Realtime orders subscription active');
-            retryCount = 0; // Reset retry count on successful connection
-            hasShownError = false; // Reset error flag on success
+            retryCount = 0;
+            hasShownError = false;
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || err) {
             console.error('Realtime subscription error:', status, err);
 
-            // Attempt to retry with exponential backoff
             if (retryCount < maxRetries) {
               retryCount++;
-              const delay = Math.min(1000 * Math.pow(2, retryCount), 30000); // Max 30s
+              const delay = Math.min(1000 * Math.pow(2, retryCount), 60000); // Max 60s
               console.log(`Retrying realtime connection in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
 
               retryTimeout = setTimeout(() => {
@@ -632,10 +627,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
                 }
               }, delay);
             } else if (!hasShownError) {
-              // Only show error toast once
               hasShownError = true;
-              console.error('Max realtime retries reached, giving up');
-              showToast("რეალთაიმ კავშირი დაიკარგა - განაახლეთ გვერდი", "warning");
+              console.error('Max realtime retries reached');
+              // Use setToasts directly to avoid dependency issues
+              setToasts((prev) => [...prev, {
+                id: Date.now().toString(),
+                message: "რეალთაიმ კავშირი დაიკარგა - განაახლეთ გვერდი",
+                type: "warning"
+              }]);
             }
           } else if (status === 'CLOSED') {
             console.log('Realtime channel closed');
@@ -647,12 +646,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const channel = subscribeToOrders();
 
+    // Reconnect when tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isUnmounting) {
+        console.log('Tab visible - checking realtime connection');
+        // Reset retry state when tab becomes visible
+        retryCount = 0;
+        hasShownError = false;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       isUnmounting = true;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (retryTimeout) clearTimeout(retryTimeout);
       if (channel) supabase.removeChannel(channel);
     };
-  }, [isDemo, user, showToast]);
+  }, [isDemo, user]); // Removed showToast dependency
 
   const login = async (
     email: string,
