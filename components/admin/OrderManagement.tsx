@@ -450,7 +450,9 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                 <tr>
                   <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">{t('orders.table_id_restaurant')}</th>
                   <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_status')}</th>
-                  <th className="px-4 py-3 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_financials')}</th>
+                  <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_purchase_cost')}</th>
+                  <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_sale_revenue')}</th>
+                  <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_order_profit')}</th>
                   <th className="px-4 py-3 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] whitespace-nowrap">{t('orders.table_actions')}</th>
                 </tr>
               </thead>
@@ -487,7 +489,7 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 text-right">
                         {needsPricing ? (
                           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-lg border border-amber-100 dark:border-amber-900/50 whitespace-nowrap">
                             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
@@ -495,10 +497,27 @@ export const OrderManager: React.FC<OrderManagerProps> = ({ onCompanyClick }) =>
                             <span className="sm:hidden">!</span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1.5 text-sm font-black text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                            <Wallet className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                          <span className="text-sm font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                            {order.totalCost && order.totalProfit !== undefined ? `₾${(order.totalCost - order.totalProfit).toFixed(2)}` : '—'}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        {needsPricing ? (
+                          <span className="text-slate-400">—</span>
+                        ) : (
+                          <span className="text-sm font-black text-slate-900 dark:text-slate-100 whitespace-nowrap">
                             {order.totalCost ? `₾${order.totalCost.toFixed(2)}` : '—'}
-                          </div>
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        {needsPricing ? (
+                          <span className="text-slate-400">—</span>
+                        ) : (
+                          <span className={`text-sm font-black whitespace-nowrap ${order.totalProfit && order.totalProfit > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                            {order.totalProfit !== undefined ? `₾${order.totalProfit.toFixed(2)}` : '—'}
+                          </span>
                         )}
                       </td>
                       <td className="px-4 py-4 min-w-[180px] md:min-w-[280px]">

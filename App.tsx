@@ -1313,6 +1313,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (isDemo) {
       db.updateOrderStatus(id, status, driver);
+      showToast("სტატუსი განახლდა", "success");
     } else {
       const updates: { status: OrderStatus; driverId?: string } = { status };
       if (driver) updates.driverId = driver;
@@ -1323,6 +1324,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         showToast("სტატუსის შეცვლა ვერ მოხერხდა", "error");
         return;
       }
+      showToast("სტატუსი განახლდა", "success");
     }
   };
   const updateOrderPricing = async (id: string, items: OrderItem[]) => {

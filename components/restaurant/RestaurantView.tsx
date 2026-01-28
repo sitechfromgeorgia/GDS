@@ -6,7 +6,7 @@ import { Card, Button, Badge, Input, Modal, ProductGridSkeleton } from '../ui/Sh
 import { FilterChips, FilterChip } from '../ui/FilterChips';
 import { DateRangePicker, DatePreset } from '../ui/DateRangePicker';
 import { Product, OrderStatus, Order } from '../../types';
-import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight, Edit3, AlertTriangle, LucideIcon } from 'lucide-react';
+import { ShoppingCart, Search, Clock, Plus, Minus, MapPin, Phone, Save, AlertCircle, CheckCircle2, Package, MessageSquare, Eye, Filter, Calendar, X, TrendingUp, BarChart3, DollarSign, ShoppingBag, ArrowUpRight, ArrowDownRight, Edit3, AlertTriangle, LucideIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -23,6 +23,40 @@ const Catalog = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+
+  // Category tabs scroll state
+  const categoryScrollRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollButtons = useCallback(() => {
+    const container = categoryScrollRef.current;
+    if (container) {
+      setCanScrollLeft(container.scrollLeft > 0);
+      setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 1);
+    }
+  }, []);
+
+  useEffect(() => {
+    const container = categoryScrollRef.current;
+    if (container) {
+      updateScrollButtons();
+      container.addEventListener('scroll', updateScrollButtons);
+      window.addEventListener('resize', updateScrollButtons);
+      return () => {
+        container.removeEventListener('scroll', updateScrollButtons);
+        window.removeEventListener('resize', updateScrollButtons);
+      };
+    }
+  }, [updateScrollButtons, products]);
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    const container = categoryScrollRef.current;
+    if (container) {
+      const scrollAmount = 200;
+      container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   // Refresh data on mount to ensure catalog is populated
   useEffect(() => {
@@ -56,15 +90,15 @@ const Catalog = () => {
   };
 
   const setCartQuantity = (productId: string, quantity: number) => {
+    // Ignore invalid/empty input - only allow deletion via X button
+    if (isNaN(quantity) || quantity <= 0) {
+      return;
+    }
     // Round to 1 decimal place for kg units
     const roundedQty = Math.round(quantity * 10) / 10;
-    if (roundedQty <= 0) {
-      setCart(prev => prev.filter(i => i.product.id !== productId));
-    } else {
-      setCart(prev => prev.map(item =>
-        item.product.id === productId ? { ...item, quantity: roundedQty } : item
-      ));
-    }
+    setCart(prev => prev.map(item =>
+      item.product.id === productId ? { ...item, quantity: roundedQty } : item
+    ));
   };
 
   // Check if unit is weight-based (kg)
@@ -142,30 +176,51 @@ const Catalog = () => {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-3 mt-4 -mx-1 px-1 scrollbar-hide">
-            <button
-              onClick={() => setSelectedCategory(null)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                selectedCategory === null
-                  ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              {t('restaurant.category_all')}
-            </button>
-            {productCategories.map(category => (
+          <div className="relative mt-4">
+            {canScrollLeft && (
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
-                  selectedCategory === category
+                onClick={() => scrollCategories('left')}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                onClick={() => scrollCategories('right')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <ChevronRight className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+              </button>
+            )}
+            <div
+              ref={categoryScrollRef}
+              className={`flex gap-2 overflow-x-auto pb-3 scrollbar-hide ${canScrollLeft ? 'pl-10' : 'pl-1'} ${canScrollRight ? 'pr-10' : 'pr-1'} -mx-1`}
+            >
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  selectedCategory === null
                     ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
-                {category}
+                {t('restaurant.category_all')}
               </button>
-            ))}
+              {productCategories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                    selectedCategory === category
+                      ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
