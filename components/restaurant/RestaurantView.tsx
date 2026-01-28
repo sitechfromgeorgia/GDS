@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../App';
 import { Card, Button, Badge, Input, Modal, ProductGridSkeleton } from '../ui/Shared';
@@ -15,12 +15,18 @@ import {
 
 const Catalog = () => {
   const { t, i18n } = useTranslation();
-  const { products, createOrder, user, orders, refreshData, isLoadingData } = useApp();
+  const { products, createOrder, user, orders, refreshData, isLoadingData, categories } = useApp();
   const [cart, setCart] = useState<{ product: Product, quantity: number }[]>([]);
   const [search, setSearch] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const cartRef = useRef<HTMLDivElement>(null);
+
+  const scrollToCart = useCallback(() => {
+    cartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
 
   // Refresh data on mount to ensure catalog is populated
   useEffect(() => {
@@ -85,11 +91,12 @@ const Catalog = () => {
 
   const filteredProducts = useMemo(() =>
     products.filter(p =>
-      // Ensure product is active and matches search
+      // Ensure product is active and matches search and category
       p.isActive !== false &&
-      p.name.toLowerCase().includes(search.toLowerCase())
+      p.name.toLowerCase().includes(search.toLowerCase()) &&
+      (selectedCategory === null || p.category === selectedCategory)
     ),
-    [products, search]
+    [products, search, selectedCategory]
   );
 
   // Separate promo products
@@ -130,6 +137,33 @@ const Catalog = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+          </div>
+
+          {/* Category Tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-3 mt-4 -mx-1 px-1 scrollbar-hide">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                selectedCategory === null
+                  ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t('restaurant.category_all')}
+            </button>
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                  selectedCategory === category
+                    ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -209,7 +243,7 @@ const Catalog = () => {
       </div>
 
       {/* Cart Sidebar */}
-      <div className="w-full lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full lg:sticky lg:top-4 overflow-hidden transition-colors">
+      <div ref={cartRef} className="w-full lg:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full lg:sticky lg:top-4 overflow-hidden transition-colors">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
           <h3 className="font-bold text-lg flex items-center text-slate-900 dark:text-slate-100">
             <ShoppingCart className="mr-3 h-5 w-5 text-emerald-600 dark:text-emerald-400" /> {t('restaurant.cart_title')}
@@ -310,9 +344,23 @@ const Catalog = () => {
         </div>
       </div>
 
-      <Modal 
-        isOpen={isConfirmModalOpen} 
-        onClose={() => setIsConfirmModalOpen(false)} 
+      {/* Cart FAB - Mobile Only */}
+      {cart.length > 0 && (
+        <button
+          onClick={scrollToCart}
+          className="lg:hidden fixed bottom-6 right-6 z-50 bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-full shadow-2xl transition-all active:scale-95"
+          aria-label={t('restaurant.view_cart')}
+        >
+          <ShoppingCart className="h-6 w-6" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-black min-w-[20px] h-5 flex items-center justify-center rounded-full px-1">
+            {cart.reduce((sum, item) => sum + (item.product.unit.toLowerCase() === 'კგ' ? 1 : Math.ceil(item.quantity)), 0)}
+          </span>
+        </button>
+      )}
+
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
         title={t('restaurant.confirm_title')}
       >
         <div className="space-y-6">

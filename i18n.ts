@@ -266,7 +266,9 @@ const resources = {
         prices_visible_info: "Prices will be visible once the driver starts the delivery.",
         driver: "Driver",
         driver_info: "Driver Information",
-        driver_not_found: "Driver information not available"
+        driver_not_found: "Driver information not available",
+        category_all: "All",
+        view_cart: "View Cart"
       },
       status: {
         all: "All Statuses",
@@ -647,7 +649,9 @@ const resources = {
         prices_visible_info: "ფასები გამოჩნდება მას შემდეგ, რაც მძღოლი რეისში გავა.",
         driver: "მძღოლი",
         driver_info: "მძღოლის ინფორმაცია",
-        driver_not_found: "მძღოლის ინფორმაცია მიუწვდომელია"
+        driver_not_found: "მძღოლის ინფორმაცია მიუწვდომელია",
+        category_all: "ყველა",
+        view_cart: "კალათის ნახვა"
       },
       status: {
         all: "ყველა სტატუსი",
