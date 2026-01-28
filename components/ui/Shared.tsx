@@ -71,10 +71,16 @@ export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; o
   // Generate unique IDs for ARIA
   const titleId = useRef(`modal-title-${Math.random().toString(36).substr(2, 9)}`);
 
-  // Handle Escape key
+  // Handle Escape and Tab keys only
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Only process Tab and Escape keys - ignore all other keys
+    if (e.key !== 'Tab' && e.key !== 'Escape') {
+      return;
+    }
+
     if (e.key === 'Escape') {
       onClose();
+      return;
     }
 
     // Focus trap - Tab key handling
@@ -119,12 +125,20 @@ export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; o
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
 
-      // Focus the close button after a short delay (for animation)
-      setTimeout(() => {
-        closeButtonRef.current?.focus();
+      // Focus first focusable element in modal (only on initial open)
+      const focusTimer = setTimeout(() => {
+        if (modalRef.current) {
+          const firstInput = modalRef.current.querySelector<HTMLElement>('input, textarea, select');
+          if (firstInput) {
+            firstInput.focus();
+          } else {
+            closeButtonRef.current?.focus();
+          }
+        }
       }, 100);
 
       return () => {
+        clearTimeout(focusTimer);
         document.removeEventListener('keydown', handleKeyDown);
         document.body.style.overflow = '';
 
@@ -134,7 +148,7 @@ export const Modal = ({ isOpen, onClose, title, children }: { isOpen: boolean; o
         }
       };
     }
-  }, [isOpen, handleKeyDown]);
+  }, [isOpen]); // Remove handleKeyDown from dependencies to prevent re-running on every render
 
   if (!isOpen) return null;
 
