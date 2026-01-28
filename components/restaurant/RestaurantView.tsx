@@ -66,19 +66,28 @@ const Catalog = () => {
   const activeOrder = orders.find(o => o.restaurantId === user?.id && o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.DELIVERED);
 
   const addToCart = (product: Product) => {
+    const isKg = product.unit.toLowerCase() === 'კგ';
+    const defaultQty = isKg ? 0.1 : 1;
+    const increment = isKg ? 0.1 : 1;
+
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
       if (existing) {
-        return prev.map(i => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map(i => i.product.id === product.id
+          ? { ...i, quantity: Math.round((i.quantity + increment) * 10) / 10 }
+          : i);
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity: defaultQty }];
     });
   };
 
   const updateCartQuantity = (productId: string, delta: number) => {
     setCart(prev => prev.map(item => {
       if (item.product.id === productId) {
-        const newQty = Math.max(1, item.quantity + delta); // მინიმუმ 1, არ იშლება ავტომატურად
+        const isKg = item.product.unit.toLowerCase() === 'კგ';
+        const minQty = isKg ? 0.1 : 1;
+        const step = isKg ? 0.1 : 1;
+        const newQty = Math.max(minQty, Math.round((item.quantity + delta * step) * 10) / 10);
         return { ...item, quantity: newQty };
       }
       return item;
