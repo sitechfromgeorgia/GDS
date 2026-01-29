@@ -553,7 +553,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [user, isDemo, refreshData]);
 
   // Realtime subscription for orders - enables live updates between restaurant and admin
-  // Realtime subscription for orders
   useEffect(() => {
     if (isDemo || !user) return;
 
@@ -561,16 +560,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!supabase) return;
 
     let retryCount = 0;
-    const maxRetries = 12; // Increased from 5 for better resilience
+    const maxRetries = 10;
     let retryTimeout: NodeJS.Timeout | null = null;
     let hasShownError = false;
     let isUnmounting = false;
+    let currentChannel: ReturnType<typeof supabase.channel> | null = null;
 
     const subscribeToOrders = () => {
       if (isUnmounting) return null;
 
+      // Remove existing channel before creating new one
+      if (currentChannel) {
+        supabase.removeChannel(currentChannel);
+        currentChannel = null;
+      }
+
       const channel = supabase
-        .channel('orders-realtime')
+        .channel('orders-realtime-' + Date.now()) // Unique channel name for reconnection
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'orders' },
@@ -617,42 +623,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
             if (retryCount < maxRetries) {
               retryCount++;
-              const delay = Math.min(1000 * Math.pow(2, retryCount), 60000); // Max 60s
+              const delay = Math.min(1000 * Math.pow(2, retryCount), 30000); // Max 30s
               console.log(`Retrying realtime connection in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
 
               retryTimeout = setTimeout(() => {
                 if (!isUnmounting) {
-                  supabase.removeChannel(channel);
                   subscribeToOrders();
                 }
               }, delay);
-            } else if (!hasShownError) {
-              hasShownError = true;
-              console.error('Max realtime retries reached');
-              // Use setToasts directly to avoid dependency issues
-              setToasts((prev) => [...prev, {
-                id: Date.now().toString(),
-                message: "რეალთაიმ კავშირი დაიკარგა - განაახლეთ გვერდი",
-                type: "warning"
-              }]);
+            } else {
+              // After max retries, show warning once and continue retrying silently every 2 minutes
+              if (!hasShownError) {
+                hasShownError = true;
+                console.warn('Max realtime retries reached, continuing with 2-minute interval');
+                setToasts((prev) => [...prev, {
+                  id: Date.now().toString(),
+                  message: "კავშირი დროებით შეფერხდა - ავტომატურად აღდგება",
+                  type: "info"
+                }]);
+              }
+              // Continue retrying every 2 minutes silently
+              retryTimeout = setTimeout(() => {
+                if (!isUnmounting) {
+                  subscribeToOrders();
+                }
+              }, 120000);
             }
           } else if (status === 'CLOSED') {
             console.log('Realtime channel closed');
           }
         });
 
+      currentChannel = channel;
       return channel;
     };
 
-    const channel = subscribeToOrders();
+    subscribeToOrders();
 
     // Reconnect when tab becomes visible again
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !isUnmounting) {
-        console.log('Tab visible - checking realtime connection');
-        // Reset retry state when tab becomes visible
+        console.log('Tab visible - reconnecting realtime');
+        // Reset retry state and resubscribe
         retryCount = 0;
         hasShownError = false;
+        if (retryTimeout) {
+          clearTimeout(retryTimeout);
+          retryTimeout = null;
+        }
+        subscribeToOrders();
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -661,9 +680,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       isUnmounting = true;
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (retryTimeout) clearTimeout(retryTimeout);
-      if (channel) supabase.removeChannel(channel);
+      if (currentChannel) supabase.removeChannel(currentChannel);
     };
-  }, [isDemo, user]); // Removed showToast dependency
+  }, [isDemo, user]);
 
   const login = async (
     email: string,

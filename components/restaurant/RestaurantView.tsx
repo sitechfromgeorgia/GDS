@@ -99,8 +99,8 @@ const Catalog = () => {
   };
 
   const setCartQuantity = (productId: string, quantity: number) => {
-    // Ignore invalid/empty input - only allow deletion via X button
-    if (isNaN(quantity) || quantity <= 0) {
+    // Allow 0 during typing (intermediate state), enforce minimum on blur
+    if (isNaN(quantity) || quantity < 0) {
       return;
     }
     // Round to 1 decimal place for kg units
@@ -108,6 +108,18 @@ const Catalog = () => {
     setCart(prev => prev.map(item =>
       item.product.id === productId ? { ...item, quantity: roundedQty } : item
     ));
+  };
+
+  // Enforce minimum quantity on blur
+  const enforceMinQuantity = (productId: string, unit: string) => {
+    const isKg = unit.toLowerCase() === 'კგ';
+    const minQty = isKg ? 0.1 : 1;
+    setCart(prev => prev.map(item => {
+      if (item.product.id === productId && item.quantity < minQty) {
+        return { ...item, quantity: minQty };
+      }
+      return item;
+    }));
   };
 
   // Check if unit is weight-based (kg)
@@ -351,6 +363,7 @@ const Catalog = () => {
                         value={item.quantity}
                         onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
                         onFocus={(e) => e.target.select()}
+                        onBlur={() => enforceMinQuantity(item.product.id, item.product.unit)}
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                       />
                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
@@ -464,6 +477,7 @@ const Catalog = () => {
                         value={item.quantity}
                         onChange={(e) => setCartQuantity(item.product.id, parseFloat(e.target.value) || 0)}
                         onFocus={(e) => e.target.select()}
+                        onBlur={() => enforceMinQuantity(item.product.id, item.product.unit)}
                         className="w-16 h-8 text-center text-sm font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                       />
                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500">{item.product.unit}</span>
